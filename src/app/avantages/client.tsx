@@ -12,28 +12,28 @@ import { Card, CardContent } from '@/components/ui/card';
 const advantages = [
     {
         icon: Layers,
-        title: "Un écosystème qui s’efface devant vos idées",
-        description: "Windows, macOS, Linux — tout se parle, tout s’harmonise. Vous restez concentré·e sur votre inspiration.",
+        title: "Un écosystème unifié",
+        description: "Trois environnements, une seule interface fluide, pensée pour disparaître derrière vos idées.",
     },
     {
         icon: Cpu,
-        title: "Une alchimie matérielle et logicielle",
-        description: "De la courbe d’un châssis usiné à la microseconde d’animation dans l’UI, chaque élément dialogue en silence.",
+        title: "Matériel et logiciel en osmose",
+        description: "Chaque composant est calibré pour une exécution parfaite et une ergonomie naturelle.",
     },
      {
         icon: Cloud,
-        title: "Le nuage invisible",
-        description: "La donnée voyage à la vitesse de votre pensée. Pas de transfert, pas d’attente, juste la continuité.",
+        title: "Le Cloud invisible",
+        description: "Vos données circulent instantanément entre vos appareils, sans effort, sans friction.",
     },
     {
         icon: Sparkles,
-        title: "IA augmentée, pas assistée",
-        description: "Nos outils devinent, adaptent, complètent — sans jamais prendre votre place dans la création.",
+        title: "IA qui amplifie",
+        description: "L’intelligence qui vous devance, suggère, ajuste — tout en restant dans l’ombre.",
     },
     {
         icon: Users,
-        title: "Une communauté qui pulse",
-        description: "Des créateurs partout sur la planète, reliés par un réseau vivant d’idées, d’outils et de collaborations.",
+        title: "Communauté qui inspire",
+        description: "Une scène créative mondiale, vibrante, vivante, reliée par le même langage : l’excellence.",
     },
 ];
 
@@ -95,10 +95,10 @@ export default function AvantegesClient() {
                         <Zap className="h-10 w-10 text-primary" />
                     </div>
                     <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                        (X)yzz.ai — Quand l’excellence devient expérience
+                        (X)yzz.ai — La technologie réinventée en émotion
                     </h1>
                     <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
-                        Immergez-vous dans un univers où <strong>matériaux premium</strong>, <strong>interfaces fluides</strong> et <strong>intelligence prédictive</strong> fusionnent en une expérience qui transcende la technologie. Chez (X)yzz.ai, tout est pensé pour que la puissance se sente… mais ne se voie pas.
+                        Oubliez les limites. Ici, chaque interaction est aussi naturelle qu’un geste, chaque pixel est poli comme une pièce d’orfèvrerie, chaque milliseconde d’animation épouse votre rythme. (X)yzz.ai ne se contente pas de “faire” : il **ressent** votre façon de créer.
                     </p>
                 </motion.div>
             </section>
@@ -179,14 +179,14 @@ export default function AvantegesClient() {
             <section className="container mx-auto px-4 md:px-6 text-center">
                  <AnimatedSection>
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                        Vivez l’expérience (X)yzz.ai
+                        Entrez dans l’univers (X)yzz.ai
                     </h2>
                      <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-lg">
-                        Arrêtez de jongler entre les outils. Unifiez votre créativité et découvrez ce qu'il est possible de faire quand tout devient possible.
+                        Arrêtez de jongler entre les outils. Unifiez votre créativité et sentez la différence.
                     </p>
                      <Button asChild size="lg" className="mt-8 rounded-full">
                         <Link href="/features">
-                            Explorer l'écosystème
+                            Vivre l’expérience
                             <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                     </Button>
