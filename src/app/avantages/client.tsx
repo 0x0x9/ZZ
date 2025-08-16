@@ -12,21 +12,18 @@ import PerformanceChart from '@/components/ui/performance-chart';
 const advantages = [
     {
         icon: Layers,
-        title: "Unification Multi-OS Révolutionnaire",
-        description: "Exécutez Windows, macOS et Linux simultanément, sans redémarrage. Passez d'un logiciel à l'autre en toute transparence et combinez leurs forces uniques dans un seul workflow fluide.",
-        videoId: "wLiwRGYaVnw"
-    },
-    {
-        icon: Wand2,
-        title: "De l'Idée au Projet en Quelques Secondes",
-        description: "(X)flux, notre IA d'orchestration, transforme une simple pensée en un plan d'action complet avec tous les livrables nécessaires. Un gain de productivité et de créativité inégalé.",
-        videoId: "crtsXQdtqbw"
+        title: "Écosystème Unifié",
+        description: "Exécutez Windows, macOS et Linux simultanément, sans redémarrage. Combinez leurs forces uniques dans un seul workflow fluide.",
     },
     {
         icon: Cpu,
-        title: "Synergie Matériel-Logiciel Totale",
-        description: "Notre matériel, comme la (X)-φ (fi), est conçu en parfaite symbiose avec (X)OS et sa capacité multi-GPU (NVIDIA + AMD) pour des performances brutes et une stabilité à toute épreuve.",
-        videoId: "YUEb23FQVhA"
+        title: "Synergie Matériel-Logiciel",
+        description: "Notre matériel, comme la Station X-1, est conçu en parfaite symbiose avec (X)OS pour des performances brutes et une stabilité à toute épreuve.",
+    },
+    {
+        icon: Wand2,
+        title: "Orchestration par l'IA",
+        description: "(X)flux, notre IA d'orchestration, transforme une simple pensée en un plan d'action complet avec tous les livrables nécessaires.",
     },
 ];
 
@@ -42,24 +39,19 @@ const comparisonData = [
         competitors: "Ensemble d'outils IA séparés et non connectés."
     },
     {
-        feature: "Flexibilité GPU",
-        xyzz: "Technologie multi-GPU hybride (NVIDIA + AMD).",
-        competitors: "Écosystème fermé (puces M-series uniquement)."
+        feature: "Flexibilité Matérielle",
+        xyzz: "Support natif des GPU NVIDIA et AMD.",
+        competitors: "Écosystème matériel fermé (ex: puces Apple Silicon)."
     },
     {
         feature: "Workflow de Projet",
         xyzz: "Génération de projet complet à partir d'une seule idée.",
         competitors: "Assemblage manuel de multiples services et logiciels."
     },
-    {
-        feature: "Optimisation",
-        xyzz: "Synergie matérielle et logicielle pour des performances maximales.",
-        competitors: "Logiciels génériques sur du matériel non optimisé."
-    }
 ];
 
 const performanceData = [
-    { name: '(X)-φ (fi) (Multi-GPU)', 'Rendu 3D (Cycles)': 142, 'Compilation de code (LLVM)': 135, 'Simulation IA (PyTorch)': 155 },
+    { name: '(X)-φ (fi)', 'Rendu 3D (Cycles)': 142, 'Compilation de code (LLVM)': 135, 'Simulation IA (PyTorch)': 155 },
     { name: 'Mac Pro (M4 Ultra)', 'Rendu 3D (Cycles)': 100, 'Compilation de code (LLVM)': 110, 'Simulation IA (PyTorch)': 95 },
     { name: 'PC Haut de Gamme (RTX 4090)', 'Rendu 3D (Cycles)': 115, 'Compilation de code (LLVM)': 100, 'Simulation IA (PyTorch)': 110 },
 ];
@@ -74,24 +66,32 @@ export default function AvantegesClient() {
                 transition={{ duration: 0.5 }}
                 className="container mx-auto px-4 md:px-6 text-center"
             >
-                <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-4">
+                <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-4 animate-pulse">
                     <Zap className="h-10 w-10 text-primary" />
                 </div>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                    La Différence (X)yzz.
+                    Plus qu’un outil.
+                    <br />
+                    Une nouvelle dimension créative.
                 </h1>
                 <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
-                    Nous ne créons pas seulement des outils. Nous bâtissons un écosystème unifié qui redéfinit ce qu'il est possible de créer. Voici pourquoi (X)yzz.ai est le choix des créatifs qui visent l'exception.
+                    Nous ne créons pas seulement des outils. Nous bâtissons un écosystème unifié qui redéfinit ce qu'il est possible de créer. Plongez au cœur de la différence (X)yzz.
                 </p>
             </motion.section>
 
             <section className="container mx-auto px-4 md:px-6">
+                 <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                        Les Piliers de l'Innovation
+                    </h2>
+                </div>
                 <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
                     {advantages.map((advantage, index) => (
                         <motion.div
                             key={advantage.title}
                             initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.5 }}
                             transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
                         >
                             <Card className="glass-card h-full flex flex-col text-center items-center p-8">
@@ -112,7 +112,7 @@ export default function AvantegesClient() {
                         Des performances qui défient la réalité.
                     </h2>
                      <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-lg">
-                       Grâce à notre synergie matériel-logiciel, la (X)-φ (fi) surpasse les configurations les plus puissantes du marché, y compris les dernières puces Apple.
+                       Grâce à notre synergie matériel-logiciel, la (X)-φ (fi) surpasse les configurations les plus puissantes du marché.
                     </p>
                 </div>
                 <PerformanceChart data={performanceData} />
@@ -167,7 +167,7 @@ export default function AvantegesClient() {
                     transition={{ duration: 0.5 }}
                 >
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                        Prêt à faire le saut ?
+                        Prêt à entrer dans l'univers (X)yzz.ai ?
                     </h2>
                      <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-lg">
                         Arrêtez de jongler entre les outils. Unifiez votre créativité.
