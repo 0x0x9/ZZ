@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Layers, Zap, Cpu, Wand2, Check, X, ArrowRight } from 'lucide-react';
+import { Layers, Zap, Cpu, Wand2, Check, X, ArrowRight, Cloud, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -12,18 +12,28 @@ import PerformanceChart from '@/components/ui/performance-chart';
 const advantages = [
     {
         icon: Layers,
-        title: "Écosystème Unifié",
-        description: "Exécutez Windows, macOS et Linux simultanément, sans redémarrage. Combinez leurs forces uniques dans un seul workflow fluide.",
+        title: "Un écosystème unifié",
+        description: "Trois environnements, une seule interface fluide, pensée pour disparaître derrière vos idées.",
     },
     {
         icon: Cpu,
-        title: "Synergie Matériel-Logiciel",
-        description: "Notre matériel, comme la Station X-1, est conçu en parfaite symbiose avec (X)OS pour des performances brutes et une stabilité à toute épreuve.",
+        title: "Matériel et logiciel en osmose",
+        description: "Chaque composant est calibré pour une exécution parfaite et une ergonomie naturelle.",
+    },
+     {
+        icon: Cloud,
+        title: "Le Cloud invisible",
+        description: "Vos données circulent instantanément entre vos appareils, sans effort, sans friction.",
     },
     {
-        icon: Wand2,
-        title: "Orchestration par l'IA",
-        description: "(X)flux, notre IA d'orchestration, transforme une simple pensée en un plan d'action complet avec tous les livrables nécessaires.",
+        icon: Sparkles,
+        title: "Super-pouvoirs IA",
+        description: "Des outils intelligents qui anticipent vos besoins et accélèrent vos projets.",
+    },
+    {
+        icon: Users,
+        title: "Une communauté créative vivante",
+        description: "Partagez, inspirez-vous, collaborez — dans un espace où l’innovation est collective.",
     },
 ];
 
@@ -70,12 +80,10 @@ export default function AvantegesClient() {
                     <Zap className="h-10 w-10 text-primary" />
                 </div>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                    Plus qu’un outil.
-                    <br />
-                    Une nouvelle dimension créative.
+                    (X)yzz.ai — Là où la technologie devient expérience.
                 </h1>
                 <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
-                    Nous ne créons pas seulement des outils. Nous bâtissons un écosystème unifié qui redéfinit ce qu'il est possible de créer. Plongez au cœur de la différence (X)yzz.
+                    Plongez au cœur d’un écosystème conçu pour réinventer votre façon de créer, travailler et collaborer. Chez (X)yzz.ai, chaque détail — du pixel à la puce — est pensé pour offrir une symbiose parfaite entre puissance, beauté et simplicité.
                 </p>
             </motion.section>
 
@@ -85,7 +93,7 @@ export default function AvantegesClient() {
                         Les Piliers de l'Innovation
                     </h2>
                 </div>
-                <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid md:grid-cols-1 lg:grid-cols-5 gap-8">
                     {advantages.map((advantage, index) => (
                         <motion.div
                             key={advantage.title}
@@ -167,14 +175,14 @@ export default function AvantegesClient() {
                     transition={{ duration: 0.5 }}
                 >
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                        Prêt à entrer dans l'univers (X)yzz.ai ?
+                        Entrez dans l’univers (X)yzz.ai
                     </h2>
                      <p className="mt-4 max-w-2xl mx-auto text-muted-foreground md:text-lg">
-                        Arrêtez de jongler entre les outils. Unifiez votre créativité.
+                        Arrêtez de jongler entre les outils. Unifiez votre créativité et vivez l'expérience.
                     </p>
                      <Button asChild size="lg" className="mt-8 rounded-full">
                         <Link href="/features">
-                            Explorez l'écosystème en détail
+                            Explorer l'écosystème en détail
                             <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                     </Button>
