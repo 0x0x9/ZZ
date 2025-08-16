@@ -2,7 +2,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Users, Target, Zap, Heart, Calendar, Send, Lightbulb } from 'lucide-react';
+import { Users, Target, Zap, Heart, Calendar, Send, Lightbulb, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -57,6 +57,28 @@ export default function AboutClient() {
               <p className="text-muted-foreground text-lg">
                 Notre mission est d'éradiquer les silos entre les logiciels, le matériel et la collaboration. Nous forgeons un écosystème intelligent et sans couture, permettant à chaque créateur, quel que soit son domaine, de transformer sans effort l'idée en réalité, optimisé par une intelligence artificielle qui comprend et anticipe ses besoins.
               </p>
+            </div>
+          </div>
+      </motion.section>
+      
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+             <div className="space-y-4 md:order-2">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium border border-primary/20">
+                <Eye className="h-4 w-4" />
+                Notre Vision
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold">L'Ère de la Création Augmentée.</h2>
+              <p className="text-muted-foreground text-lg">
+                Nous croyons en un futur où la technologie n'est plus une barrière, mais un partenaire silencieux et puissant. Un futur où les créatifs ne perdent plus de temps à jongler entre des outils incompatibles, mais se concentrent uniquement sur l'essence de leur art. Notre vision est de bâtir cet avenir en créant un écosystème où l'IA ne se contente pas d'assister, mais d'augmenter le potentiel humain, rendant possible ce qui était autrefois inimaginable.
+              </p>
+            </div>
+            <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4 md:order-1">
+              <Image src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80" alt="Notre vision" fill className="object-contain" data-ai-hint="futuristic tech team, positive outlook" />
             </div>
           </div>
       </motion.section>
