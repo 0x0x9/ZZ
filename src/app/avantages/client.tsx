@@ -12,18 +12,18 @@ import { Card, CardContent } from '@/components/ui/card';
 const advantages = [
     {
         icon: Layers,
-        title: "Un écosystème unifié",
-        description: "Trois environnements, une seule interface fluide, pensée pour disparaître derrière vos idées.",
+        title: "Écosystème fluide et unifié",
+        description: "Vos idées voyagent entre vos outils comme un rayon de lumière traverse le verre. PC, Mac, Linux — un seul univers.",
     },
     {
         icon: Cpu,
-        title: "Matériel et logiciel en osmose",
-        description: "Chaque composant est calibré pour une exécution parfaite et une ergonomie naturelle.",
+        title: "Osmose matériel + logiciel",
+        description: "Le matériel devient extension de votre geste, le logiciel prolonge votre intuition. Aucune couture, aucune friction.",
     },
      {
         icon: Cloud,
         title: "Le Cloud invisible",
-        description: "Vos données circulent instantanément entre vos appareils, sans effort, sans friction.",
+        description: "Les fichiers ne se “transfèrent” pas. Ils sont déjà là, où vous en avez besoin.",
     },
     {
         icon: Sparkles,
