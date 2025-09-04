@@ -223,21 +223,18 @@ export default function ProductClient({ product, relatedProducts }: { product: P
     const [totalPrice, setTotalPrice] = useState(product.price);
     
     const targetRef = useRef<HTMLDivElement>(null);
-    const [isRefReady, setIsRefReady] = useState(false);
-
-    useEffect(() => {
-        if (targetRef.current) {
-            setIsRefReady(true);
-        }
-    }, []);
 
     const { scrollYProgress } = useScroll({
-        target: isRefReady ? targetRef : undefined,
+        target: targetRef,
         offset: ["start start", "end start"],
     });
 
-    const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1.8]);
+    // Animate scale from 0.9 (constrained view) to 1 (full width) then to 1.5 (zoom)
+    const imageScale = useTransform(scrollYProgress, [0, 0.2, 0.7, 1], [0.9, 1, 1.5, 1.8]);
     const imageOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
+    // Animate border radius from rounded to sharp
+    const borderRadius = useTransform(scrollYProgress, [0, 0.2], [16, 0]);
+    
     const contentOpacity = useTransform(scrollYProgress, [0, 0.2, 0.7, 1], [1, 1, 1, 0]);
     const contentY = useTransform(scrollYProgress, [0, 0.7, 1], ['0%', '0%', '-100%']);
 
@@ -274,7 +271,10 @@ export default function ProductClient({ product, relatedProducts }: { product: P
         <div className="glass-card overflow-hidden">
             <div ref={targetRef} className="h-[200vh]">
                 <div className="sticky top-0 h-screen flex flex-col items-center justify-center text-center overflow-hidden">
-                    <motion.div style={{ scale: imageScale, opacity: imageOpacity }} className="absolute inset-0">
+                    <motion.div 
+                        style={{ scale: imageScale, opacity: imageOpacity, borderRadius }} 
+                        className="absolute inset-0 overflow-hidden"
+                    >
                         <Image src={product.images[0]} alt={product.name} fill className="object-contain" data-ai-hint={product.hint} priority />
                         <div className="absolute inset-0 bg-background/30"></div>
                     </motion.div>
