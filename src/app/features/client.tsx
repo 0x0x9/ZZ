@@ -102,21 +102,21 @@ export default function FeaturesClient() {
         title: "Pour les Créatifs",
         description: "Une suite d'outils IA intégrés qui comprennent votre vision et vous aident à la réaliser plus rapidement que jamais.",
         icon: Sparkles,
-        image: "https://images.unsplash.com/photo-1611791485440-24e82b781373?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/artist_creative/800/800",
         imageHint: "artist painting digital"
     },
     {
         title: "Pour les Technophiles",
         description: "Une architecture matérielle et logicielle ouverte, conçue pour la performance et la personnalisation, sans aucune limite.",
         icon: Cpu,
-        image: "https://images.unsplash.com/photo-1550745165-9bc0b252726a?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/tech_setup/800/800",
         imageHint: "retro computer setup"
     },
     {
         title: "Pour les Équipes",
         description: "Des outils collaboratifs natifs et une gestion de projet unifiée pour travailler en parfaite synchronisation, où que vous soyez.",
         icon: Users,
-        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/team_office/800/800",
         imageHint: "team collaborating office"
     },
 ]
