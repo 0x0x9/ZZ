@@ -28,7 +28,7 @@ const ContactPage = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
         <section className="container mx-auto px-4 md:px-6 py-28 md:py-36">
@@ -119,7 +119,7 @@ const ContactPage = () => {
         </section>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
 export default ContactPage;

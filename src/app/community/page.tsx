@@ -29,7 +29,7 @@ const features = [
 
 const CommunityPage = () => {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
         <section className="container mx-auto px-4 md:px-6 py-28 md:py-36 text-center">
@@ -43,7 +43,7 @@ const CommunityPage = () => {
           </div>
         </section>
 
-        <section className="container mx-auto px-4 md:px-6">
+        <section className="container mx-auto px-4 md:px-6 pb-28 md:pb-36">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {features.map(feature => (
                     <Card key={feature.title} className="glass-card text-center flex flex-col">
@@ -69,7 +69,7 @@ const CommunityPage = () => {
         </section>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
 
