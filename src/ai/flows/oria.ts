@@ -282,13 +282,26 @@ const oriaRouterFlow = ai.defineFlow(
       content: [{ text: h.content }],
     }));
 
-    const { output } = await oriaRouterPrompt(
+    const response = await ai.generate(
       {
-        prompt: input.prompt,
-        context: input.context || 'non spécifié',
+        model: oriaRouterPrompt.model,
+        prompt: {
+            prompt: oriaRouterPrompt.prompt,
+            context: {
+                prompt: input.prompt,
+                context: input.context || 'non spécifié',
+            }
+        },
+        history,
+        tools: oriaRouterPrompt.tools,
+        output: {
+            schema: oriaRouterPrompt.output.schema,
+        },
+        config: oriaRouterPrompt.config,
       },
-      { history }
     );
+
+    const output = response.output;
 
     if (!output) {
       throw new Error("Oria n'a pas pu traiter la demande. Veuillez réessayer.");

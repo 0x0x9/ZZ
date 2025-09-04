@@ -44,7 +44,7 @@ const convertImageFlow = ai.defineFlow(
     // which can surprisingly handle basic image transformations.
     // Note: This is not a recommended production approach for performance and cost reasons.
     
-    const { output } = await ai.generate({
+    const llmResponse = await ai.generate({
         prompt: `Convert the following image to ${input.outputFormat}. ${input.removeTransparency ? 'Remove transparency and use a white background.' : ''}`,
         model: 'googleai/gemini-1.5-pro-latest',
         input: {
@@ -57,11 +57,11 @@ const convertImageFlow = ai.defineFlow(
         }
     });
     
-    if (!output()?.media) {
+    if (!llmResponse.output?.media) {
       throw new Error("L'IA n'a pas pu convertir l'image.");
     }
 
-    const convertedImage = output()!.media[0];
+    const convertedImage = llmResponse.output.media[0];
 
     return {
         convertedImageUri: convertedImage.url,

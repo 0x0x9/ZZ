@@ -9,7 +9,7 @@ import type {
   GenerateFrameOutput, GenerateSoundOutput, GenerateNexusOutput, ConvertImageOutput,
   GenerateLightMoodOutput, GenerateMoodboardOutput, CopilotLyricsOutput, GenerateMuseOutput,
   OriaChatOutput, AgendaEvent, ReformatTextWithPromptOutput,
-  GenerateTextInput, GenerateTextOutput
+  GenerateTextInput, GenerateTextOutput, GenerateImageOutput
 } from '@/ai/types';
 
 import {
@@ -20,7 +20,7 @@ import {
   GenerateDeckInputSchema, GenerateFrameInputSchema, GenerateSoundInputSchema,
   GenerateNexusInputSchema, ConvertImageInputSchema, GenerateLightMoodInputSchema,
   CopilotLyricsInputSchema, GenerateMuseInputSchema, OriaChatInputSchema,
-  ParseEventInputSchema, ReformatTextWithPromptInputSchema, GenerateTextInputSchema
+  ParseEventInputSchema, ReformatTextWithPromptInputSchema, GenerateTextInputSchema, GenerateImageInputSchema
 } from '@/ai/types';
 
 import { generateCode } from '@/ai/flows/generate-code';
@@ -72,8 +72,11 @@ function createAction<TInput, TOutput>(
   return async (
     prevState: any,
     formData: FormData
-  ): Promise<{ id: number; result: TOutput | null; error: string | null; }> => {
+  ): Promise<{ id: number; result: TOutput | null; error: string | null; message?: string, prompt?: string, [key: string]: any }> => {
     const rawData = Object.fromEntries(formData);
+    
+    // This will hold the data that was actually passed to the schema
+    let parsedDataForState: Record<string, any> = {};
 
     // Specific handling for checkbox
     if (actionName === 'convertImage' && !(rawData as any).removeTransparency) {
@@ -84,13 +87,16 @@ function createAction<TInput, TOutput>(
     if (!parseResult.success) {
         console.error("Zod validation failed for:", actionName, parseResult.error.issues);
         const error = parseResult.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-        return { id: prevState.id + 1, result: null, error };
+        return { id: prevState.id + 1, result: null, error, message: "error" };
     }
+    
+    parsedDataForState = parseResult.data;
+
     try {
       const result = await flow(parseResult.data);
-      return { id: prevState.id + 1, result, error: null };
+      return { id: prevState.id + 1, result, error: null, message: 'success', ...parsedDataForState };
     } catch (e: any) {
-      return createErrorResponse(e, prevState.id, actionName);
+      return { ...createErrorResponse(e, prevState.id, actionName), message: 'error', ...parsedDataForState };
     }
   };
 }
@@ -125,6 +131,8 @@ export const uploadDocumentAction = createAction(uploadDocument.inputSchema, upl
 export const uploadMuseDocumentAction = uploadDocumentAction;
 export const oriaChatAction = createAction(OriaChatInputSchema, oria, 'oriaChat');
 export const generateTextAction = createAction(GenerateTextInputSchema, (input: GenerateTextInput) => generateContent({ contentType: 'text', prompt: input.prompt }).then((res): GenerateTextOutput => ({ text: res.data as string })), 'generateText');
+export const generateImageAction = createAction(GenerateImageInputSchema, (input) => generateContent({contentType: 'image', ...input}).then(res => ({imageDataUri: res.data as string})), 'generateImage');
+
 
 export const reformatTextAction = createAction(ReformatTextWithPromptInputSchema, (input) => generateContent({
     contentType: 'reformat',
@@ -217,7 +225,3 @@ export async function getActionResult(resultId: string): Promise<{ result: any; 
     }
     return null;
 }
-
-    
-
-    
