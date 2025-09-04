@@ -176,15 +176,20 @@ export const products: Product[] = [
   },
   {
     id: 5,
-    name: "Moniteur 4K X-Vision",
-    description: "Des couleurs d'une fidélité absolue sur un écran de 32 pouces calibré pour les professionnels.",
-    price: 1299.00,
+    name: "Moniteur 4K Tactile X-Vision",
+    description: "Un écran tactile Mini LED de 27 pouces qui redéfinit l'interaction créative avec une fidélité des couleurs et une luminosité exceptionnelles.",
+    price: 1499.00,
     images: ["https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?auto=format&fit=crop&w=800&q=80"],
-    hint: "computer monitor",
+    hint: "computer monitor touch screen",
     category: 'Matériel',
     isFeatured: false,
     configurable: false,
-    features: ["Dalle IPS 32 pouces avec résolution 4K", "Couverture 99% DCI-P3", "Luminosité de 600 nits", "Calibrage d'usine Delta E < 2"],
+    features: [
+      "Dalle Mini LED tactile de 27 pouces avec résolution 4K",
+      "Technologie tactile multi-points ultra-réactive",
+      "Luminosité de pointe HDR et noirs profonds",
+      "Calibrage d'usine Delta E < 1 pour une précision des couleurs parfaite"
+    ],
   },
   {
     id: 6,
