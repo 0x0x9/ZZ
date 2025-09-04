@@ -263,15 +263,15 @@ export default function ProductClient({ product, relatedProducts }: { product: P
     }
     
     if (product.id === 5) { // Specific layout for (X)-Vision Pro Monitor
-        return <MonitorProductPage product={product} relatedProducts={relatedProducts} />;
+        return <div className="glass-card"><MonitorProductPage product={product} relatedProducts={relatedProducts} /></div>;
     }
 
     if (product.category === 'Logiciel') {
-        return <SoftwareProductPage product={product} relatedProducts={relatedProducts} />;
+        return <div className="glass-card"><SoftwareProductPage product={product} relatedProducts={relatedProducts} /></div>;
     }
 
     return (
-        <div className="pt-16">
+        <div className="glass-card overflow-hidden">
             <div ref={targetRef} className="h-[200vh]">
                 <div className="sticky top-0 h-screen flex flex-col items-center justify-center text-center overflow-hidden">
                     <motion.div style={{ scale: imageScale, opacity: imageOpacity }} className="absolute inset-0">
