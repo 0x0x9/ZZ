@@ -238,7 +238,7 @@ export default function CodeGenerator({ initialResult, prompt, language }: { ini
         language: language || langFromUrl || 'typescript'
     };
     
-    const [state, dispatch] = useFormState(generateCodeAction, initialState);
+    const [state, formAction] = useFormState(generateCodeAction, initialState);
     const { toast } = useToast();
     const { addNotification } = useNotifications();
 
@@ -267,7 +267,7 @@ export default function CodeGenerator({ initialResult, prompt, language }: { ini
     }, [state, toast, addNotification, router]);
 
     return (
-        <form action={dispatch} key={state.id}>
+        <form action={formAction} key={state.id}>
             <CodeGeneratorFormBody state={state} />
         </form>
     );

@@ -15,6 +15,7 @@ import { Sparkles, Mic, Volume2, Save, AudioLines } from 'lucide-react';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { useNotifications } from '@/hooks/use-notifications';
+import type { GenerateVoiceOutput } from '@/ai/types';
 
 const voices = [
   { id: 'Algenib', name: 'Algenib', description: 'Voix masculine, calme et posée' },
@@ -40,7 +41,7 @@ function SubmitButton() {
   );
 }
 
-function VoiceGeneratorFormBody({ state }: { state: { message: string, result: { audioDataUri: string | null }, error: string | null, id: number, text: string, voice: string } }) {
+function VoiceGeneratorFormBody({ state }: { state: { message: string; result: GenerateVoiceOutput | null, error: string | null, id: number, text: string, voice: string } }) {
   const { pending } = useFormStatus();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
@@ -165,7 +166,7 @@ export default function VoiceGenerator({ initialText, initialAudioDataUri, promp
       voice: 'Algenib'
   };
   
-  const [state, dispatch] = useFormState(generateVoiceAction, initialState);
+  const [state, formAction] = useFormState(generateVoiceAction, initialState);
   const { toast } = useToast();
   const { addNotification } = useNotifications();
 
@@ -187,10 +188,8 @@ export default function VoiceGenerator({ initialText, initialAudioDataUri, promp
   }, [state, toast, addNotification, router]);
 
   return (
-      <form action={dispatch} key={state.id}>
+      <form action={formAction} key={state.id}>
         <VoiceGeneratorFormBody state={state} />
       </form>
   );
 }
-
-    

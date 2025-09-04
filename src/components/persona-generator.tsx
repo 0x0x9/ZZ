@@ -263,9 +263,7 @@ export default function PersonaGenerator({ initialResult, prompt }: { initialRes
                 {pending && (
                     <div className="mt-6">
                         <Card className="glass-card min-h-[400px] relative overflow-hidden">
-                            <div className="absolute inset-0 z-0">
-                                <AiLoadingAnimation isLoading={true} />
-                            </div>
+                            <div className="absolute inset-0 z-0"><AiLoadingAnimation isLoading={true} /></div>
                             <div className="relative z-10 h-full flex items-center justify-center">
                                 <LoadingState text="(X)persona imagine votre audience..." />
                             </div>
