@@ -6,9 +6,9 @@
   :root {
     --background: 0 0% 98%; /* Almost white */
     --foreground: 240 10% 3.9%; /* Near black */
-    --card: 0 0% 98%;
+    --card: 0 0% 98% / 0.95;
     --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 98%;
+    --popover: 0 0% 98% / 0.95;
     --popover-foreground: 240 10% 3.9%;
     --primary: 217 91% 60%; /* Vibrant Blue */
     --primary-foreground: 0 0% 100%;
@@ -35,9 +35,9 @@
   .dark {
     --background: 220 14% 5%; /* Very dark grey */
     --foreground: 0 0% 98%; /* Almost white */
-    --card: 220 13% 9%;
+    --card: 220 13% 9% / 0.95;
     --card-foreground: 0 0% 98%;
-    --popover: 220 14% 5%;
+    --popover: 220 14% 5% / 0.95;
     --popover-foreground: 0 0% 98%;
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
