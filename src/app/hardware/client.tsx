@@ -61,8 +61,8 @@ export default function HardwareClient() {
         offset: ["start start", "end start"],
     });
 
-    const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1.5]);
-    const imageOpacity = useTransform(scrollYProgress, [0, 0.8, 1], [1, 1, 0]);
+    const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1.8]);
+    const imageOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
 
 
     return (
@@ -92,7 +92,7 @@ export default function HardwareClient() {
                             (X)-φ (fi)
                         </h1>
                         <p className="text-xl md:text-2xl lg:text-3xl text-white/80 max-w-4xl mx-auto [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">
-                            La puissance n'est que le début.
+                            La puissance n'est que le début. C'est l'ordinateur ultime, où matériel, logiciel et IA ne font qu'un.
                         </p>
                          <div className="pt-4 flex flex-wrap justify-center gap-4">
                             <Button size="lg" asChild className="rounded-full text-lg">
@@ -104,6 +104,26 @@ export default function HardwareClient() {
                     </motion.div>
                 </div>
             </div>
+
+            {/* Multi-OS Section */}
+            <Section className="text-center">
+                <AnimatedSection>
+                    <h2 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                        Un Studio. Tous les Mondes.
+                    </h2>
+                    <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+                        Arrêtez de choisir. La (X)-φ est la seule machine capable d'exécuter Windows, macOS et Linux simultanément, en natif. Lancez un jeu AAA sur Windows pendant qu'un rendu 3D tourne sur Linux et que vous montez une vidéo sur macOS. Sans compromis. Sans redémarrage.
+                    </p>
+                </AnimatedSection>
+                <AnimatedSection className="mt-16">
+                   <div className="relative aspect-video max-w-5xl mx-auto glass-card p-4">
+                       <Image src="https://images.unsplash.com/photo-1614332287897-cdc485fa562d?auto=format&fit=crop&w=1600&q=80" alt="Multi-OS demonstration" fill className="object-cover rounded-lg" data-ai-hint="futuristic desktop interface" />
+                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                           <p className="text-white text-2xl font-bold [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">Votre studio. Unifié.</p>
+                       </div>
+                   </div>
+                </AnimatedSection>
+            </Section>
 
             {/* Performance Section */}
             <Section className="text-center">
@@ -126,6 +146,9 @@ export default function HardwareClient() {
                     <h2 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
                         Le Cœur de la Puissance.
                     </h2>
+                     <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+                      Chaque composant est sélectionné et optimisé pour fonctionner en parfaite symbiose avec (X)OS, créant une machine plus grande que la somme de ses parties.
+                    </p>
                 </AnimatedSection>
                 <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {features.map((feature, i) => (
