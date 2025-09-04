@@ -1,6 +1,6 @@
 # Prompt Publicitaire : (X)yzz.ai "Symphonie Créative" (Style Apple)
 
-**Objectif :** Script pour une publicité vidéo de 60 secondes présentant Oria et l'écosystème (X)yzz.ai. Le ton est inspirant, minimaliste et humain. On ne vend pas un outil, mais une nouvelle manière de créer.
+**Objectif :** Script pour une publicité vidéo de 8 secondes présentant Oria et l'écosystème (X)yzz.ai. Le ton est inspirant, minimaliste et humain. On ne vend pas un outil, mais une nouvelle manière de créer.
 
 ---
 
@@ -22,21 +22,21 @@
 
 ### **3. Structure du Script**
 
-**[0-10s] L'ACCROCHE : LA FRICTION**
+**[0-2s] L'ACCROCHE : LA FRICTION**
 - **Visuel :** Succession rapide de micro-scènes frustrantes en noir et blanc. Un designer qui copie-colle des codes couleur. Un écrivain face à une page blanche.
 - **Voix Off :** "Une idée. Et puis... le bruit. Le chaos. Les outils qui ne se parlent pas."
 
-**[10-25s] L'INTRODUCTION : ORIA, LE SILENCE**
+**[2-4s] L'INTRODUCTION : ORIA, LE SILENCE**
 - **Visuel :** Fondu au noir. Une interface épurée. Une commande tapée : "Oria, lance le projet 'Aurore'."
 - **Sonore :** Une seule note de piano, pure.
 - **Voix Off :** "Et si... le silence se faisait. Pour que la seule voix que vous entendiez... soit la vôtre."
 
-**[25-50s] LA DÉMONSTRATION : LA SYMPHONIE**
+**[4-7s] LA DÉMONSTRATION : LA SYMPHONIE**
 - **Visuel :** Scènes en couleurs, fluides. Une palette de (X)palette devient une courbe 3D dans (X)frame, qui inspire un poème dans (X)muse. Le montage est une danse.
 - **Voix Off :** "Où chaque outil est une conversation. Où votre inspiration devient le seul langage. Chaque idée trouve son écho."
 - **Superposition de texte (subtil) :** (X)palette. (X)frame. (X)muse. (X)motion.
 
-**[50-60s] LA RÉVÉLATION : LE CREDO**
+**[7-8s] LA RÉVÉLATION : LE CREDO**
 - **Visuel :** Retour sur les visages des créatifs, souriants, en état de "flow". Logo (X)yzz sur fond noir.
 - **Sonore :** La musique atteint son apogée, puis s'arrête.
 - **Voix Off :** "Ce ne sont pas des outils. C'est un orchestre. Et le chef... c'est vous."
