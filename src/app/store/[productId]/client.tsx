@@ -260,15 +260,17 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                     </div>
                 </section>
 
-                 <section className="container mx-auto px-4 md:px-6 text-center">
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Des performances qui parlent d'elles-mêmes.</h2>
-                     <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                       La {product.name} surpasse les configurations les plus puissantes du marché sur les tâches créatives les plus exigeantes.
-                    </p>
-                    <div className="mt-12">
-                        <PerformanceChart data={performanceData} />
-                    </div>
-                </section>
+                {product.hasPerformanceChart && (
+                     <section className="container mx-auto px-4 md:px-6 text-center">
+                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Des performances qui parlent d'elles-mêmes.</h2>
+                         <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+                           La {product.name} surpasse les configurations les plus puissantes du marché sur les tâches créatives les plus exigeantes.
+                        </p>
+                        <div className="mt-12">
+                            <PerformanceChart data={performanceData} />
+                        </div>
+                    </section>
+                )}
 
                 {relatedProducts.length > 0 && (
                     <section className="container mx-auto px-4 md:px-6">

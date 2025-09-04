@@ -9,6 +9,7 @@ export type Product = {
   category: 'Matériel' | 'Logiciel' | 'Accessoire';
   isFeatured: boolean;
   configurable?: boolean;
+  hasPerformanceChart?: boolean;
   features?: string[];
   specs?: Record<string, string>;
   tagline?: string;
@@ -30,6 +31,7 @@ export const products: Product[] = [
     category: 'Matériel',
     isFeatured: true,
     configurable: true,
+    hasPerformanceChart: true,
     features: [
       "Puissance de calcul extrême pour la 3D, le dev et le montage 8K.",
       "Flexibilité totale avec la double compatibilité GPU (NVIDIA/AMD).",
@@ -63,6 +65,7 @@ export const products: Product[] = [
     category: 'Matériel',
     isFeatured: true,
     configurable: true,
+    hasPerformanceChart: true,
     features: [
       "Processeur haute fréquence pour les charges créatives lourdes.",
       "GPU puissant pour le rendu 3D et le montage 8K.",
@@ -93,6 +96,7 @@ export const products: Product[] = [
     category: 'Matériel',
     isFeatured: true,
     configurable: false,
+    hasPerformanceChart: true,
     features: ["Écran Liquid Retina XDR 14 pouces", "Puce (X)OS Fusion A1 avec Neural Engine", "Jusqu'à 18h d'autonomie", "Clavier Magique rétroéclairé", "Châssis unibody en aluminium recyclé"],
     specs: {
         "Processeur": "Puce (X)OS Fusion A1",
@@ -115,6 +119,7 @@ export const products: Product[] = [
     category: 'Matériel',
     isFeatured: false,
     configurable: true,
+    hasPerformanceChart: true,
     features: [
         "Processeur Intel Core i7 ou AMD Ryzen 7", 
         "(X)OS préinstallé avec compatibilité Windows/macOS", 
