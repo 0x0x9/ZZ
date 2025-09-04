@@ -263,11 +263,11 @@ export default function ProductClient({ product, relatedProducts }: { product: P
     }
     
     if (product.id === 5) { // Specific layout for (X)-Vision Pro Monitor
-        return <div className="glass-card"><MonitorProductPage product={product} relatedProducts={relatedProducts} /></div>;
+        return <div className="glass-card"><div className="container mx-auto px-4 md:px-6"><MonitorProductPage product={product} relatedProducts={relatedProducts} /></div></div>;
     }
 
     if (product.category === 'Logiciel') {
-        return <div className="glass-card"><SoftwareProductPage product={product} relatedProducts={relatedProducts} /></div>;
+        return <div className="glass-card"><div className="container mx-auto px-4 md:px-6"><SoftwareProductPage product={product} relatedProducts={relatedProducts} /></div></div>;
     }
 
     return (
@@ -295,8 +295,8 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                 </div>
             </div>
             
-            <div className="relative z-10 pt-24 md:pt-36 space-y-24 md:space-y-36 pb-24 md:pb-36">
-                 <section className="container mx-auto px-4 md:px-6">
+            <div className="relative z-10 pt-24 md:pt-36 space-y-24 md:space-y-36 pb-24 md:pb-36 container mx-auto px-4 md:px-6">
+                 <section>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-8">
                             <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Puissance et Élégance. Redéfinies.</h2>
@@ -317,7 +317,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                 </section>
                 
                 {product.configurable && (
-                    <section id="configurator" className="container mx-auto px-4 md:px-6">
+                    <section id="configurator">
                         <PCConfigurator 
                             product={product}
                             basePrice={product.price} 
@@ -326,7 +326,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                     </section>
                 )}
 
-                 <section className="container mx-auto px-4 md:px-6">
+                 <section>
                      <div className="glass-card p-8 md:p-12 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="text-center md:text-left">
                             <p className="text-muted-foreground">Total pour votre configuration</p>
@@ -340,7 +340,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                 </section>
 
                 {product.hasPerformanceChart && (
-                     <section className="container mx-auto px-4 md:px-6 text-center">
+                     <section className="text-center">
                         <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Des performances qui parlent d'elles-mêmes.</h2>
                          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
                            La {product.name} surpasse les configurations les plus puissantes du marché sur les tâches créatives les plus exigeantes.
@@ -352,7 +352,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                 )}
 
                 {relatedProducts.length > 0 && (
-                    <section className="container mx-auto px-4 md:px-6">
+                    <section>
                         <div className="text-center">
                             <h2 className="text-3xl md:text-4xl font-bold">Vous pourriez aussi aimer</h2>
                         </div>

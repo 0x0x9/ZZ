@@ -25,7 +25,7 @@ const ProductPage = async ({ params: { productId } }: { params: { productId: str
   ).slice(0, 4);
 
   return (
-    <div className="container mx-auto px-4 md:px-6 pt-28 pb-16 md:pt-36 md:pb-24">
+    <div className="pt-28 pb-16 md:pt-36 md:pb-24">
         <ProductClient product={product} relatedProducts={relatedProducts} />
     </div>
   );
