@@ -229,10 +229,8 @@ export default function ProductClient({ product, relatedProducts }: { product: P
         offset: ["start start", "end start"],
     });
 
-    // Animate scale from 0.9 (constrained view) to 1 (full width) then to 1.5 (zoom)
     const imageScale = useTransform(scrollYProgress, [0, 0.2, 0.7, 1], [0.9, 1, 1.5, 1.8]);
     const imageOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
-    // Animate border radius from rounded to sharp
     const borderRadius = useTransform(scrollYProgress, [0, 0.2], [16, 0]);
     
     const contentOpacity = useTransform(scrollYProgress, [0, 0.2, 0.7, 1], [1, 1, 1, 0]);
@@ -259,7 +257,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
         setTotalPrice(newPrice);
     }
     
-    if (product.id === 5) { // Specific layout for (X)-Vision Pro Monitor
+    if (product.id === 5) {
         return <div className="glass-card"><div className="container mx-auto px-4 md:px-6 max-w-6xl"><MonitorProductPage product={product} relatedProducts={relatedProducts} /></div></div>;
     }
 
@@ -268,7 +266,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
     }
 
     return (
-        <div className="glass-card overflow-hidden">
+        <div>
             <div ref={targetRef} className="h-[200vh]">
                 <div className="sticky top-0 h-screen flex flex-col items-center justify-center text-center overflow-hidden">
                     <motion.div 
@@ -278,6 +276,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                         <Image src={product.images[0]} alt={product.name} fill className="object-contain" data-ai-hint={product.hint} priority />
                         <div className="absolute inset-0 bg-background/30"></div>
                     </motion.div>
+                   
                     <motion.div 
                          style={{ opacity: contentOpacity, y: contentY }}
                          className="relative z-10 px-4 space-y-6 container mx-auto max-w-6xl"
@@ -285,7 +284,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                          <Link href="/store" className="inline-flex items-center gap-2 text-sm text-foreground/80 hover:text-foreground mb-4">
                             <ArrowLeft className="h-4 w-4" /> Retour à la boutique
                         </Link>
-                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight [text-shadow:0_4px_20px_rgba(0,0,0,0.3)]">
+                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight [text-shadow:0_4px_20px_rgba(0,0,0,0.5)]">
                             {product.name}
                         </h1>
                         <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-4xl mx-auto [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">
@@ -295,7 +294,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                 </div>
             </div>
             
-            <div className="relative z-10 pt-24 md:pt-36 space-y-24 md:space-y-36 pb-24 md:pb-36 container mx-auto px-4 md:px-6 max-w-6xl">
+            <div className="relative z-10 pt-24 md:pt-36 space-y-24 md:space-y-36 container mx-auto px-4 md:px-6 max-w-6xl">
                  <section>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-8">
