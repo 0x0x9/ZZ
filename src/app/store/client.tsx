@@ -47,7 +47,7 @@ export default function StoreClient() {
             <Link href="/store/1">
                 <div className="relative aspect-video w-full rounded-2xl overflow-hidden glass-card group">
                      <Image 
-                        src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=1600&q=80"
+                        src="https://picsum.photos/seed/workstation/1600/900"
                         alt="(X)-φ (fi) Workstation"
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"

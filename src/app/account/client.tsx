@@ -44,9 +44,9 @@ const disconnectDeviceAction = async (data: { deviceId: number }) => {
 
 
 const mockProjects = [
-    { id: 1, title: 'Projet Nébuleuse (Court-métrage)', imageUrl: 'https://images.unsplash.com/photo-1534433369931-29f1b1382103?auto=format&fit=crop&w=300&q=80', hint: 'nebula space stars' },
-    { id: 2, title: 'Lancement Marque de Vêtements', imageUrl: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=300&q=80', hint: 'clothing brand fashion' },
-    { id: 3, title: 'Identité Visuelle - Nova', imageUrl: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=300&q=80', hint: 'abstract gradient design' },
+    { id: 1, title: 'Projet Nébuleuse (Court-métrage)', imageUrl: 'https://picsum.photos/seed/nebula/300/200', hint: 'nebula space stars' },
+    { id: 2, title: 'Lancement Marque de Vêtements', imageUrl: 'https://picsum.photos/seed/clothing/300/200', hint: 'clothing brand fashion' },
+    { id: 3, title: 'Identité Visuelle - Nova', imageUrl: 'https://picsum.photos/seed/nova/300/200', hint: 'abstract gradient design' },
 ];
 
 const initialDevices = [

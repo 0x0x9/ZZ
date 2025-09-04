@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 const teamMembers = [
-  { name: 'Démon François', role: 'Fondateur & CEO', avatar: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80', hint: 'man portrait, professional, apple style' },
-  { name: 'Alfred Sisley', role: 'Directeur de la Technologie (CTO)', avatar: 'https://plus.unsplash.com/premium_photo-1753080951630-2f2834bf8471?q=80&w=2266&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', hint: 'woman portrait, professional, apple style' },
-  { name: 'Ziari Kamal', role: 'Chef du Design (CDO)', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80', hint: 'arab geek' },
-  { name: 'Chloé Martin', role: 'Responsable Communauté', avatar: 'https://images.unsplash.com/photo-1519340333755-c6e2a6a1b49a?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80', hint: 'woman portrait, friendly, apple style' },
+  { name: 'Démon François', role: 'Fondateur & CEO', avatar: 'https://picsum.photos/seed/francois_ceo/256/256', hint: 'man portrait, professional, apple style' },
+  { name: 'Alfred Sisley', role: 'Directeur de la Technologie (CTO)', avatar: 'https://picsum.photos/seed/sisley_cto/256/256', hint: 'woman portrait, professional, apple style' },
+  { name: 'Ziari Kamal', role: 'Chef du Design (CDO)', avatar: 'https://picsum.photos/seed/kamal_cdo/256/256', hint: 'arab geek' },
+  { name: 'Chloé Martin', role: 'Responsable Communauté', avatar: 'https://picsum.photos/seed/chloe_com/256/256', hint: 'woman portrait, friendly, apple style' },
 ];
 
 const values = [
@@ -46,7 +46,7 @@ export default function AboutClient() {
       >
         <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-              <Image src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80" alt="Notre mission" fill className="object-contain" data-ai-hint="creative team collaboration, apple style, modern office" />
+              <Image src="https://picsum.photos/seed/mission/800/800" alt="Notre mission" fill className="object-contain" data-ai-hint="creative team collaboration, apple style, modern office" />
             </div>
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium border border-primary/20">
@@ -78,7 +78,7 @@ export default function AboutClient() {
               </p>
             </div>
             <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4 md:order-1">
-              <Image src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80" alt="Notre vision" fill className="object-contain" data-ai-hint="futuristic tech team, positive outlook" />
+              <Image src="https://picsum.photos/seed/vision_team/800/800" alt="Notre vision" fill className="object-contain" data-ai-hint="futuristic tech team, positive outlook" />
             </div>
           </div>
       </motion.section>

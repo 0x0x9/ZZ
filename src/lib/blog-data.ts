@@ -18,12 +18,12 @@ export const blogPosts: Post[] = [
     slug: "alpha-beta-et-vous-au-coeur-de-linnovation",
     title: "Alpha, Bêta & Vous : Au Cœur de l'Innovation (X)yzz",
     author: "Démon François",
-    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/francois/256/256",
     imageHint: "man portrait professional apple style",
     category: "Annonce",
     date: "2024-08-01",
     readingTime: 4,
-    image: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/innovation/1600/900",
     excerpt: "Vous utilisez nos outils et vous voyez les mentions 'Alpha' ou 'Bêta'. Qu'est-ce que cela signifie ? Plongez avec nous dans les coulisses de la création de (X)yzz.ai.",
     content: `
       <h2>Participer à la Révolution</h2>
@@ -47,12 +47,12 @@ export const blogPosts: Post[] = [
     slug: "de-lidee-au-projet-avec-x-flux",
     title: "De l'idée au projet complet : Comment (X)flux révolutionne votre workflow",
     author: "Alfred Sisley",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/sisley/256/256",
     imageHint: "woman portrait professional",
     category: "Étude de Cas",
     date: "2024-07-28",
     readingTime: 7,
-    image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/workflow/1600/900",
     excerpt: "Découvrez comment notre outil d'orchestration IA, (X)flux, peut transformer une simple phrase en un plan d'action détaillé, avec tous les livrables créatifs dont vous avez besoin.",
     content: `
       <p>Dans le monde de la création, l'un des plus grands défis est de passer de l'étincelle initiale d'une idée à un projet structuré et réalisable. C'est ici qu'intervient (X)flux, notre assistant IA conçu pour être votre chef de projet personnel.</p>
@@ -78,12 +78,12 @@ export const blogPosts: Post[] = [
     slug: "maitriser-lart-du-prompt-avec-x-promptor",
     title: "Maîtriser l'Art du Prompt avec (X)promptor",
     author: "Chloé Martin",
-    avatar: "https://images.unsplash.com/photo-1519340333755-c6e2a6a1b49a?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/chloe/256/256",
     imageHint: "woman portrait friendly",
     category: "Conseils",
     date: "2024-07-25",
     readingTime: 5,
-    image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/prompt/1600/900",
     excerpt: "L'efficacité de l'IA générative dépend de la qualité de vos prompts. Apprenez à transformer des idées vagues en instructions précises pour des résultats spectaculaires.",
     content: `
       <p>Vous avez une idée en tête, une ambiance, une émotion, mais vous ne savez pas comment la traduire en une image ou un texte ? (X)promptor est votre allié. Cet outil est conçu pour prendre votre inspiration brute et la transformer en pistes créatives concrètes.</p>
@@ -102,12 +102,12 @@ export const blogPosts: Post[] = [
     slug: "creer-sa-premiere-maquette-avec-x-frame",
     title: "Tutoriel : Créez votre première maquette web avec (X)frame",
     author: "Ziari Kamal",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/ziari/256/256",
     imageHint: "man working computer design",
     category: "Tutoriel",
     date: "2024-07-29",
     readingTime: 6,
-    image: "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/maquette/1600/900",
     excerpt: "Passez de l'idée à une interface fonctionnelle en quelques minutes. Ce guide vous montre comment utiliser (X)frame pour générer du code React à partir d'une simple description.",
     content: `
       <h2>Introduction : Qu'est-ce que (X)frame ?</h2>
@@ -136,12 +136,12 @@ export const blogPosts: Post[] = [
     slug: "creer-bande-son-muse-sound",
     title: "Tutoriel : Créez la bande-son de votre projet avec (X)muse et (X)sound",
     author: "Chloé Martin",
-    avatar: "https://images.unsplash.com/photo-1519340333755-c6e2a6a1b49a?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/chloe2/256/256",
     imageHint: "audio waveform music production",
     category: "Tutoriel",
     date: "2024-08-05",
     readingTime: 6,
-    image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/music/1600/900",
     excerpt: "Un guide pratique pour utiliser nos outils audio IA, de la recherche d'inspiration musicale à la création d'effets sonores sur mesure.",
     content: `
       <h2>Le défi sonore</h2>
@@ -172,12 +172,12 @@ export const blogPosts: Post[] = [
     slug: "etude-de-cas-x-flux",
     title: "Anatomie d'un projet (X)flux : De 'Lancer une marque de café' à la réalité",
     author: "Alfred Sisley",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/sisley2/256/256",
     imageHint: "coffee shop branding",
     category: "Étude de Cas",
     date: "2024-08-08",
     readingTime: 8,
-    image: "https://images.unsplash.com/photo-1511920183353-3c7c95b7a0b3?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/coffee/1600/900",
     excerpt: "Comment (X)flux transforme une simple phrase en un projet de marque complet ? Plongez dans les coulisses et découvrez tous les livrables générés par l'IA.",
     content: `
       <h2>L'Idée de Départ</h2>
@@ -214,12 +214,12 @@ export const blogPosts: Post[] = [
     slug: "notre-vision-pour-le-futur-de-la-creation",
     title: "Pourquoi 'unifié' ? Notre vision pour le futur de la création",
     author: "Démon François",
-    avatar: "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/francois2/256/256",
     imageHint: "abstract technology network",
     category: "Vision",
     date: "2024-08-10",
     readingTime: 5,
-    image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/vision/1600/900",
     excerpt: "Au cœur de (X)yzz.ai se trouve une idée simple mais puissante : un écosystème unifié. Découvrez pourquoi briser les silos entre les systèmes d'exploitation est la clé de la prochaine révolution créative.",
     content: `
       <h2>Le Mur Invisible des OS</h2>
@@ -245,12 +245,12 @@ export const blogPosts: Post[] = [
     slug: "workflow-pro-xframe-xalpha",
     title: "Workflow Pro : Prototyper une app avec (X)frame et (X).alpha",
     author: "Ziari Kamal",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/ziari2/256/256",
     imageHint: "developer coding on screen",
     category: "Tutoriel",
     date: "2024-08-12",
     readingTime: 8,
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/code/1600/900",
     excerpt: "Passez de l'idée au prototype fonctionnel en un temps record. Ce guide avancé vous montre comment combiner nos outils de design et de développement IA.",
     content: `
       <h2>Le défi : de la maquette au code</h2>
@@ -287,12 +287,12 @@ export const blogPosts: Post[] = [
     slug: "creations-de-la-communaute-aout-2024",
     title: "Les créations du mois : Le meilleur de la galerie (X)hibit",
     author: "Chloé Martin",
-    avatar: "https://images.unsplash.com/photo-1519340333755-c6e2a6a1b49a?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+    avatar: "https://picsum.photos/seed/chloe3/256/256",
     imageHint: "art gallery display",
     category: "Communauté",
     date: "2024-08-15",
     readingTime: 4,
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&q=80",
+    image: "https://picsum.photos/seed/gallery/1600/900",
     excerpt: "Chaque mois, nous mettons en lumière les œuvres les plus inspirantes créées par notre communauté. Découvrez les talents qui repoussent les limites de l'IA créative.",
     content: `
       <h2>L'imagination à l'œuvre</h2>

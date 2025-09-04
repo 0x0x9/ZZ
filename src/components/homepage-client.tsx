@@ -242,7 +242,7 @@ const ecosystemLinks = [
         description: "Échangez avec d'autres créatifs sur le forum et découvrez les dernières actualités sur le blog.", 
         href: "/community",
         icon: Users,
-        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/community/800/600",
         imageHint: "creative team meeting"
     },
     { 
@@ -250,7 +250,7 @@ const ecosystemLinks = [
         description: "Explorez les créations de la communauté propulsées par l'IA.", 
         href: "/gallery",
         icon: Paintbrush,
-        image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/gallery_page/800/600",
         imageHint: "art gallery"
     },
     { 
@@ -258,12 +258,12 @@ const ecosystemLinks = [
         description: "Nous recherchons des talents passionnés pour façonner le futur avec nous.", 
         href: "/careers",
         icon: Sparkles,
-        image: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/careers/800/600",
         imageHint: "person working on laptop"
     },
 ];
 
-const hardwareProducts = products.filter(p => p.category === 'Matériel' && ['Station de Création X-1', 'Laptop de Création X-Book', '(X)-alpha'].includes(p.name));
+const hardwareProducts = products.filter(p => p.category === 'Matériel' && ['(X)-φ (fi)', '(X)-alpha', '(X)-book'].includes(p.name));
 
 
 const HomePageClient = () => {

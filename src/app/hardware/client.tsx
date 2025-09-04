@@ -117,7 +117,7 @@ export default function HardwareClient() {
                 </AnimatedSection>
                 <AnimatedSection className="mt-16">
                    <div className="relative aspect-video max-w-5xl mx-auto glass-card p-4">
-                       <Image src="https://images.unsplash.com/photo-1614332287897-cdc485fa562d?auto=format&fit=crop&w=1600&q=80" alt="Multi-OS demonstration" fill className="object-cover rounded-lg" data-ai-hint="futuristic desktop interface" />
+                       <Image src="https://picsum.photos/seed/multi_os/1600/900" alt="Multi-OS demonstration" fill className="object-cover rounded-lg" data-ai-hint="futuristic desktop interface" />
                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                            <p className="text-white text-2xl font-bold [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">Votre studio. Unifié.</p>
                        </div>
@@ -175,7 +175,7 @@ export default function HardwareClient() {
                         }}
                     >
                          <Image
-                            src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=1600&q=80"
+                            src="https://picsum.photos/seed/cooling/1600/900"
                             alt="Système de refroidissement liquide de la (X)-φ (fi)"
                             fill
                             className="object-cover"
@@ -201,7 +201,7 @@ export default function HardwareClient() {
                         }}
                     >
                         <Image
-                            src="https://images.unsplash.com/photo-1587593665183-a773cb21f845?auto=format&fit=crop&w=1600&q=80"
+                            src="https://picsum.photos/seed/open_computer/1600/900"
                             alt="Châssis ouvert de la (X)-φ (fi) montrant l'accès aux composants"
                             fill
                             className="object-cover"

@@ -21,21 +21,21 @@ const whoIsItFor = [
         title: "Pour les Créatifs",
         description: "Une suite d'outils IA qui comprend votre vision et vous aide à la réaliser plus rapidement que jamais.",
         icon: Sparkles,
-        image: "https://images.unsplash.com/photo-1611791485440-24e82b781373?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/creative_person/800/800",
         imageHint: "artist painting digital"
     },
     {
         title: "Pour les Technophiles",
         description: "Une architecture ouverte, conçue pour la performance et la personnalisation, sans aucune limite.",
         icon: Cpu,
-        image: "https://images.unsplash.com/photo-1550745165-9bc0b252726a?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/tech_person/800/800",
         imageHint: "retro computer setup"
     },
     {
         title: "Pour les Équipes",
         description: "Des outils collaboratifs natifs pour travailler en parfaite synchronisation, où que vous soyez.",
         icon: Users,
-        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80",
+        image: "https://picsum.photos/seed/team_person/800/800",
         imageHint: "team collaborating office"
     },
 ];
