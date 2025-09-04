@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from 'react';
+import { cn } from "@/lib/utils";
 
 export function Footer() {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -12,7 +13,7 @@ export function Footer() {
     }, []);
 
     return (
-        <footer className="py-8 border-t border-border mt-20">
+        <footer className="py-8 border-t border-border/20 mt-20 relative bg-background/50 backdrop-blur-sm">
             <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
                 <p>&copy; {currentYear} (X)yzz. Tous droits réservés.</p>
                 <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 md:mt-0">
