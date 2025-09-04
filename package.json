@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 9002 --hostname 0.0.0.0",
+    "dev": "concurrently \"npm:genkit:watch\" \"next dev --port 9002 --hostname 0.0.0.0\"",
     "build": "genkit-cli build && next build",
     "start": "next start --port 9002 --hostname 0.0.0.0",
     "lint": "next lint",
