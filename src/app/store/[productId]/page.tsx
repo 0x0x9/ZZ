@@ -29,7 +29,7 @@ const ProductPage = async ({ params: { productId } }: { params: { productId: str
   return (
     <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex-1 bg-background">
+        <main className="flex-1 bg-background/95">
             <ProductClient product={product} relatedProducts={relatedProducts} />
         </main>
         <Footer />
