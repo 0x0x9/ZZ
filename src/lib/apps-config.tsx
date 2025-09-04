@@ -39,7 +39,7 @@ const LazyCareersApp = dynamic(() => import('@/components/careers-app'));
 const LazyContactApp = dynamic(() => import('@/components/contact-app'));
 const LazyFormatApp = dynamic(() => import('@/components/format-app'));
 const LazyConvertApp = dynamic(() => import('@/components/convert-app'));
-const LazyChatApp = dynamic(() => import('@/app/chat/client'));
+const LazyChatApp = dynamic(() => import('@/components/chat-app'));
 const LazyRealityApp = dynamic(() => import('@/components/reality-app'));
 const LazyLightApp = dynamic(() => import('@/components/light-generator'));
 const LazyGoogleDriveApp = dynamic(() => import('@/components/google/drive-app'));
@@ -124,6 +124,7 @@ export const ALL_APPS_CONFIG = [
     { id: 'contact', name: 'Contact', icon: Phone, component: (props: any) => <LazyContactApp {...props} />, defaultPos: { x: 200, y: 200 }, defaultSize: { width: 800, height: 600 } },
     { id: 'format', name: '(X)format', icon: FilePenLine, component: (props: any) => <LazyFormatApp {...props} />, defaultPos: { x: 220, y: 220 }, defaultSize: { width: 900, height: 700 } },
     { id: 'convert', name: '(X)change', icon: FileKey, component: (props: any) => <LazyConvertApp {...props} />, defaultPos: { x: 240, y: 240 }, defaultSize: { width: 900, height: 700 } },
+    { id: 'oria', name: 'Oria', icon: OriaIconAnimation, component: (props: any) => <LazyOria {...props} />, defaultPos: { x: 300, y: 100 }, defaultSize: { width: 500, height: 650 } },
     // Google Suite Apps
     { id: 'google-drive', name: 'Google Drive', icon: GoogleDriveIcon, component: (props: any) => <LazyGoogleDriveApp {...props} />, defaultPos: { x: 300, y: 100 }, defaultSize: { width: 1000, height: 700 } },
     { id: 'google-docs', name: 'Google Docs', icon: GoogleDocsIcon, component: (props: any) => <LazyGoogleDocsApp {...props} />, defaultPos: { x: 320, y: 120 }, defaultSize: { width: 900, height: 700 } },
