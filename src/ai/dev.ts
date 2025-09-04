@@ -7,12 +7,7 @@
  * L'inspecteur sera disponible sur http://localhost:4000.
  */
 
-import { startFlowsServer } from '@genkit-ai/flow';
-import * as path from 'path';
+import { start } from '@genkit-ai/core/dev-server';
 
 // Démarre le serveur de flux de Genkit
-startFlowsServer({
-  // Spécifie le chemin vers le répertoire contenant les flows
-  // pour que Genkit puisse les découvrir et les servir.
-  flows: [path.resolve(__dirname, 'flows')],
-});
+start();
