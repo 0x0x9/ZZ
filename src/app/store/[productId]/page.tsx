@@ -25,7 +25,7 @@ const ProductPage = async ({ params: { productId } }: { params: { productId: str
   ).slice(0, 4);
 
   return (
-    <main className="flex-1 bg-background/95">
+    <main className="flex-1 glass-card m-4">
         <ProductClient product={product} relatedProducts={relatedProducts} />
     </main>
   );
