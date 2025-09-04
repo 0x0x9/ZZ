@@ -263,11 +263,11 @@ export default function ProductClient({ product, relatedProducts }: { product: P
     }
     
     if (product.id === 5) { // Specific layout for (X)-Vision Pro Monitor
-        return <div className="glass-card"><div className="container mx-auto px-4 md:px-6"><MonitorProductPage product={product} relatedProducts={relatedProducts} /></div></div>;
+        return <div className="glass-card"><div className="container mx-auto px-4 md:px-6 max-w-6xl"><MonitorProductPage product={product} relatedProducts={relatedProducts} /></div></div>;
     }
 
     if (product.category === 'Logiciel') {
-        return <div className="glass-card"><div className="container mx-auto px-4 md:px-6"><SoftwareProductPage product={product} relatedProducts={relatedProducts} /></div></div>;
+        return <div className="glass-card"><div className="container mx-auto px-4 md:px-6 max-w-6xl"><SoftwareProductPage product={product} relatedProducts={relatedProducts} /></div></div>;
     }
 
     return (
@@ -280,7 +280,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                     </motion.div>
                     <motion.div 
                          style={{ opacity: contentOpacity, y: contentY }}
-                         className="relative z-10 px-4 space-y-6 container mx-auto"
+                         className="relative z-10 px-4 space-y-6 container mx-auto max-w-6xl"
                     >
                          <Link href="/store" className="inline-flex items-center gap-2 text-sm text-foreground/80 hover:text-foreground mb-4">
                             <ArrowLeft className="h-4 w-4" /> Retour à la boutique
@@ -295,7 +295,7 @@ export default function ProductClient({ product, relatedProducts }: { product: P
                 </div>
             </div>
             
-            <div className="relative z-10 pt-24 md:pt-36 space-y-24 md:space-y-36 pb-24 md:pb-36 container mx-auto px-4 md:px-6">
+            <div className="relative z-10 pt-24 md:pt-36 space-y-24 md:space-y-36 pb-24 md:pb-36 container mx-auto px-4 md:px-6 max-w-6xl">
                  <section>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-8">
