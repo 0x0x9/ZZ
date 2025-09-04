@@ -1,0 +1,4 @@
+Image du produit Moniteur (X)-Vision Pro.
+Vue de face de l'écran.
+Format attendu : .jpg ou .png
+Nom du fichier final : x-vision-monitor.jpg (ou .png)

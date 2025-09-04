@@ -1,0 +1,4 @@
+Image du produit (X)-book.
+Vue du laptop ouvert.
+Format attendu : .jpg ou .png
+Nom du fichier final : x-book-laptop.jpg (ou .png)

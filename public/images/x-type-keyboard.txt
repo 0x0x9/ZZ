@@ -1,0 +1,4 @@
+Image du produit Clavier Mécanique X-Type.
+Vue du clavier.
+Format attendu : .jpg ou .png
+Nom du fichier final : x-type-keyboard.jpg (ou .png)

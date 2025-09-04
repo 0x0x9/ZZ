@@ -1,0 +1,4 @@
+Image du produit Tablette Graphique X-Pen.
+Vue de la tablette avec son stylet.
+Format attendu : .jpg ou .png
+Nom du fichier final : x-pen-tablet.jpg (ou .png)

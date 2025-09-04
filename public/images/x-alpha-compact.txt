@@ -1,0 +1,4 @@
+Image du produit (X)-alpha.
+Vue compacte de la machine.
+Format attendu : .jpg ou .png
+Nom du fichier final : x-alpha-compact.jpg (ou .png)

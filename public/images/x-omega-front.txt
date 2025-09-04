@@ -1,0 +1,4 @@
+Image du produit (X)-oméga.
+Vue de face de la machine.
+Format attendu : .jpg ou .png
+Nom du fichier final : x-omega-front.jpg (ou .png)
