@@ -13,6 +13,7 @@ import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { uploadDocumentAction } from '@/app/actions';
 import { useNotifications } from '@/hooks/use-notifications';
+import type { GenerateTextOutput } from '@/ai/types';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -24,7 +25,7 @@ function SubmitButton() {
 }
 
 function TextGeneratorFormBody({ state }: { 
-    state: { message: string, text: string, error: string | null, id: number, prompt: string }
+    state: { message: string, result: GenerateTextOutput | null, error: string | null, id: number, prompt: string }
 }) {
   const { pending } = useFormStatus();
   const { toast } = useToast();
@@ -35,11 +36,11 @@ function TextGeneratorFormBody({ state }: {
     if (scrollAreaRef.current) {
         scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [state.text, pending]);
+  }, [state.result, pending]);
 
   const handleCopy = () => {
-    if (!state.text) return;
-    navigator.clipboard.writeText(state.text).then(() => {
+    if (!state.result?.text) return;
+    navigator.clipboard.writeText(state.result.text).then(() => {
       toast({
         description: "Texte copié dans le presse-papiers.",
       });
@@ -54,11 +55,11 @@ function TextGeneratorFormBody({ state }: {
   };
   
   const handleSaveToDrive = async () => {
-        if (!state.text) return;
+        if (!state.result?.text) return;
         setIsSaving(true);
         try {
             const fileName = `texte-${state.prompt.substring(0, 25).replace(/[^\w\s]/gi, '').replace(/\s+/g, '_') || 'ia'}-${Date.now()}.txt`;
-            const dataUri = `data:text/plain;base64,${btoa(unescape(encodeURIComponent(state.text)))}`;
+            const dataUri = `data:text/plain;base64,${btoa(unescape(encodeURIComponent(state.result.text)))}`;
             
             await uploadDocumentAction({ name: fileName, content: dataUri, mimeType: 'text/plain' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
@@ -80,11 +81,11 @@ function TextGeneratorFormBody({ state }: {
                     <div className="flex justify-center items-center h-full">
                         <LoadingState text="Rédaction en cours..." />
                     </div>
-                ) : state.text ? (
+                ) : state.result?.text ? (
                     <div className="w-full">
                         <div className="w-fit max-w-[85%] mr-auto">
                             <div className="group relative p-4 rounded-2xl leading-relaxed break-words bg-muted text-foreground rounded-bl-none">
-                                <p className="whitespace-pre-wrap">{state.text}</p>
+                                <p className="whitespace-pre-wrap">{state.result.text}</p>
                                 <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button
                                         type="button"
@@ -144,13 +145,14 @@ function TextGeneratorFormBody({ state }: {
   )
 }
 
-export default function TextGenerator({ initialText, prompt }: { initialText?: string, prompt?: string }) {
+export default function TextGenerator({ initialResult, prompt }: { initialResult?: GenerateTextOutput, prompt?: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const promptFromUrl = searchParams.get('prompt');
+  
   const initialState = {
-      message: initialText ? 'success' : '',
-      text: initialText || '',
+      message: initialResult ? 'success' : '',
+      result: initialResult || null,
       error: null,
       id: 0,
       prompt: prompt || promptFromUrl || ''
@@ -169,7 +171,7 @@ export default function TextGenerator({ initialText, prompt }: { initialText?: s
         description: state.error,
       });
     }
-    if (state.message === 'success' && state.text) {
+    if (state.message === 'success' && state.result) {
         const resultId = `text-result-${state.id}`;
         const handleClick = () => {
             localStorage.setItem(resultId, JSON.stringify(state));
@@ -191,3 +193,5 @@ export default function TextGenerator({ initialText, prompt }: { initialText?: s
       </form>
   );
 }
+
+    

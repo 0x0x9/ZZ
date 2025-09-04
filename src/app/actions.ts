@@ -8,7 +8,8 @@ import type {
   GenerateIdeasOutput, GenerateMotionOutput, GenerateVoiceOutput, GenerateDeckOutput,
   GenerateFrameOutput, GenerateSoundOutput, GenerateNexusOutput, ConvertImageOutput,
   GenerateLightMoodOutput, GenerateMoodboardOutput, CopilotLyricsOutput, GenerateMuseOutput,
-  OriaChatOutput, AgendaEvent, ReformatTextWithPromptOutput
+  OriaChatOutput, AgendaEvent, ReformatTextWithPromptOutput,
+  GenerateTextInput, GenerateTextOutput
 } from '@/ai/types';
 
 import {
@@ -19,7 +20,7 @@ import {
   GenerateDeckInputSchema, GenerateFrameInputSchema, GenerateSoundInputSchema,
   GenerateNexusInputSchema, ConvertImageInputSchema, GenerateLightMoodInputSchema,
   CopilotLyricsInputSchema, GenerateMuseInputSchema, OriaChatInputSchema,
-  ParseEventInputSchema, ReformatTextWithPromptInputSchema
+  ParseEventInputSchema, ReformatTextWithPromptInputSchema, GenerateTextInputSchema
 } from '@/ai/types';
 
 import { generateCode } from '@/ai/flows/generate-code';
@@ -123,6 +124,7 @@ export const shareDocumentAction = createAction(shareDocument.inputSchema, share
 export const uploadDocumentAction = createAction(uploadDocument.inputSchema, uploadDocument, 'uploadDocument');
 export const uploadMuseDocumentAction = uploadDocumentAction;
 export const oriaChatAction = createAction(OriaChatInputSchema, oria, 'oriaChat');
+export const generateTextAction = createAction(GenerateTextInputSchema, (input: GenerateTextInput) => generateContent({ contentType: 'text', prompt: input.prompt }).then((res): GenerateTextOutput => ({ text: res.data as string })), 'generateText');
 
 export const reformatTextAction = createAction(ReformatTextWithPromptInputSchema, (input) => generateContent({
     contentType: 'reformat',
@@ -215,5 +217,7 @@ export async function getActionResult(resultId: string): Promise<{ result: any; 
     }
     return null;
 }
+
+    
 
     
