@@ -176,8 +176,8 @@ export const products: Product[] = [
   },
   {
     id: 5,
-    name: "Moniteur 4K Tactile X-Vision",
-    description: "Un écran tactile Mini LED de 27 pouces qui redéfinit l'interaction créative avec une fidélité des couleurs et une luminosité exceptionnelles.",
+    name: "Moniteur (X)-Vision Pro",
+    description: "Un écran 4K Mini LED de 27 pouces qui redéfinit l'interaction créative. Conçu pour les professionnels de l'image, il offre une fidélité des couleurs et une luminosité exceptionnelles.",
     price: 1499.00,
     images: ["https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?auto=format&fit=crop&w=800&q=80"],
     hint: "computer monitor touch screen",
@@ -185,11 +185,22 @@ export const products: Product[] = [
     isFeatured: false,
     configurable: false,
     features: [
-      "Dalle Mini LED tactile de 27 pouces avec résolution 4K",
-      "Technologie tactile multi-points ultra-réactive",
-      "Luminosité de pointe HDR et noirs profonds",
-      "Calibrage d'usine Delta E < 1 pour une précision des couleurs parfaite"
+      "Dalle 27 pouces 4K (163 DPI) pour une netteté absolue.",
+      "Technologie Mini LED pour des noirs profonds et un contraste spectaculaire.",
+      "Luminosité de pointe HDR de 1600 nits.",
+      "Hub USB-C avec Power Delivery de 96W pour connecter et charger votre laptop.",
+      "Calibrage d'usine Delta E < 1 pour une précision des couleurs parfaite."
     ],
+    specs: {
+      "Taille de l'écran": "27 pouces (diagonale)",
+      "Technologie de la dalle": "Mini LED avec Full-Array Local Dimming",
+      "Résolution": "4K UHD (3840 x 2160 pixels) à 120Hz",
+      "Densité de pixels": "163 DPI (points par pouce)",
+      "Luminosité": "1000 nits (SDR), 1600 nits (HDR en pointe)",
+      "Couleurs": "Profondeur de couleur 10-bit, 99% DCI-P3, 100% sRGB",
+      "Connectique": "1x USB-C / Thunderbolt 4 (96W PD), 1x DisplayPort 1.4, 2x HDMI 2.1, 3x USB-A 3.2",
+      "Fonctionnalités": "Capteur de luminosité ambiante, mode KVM intégré, support ergonomique réglable"
+    }
   },
   {
     id: 6,
