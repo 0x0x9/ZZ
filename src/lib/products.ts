@@ -177,13 +177,14 @@ export const products: Product[] = [
   {
     id: 5,
     name: "Moniteur (X)-Vision Pro",
-    description: "Un écran 4K Mini LED de 27 pouces qui redéfinit l'interaction créative. Conçu pour les professionnels de l'image, il offre une fidélité des couleurs et une luminosité exceptionnelles.",
+    description: "Un écran 4K tactile Mini LED de 27 pouces qui redéfinit l'interaction créative. Conçu pour les professionnels de l'image, il offre une fidélité des couleurs et une luminosité exceptionnelles.",
     price: 1499.00,
     images: ["https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?auto=format&fit=crop&w=800&q=80"],
     hint: "computer monitor touch screen",
     category: 'Matériel',
     isFeatured: false,
     configurable: false,
+    hasPerformanceChart: false,
     features: [
       "Dalle 27 pouces 4K (163 DPI) pour une netteté absolue.",
       "Technologie Mini LED pour des noirs profonds et un contraste spectaculaire.",

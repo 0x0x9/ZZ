@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, CheckCircle, Shield, Truck, ArrowLeft, Cpu, Zap, Layers, MemoryStick, CircuitBoard, Sparkles } from 'lucide-react';
+import { ShoppingCart, CheckCircle, Shield, Truck, ArrowLeft, Cpu, Zap, Layers, MemoryStick, CircuitBoard, Sparkles, Monitor, Maximize, Droplets, Contrast } from 'lucide-react';
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { type Product } from '@/lib/products';
@@ -25,13 +25,6 @@ const performanceData = [
     { name: '(X)-φ (fi)', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
     { name: 'Mac Pro (équivalent)', 'Rendu 3D': 75, 'Compilation de code': 80, 'Simulation IA': 70 },
     { name: 'PC Haut de Gamme', 'Rendu 3D': 85, 'Compilation de code': 88, 'Simulation IA': 78 },
-];
-
-const features = [
-    { icon: Cpu, title: "Processeur Neural X-Core", description: "Une architecture révolutionnaire qui fusionne CPU, GPU et NPU pour une puissance de calcul inégalée, optimisée pour (X)OS." },
-    { icon: Layers, title: "Alliance Multi-GPU", description: "Combinez la puissance brute des cartes graphiques NVIDIA et AMD. Accélérez vos rendus 3D et vos calculs IA." },
-    { icon: MemoryStick, title: "Mémoire Unifiée Adaptative", description: "Jusqu'à 256 Go de RAM ultra-rapide, allouée dynamiquement là où vous en avez besoin." },
-    { icon: CircuitBoard, title: "Connectivité Quantique (simulée)", description: "Ports Thunderbolt 5 et Wi-Fi 7 pour des transferts de données à la vitesse de la lumière." },
 ];
 
 function AnimatedFeature({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
@@ -140,6 +133,88 @@ function SoftwareProductPage({ product, relatedProducts }: { product: Product, r
     )
 }
 
+function MonitorProductPage({ product, relatedProducts }: { product: Product, relatedProducts: Product[] }) {
+    const { addItem } = useCart();
+    const { toast } = useToast();
+
+    const handleAddToCart = () => {
+        const productToAdd = { ...product, image: product.images[0] };
+        addItem(productToAdd);
+        toast({
+            title: "Ajouté au panier !",
+            description: `"${product.name}" est maintenant dans votre panier.`,
+        });
+    };
+
+    const monitorFeatures = [
+        { icon: Maximize, title: "Immersion 4K", description: "Une résolution de 3840x2160 sur une dalle de 27 pouces pour une clarté et des détails à couper le souffle." },
+        { icon: Droplets, title: "Mini LED Tactile", description: "Des noirs parfaits et un contraste infini, avec l'interactivité du tactile pour un workflow plus intuitif." },
+        { icon: Contrast, title: "Luminosité Éclatante", description: "Atteignez jusqu'à 1600 nits en pic HDR pour des hautes lumières spectaculaires et un travail précis des couleurs." },
+        { icon: Cpu, title: "Connectivité Tout-en-un", description: "Un seul câble USB-C pour la vidéo, les données et pour recharger votre laptop avec 96W de puissance." },
+    ];
+
+    return (
+        <div className="pt-16 md:pt-24 space-y-24 md:space-y-36 pb-24 md:pb-36">
+            <section className="container mx-auto px-4 md:px-6 text-center">
+                <Link href="/store" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
+                    <ArrowLeft className="h-4 w-4" /> Retour à la boutique
+                </Link>
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight [text-shadow:0_4px_20px_rgba(0,0,0,0.3)]">{product.name}</h1>
+                <p className="mt-6 text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-3xl mx-auto">{product.description}</p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full text-lg h-14" onClick={handleAddToCart}>
+                        <ShoppingCart className="mr-3 h-6 w-6" />
+                        Ajouter au panier - {product.price.toFixed(2)}€
+                    </Button>
+                </div>
+            </section>
+            
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="relative aspect-video w-full max-w-6xl mx-auto">
+                     <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        className="object-contain"
+                        data-ai-hint={product.hint}
+                        priority
+                    />
+                </div>
+            </section>
+            
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                    {monitorFeatures.map((feature, i) => (
+                        <div key={i} className="text-center p-4">
+                            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 mb-4 mx-auto">
+                                <feature.icon className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="font-semibold text-lg">{feature.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">{feature.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section className="container mx-auto px-4 md:px-6">
+                 <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Spécifications Techniques</h2>
+                </div>
+                <div className="max-w-3xl mx-auto glass-card p-8 rounded-2xl">
+                    <ul className="space-y-4">
+                        {product.specs && Object.entries(product.specs).map(([key, value]) => (
+                             <li key={key} className="flex justify-between items-baseline py-3 border-b border-white/10">
+                                <span className="font-semibold text-muted-foreground">{key}</span>
+                                <span className="text-right">{value}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </section>
+        </div>
+    )
+}
+
 
 export default function ProductClient({ product, relatedProducts }: { product: Product, relatedProducts: Product[] }) {
     const { addItem } = useCart();
@@ -185,6 +260,10 @@ export default function ProductClient({ product, relatedProducts }: { product: P
     const handleConfigChange = (newConfig: Configuration, newPrice: number) => {
         setConfiguration(newConfig);
         setTotalPrice(newPrice);
+    }
+    
+    if (product.id === 5) { // Specific layout for (X)-Vision Pro Monitor
+        return <MonitorProductPage product={product} relatedProducts={relatedProducts} />;
     }
 
     if (product.category === 'Logiciel') {
