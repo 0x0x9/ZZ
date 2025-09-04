@@ -10,13 +10,13 @@ export const metadata = {
 
 const AvantegesPage = () => {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
         <AvantegesClient />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
 
