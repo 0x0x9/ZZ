@@ -4,6 +4,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { GenerateIdeasOutputSchema } from '@/ai/types';
+import { googleAI } from '@genkit-ai/googleai';
 
 const GenerateContentInputSchema = z.object({
     contentType: z.enum(['text', 'image', 'ideas', 'reformat']),
@@ -23,6 +24,7 @@ const contentGenerationPrompt = ai.definePrompt({
     name: 'contentGenerationPrompt',
     input: { schema: GenerateContentInputSchema },
     output: { schema: z.object({ result: z.string() }) },
+    model: googleAI.model('gemini-1.5-flash-latest'),
     prompt: `Vous êtes un générateur de contenu expert. Votre tâche dépend du 'contentType' fourni.
 
 - Si 'contentType' est 'text': Générez du contenu textuel créatif basé sur le 'prompt'.
@@ -49,14 +51,11 @@ const generateContentFlow = ai.defineFlow(
     if (input.contentType === 'image') {
         let finalPrompt = input.prompt;
         if (input.style && input.style !== 'none') {
-            finalPrompt = `${input.prompt}, style ${input.style}`;
+            finalPacket = `${input.prompt}, style ${input.style}`;
         }
         const { media } = await ai.generate({
-            model: 'googleai/gemini-2.0-flash-preview-image-generation',
+            model: 'googleai/imagen-4.0-fast-generate-001',
             prompt: finalPrompt,
-            config: {
-                responseModalities: ['TEXT', 'IMAGE'],
-            },
         });
 
         if (!media?.url) {

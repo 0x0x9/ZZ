@@ -9,7 +9,7 @@ import type {
   GenerateFrameOutput, GenerateSoundOutput, GenerateNexusOutput, ConvertImageOutput,
   GenerateLightMoodOutput, GenerateMoodboardOutput, CopilotLyricsOutput, GenerateMuseOutput,
   OriaChatOutput, AgendaEvent, ReformatTextWithPromptOutput,
-  GenerateTextInput, GenerateTextOutput, GenerateImageOutput
+  GenerateTextInput, GenerateTextOutput
 } from '@/ai/types';
 
 import {
@@ -131,7 +131,14 @@ export const uploadDocumentAction = createAction(uploadDocument.inputSchema, upl
 export const uploadMuseDocumentAction = uploadDocumentAction;
 export const oriaChatAction = createAction(OriaChatInputSchema, oria, 'oriaChat');
 export const generateTextAction = createAction(GenerateTextInputSchema, (input: GenerateTextInput) => generateContent({ contentType: 'text', prompt: input.prompt }).then((res): GenerateTextOutput => ({ text: res.data as string })), 'generateText');
-export const generateImageAction = createAction(GenerateImageInputSchema, (input) => generateContent({contentType: 'image', ...input}).then(res => ({imageDataUri: res.data as string})), 'generateImage');
+export const generateImageAction = createAction(
+  GenerateImageInputSchema,
+  (input) =>
+    generateContent({ contentType: 'image', prompt: input.prompt, style: input.style }).then((res) => ({
+      imageDataUri: res.data as string,
+    })),
+  'generateImage'
+);
 
 
 export const reformatTextAction = createAction(ReformatTextWithPromptInputSchema, (input) => generateContent({

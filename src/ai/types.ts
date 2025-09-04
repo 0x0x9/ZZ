@@ -75,11 +75,6 @@ export const GenerateImageInputSchema = z.object({
 });
 export type GenerateImageInput = z.infer<typeof GenerateImageInputSchema>;
 
-export const GenerateImageOutputSchema = z.object({
-  imageDataUri: z.string().describe("L'image générée sous forme de data URI."),
-});
-export type GenerateImageOutput = z.infer<typeof GenerateImageOutputSchema>;
-
 
 // From: src/ai/flows/generate-moodboard.ts
 export const GenerateMoodboardInputSchema = z.object({
@@ -490,6 +485,11 @@ export const OriaChatInputSchema = z.object({
   history: z.array(OriaHistoryMessageSchema).optional().describe("L'historique des messages précédents pour maintenir le contexte."),
 });
 export type OriaChatInput = z.infer<typeof OriaChatInputSchema>;
+
+// Temporary schema for image generation output within Oria
+const GenerateImageOutputSchema = z.object({
+    imageDataUri: z.string().describe("L'image générée sous forme de data URI."),
+});
 
 const OriaToolResponseSchema = z.object({
   type: z.enum(['tool_result']),

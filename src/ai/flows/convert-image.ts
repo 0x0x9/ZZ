@@ -12,6 +12,7 @@
 import { ai } from '@/ai/genkit';
 import { ConvertImageInputSchema, ConvertImageOutputSchema, type ConvertImageInput, type ConvertImageOutput } from '@/ai/types';
 import { z } from 'zod';
+import { googleAI } from '@genkit-ai/googleai';
 
 export async function convertImage(input: ConvertImageInput): Promise<ConvertImageOutput> {
   return convertImageFlow(input);
@@ -46,7 +47,7 @@ const convertImageFlow = ai.defineFlow(
     
     const llmResponse = await ai.generate({
         prompt: `Convert the following image to ${input.outputFormat}. ${input.removeTransparency ? 'Remove transparency and use a white background.' : ''}`,
-        model: 'googleai/gemini-1.5-pro-latest',
+        model: googleAI.model('gemini-1.5-pro-latest'),
         input: {
             media: {
                 url: input.image
@@ -57,11 +58,12 @@ const convertImageFlow = ai.defineFlow(
         }
     });
     
-    if (!llmResponse.output?.media) {
+    const media = llmResponse.output?.media;
+    if (!media || media.length === 0) {
       throw new Error("L'IA n'a pas pu convertir l'image.");
     }
 
-    const convertedImage = llmResponse.output.media[0];
+    const convertedImage = media[0];
 
     return {
         convertedImageUri: convertedImage.url,

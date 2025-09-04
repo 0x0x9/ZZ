@@ -40,7 +40,7 @@ import {
   GenerateNexusInputSchema,
   GenerateNexusOutputSchema,
   GenerateFluxOutputSchema,
-  GenerateImageOutputSchema,
+  GenerateImageInputSchema
 } from '@/ai/types';
 
 import { generateContent } from './content-generator';
@@ -282,7 +282,7 @@ const oriaRouterFlow = ai.defineFlow(
       content: [{ text: h.content }],
     }));
 
-    const response = await ai.generate(
+    const llmResponse = await ai.generate(
       {
         model: oriaRouterPrompt.model,
         prompt: {
@@ -301,7 +301,7 @@ const oriaRouterFlow = ai.defineFlow(
       },
     );
 
-    const output = response.output;
+    const output = llmResponse.output;
 
     if (!output) {
       throw new Error("Oria n'a pas pu traiter la demande. Veuillez réessayer.");
