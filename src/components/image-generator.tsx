@@ -200,36 +200,6 @@ function ImageGeneratorFormBody({ state, onReset }: {
     );
 }
 
-function ImageGeneratorForm({ onReset, initialState }: { onReset: () => void, initialState: any }) {
-  const [state, formAction] = useFormState(generateImageAction, initialState);
-  const { toast } = useToast();
-  const formRef = useRef<HTMLFormElement>(null);
-  const { addNotification } = useNotifications();
-
-  useEffect(() => {
-    if (state.message === 'error' && state.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erreur',
-        description: state.error,
-      });
-    }
-    if (state.message === 'success' && state.imageDataUri) {
-        addNotification({
-            icon: ImageIcon,
-            title: "Image générée !",
-            description: `Votre image pour "${state.prompt.substring(0, 30)}..." est prête.`
-        });
-    }
-  }, [state, toast, addNotification]);
-
-  return (
-    <form ref={formRef} action={formAction} key={state.id}>
-        <ImageGeneratorFormBody state={state} onReset={onReset}/>
-    </form>
-  );
-}
-
 export default function ImageGenerator() {
     const [key, setKey] = useState(0);
     const searchParams = useSearchParams();
@@ -254,6 +224,27 @@ export default function ImageGenerator() {
 
     const promptFromUrl = searchParams.get('prompt');
     const finalInitialState = initialState || { message: '', imageDataUri: null, error: '', prompt: promptFromUrl ?? '', id: 0, style: 'none' };
+    
+    const [state, formAction] = useFormState(generateImageAction, finalInitialState);
+    const { toast } = useToast();
+    const { addNotification } = useNotifications();
 
-    return <ImageGeneratorForm key={key} onReset={() => setKey(k => k + 1)} initialState={finalInitialState} />
+    useEffect(() => {
+        if (state.message === 'error' && state.error) {
+        toast({
+            variant: 'destructive',
+            title: 'Erreur',
+            description: state.error,
+        });
+        }
+        if (state.message === 'success' && state.imageDataUri) {
+            addNotification({
+                icon: ImageIcon,
+                title: "Image générée !",
+                description: `Votre image pour "${state.prompt.substring(0, 30)}..." est prête.`
+            });
+        }
+    }, [state, toast, addNotification]);
+
+    return <form action={formAction} key={key}><ImageGeneratorFormBody state={state} onReset={() => setKey(k => k + 1)}/></form>;
 }

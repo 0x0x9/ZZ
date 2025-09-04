@@ -51,7 +51,7 @@ const generateContentFlow = ai.defineFlow(
     if (input.contentType === 'image') {
         let finalPrompt = input.prompt;
         if (input.style && input.style !== 'none') {
-            finalPacket = `${input.prompt}, style ${input.style}`;
+            finalPrompt = `${input.prompt}, style ${input.style}`;
         }
         const { media } = await ai.generate({
             model: 'googleai/imagen-4.0-fast-generate-001',

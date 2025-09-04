@@ -158,7 +158,7 @@ export default function TextGenerator({ initialResult, prompt }: { initialResult
       prompt: prompt || promptFromUrl || ''
   };
   
-  const [state, dispatch] = useFormState(generateTextAction, initialState);
+  const [state, formAction] = useFormState(generateTextAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const { addNotification } = useNotifications();
@@ -188,7 +188,7 @@ export default function TextGenerator({ initialResult, prompt }: { initialResult
   }, [state, toast, addNotification, router]);
 
   return (
-      <form ref={formRef} action={dispatch} key={state.id}>
+      <form ref={formRef} action={formAction} key={state.id}>
         <TextGeneratorFormBody state={state} />
       </form>
   );

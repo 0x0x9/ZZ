@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -139,7 +140,7 @@ function ResultsDisplay({ result, onReset }: { result: MotionResultWithImage, on
 }
 
 function MotionForm({ state }: {
-    state: { message: string, result: VideoScript | null, error: string, id: number, prompt: string }
+    state: { message: string, result: VideoScript | null, error: string | null, id: number, prompt: string }
 }) {
     const { pending } = useFormStatus();
     
@@ -213,10 +214,11 @@ export default function MotionGenerator({ initialResult, prompt }: { initialResu
             const newResult: MotionResultWithImage = { ...script, isLoadingCover: true };
             setResultWithImage(newResult);
 
-            const imagePrompt = `Image de couverture cinématographique pour une vidéo intitulée "${script.title}". La première scène est : "${script.scenes[0].visuals}". L'ambiance générale est : ${script.scenes[0].narration}`;
+            const imagePrompt = `Image de couverture cinématographique pour une vidéo intitulée "${script.title}". La première scène est : "${script.scenes[0].narration}".`;
+            
             const formData = new FormData();
             formData.append('prompt', imagePrompt);
-            generateImageAction({ id: Math.random() }, formData)
+            generateImageAction({ id: Math.random(), message: '', imageDataUri: null, error: null, prompt: '' }, formData)
                 .then(imageResult => {
                     if (imageResult.message === 'success' && imageResult.imageDataUri) {
                         setResultWithImage(prev => prev ? ({ ...prev, coverImageDataUri: imageResult.imageDataUri, isLoadingCover: false }) : null);
