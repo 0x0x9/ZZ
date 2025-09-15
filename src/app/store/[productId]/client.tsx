@@ -3,18 +3,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, Cpu, Zap, Layers, MemoryStick, CircuitBoard, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PerformanceChart from "@/components/ui/performance-chart";
 import { PCConfigurator, type Configuration } from "@/components/ui/pc-configurator";
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Card } from "@/components/ui/card";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -83,15 +82,15 @@ export default function ProductClient({ product }: { product: Product }) {
     <>
         <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
             <div className="flex justify-between items-center mb-8">
-                <div>
+                 <div>
+                    <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-2">
+                        <ArrowLeft className="h-4 w-4" /> Voir tous les produits
+                    </Link>
                     <h1 className="text-4xl md:text-5xl font-bold">{product.name}</h1>
                     <p className="text-muted-foreground text-lg">{product.tagline}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                     <p className="text-3xl font-bold">À partir de {totalPrice.toFixed(2)}€</p>
-                    <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                        <ArrowLeft className="h-4 w-4" /> Voir tous les produits
-                    </Link>
                 </div>
             </div>
             
@@ -203,7 +202,7 @@ export default function ProductClient({ product }: { product: Product }) {
                 </div>
             </section>
 
-             <section className="container mx-auto px-4 md:px-6 py-12 bg-background">
+             <section className="container mx-auto px-4 md:px-6 py-12">
                 <div className="glass-card bg-primary/10 grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
                     <div className="text-center md:text-left">
                         <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Prêt à créer sans limites ?</h2>
@@ -222,3 +221,4 @@ export default function ProductClient({ product }: { product: Product }) {
     </>
   );
 }
+
