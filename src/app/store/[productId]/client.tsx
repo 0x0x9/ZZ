@@ -15,6 +15,7 @@ import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -104,7 +105,7 @@ export default function ProductClient({ product }: { product: Product }) {
             </div>
         </section>
         <section className="container mx-auto px-4 md:px-6 pb-24 md:pb-36">
-            <div className="max-w-4xl mx-auto glass-card p-8 md:p-12">
+            <div className="max-w-4xl mx-auto p-8 md:p-12 glass-card">
                  <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">Ce qui est inclus</h2>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     {(product.features ?? []).map((feature: string, i: number) => (
