@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -13,11 +13,11 @@ import { PCConfigurator, type Configuration } from "@/components/ui/pc-configura
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
-    const ref = useRef(null);
+    const ref = React.useRef(null);
     const { scrollYProgress } = useScroll({
         target: ref,
         offset: ["start 0.9", "start 0.5"]
@@ -78,19 +78,59 @@ export default function ProductClient({ product }: { product: Product }) {
     { name: 'PC Haut de Gamme', 'Rendu 3D': 85, 'Compilation de code': 88, 'Simulation IA': 78 },
 ];
 
+    if (product.category === 'Logiciel') {
+    return (
+      <>
+        <section className="container mx-auto px-4 md:px-6 py-28 md:py-36 text-center">
+            <div className="max-w-3xl mx-auto">
+                <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
+                    <Layers className="h-10 w-10 text-primary" />
+                </div>
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">{product.name}</h1>
+                <p className="mt-4 text-lg md:text-xl text-muted-foreground">{product.tagline}</p>
+                <div className="mt-8 flex flex-col items-center gap-4">
+                    <p className="text-4xl font-bold">{product.price.toFixed(2)}€</p>
+                    <Button size="lg" className="rounded-full text-lg h-14 px-10" onClick={handleAddToCart}>
+                       <ShoppingCart className="mr-2 h-5 w-5" />
+                       {product.name.toLowerCase().includes('abonnement') ? "S'abonner" : "Acheter maintenant"}
+                    </Button>
+                </div>
+            </div>
+        </section>
+        <section className="container mx-auto px-4 md:px-6 pb-24 md:pb-36">
+            <div className="max-w-4xl mx-auto glass-card p-8 md:p-12">
+                 <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">Ce qui est inclus</h2>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    {(product.features ?? []).map((feature: string, i: number) => (
+                        <div key={i} className="flex items-center gap-4">
+                            <div className="w-8 h-8 flex-shrink-0 rounded-full bg-green-500/10 border-2 border-green-500/20 flex items-center justify-center">
+                                <Check className="h-5 w-5 text-green-400" />
+                            </div>
+                            <span className="text-md text-foreground/90">{feature}</span>
+                        </div>
+                    ))}
+                 </div>
+            </div>
+        </section>
+      </>
+    );
+  }
+
+  // Default Hardware Layout
   return (
     <>
         <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
-            <div className="flex justify-between items-center mb-8">
-                 <div>
+            <div className="flex justify-between items-start mb-8">
+                 <div className="flex-1">
                     <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-2">
                         <ArrowLeft className="h-4 w-4" /> Voir tous les produits
                     </Link>
                     <h1 className="text-4xl md:text-5xl font-bold">{product.name}</h1>
                     <p className="text-muted-foreground text-lg">{product.tagline}</p>
                 </div>
-                <div className="text-right flex-shrink-0">
-                    <p className="text-3xl font-bold">À partir de {totalPrice.toFixed(2)}€</p>
+                <div className="text-right flex-shrink-0 pl-4">
+                    <p className="text-muted-foreground text-sm">À partir de</p>
+                    <p className="text-3xl font-bold">{product.price.toFixed(2)}€</p>
                 </div>
             </div>
             
@@ -153,17 +193,19 @@ export default function ProductClient({ product }: { product: Product }) {
                 </div>
             </section>
 
-            <section className="container mx-auto px-4 md:px-6">
-                <AnimatedSection>
-                    <PerformanceChart data={performanceData} />
-                </AnimatedSection>
-            </section>
+             {product.hasPerformanceChart && (
+                <section className="container mx-auto px-4 md:px-6">
+                    <AnimatedSection>
+                        <PerformanceChart data={performanceData} />
+                    </AnimatedSection>
+                </section>
+            )}
 
             <section className="container mx-auto px-4 md:px-6">
                 <AnimatedSection>
                      <div className="text-center">
                         <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Conçu pour l'extrême.</h2>
-                        <p className="text-muted-foreground mt-3 max-w-2xl mx-auto text-md md:text-lg">Chaque détail de la (X)-φ a été pensé pour les créatifs qui ne font aucun compromis.</p>
+                        <p className="text-muted-foreground mt-3 max-w-2xl mx-auto text-md md:text-lg">Chaque détail de la {product.name} a été pensé pour les créatifs qui ne font aucun compromis.</p>
                     </div>
                 </AnimatedSection>
                  <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
@@ -192,7 +234,7 @@ export default function ProductClient({ product }: { product: Product }) {
                     <AnimatedSection className="md:order-1">
                         <div className="space-y-4">
                             <h3 className="text-2xl font-bold">Modulable à l'infini</h3>
-                            <p className="text-muted-foreground">Accès sans outils. Composants standards. La (X)-φ est conçue pour être mise à niveau facilement, garantissant que votre investissement dure dans le temps.</p>
+                            <p className="text-muted-foreground">Accès sans outils. Composants standards. La {product.name} est conçue pour être mise à niveau facilement, garantissant que votre investissement dure dans le temps.</p>
                             <ul className="space-y-2 pt-2">
                               <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-primary" /><span>Slots PCIe 5.0</span></li>
                               <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-primary" /><span>Baies de stockage échangeables à chaud</span></li>
@@ -201,13 +243,13 @@ export default function ProductClient({ product }: { product: Product }) {
                     </AnimatedSection>
                 </div>
             </section>
-
-             <section className="container mx-auto px-4 md:px-6 py-12">
-                <div className="glass-card bg-primary/10 grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
+            
+            <section className="container mx-auto px-4 md:px-6 py-12">
+                <div className="glass-card grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
                     <div className="text-center md:text-left">
                         <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Prêt à créer sans limites ?</h2>
                         <p className="mt-4 text-lg text-muted-foreground max-w-xl md:mx-0 mx-auto">
-                           Ajoutez la (X)-φ à votre panier et entrez dans une nouvelle ère de la création.
+                           Ajoutez la {product.name} à votre panier et entrez dans une nouvelle ère de la création.
                         </p>
                     </div>
                     <div className="flex justify-center md:justify-end">
@@ -221,4 +263,3 @@ export default function ProductClient({ product }: { product: Product }) {
     </>
   );
 }
-

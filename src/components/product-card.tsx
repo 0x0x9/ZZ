@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from "next/image";
-import { type Product } from '@/lib/products';
+import type { Product } from '@/lib/products';
 import { motion } from 'framer-motion';
 import React from 'react';
 import { cn } from '@/lib/utils';
