@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Cpu, Zap, Layers, MemoryStick, CircuitBoard, CheckCircle } from 'lucide-react';
 import type { Product } from '@/lib/products';
@@ -81,7 +81,7 @@ export default function ProductClient({ product }: { product: Product }) {
 
   return (
     <>
-        <section className="container mx-auto px-4 md:px-6 py-28 md:py-36">
+        <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-4xl md:text-5xl font-bold">{product.name}</h1>
@@ -178,7 +178,7 @@ export default function ProductClient({ product }: { product: Product }) {
                 </div>
             </section>
 
-            <section className="container mx-auto px-4 md:px-6">
+            <section className="container mx-auto px-4 md:px-6 py-12 bg-background">
                 <AnimatedSection>
                     <div className="glass-card bg-primary/10 grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
                         <div className="text-center md:text-left">
