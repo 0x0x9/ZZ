@@ -3,9 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Cpu, HardDrive, MemoryStick, CircuitBoard, CheckCircle } from 'lucide-react';
+import { Cpu, HardDrive, MemoryStick, CircuitBoard, CheckCircle, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Product } from '@/lib/products';
+import { Button } from './button';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './dropdown-menu';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './card';
+
 
 type Option = {
     name: string;
@@ -101,38 +105,37 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
     selected: string,
     onSelect: (type: ComponentType, value: string) => void
 }) => {
+    const selectedOption = options.find(o => o.name === selected) || options[0];
     return (
-        <motion.div 
-            className="space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
-        >
-            <h3 className="text-xl md:text-2xl font-semibold flex items-center gap-3"><Icon className="h-6 w-6 text-primary" /> {title}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {options.map((option) => (
-                    <button
-                        key={option.name}
-                        onClick={() => onSelect(type, option.name)}
-                        className={cn(
-                            "text-left w-full p-4 md:p-6 rounded-2xl border-2 transition-all duration-200 flex justify-between items-center glass-card",
-                            selected === option.name
-                                ? 'border-primary shadow-lg shadow-primary/20'
-                                : 'border-border hover:border-primary/50'
-                        )}
-                    >
-                        <div>
-                            <p className="font-semibold text-sm md:text-base">{option.name}</p>
-                            <p className="text-xs md:text-sm text-muted-foreground">
-                                {option.priceModifier > 0 ? `+${option.priceModifier.toFixed(2)}€` : option.priceModifier < 0 ? `${option.priceModifier.toFixed(2)}€` : 'Inclus'}
-                            </p>
-                        </div>
-                        {selected === option.name && <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" />}
-                    </button>
-                ))}
+        <div className="flex items-center justify-between p-4 glass-card bg-background/50 rounded-xl">
+             <div className="flex items-center gap-3">
+                <Icon className="h-6 w-6 text-primary" />
+                <div>
+                    <p className="text-sm font-semibold">{title}</p>
+                    <p className="text-xs text-muted-foreground">{selected}</p>
+                </div>
             </div>
-        </motion.div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-auto">
+                       Changer
+                       <ChevronDown className="h-4 w-4 ml-2" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-72 glass-card">
+                    {options.map(option => (
+                        <DropdownMenuItem key={option.name} onSelect={() => onSelect(type, option.name)}>
+                             <div className="flex justify-between items-center w-full">
+                                <span>{option.name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                    {option.priceModifier > 0 ? `+${option.priceModifier.toFixed(2)}€` : option.priceModifier < 0 ? `${option.priceModifier.toFixed(2)}€` : 'Inclus'}
+                                </span>
+                            </div>
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
     );
 };
 
@@ -170,27 +173,29 @@ export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfigu
     };
 
     return (
-        <div className="space-y-12 md:space-y-16">
+        <div className="space-y-8">
             <motion.div 
-                className="text-center"
+                className="text-left"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Configurez votre Workstation</h2>
-                <p className="text-muted-foreground mt-3 max-w-2xl mx-auto text-md md:text-lg">Personnalisez chaque composant pour créer la machine qui correspond parfaitement à vos ambitions créatives.</p>
+                <h2 className="text-3xl font-bold tracking-tight">Configurez votre Workstation</h2>
+                <p className="text-muted-foreground mt-2 text-md">Personnalisez chaque composant pour créer la machine qui correspond parfaitement à vos ambitions.</p>
             </motion.div>
-            {(Object.keys(options) as ComponentType[]).map((type) => (
-                <ConfiguratorSection 
-                    key={type}
-                    type={type}
-                    title={componentInfo[type].title}
-                    icon={componentInfo[type].icon}
-                    options={options[type]}
-                    selected={config[type]}
-                    onSelect={handleSelection}
-                />
-            ))}
+             <div className="space-y-4">
+                {(Object.keys(options) as ComponentType[]).map((type) => (
+                    <ConfiguratorSection 
+                        key={type}
+                        type={type}
+                        title={componentInfo[type].title}
+                        icon={componentInfo[type].icon}
+                        options={options[type]}
+                        selected={config[type]}
+                        onSelect={handleSelection}
+                    />
+                ))}
+             </div>
         </div>
     );
 }
