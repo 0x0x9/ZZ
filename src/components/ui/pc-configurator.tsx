@@ -3,13 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Cpu, HardDrive, MemoryStick, CircuitBoard, CheckCircle, ChevronDown } from 'lucide-react';
+import { Cpu, HardDrive, MemoryStick, CircuitBoard, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Product } from '@/lib/products';
-import { Button } from './button';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './dropdown-menu';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './card';
-
 
 type Option = {
     name: string;
@@ -105,36 +101,38 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
     selected: string,
     onSelect: (type: ComponentType, value: string) => void
 }) => {
-    const selectedOption = options.find(o => o.name === selected) || options[0];
     return (
-        <div className="flex items-center justify-between p-4 glass-card bg-background/50 rounded-xl">
-             <div className="flex items-center gap-3">
-                <Icon className="h-6 w-6 text-primary" />
-                <div>
-                    <p className="text-sm font-semibold">{title}</p>
-                    <p className="text-xs text-muted-foreground">{selected}</p>
-                </div>
+        <div className="space-y-4">
+            <h3 className="font-semibold flex items-center gap-2">
+                <Icon className="h-5 w-5 text-primary" />
+                {title}
+            </h3>
+            <div className="grid grid-cols-1 gap-2">
+                {options.map(option => {
+                    const isSelected = option.name === selected;
+                    return (
+                        <button
+                            key={option.name}
+                            type="button"
+                            onClick={() => onSelect(type, option.name)}
+                            className={cn(
+                                "relative w-full text-left p-3 rounded-lg border-2 transition-all duration-200",
+                                isSelected
+                                    ? "border-primary bg-primary/10 ring-2 ring-primary/50"
+                                    : "border-border bg-background/50 hover:border-primary/50"
+                            )}
+                        >
+                            {isSelected && (
+                                <CheckCircle className="h-5 w-5 text-primary absolute top-2 right-2" />
+                            )}
+                            <p className="font-medium text-sm">{option.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {option.priceModifier > 0 ? `+${option.priceModifier.toFixed(2)}€` : option.priceModifier < 0 ? `${option.priceModifier.toFixed(2)}€` : 'Inclus'}
+                            </p>
+                        </button>
+                    )
+                })}
             </div>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-auto">
-                       Changer
-                       <ChevronDown className="h-4 w-4 ml-2" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-72 glass-card">
-                    {options.map(option => (
-                        <DropdownMenuItem key={option.name} onSelect={() => onSelect(type, option.name)}>
-                             <div className="flex justify-between items-center w-full">
-                                <span>{option.name}</span>
-                                <span className="text-xs text-muted-foreground">
-                                    {option.priceModifier > 0 ? `+${option.priceModifier.toFixed(2)}€` : option.priceModifier < 0 ? `${option.priceModifier.toFixed(2)}€` : 'Inclus'}
-                                </span>
-                            </div>
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
         </div>
     );
 };
@@ -143,7 +141,6 @@ export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfigu
     const productKey = product.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ','fi');
     const options = optionsMap[productKey];
 
-    // If no options are found for the product, don't render the configurator
     if (!options) {
         return null;
     }
@@ -174,7 +171,7 @@ export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfigu
 
     return (
         <div className="space-y-8">
-            <motion.div 
+            <motion.div
                 className="text-left"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -183,9 +180,9 @@ export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfigu
                 <h2 className="text-3xl font-bold tracking-tight">Configurez votre Workstation</h2>
                 <p className="text-muted-foreground mt-2 text-md">Personnalisez chaque composant pour créer la machine qui correspond parfaitement à vos ambitions.</p>
             </motion.div>
-             <div className="space-y-4">
+             <div className="space-y-6">
                 {(Object.keys(options) as ComponentType[]).map((type) => (
-                    <ConfiguratorSection 
+                    <ConfiguratorSection
                         key={type}
                         type={type}
                         title={componentInfo[type].title}
