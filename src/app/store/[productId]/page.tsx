@@ -20,14 +20,8 @@ const ProductPage = async ({ params: { productId } }: { params: { productId: str
     notFound();
   }
   
-  const relatedProducts = products.filter(
-    p => p.category === product.category && p.id !== product.id
-  ).slice(0, 4);
-
   return (
-    <div className="pt-16 md:pt-24">
-        <ProductClient product={product} relatedProducts={relatedProducts} />
-    </div>
+      <ProductClient product={product} />
   );
 }
 
