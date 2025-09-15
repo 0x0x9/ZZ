@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -83,6 +83,11 @@ export default function ProductClient({ product }: { product: Product }) {
       <>
         <section className="container mx-auto px-4 md:px-6 py-28 md:py-36 text-center">
             <div className="max-w-3xl mx-auto">
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+                  <Link href="/store" className="hover:text-primary transition-colors">Boutique</Link>
+                  <ChevronRight className="h-4 w-4" />
+                  <span className="font-medium text-foreground">{product.category}</span>
+                </div>
                 <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
                     <Layers className="h-10 w-10 text-primary" />
                 </div>
