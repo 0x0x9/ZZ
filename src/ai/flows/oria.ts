@@ -39,8 +39,7 @@ import {
   GenerateSoundOutputSchema,
   GenerateNexusInputSchema,
   GenerateNexusOutputSchema,
-  GenerateFluxOutputSchema,
-  GenerateImageInputSchema
+  GenerateFluxOutputSchema
 } from '@/ai/types';
 
 import { generateContent } from './content-generator';
@@ -225,7 +224,7 @@ const oriaRouterPrompt = ai.definePrompt({
     nexusTool,
     fluxTool,
   ],
-  prompt: `Vous êtes Oria, l'IA chef d'orchestre de la plateforme (X)yzz. Votre mission est de comprendre le besoin de l'utilisateur et de mobiliser les outils nécessaires pour y répondre. Votre réponse doit être **exclusivement** un objet JSON valide.
+  system: `Vous êtes Oria, l'IA chef d'orchestre de la plateforme (X)yzz. Votre mission est de comprendre le besoin de l'utilisateur et de mobiliser les outils nécessaires pour y répondre. Votre réponse doit être **exclusivement** un objet JSON valide.
 
 **CONTEXTE ACTUEL : {{{context}}}**
 
@@ -282,24 +281,17 @@ const oriaRouterFlow = ai.defineFlow(
       content: [{ text: h.content }],
     }));
 
-    const llmResponse = await ai.generate(
-      {
+    const llmResponse = await ai.generate({
         model: oriaRouterPrompt.model,
-        prompt: {
-            prompt: oriaRouterPrompt.prompt,
-            context: {
-                prompt: input.prompt,
-                context: input.context || 'non spécifié',
-            }
-        },
+        prompt: input.prompt,
+        system: oriaRouterPrompt.prompt.replace('{{{prompt}}}', input.prompt).replace('{{{context}}}', input.context || 'non spécifié'),
         history,
         tools: oriaRouterPrompt.tools,
         output: {
             schema: oriaRouterPrompt.output.schema,
         },
         config: oriaRouterPrompt.config,
-      },
-    );
+    });
 
     const output = llmResponse.output;
 
