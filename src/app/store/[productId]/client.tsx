@@ -3,13 +3,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Cpu, Zap, Layers, MemoryStick, CircuitBoard, CheckCircle } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PerformanceChart from "@/components/ui/performance-chart";
 import { PCConfigurator, type Configuration } from "@/components/ui/pc-configurator";
 import { useCart } from "@/hooks/use-cart-store";
@@ -95,7 +95,7 @@ export default function ProductClient({ product }: { product: Product }) {
                 </div>
             </div>
             
-             <Card className="glass-card p-4 md:p-8">
+             <Card className="glass-card">
                 <Carousel>
                     <CarouselContent>
                         {product.images.map((img, index) => (
