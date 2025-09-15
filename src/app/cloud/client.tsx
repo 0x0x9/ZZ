@@ -32,7 +32,7 @@ const getFileIcon = (mimeType: string) => {
 }
 
 const StatCard = ({ icon, value, title, subtitle, progress, colorClass }: any) => (
-  <Card className="glass-card bg-black/30 p-4">
+  <Card className="glass-card p-4">
     <CardContent className="p-0">
       <div className="flex items-start justify-between">
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorClass}`}>
@@ -51,7 +51,7 @@ const StatCard = ({ icon, value, title, subtitle, progress, colorClass }: any) =
 );
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => (
-    <Card className="glass-card bg-black/30">
+    <Card className="glass-card">
         <CardContent className="p-4 flex items-center gap-4">
              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-500/20 text-blue-300">
                 {icon}
@@ -185,7 +185,7 @@ export default function CloudDashboard({ docs, loading, onDataChange }: { docs: 
 
             <div
                 className={cn(
-                    "glass-card bg-black/30 text-center p-8 border-2 border-dashed border-white/20 transition-all duration-300 ease-in-out cursor-pointer",
+                    "glass-card text-center p-8 border-2 border-dashed border-white/20 transition-all duration-300 ease-in-out cursor-pointer",
                     isDragging && "border-primary/80 bg-primary/10 scale-105",
                     isUploading && "border-amber-500/80 bg-amber-500/10 cursor-not-allowed"
                 )}
@@ -231,7 +231,7 @@ export default function CloudDashboard({ docs, loading, onDataChange }: { docs: 
                 {recentDocs.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {recentDocs.map(doc => (
-                            <Card key={doc.id} className="glass-card bg-black/30">
+                            <Card key={doc.id} className="glass-card">
                                 <CardContent className="p-4 flex items-center gap-4">
                                     {getFileIcon(doc.mimeType)}
                                     <div className="flex-1 overflow-hidden">
@@ -243,7 +243,7 @@ export default function CloudDashboard({ docs, loading, onDataChange }: { docs: 
                         ))}
                     </div>
                 ) : (
-                     <Card className="glass-card bg-black/30">
+                     <Card className="glass-card">
                         <CardContent className="p-6 text-center text-muted-foreground">
                             <p>Les documents récemment modifiés apparaîtront ici.</p>
                         </CardContent>
