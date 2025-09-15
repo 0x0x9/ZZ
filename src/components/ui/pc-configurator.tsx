@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Cpu, HardDrive, MemoryStick, CircuitBoard, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Product } from '@/lib/products';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 type Option = {
     name: string;
@@ -102,38 +103,45 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
     onSelect: (type: ComponentType, value: string) => void
 }) => {
     return (
-        <div className="space-y-4">
-            <h3 className="font-semibold flex items-center gap-2">
-                <Icon className="h-5 w-5 text-primary" />
-                {title}
-            </h3>
-            <div className="grid grid-cols-1 gap-2">
-                {options.map(option => {
-                    const isSelected = option.name === selected;
-                    return (
-                        <button
-                            key={option.name}
-                            type="button"
-                            onClick={() => onSelect(type, option.name)}
-                            className={cn(
-                                "relative w-full text-left p-3 rounded-lg border-2 transition-all duration-200",
-                                isSelected
-                                    ? "border-primary bg-primary/10 ring-2 ring-primary/50"
-                                    : "border-border bg-background/50 hover:border-primary/50"
-                            )}
-                        >
-                            {isSelected && (
-                                <CheckCircle className="h-5 w-5 text-primary absolute top-2 right-2" />
-                            )}
-                            <p className="font-medium text-sm">{option.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                                {option.priceModifier > 0 ? `+${option.priceModifier.toFixed(2)}€` : option.priceModifier < 0 ? `${option.priceModifier.toFixed(2)}€` : 'Inclus'}
-                            </p>
-                        </button>
-                    )
-                })}
-            </div>
-        </div>
+        <AccordionItem value={type} className="glass-card mb-4 rounded-2xl border-border/50">
+            <AccordionTrigger className="p-4 hover:no-underline">
+                <div className="flex items-center gap-3">
+                    <Icon className="h-5 w-5 text-primary" />
+                    <div>
+                        <h3 className="font-semibold text-left">{title}</h3>
+                        <p className="text-xs text-muted-foreground text-left">{selected}</p>
+                    </div>
+                </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-4 pt-0">
+                <div className="grid grid-cols-1 gap-2 border-t border-border pt-4">
+                    {options.map(option => {
+                        const isSelected = option.name === selected;
+                        return (
+                            <button
+                                key={option.name}
+                                type="button"
+                                onClick={() => onSelect(type, option.name)}
+                                className={cn(
+                                    "relative w-full text-left p-3 rounded-lg border-2 transition-all duration-200",
+                                    isSelected
+                                        ? "border-primary bg-primary/10 ring-2 ring-primary/50"
+                                        : "border-transparent bg-background/50 hover:border-primary/50"
+                                )}
+                            >
+                                {isSelected && (
+                                    <CheckCircle className="h-5 w-5 text-primary absolute top-2 right-2" />
+                                )}
+                                <p className="font-medium text-sm">{option.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                    {option.priceModifier > 0 ? `+${option.priceModifier.toFixed(2)}€` : option.priceModifier < 0 ? `${option.priceModifier.toFixed(2)}€` : 'Inclus'}
+                                </p>
+                            </button>
+                        )
+                    })}
+                </div>
+            </AccordionContent>
+        </AccordionItem>
     );
 };
 
@@ -180,7 +188,7 @@ export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfigu
                 <h2 className="text-3xl font-bold tracking-tight">Configurez votre Workstation</h2>
                 <p className="text-muted-foreground mt-2 text-md">Personnalisez chaque composant pour créer la machine qui correspond parfaitement à vos ambitions.</p>
             </motion.div>
-             <div className="space-y-6">
+             <Accordion type="single" collapsible defaultValue="cpu" className="w-full space-y-4">
                 {(Object.keys(options) as ComponentType[]).map((type) => (
                     <ConfiguratorSection
                         key={type}
@@ -192,7 +200,7 @@ export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfigu
                         onSelect={handleSelection}
                     />
                 ))}
-             </div>
+            </Accordion>
         </div>
     );
 }
