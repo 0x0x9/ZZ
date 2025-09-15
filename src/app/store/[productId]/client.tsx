@@ -1,10 +1,9 @@
 
 'use client';
 
-import * as React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -16,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import OriaAnimation from "@/components/ui/oria-animation";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -166,6 +166,25 @@ export default function ProductClient({ product }: { product: Product }) {
             </Card>
         </section>
       
+        <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
+             <div className="glass-card grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl overflow-hidden">
+                <div className="relative w-full h-64 md:h-full flex items-center justify-center">
+                    <OriaAnimation className="w-64 h-64" />
+                </div>
+                <div className="text-center md:text-left">
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Plus qu'une machine, un partenaire créatif.</h2>
+                    <p className="mt-4 text-lg text-muted-foreground max-w-xl md:mx-0 mx-auto">
+                        Chaque machine (X)yzz est livrée avec <strong>(X)OS</strong>, notre système d'exploitation unifié. Animé par l'IA <strong>Oria</strong>, il transforme votre ordinateur en un écosystème intelligent qui anticipe vos besoins et fluidifie votre processus créatif.
+                    </p>
+                    <Button size="lg" asChild className="rounded-full text-lg mt-8">
+                        <Link href="/features">
+                            Découvrir l'écosystème <Sparkles className="ml-2 h-5 w-5" />
+                        </Link>
+                    </Button>
+                </div>
+            </div>
+        </section>
+
         <div className="space-y-24 md:space-y-36 my-24 md:my-36">
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
