@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from "react";
 import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight } from 'lucide-react';
