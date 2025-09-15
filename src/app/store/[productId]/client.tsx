@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Cpu, Zap, Layers, MemoryStick, CircuitBoard, CheckCircle } from 'lucide-react';
 import type { Product } from '@/lib/products';
@@ -122,11 +122,36 @@ export default function ProductClient({ product }: { product: Product }) {
       
         <div className="space-y-24 md:space-y-36 my-24 md:my-36">
             <section id="configurator" className="container mx-auto px-4 md:px-6">
-                 <PCConfigurator 
-                    product={product} 
-                    basePrice={product.price}
-                    onConfigChange={handleConfigChange} 
-                 />
+                 <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
+                    <div className="md:col-span-1">
+                        <PCConfigurator 
+                            product={product} 
+                            basePrice={product.price}
+                            onConfigChange={handleConfigChange} 
+                        />
+                    </div>
+                    <div className="md:col-span-1 md:sticky top-28">
+                        <div className="glass-card p-4">
+                            <div className="relative aspect-square">
+                                <Image
+                                    src={product.images[0]}
+                                    alt={product.name}
+                                    fill
+                                    className="object-contain"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    data-ai-hint={product.hint}
+                                />
+                            </div>
+                        </div>
+                         <div className="mt-6 p-6 glass-card">
+                            <h3 className="text-xl font-bold">Total de votre configuration</h3>
+                            <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
+                            <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
+                                Ajouter au panier
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section className="container mx-auto px-4 md:px-6">
@@ -178,7 +203,7 @@ export default function ProductClient({ product }: { product: Product }) {
                 </div>
             </section>
 
-            <section className="container mx-auto px-4 md:px-6 py-12 bg-background">
+             <section className="container mx-auto px-4 md:px-6 py-12 bg-background">
                 <AnimatedSection>
                     <div className="glass-card bg-primary/10 grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
                         <div className="text-center md:text-left">
