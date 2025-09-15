@@ -81,7 +81,7 @@ export default function ProductClient({ product }: { product: Product }) {
 
   return (
     <>
-        <section className="container mx-auto px-4 md:px-6 pt-12 md:pt-20">
+        <section className="container mx-auto px-4 md:px-6 py-28 md:py-36">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-4xl md:text-5xl font-bold">{product.name}</h1>
