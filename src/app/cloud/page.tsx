@@ -11,10 +11,10 @@ import { listDocumentsAction } from '@/app/actions';
 import type { Doc } from '@/ai/types';
 
 // Use dynamic imports to code-split each tab's content
-const CloudDashboard = dynamic(() => import('./client'));
-const SharingClient = dynamic(() => import('./sharing/client'));
+const CloudDashboard = dynamic(() => import('@/app/cloud/client'));
+const SharingClient = dynamic(() => import('@/app/cloud/sharing/client'));
 const DocManager = dynamic(() => import('@/components/doc-manager'));
-const ActivityClient = dynamic(() => import('./activity/client'));
+const ActivityClient = dynamic(() => import('@/app/cloud/activity/client'));
 
 function CloudPageContent() {
     const searchParams = useSearchParams();
