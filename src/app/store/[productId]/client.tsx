@@ -204,23 +204,20 @@ export default function ProductClient({ product }: { product: Product }) {
             </section>
 
              <section className="container mx-auto px-4 md:px-6 py-12 bg-background">
-                <AnimatedSection>
-                    <div className="glass-card bg-primary/10 grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
-                        <div className="text-center md:text-left">
-                            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Prêt à créer sans limites ?</h2>
-                            <p className="mt-4 text-lg text-muted-foreground max-w-xl md:mx-0 mx-auto">
-                               Ajoutez la (X)-φ à votre panier et entrez dans une nouvelle ère de la création.
-                            </p>
-                        </div>
-                        <div className="flex justify-center md:justify-end">
-                            <Button size="lg" className="rounded-full text-lg h-16 px-10" onClick={handleAddToCart}>
-                                Ajouter au panier - {totalPrice.toFixed(2)}€
-                            </Button>
-                        </div>
+                <div className="glass-card bg-primary/10 grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
+                    <div className="text-center md:text-left">
+                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Prêt à créer sans limites ?</h2>
+                        <p className="mt-4 text-lg text-muted-foreground max-w-xl md:mx-0 mx-auto">
+                           Ajoutez la (X)-φ à votre panier et entrez dans une nouvelle ère de la création.
+                        </p>
                     </div>
-                </AnimatedSection>
+                    <div className="flex justify-center md:justify-end">
+                        <Button size="lg" className="rounded-full text-lg h-16 px-10" onClick={handleAddToCart}>
+                            Ajouter au panier - {totalPrice.toFixed(2)}€
+                        </Button>
+                    </div>
+                </div>
             </section>
-
         </div>
     </>
   );
