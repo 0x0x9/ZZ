@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -390,7 +391,9 @@ export default function OriaXOS({ openApp }: OriaXosProps) {
       content: msg.type === 'user' ? msg.text! : JSON.stringify(msg.result!)
     }));
     
-    formData.set('history', JSON.stringify(history));
+    // Pass the history array directly
+    formData.set('history', history as any);
+    
     setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: prompt }]);
     
     formAction(formData);

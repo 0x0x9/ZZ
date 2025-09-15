@@ -349,11 +349,8 @@ function OriaChatWindow({ partner, onBack, activeProject }: { partner: ChatPartn
         const newHistory = [...messages, { role: 'user', content: prompt }] as OriaHistoryMessage[];
         setMessages(newHistory);
         
-        const simpleHistory = newHistory.map(h => ({
-            role: h.role,
-            content: typeof h.content === 'string' ? h.content : JSON.stringify(h.content)
-        }));
-        formData.append('history', JSON.stringify(simpleHistory));
+        // Don't stringify, pass the object directly
+        formData.set('history', newHistory as any);
         
         const result = await oriaChatAction(prevState, formData);
         
