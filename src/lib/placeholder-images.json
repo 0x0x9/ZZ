@@ -1,0 +1,124 @@
+
+{
+  "general": {
+    "user_avatar": {
+      "src": "https://picsum.photos/seed/user_avatar/100/100",
+      "hint": "person portrait"
+    }
+  },
+  "about": {
+    "mission": {
+      "src": "https://picsum.photos/seed/mission/800/800",
+      "hint": "creative team collaboration"
+    },
+    "vision": {
+      "src": "https://picsum.photos/seed/vision_team/800/800",
+      "hint": "futuristic tech team"
+    },
+    "team": {
+      "francois_ceo": {
+        "src": "https://picsum.photos/seed/francois_ceo/256/256",
+        "hint": "man portrait professional"
+      },
+      "sisley_cto": {
+        "src": "https://picsum.photos/seed/sisley_cto/256/256",
+        "hint": "woman portrait professional"
+      },
+      "kamal_cdo": {
+        "src": "https://picsum.photos/seed/kamal_cdo/256/256",
+        "hint": "man working computer design"
+      },
+      "chloe_com": {
+        "src": "https://picsum.photos/seed/chloe_com/256/256",
+        "hint": "woman portrait friendly"
+      }
+    }
+  },
+  "account": {
+    "project_nebula": {
+      "src": "https://picsum.photos/seed/nebula_project/300/200",
+      "hint": "nebula space stars"
+    },
+    "clothing_brand": {
+      "src": "https://picsum.photos/seed/clothing_brand/300/200",
+      "hint": "clothing brand fashion"
+    },
+    "nova_design": {
+      "src": "https://picsum.photos/seed/nova_design/300/200",
+      "hint": "abstract gradient design"
+    }
+  },
+  "features": {
+    "artist_creative": {
+      "src": "https://picsum.photos/seed/artist_creative/800/800",
+      "hint": "artist painting digital"
+    },
+    "tech_setup": {
+      "src": "https://picsum.photos/seed/tech_setup/800/800",
+      "hint": "retro computer setup"
+    },
+    "team_office": {
+      "src": "https://picsum.photos/seed/team_office/800/800",
+      "hint": "team collaborating office"
+    },
+    "cooling_system": {
+      "src": "https://picsum.photos/seed/cooling/1600/900",
+      "hint": "liquid cooling computer"
+    },
+    "chassis_open": {
+      "src": "https://picsum.photos/seed/open_computer/1600/900",
+      "hint": "open computer case"
+    }
+  },
+  "store": {
+    "workstation": {
+      "src": "https://picsum.photos/seed/workstation/1600/900",
+      "hint": "powerful desktop computer"
+    }
+  },
+  "hardware": {
+    "multi_os": {
+      "src": "https://picsum.photos/seed/multi_os/1600/900",
+      "hint": "futuristic desktop interface"
+    }
+  },
+  "blog": {
+    "author_francois": { "src": "https://picsum.photos/seed/francois/256/256", "hint": "man portrait professional" },
+    "author_sisley": { "src": "https://picsum.photos/seed/sisley/256/256", "hint": "woman portrait professional" },
+    "author_chloe": { "src": "https://picsum.photos/seed/chloe/256/256", "hint": "woman portrait friendly" },
+    "author_ziari": { "src": "https://picsum.photos/seed/ziari/256/256", "hint": "man working computer design" },
+    "author_chloe2": { "src": "https://picsum.photos/seed/chloe2/256/256", "hint": "woman portrait casual" },
+    "author_sisley2": { "src": "https://picsum.photos/seed/sisley2/256/256", "hint": "man portrait glasses" },
+    "author_francois2": { "src": "https://picsum.photos/seed/francois2/256/256", "hint": "professional man portrait" },
+    "author_ziari2": { "src": "https://picsum.photos/seed/ziari2/256/256", "hint": "designer working computer" },
+    "author_chloe3": { "src": "https://picsum.photos/seed/chloe3/256/256", "hint": "smiling woman portrait" },
+    "post_innovation": { "src": "https://picsum.photos/seed/innovation/1600/900", "hint": "futuristic technology abstract" },
+    "post_workflow": { "src": "https://picsum.photos/seed/workflow/1600/900", "hint": "desk setup productivity" },
+    "post_prompt": { "src": "https://picsum.photos/seed/prompt/1600/900", "hint": "glowing brain abstract" },
+    "post_maquette": { "src": "https://picsum.photos/seed/maquette/1600/900", "hint": "ui design wireframe" },
+    "post_music": { "src": "https://picsum.photos/seed/music/1600/900", "hint": "music production studio" },
+    "post_coffee": { "src": "https://picsum.photos/seed/coffee/1600/900", "hint": "latte art coffee" },
+    "post_vision": { "src": "https://picsum.photos/seed/vision/1600/900", "hint": "glowing network lines" },
+    "post_code": { "src": "https://picsum.photos/seed/code/1600/900", "hint": "code on screen" },
+    "post_gallery": { "src": "https://picsum.photos/seed/gallery/1600/900", "hint": "modern art gallery" }
+  },
+  "collaborations": {
+    "alice": { "src": "https://picsum.photos/seed/alice/256/256", "hint": "woman portrait professional" },
+    "bob": { "src": "https://picsum.photos/seed/bob/256/256", "hint": "man portrait creative" },
+    "nebula_logo": { "src": "https://picsum.photos/seed/nebula_logo/800/800", "hint": "abstract space logo" },
+    "clara": { "src": "https://picsum.photos/seed/clara/256/256", "hint": "woman portrait design" },
+    "david": { "src": "https://picsum.photos/seed/david/256/256", "hint": "man portrait tech" },
+    "ecom_logo": { "src": "https://picsum.photos/seed/ecom_logo/800/800", "hint": "modern startup logo" }
+  },
+  "gallery": {
+    "crystal_city": { "src": "https://picsum.photos/seed/crystal_city/800/600", "hint": "futuristic crystal city" },
+    "enchanted_forest": { "src": "https://picsum.photos/seed/enchanted_forest/800/1000", "hint": "enchanted forest twilight" },
+    "weather_app": { "src": "https://picsum.photos/seed/weather_app/800/600", "hint": "weather app interface" },
+    "time_keeper": { "src": "https://picsum.photos/seed/time_keeper/800/1200", "hint": "clock steampunk man" },
+    "robot_gardener": { "src": "https://picsum.photos/seed/robot_gardener/800/900", "hint": "robot futuristic garden" },
+    "pop_art": { "src": "https://picsum.photos/seed/pop_art/800/800", "hint": "colorful pop art portrait" }
+  },
+  "auth": {
+      "mock_user": { "src": "https://picsum.photos/seed/mock_user/100/100", "hint": "person portrait" }
+  }
+}

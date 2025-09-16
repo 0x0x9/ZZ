@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import imageData from '@/lib/placeholder-images.json';
 
 export default function CollaborationsClient() {
     const [posts, setPosts] = useState<CollaborationPost[]>(initialPosts);
@@ -43,7 +44,7 @@ export default function CollaborationsClient() {
         const newPost: CollaborationPost = {
             id: Date.now(),
             author: "Vous (Utilisateur Actuel)", // Placeholder
-            avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=facearea&w=256&h=256&facepad=2&q=80",
+            avatar: imageData.general.user_avatar.src,
             imageHint: "user avatar placeholder",
             title: formData.get('title') as string,
             description: formData.get('description') as string,

@@ -1,7 +1,7 @@
 
 'use client';
 
-import WelcomeClient from "@/app/welcome/client";
+import WelcomeClient from "@/app/welcome/page";
 
 export default function WelcomeApp() {
     return (

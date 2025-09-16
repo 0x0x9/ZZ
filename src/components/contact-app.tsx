@@ -1,7 +1,7 @@
 
 'use client';
 
-import ContactPage from "@/app/contact/page";
+import ContactPage from "@/app/contact/client";
 
 export default function ContactApp() {
     return (

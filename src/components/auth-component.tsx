@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import imageData from '@/lib/placeholder-images.json';
 
 // Mock User type, equivalent to Firebase User but simplified
 type MockUser = {
@@ -32,7 +33,7 @@ const mockUser: MockUser = {
   uid: 'mock-user-uid',
   displayName: 'Utilisateur Simulé',
   email: 'user@example.com',
-  photoURL: 'https://placehold.co/100x100.png',
+  photoURL: imageData.auth.mock_user.src,
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {

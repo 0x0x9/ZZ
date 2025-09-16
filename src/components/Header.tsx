@@ -85,6 +85,7 @@ import {
 import { Separator } from "./ui/separator";
 import { useAuth } from './auth-component';
 import { useIsClient } from '@/hooks/use-is-client';
+import imageData from '@/lib/placeholder-images.json';
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
@@ -322,7 +323,7 @@ export function Header() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="rounded-full flex items-center gap-2">
-                                <Image src={user.photoURL || 'https://placehold.co/100x100.png'} alt={user.displayName || "Avatar"} width={28} height={28} className="rounded-full" data-ai-hint="person portrait"/>
+                                <Image src={user.photoURL || imageData.general.user_avatar.src} alt={user.displayName || "Avatar"} width={28} height={28} className="rounded-full" data-ai-hint="person portrait"/>
                                 {user.displayName}
                                 <ChevronDown className="h-4 w-4" />
                             </Button>

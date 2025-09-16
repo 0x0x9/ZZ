@@ -18,11 +18,12 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth-component';
 import { useIsClient } from '@/hooks/use-is-client';
+import imageData from '@/lib/placeholder-images.json';
 
 const initialUser = {
   name: 'John Doe',
   email: 'john.doe@xyzz.ai',
-  avatar: 'https://placehold.co/100x100.png',
+  avatar: imageData.general.user_avatar.src,
   plan: 'XOS Pro',
   renewalDate: '24 Août 2024',
 };
@@ -42,11 +43,10 @@ const disconnectDeviceAction = async (data: { deviceId: number }) => {
     return { success: true };
 };
 
-
 const mockProjects = [
-    { id: 1, title: 'Projet Nébuleuse (Court-métrage)', imageUrl: 'https://picsum.photos/seed/nebula/300/200', hint: 'nebula space stars' },
-    { id: 2, title: 'Lancement Marque de Vêtements', imageUrl: 'https://picsum.photos/seed/clothing/300/200', hint: 'clothing brand fashion' },
-    { id: 3, title: 'Identité Visuelle - Nova', imageUrl: 'https://picsum.photos/seed/nova/300/200', hint: 'abstract gradient design' },
+    { id: 1, title: 'Projet Nébuleuse (Court-métrage)', imageUrl: imageData.account.project_nebula.src, hint: imageData.account.project_nebula.hint },
+    { id: 2, title: 'Lancement Marque de Vêtements', imageUrl: imageData.account.clothing_brand.src, hint: imageData.account.clothing_brand.hint },
+    { id: 3, title: 'Identité Visuelle - Nova', imageUrl: imageData.account.nova_design.src, hint: imageData.account.nova_design.hint },
 ];
 
 const initialDevices = [
@@ -54,12 +54,20 @@ const initialDevices = [
     { id: 2, name: 'MacBook Pro 16"', icon: MonitorSmartphone, location: 'Lyon, FR', lastSeen: 'il y a 2 jours' },
 ];
 
-const SectionCard = ({ icon, title, description, children, className }: { icon: React.ReactNode, title: string, description: string, children: React.ReactNode, className?: string }) => {
+interface SectionCardProps {
+    icon: React.ElementType, 
+    title: string, 
+    description: string, 
+    children: React.ReactNode, 
+    className?: string
+}
+
+const SectionCard: React.FC<SectionCardProps> = ({ icon: Icon, title, description, children, className }) => {
     return (
         <Card className={`glass-card h-full ${className}`}>
             <CardHeader className="flex flex-row items-center gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-                    {icon}
+                    <Icon className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                     <CardTitle>{title}</CardTitle>
@@ -217,7 +225,7 @@ export default function AccountClient() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Plan & Billing */}
                 <SectionCard
-                    icon={<CreditCard className="h-6 w-6 text-primary" />}
+                    icon={CreditCard}
                     title="Abonnement & Facturation"
                     description="Gérez votre abonnement et vos factures."
                     className="lg:col-span-1"
@@ -237,7 +245,7 @@ export default function AccountClient() {
 
                 {/* Preferences */}
                  <SectionCard
-                    icon={<Settings className="h-6 w-6 text-primary" />}
+                    icon={Settings}
                     title="Préférences"
                     description="Personnalisez votre expérience."
                     className="lg:col-span-2"
@@ -274,7 +282,7 @@ export default function AccountClient() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Creative History */}
                 <SectionCard
-                    icon={<Sparkles className="h-6 w-6 text-primary" />}
+                    icon={Sparkles}
                     title="Historique Créatif"
                     description="Vos dernières créations avec les outils (X)yzz."
                 >
@@ -294,24 +302,21 @@ export default function AccountClient() {
                 </SectionCard>
                  {/* Security & Devices */}
                  <SectionCard
-                    icon={<Shield className="h-6 w-6 text-primary" />}
+                    icon={Shield}
                     title="Appareils Connectés"
                     description="Gérez les appareils ayant accès à votre compte."
                 >
                     <div className="space-y-4">
-                        {devices.map(device => {
-                             const Icon = device.icon;
-                             return (
-                                 <div key={device.id} className="flex items-center gap-4 p-3 rounded-lg bg-background/50">
-                                    <Icon className="h-8 w-8 text-muted-foreground shrink-0"/>
-                                    <div className="flex-1">
-                                        <p className="font-semibold text-sm">{device.name}</p>
-                                        <p className="text-xs text-muted-foreground">{device.location} • {device.lastSeen}</p>
-                                    </div>
-                                    <Button onClick={() => handleDisconnectDevice(device.id)} size="sm" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10"><LogOut className="mr-2 h-4 w-4"/>Déconnecter</Button>
+                        {devices.map(device => (
+                             <div key={device.id} className="flex items-center gap-4 p-3 rounded-lg bg-background/50">
+                                <device.icon className="h-8 w-8 text-muted-foreground shrink-0"/>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-sm">{device.name}</p>
+                                    <p className="text-xs text-muted-foreground">{device.location} • {device.lastSeen}</p>
                                 </div>
-                             )
-                        })}
+                                <Button onClick={() => handleDisconnectDevice(device.id)} size="sm" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10"><LogOut className="mr-2 h-4 w-4"/>Déconnecter</Button>
+                            </div>
+                        ))}
                     </div>
                 </SectionCard>
             </div>

@@ -8,12 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import imageData from '@/lib/placeholder-images.json';
 
 const teamMembers = [
-  { name: 'Démon François', role: 'Fondateur & CEO', avatar: 'https://picsum.photos/seed/francois_ceo/256/256', hint: 'man portrait, professional, apple style' },
-  { name: 'Alfred Sisley', role: 'Directeur de la Technologie (CTO)', avatar: 'https://picsum.photos/seed/sisley_cto/256/256', hint: 'woman portrait, professional, apple style' },
-  { name: 'Ziari Kamal', role: 'Chef du Design (CDO)', avatar: 'https://picsum.photos/seed/kamal_cdo/256/256', hint: 'arab geek' },
-  { name: 'Chloé Martin', role: 'Responsable Communauté', avatar: 'https://picsum.photos/seed/chloe_com/256/256', hint: 'woman portrait, friendly, apple style' },
+  { name: 'Démon François', role: 'Fondateur & CEO', avatar: imageData.about.team.francois_ceo.src, hint: imageData.about.team.francois_ceo.hint },
+  { name: 'Alfred Sisley', role: 'Directeur de la Technologie (CTO)', avatar: imageData.about.team.sisley_cto.src, hint: imageData.about.team.sisley_cto.hint },
+  { name: 'Ziari Kamal', role: 'Chef du Design (CDO)', avatar: imageData.about.team.kamal_cdo.src, hint: imageData.about.team.kamal_cdo.hint },
+  { name: 'Chloé Martin', role: 'Responsable Communauté', avatar: imageData.about.team.chloe_com.src, hint: imageData.about.team.chloe_com.hint },
 ];
 
 const values = [
@@ -46,7 +47,7 @@ export default function AboutClient() {
       >
         <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-              <Image src="https://picsum.photos/seed/mission/800/800" alt="Notre mission" fill className="object-contain" data-ai-hint="creative team collaboration, apple style, modern office" />
+              <Image src={imageData.about.mission.src} alt="Notre mission" fill className="object-contain" data-ai-hint={imageData.about.mission.hint} />
             </div>
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium border border-primary/20">
@@ -78,7 +79,7 @@ export default function AboutClient() {
               </p>
             </div>
             <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4 md:order-1">
-              <Image src="https://picsum.photos/seed/vision_team/800/800" alt="Notre vision" fill className="object-contain" data-ai-hint="futuristic tech team, positive outlook" />
+              <Image src={imageData.about.vision.src} alt="Notre vision" fill className="object-contain" data-ai-hint={imageData.about.vision.hint} />
             </div>
           </div>
       </motion.section>

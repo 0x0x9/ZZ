@@ -1,4 +1,6 @@
 
+import imageData from '@/lib/placeholder-images.json';
+
 export type Post = {
   slug: string;
   title: string;
@@ -18,12 +20,12 @@ export const blogPosts: Post[] = [
     slug: "alpha-beta-et-vous-au-coeur-de-linnovation",
     title: "Alpha, Bêta & Vous : Au Cœur de l'Innovation (X)yzz",
     author: "Démon François",
-    avatar: "https://picsum.photos/seed/francois/256/256",
-    imageHint: "man portrait professional apple style",
+    avatar: imageData.blog.author_francois.src,
+    imageHint: imageData.blog.author_francois.hint,
     category: "Annonce",
     date: "2024-08-01",
     readingTime: 4,
-    image: "https://picsum.photos/seed/innovation/1600/900",
+    image: imageData.blog.post_innovation.src,
     excerpt: "Vous utilisez nos outils et vous voyez les mentions 'Alpha' ou 'Bêta'. Qu'est-ce que cela signifie ? Plongez avec nous dans les coulisses de la création de (X)yzz.ai.",
     content: `
       <h2>Participer à la Révolution</h2>
@@ -47,12 +49,12 @@ export const blogPosts: Post[] = [
     slug: "de-lidee-au-projet-avec-x-flux",
     title: "De l'idée au projet complet : Comment (X)flux révolutionne votre workflow",
     author: "Alfred Sisley",
-    avatar: "https://picsum.photos/seed/sisley/256/256",
-    imageHint: "woman portrait professional",
+    avatar: imageData.blog.author_sisley.src,
+    imageHint: imageData.blog.author_sisley.hint,
     category: "Étude de Cas",
     date: "2024-07-28",
     readingTime: 7,
-    image: "https://picsum.photos/seed/workflow/1600/900",
+    image: imageData.blog.post_workflow.src,
     excerpt: "Découvrez comment notre outil d'orchestration IA, (X)flux, peut transformer une simple phrase en un plan d'action détaillé, avec tous les livrables créatifs dont vous avez besoin.",
     content: `
       <p>Dans le monde de la création, l'un des plus grands défis est de passer de l'étincelle initiale d'une idée à un projet structuré et réalisable. C'est ici qu'intervient (X)flux, notre assistant IA conçu pour être votre chef de projet personnel.</p>
@@ -78,12 +80,12 @@ export const blogPosts: Post[] = [
     slug: "maitriser-lart-du-prompt-avec-x-promptor",
     title: "Maîtriser l'Art du Prompt avec (X)promptor",
     author: "Chloé Martin",
-    avatar: "https://picsum.photos/seed/chloe/256/256",
-    imageHint: "woman portrait friendly",
+    avatar: imageData.blog.author_chloe.src,
+    imageHint: imageData.blog.author_chloe.hint,
     category: "Conseils",
     date: "2024-07-25",
     readingTime: 5,
-    image: "https://picsum.photos/seed/prompt/1600/900",
+    image: imageData.blog.post_prompt.src,
     excerpt: "L'efficacité de l'IA générative dépend de la qualité de vos prompts. Apprenez à transformer des idées vagues en instructions précises pour des résultats spectaculaires.",
     content: `
       <p>Vous avez une idée en tête, une ambiance, une émotion, mais vous ne savez pas comment la traduire en une image ou un texte ? (X)promptor est votre allié. Cet outil est conçu pour prendre votre inspiration brute et la transformer en pistes créatives concrètes.</p>
@@ -102,12 +104,12 @@ export const blogPosts: Post[] = [
     slug: "creer-sa-premiere-maquette-avec-x-frame",
     title: "Tutoriel : Créez votre première maquette web avec (X)frame",
     author: "Ziari Kamal",
-    avatar: "https://picsum.photos/seed/ziari/256/256",
-    imageHint: "man working computer design",
+    avatar: imageData.blog.author_ziari.src,
+    imageHint: imageData.blog.author_ziari.hint,
     category: "Tutoriel",
     date: "2024-07-29",
     readingTime: 6,
-    image: "https://picsum.photos/seed/maquette/1600/900",
+    image: imageData.blog.post_maquette.src,
     excerpt: "Passez de l'idée à une interface fonctionnelle en quelques minutes. Ce guide vous montre comment utiliser (X)frame pour générer du code React à partir d'une simple description.",
     content: `
       <h2>Introduction : Qu'est-ce que (X)frame ?</h2>
@@ -129,19 +131,19 @@ export const blogPosts: Post[] = [
       <p>Le code généré est une base solide. Vous pouvez maintenant le copier-coller dans votre projet existant via (X).alpha (notre éditeur de code) et le personnaliser. Changez les textes, ajustez les styles avec Tailwind CSS, ou ajoutez une logique plus complexe. Vous venez de gagner un temps précieux.</p>
       
       <h2>Conclusion</h2>
-      <p>Vous avez créé votre premier composant avec (X)frame ! Cet outil est conçu pour <strong>accélérer votre développement</strong>, vous permettant de vous concentrer sur la logique complexe plutôt que sur la mise en place répétitive des interfaces. Expérimentez avec des prompts plus complexes et découvrez toute la puissance de l'IA au service du design.</p>
+      <p>Vous avez créé votre premier composant avec (X)frame ! Cet outil est conçu pour <strong>accélérer votre développement</strong>, vous permettant de vous concentrer sur la logique complexe plutôt que sur la mise en place répétitive des interfaces.</p>
     `
   },
   {
     slug: "creer-bande-son-muse-sound",
     title: "Tutoriel : Créez la bande-son de votre projet avec (X)muse et (X)sound",
     author: "Chloé Martin",
-    avatar: "https://picsum.photos/seed/chloe2/256/256",
-    imageHint: "audio waveform music production",
+    avatar: imageData.blog.author_chloe2.src,
+    imageHint: imageData.blog.author_chloe2.hint,
     category: "Tutoriel",
     date: "2024-08-05",
     readingTime: 6,
-    image: "https://picsum.photos/seed/music/1600/900",
+    image: imageData.blog.post_music.src,
     excerpt: "Un guide pratique pour utiliser nos outils audio IA, de la recherche d'inspiration musicale à la création d'effets sonores sur mesure.",
     content: `
       <h2>Le défi sonore</h2>
@@ -163,7 +165,7 @@ export const blogPosts: Post[] = [
       <p>Votre court-métrage a besoin de bruitages. Le robot marche, ses yeux clignotent, un vent étrange souffle... Lancez (X)sound et décrivez simplement ce que vous voulez entendre.</p>
       <blockquote>"Le bruit des pas métalliques lents d'un robot sur un sol rocheux et poussiéreux."</blockquote>
       <p>En quelques secondes, (X)sound génère un fichier audio correspondant. Répétez l'opération pour chaque son dont vous avez besoin : "un bip électronique doux et interrogatif", "un vent léger avec une résonance cristalline", etc.</p>
-
+      
       <h2>Conclusion : Votre projet, votre son</h2>
       <p>En combinant (X)muse et (X)sound, vous pouvez créer un habillage sonore riche et cohérent en une fraction du temps qu'il faudrait normalement. Ces outils ne remplacent pas le compositeur ou le sound designer, mais ils leur donnent des super-pouvoirs, leur permettant de prototyper, d'expérimenter et de concrétiser leur vision sonore plus rapidement que jamais.</p>
     `
@@ -172,12 +174,12 @@ export const blogPosts: Post[] = [
     slug: "etude-de-cas-x-flux",
     title: "Anatomie d'un projet (X)flux : De 'Lancer une marque de café' à la réalité",
     author: "Alfred Sisley",
-    avatar: "https://picsum.photos/seed/sisley2/256/256",
-    imageHint: "coffee shop branding",
+    avatar: imageData.blog.author_sisley2.src,
+    imageHint: imageData.blog.author_sisley2.hint,
     category: "Étude de Cas",
     date: "2024-08-08",
     readingTime: 8,
-    image: "https://picsum.photos/seed/coffee/1600/900",
+    image: imageData.blog.post_coffee.src,
     excerpt: "Comment (X)flux transforme une simple phrase en un projet de marque complet ? Plongez dans les coulisses et découvrez tous les livrables générés par l'IA.",
     content: `
       <h2>L'Idée de Départ</h2>
@@ -214,12 +216,12 @@ export const blogPosts: Post[] = [
     slug: "notre-vision-pour-le-futur-de-la-creation",
     title: "Pourquoi 'unifié' ? Notre vision pour le futur de la création",
     author: "Démon François",
-    avatar: "https://picsum.photos/seed/francois2/256/256",
-    imageHint: "abstract technology network",
+    avatar: imageData.blog.author_francois2.src,
+    imageHint: imageData.blog.author_francois2.hint,
     category: "Vision",
     date: "2024-08-10",
     readingTime: 5,
-    image: "https://picsum.photos/seed/vision/1600/900",
+    image: imageData.blog.post_vision.src,
     excerpt: "Au cœur de (X)yzz.ai se trouve une idée simple mais puissante : un écosystème unifié. Découvrez pourquoi briser les silos entre les systèmes d'exploitation est la clé de la prochaine révolution créative.",
     content: `
       <h2>Le Mur Invisible des OS</h2>
@@ -245,12 +247,12 @@ export const blogPosts: Post[] = [
     slug: "workflow-pro-xframe-xalpha",
     title: "Workflow Pro : Prototyper une app avec (X)frame et (X).alpha",
     author: "Ziari Kamal",
-    avatar: "https://picsum.photos/seed/ziari2/256/256",
-    imageHint: "developer coding on screen",
+    avatar: imageData.blog.author_ziari2.src,
+    imageHint: imageData.blog.author_ziari2.hint,
     category: "Tutoriel",
     date: "2024-08-12",
     readingTime: 8,
-    image: "https://picsum.photos/seed/code/1600/900",
+    image: imageData.blog.post_code.src,
     excerpt: "Passez de l'idée au prototype fonctionnel en un temps record. Ce guide avancé vous montre comment combiner nos outils de design et de développement IA.",
     content: `
       <h2>Le défi : de la maquette au code</h2>
@@ -287,12 +289,12 @@ export const blogPosts: Post[] = [
     slug: "creations-de-la-communaute-aout-2024",
     title: "Les créations du mois : Le meilleur de la galerie (X)hibit",
     author: "Chloé Martin",
-    avatar: "https://picsum.photos/seed/chloe3/256/256",
-    imageHint: "art gallery display",
+    avatar: imageData.blog.author_chloe3.src,
+    imageHint: imageData.blog.author_chloe3.hint,
     category: "Communauté",
     date: "2024-08-15",
     readingTime: 4,
-    image: "https://picsum.photos/seed/gallery/1600/900",
+    image: imageData.blog.post_gallery.src,
     excerpt: "Chaque mois, nous mettons en lumière les œuvres les plus inspirantes créées par notre communauté. Découvrez les talents qui repoussent les limites de l'IA créative.",
     content: `
       <h2>L'imagination à l'œuvre</h2>
@@ -317,12 +319,22 @@ export const blogPosts: Post[] = [
   }
 ];
 
+export type Reply = {
+  id: number;
+  author: string;
+  avatar: string;
+  hint: string;
+  timestamp: string;
+  content: string;
+  likes: number;
+};
+
 export const mockReplies: Record<number, Reply[]> = {
   1: [
     {
       id: 101,
       author: "Juliette L.",
-      avatar: "https://placehold.co/100x100.png",
+      avatar: imageData.general.user_avatar.src,
       hint: "person portrait",
       timestamp: "il y a 2 heures",
       content: "Salut Alexandre ! Perso, je suis passé sur le dernier driver NVIDIA Studio, ça a bien aidé. Tu as vérifié si tes drivers sont à jour ?",
@@ -331,7 +343,7 @@ export const mockReplies: Record<number, Reply[]> = {
     {
       id: 102,
       author: "Thomas G.",
-      avatar: "https://placehold.co/100x100.png",
+      avatar: imageData.general.user_avatar.src,
       hint: "person portrait",
       timestamp: "il y a 1 heure",
       content: "Bonne question. Je baisse souvent le nombre de samples pour les previews et je l'augmente uniquement pour le rendu final. C'est basique mais ça change la vie.",
@@ -340,7 +352,7 @@ export const mockReplies: Record<number, Reply[]> = {
      {
       id: 103,
       author: "Alexandre D.",
-      avatar: "https://placehold.co/100x100.png",
+      avatar: imageData.general.user_avatar.src,
       hint: "person portrait",
       timestamp: "il y a 30 minutes",
       content: "Merci pour vos retours ! @Juliette, je vais checker les drivers, bonne idée. @Thomas, oui je fais ça aussi, mais même le rendu final est très long sur ma scène actuelle.",
@@ -351,21 +363,11 @@ export const mockReplies: Record<number, Reply[]> = {
      {
       id: 201,
       author: "Alexandre D.",
-      avatar: "https://placehold.co/100x100.png",
+      avatar: imageData.general.user_avatar.src,
       hint: "person portrait",
       timestamp: "il y a 4 heures",
       content: "Super intéressant ton retour ! Je n'ai pas encore osé me lancer avec (X)flux, ça a l'air puissant mais un peu intimidant.",
       likes: 5,
     },
   ],
-};
-
-export type Reply = {
-  id: number;
-  author: string;
-  avatar: string;
-  hint: string;
-  timestamp: string;
-  content: string;
-  likes: number;
 };
