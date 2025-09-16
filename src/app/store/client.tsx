@@ -9,6 +9,7 @@ import { products } from '@/lib/products';
 import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/product-card';
 import Image from 'next/image';
+import imageData from '@/lib/placeholder-images.json';
 
 export default function StoreClient() {
     const hardwareProducts = products.filter(p => p.category === 'Matériel');
@@ -47,11 +48,11 @@ export default function StoreClient() {
             <Link href="/store/1">
                 <div className="relative aspect-video w-full rounded-2xl overflow-hidden glass-card group">
                      <Image 
-                        src="https://picsum.photos/seed/workstation/1600/900"
+                        src={imageData.store.workstation.src}
                         alt="(X)-φ (fi) Workstation"
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        data-ai-hint="powerful desktop computer"
+                        data-ai-hint={imageData.store.workstation.hint}
                         priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

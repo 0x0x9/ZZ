@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import imageData from '@/lib/placeholder-images.json';
 
 const features = [
     { title: "Un OS, Trois Mondes", description: "Basculez instantanément entre Windows, macOS et Linux. Profitez du meilleur de chaque système, sans redémarrage, sans compromis.", icon: Layers, videoId: 'wLiwRGYaVnw' },
@@ -21,22 +22,22 @@ const whoIsItFor = [
         title: "Pour les Créatifs",
         description: "Une suite d'outils IA qui comprend votre vision et vous aide à la réaliser plus rapidement que jamais.",
         icon: Sparkles,
-        image: "https://picsum.photos/seed/creative_person/800/800",
-        imageHint: "artist painting digital"
+        image: imageData.features.artist_creative.src,
+        imageHint: imageData.features.artist_creative.hint,
     },
     {
         title: "Pour les Technophiles",
         description: "Une architecture ouverte, conçue pour la performance et la personnalisation, sans aucune limite.",
         icon: Cpu,
-        image: "https://picsum.photos/seed/tech_person/800/800",
-        imageHint: "retro computer setup"
+        image: imageData.features.tech_setup.src,
+        imageHint: imageData.features.tech_setup.hint,
     },
     {
         title: "Pour les Équipes",
         description: "Des outils collaboratifs natifs pour travailler en parfaite synchronisation, où que vous soyez.",
         icon: Users,
-        image: "https://picsum.photos/seed/team_person/800/800",
-        imageHint: "team collaborating office"
+        image: imageData.features.team_office.src,
+        imageHint: imageData.features.team_office.hint,
     },
 ];
 

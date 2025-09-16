@@ -9,6 +9,7 @@ import { Cpu, Zap, Layers, Folder, Check, ArrowRight, Sparkles, Users, CheckCirc
 import Link from 'next/link';
 import Image from 'next/image';
 import { products } from '@/lib/products';
+import imageData from '@/lib/placeholder-images.json';
 
 const features = [
     { title: "Un OS, Trois Mondes", description: "Basculez instantanément entre Windows, macOS et Linux. Profitez du meilleur de chaque système, sans redémarrage, sans compromis.", icon: Layers, videoId: 'wLiwRGYaVnw' },
@@ -102,22 +103,22 @@ export default function FeaturesClient() {
         title: "Pour les Créatifs",
         description: "Une suite d'outils IA intégrés qui comprennent votre vision et vous aident à la réaliser plus rapidement que jamais.",
         icon: Sparkles,
-        image: "https://picsum.photos/seed/artist_creative/800/800",
-        imageHint: "artist painting digital"
+        image: imageData.features.artist_creative.src,
+        imageHint: imageData.features.artist_creative.hint
     },
     {
         title: "Pour les Technophiles",
         description: "Une architecture matérielle et logicielle ouverte, conçue pour la performance et la personnalisation, sans aucune limite.",
         icon: Cpu,
-        image: "https://picsum.photos/seed/tech_setup/800/800",
-        imageHint: "retro computer setup"
+        image: imageData.features.tech_setup.src,
+        imageHint: imageData.features.tech_setup.hint
     },
     {
         title: "Pour les Équipes",
         description: "Des outils collaboratifs natifs et une gestion de projet unifiée pour travailler en parfaite synchronisation, où que vous soyez.",
         icon: Users,
-        image: "https://picsum.photos/seed/team_office/800/800",
-        imageHint: "team collaborating office"
+        image: imageData.features.team_office.src,
+        imageHint: imageData.features.team_office.hint
     },
 ]
 

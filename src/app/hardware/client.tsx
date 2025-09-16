@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import PerformanceChart from '@/components/ui/performance-chart';
 import { Card, CardContent } from '@/components/ui/card';
+import imageData from '@/lib/placeholder-images.json';
 
 function Section({ children, className }: { children: React.ReactNode, className?: string }) {
     return (
@@ -117,7 +118,7 @@ export default function HardwareClient() {
                 </AnimatedSection>
                 <AnimatedSection className="mt-16">
                    <div className="relative aspect-video max-w-5xl mx-auto glass-card p-4">
-                       <Image src="https://picsum.photos/seed/multi_os/1600/900" alt="Multi-OS demonstration" fill className="object-cover rounded-lg" data-ai-hint="futuristic desktop interface" />
+                       <Image src={imageData.hardware.multi_os.src} alt="Multi-OS demonstration" fill className="object-cover rounded-lg" data-ai-hint={imageData.hardware.multi_os.hint} />
                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                            <p className="text-white text-2xl font-bold [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">Votre studio. Unifié.</p>
                        </div>
@@ -175,11 +176,11 @@ export default function HardwareClient() {
                         }}
                     >
                          <Image
-                            src="https://picsum.photos/seed/cooling/1600/900"
+                            src={imageData.features.cooling_system.src}
                             alt="Système de refroidissement liquide de la (X)-φ (fi)"
                             fill
                             className="object-cover"
-                            data-ai-hint="liquid cooling"
+                            data-ai-hint={imageData.features.cooling_system.hint}
                         />
                          <div className="absolute inset-0 bg-black/50"></div>
                     </motion.div>
@@ -201,11 +202,11 @@ export default function HardwareClient() {
                         }}
                     >
                         <Image
-                            src="https://picsum.photos/seed/open_computer/1600/900"
+                            src={imageData.features.chassis_open.src}
                             alt="Châssis ouvert de la (X)-φ (fi) montrant l'accès aux composants"
                             fill
                             className="object-cover"
-                            data-ai-hint="open computer"
+                            data-ai-hint={imageData.features.chassis_open.hint}
                         />
                          <div className="absolute inset-0 bg-black/50"></div>
                     </motion.div>
