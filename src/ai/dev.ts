@@ -7,7 +7,7 @@
  * L'inspecteur sera disponible sur http://localhost:4000.
  */
 
-import { start } from '@genkit-ai/googleai';
+import { start } from '@genkit-ai/tools-common/dev';
 
 // Démarre le serveur de flux de Genkit
 start();

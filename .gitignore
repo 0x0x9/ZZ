@@ -27,3 +27,5 @@
 
 # Sensitive credentials
 google-credentials.json
+google-credentials.json
+*.json
