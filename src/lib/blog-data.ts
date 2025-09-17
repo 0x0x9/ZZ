@@ -42,7 +42,6 @@ export const blogPosts: Post[] = [
 
       <h2>Votre Voix Compte</h2>
       <p>Que vous utilisiez un outil en Alpha ou en Bêta, votre rôle est essentiel. Chaque bug signalé, chaque suggestion d'amélioration et chaque création que vous partagez nous aident à construire un écosystème plus puissant et plus intuitif. Vous n'êtes pas de simples utilisateurs ; vous êtes les co-architectes de (X)yzz.ai.</p>
-      <p>Merci de faire partie de cette aventure. Ensemble, nous ne faisons pas que prédire le futur de la création, nous le construisons.</p>
     `
   },
   {
@@ -289,8 +288,8 @@ export const blogPosts: Post[] = [
     slug: "creations-de-la-communaute-aout-2024",
     title: "Les créations du mois : Le meilleur de la galerie (X)hibit",
     author: "Chloé Martin",
-    avatar: imageData.blog.author_chloe3.src,
-    imageHint: imageData.blog.author_chloe3.hint,
+    avatar: imageData.blog.author_chloe2.src,
+    imageHint: imageData.blog.author_chloe2.hint,
     category: "Communauté",
     date: "2024-08-15",
     readingTime: 4,
