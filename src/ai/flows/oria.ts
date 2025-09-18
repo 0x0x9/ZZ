@@ -248,17 +248,8 @@ const oriaRouterFlow = ai.defineFlow(
     
     // Robust history processing: ensures each message is valid and has string content.
     const history = (input.history ?? [])
-        .map(h => {
-            if (!h || typeof h !== 'object' || !h.role) return null;
-            let content = '';
-            if (h.content) {
-                 content = typeof h.content === 'string' ? h.content : JSON.stringify(h.content);
-            }
-            if (content.trim() === '') return null;
-
-            return { role: h.role, content };
-        })
-        .filter((h): h is { role: 'user' | 'model'; content: string } => h !== null);
+        .filter(h => h && typeof h.content === 'string' && h.content.trim() !== '')
+        .map(h => ({ role: h.role, content: h.content }));
     
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)
@@ -307,4 +298,3 @@ const oriaRouterFlow = ai.defineFlow(
   }
 );
 
-    
