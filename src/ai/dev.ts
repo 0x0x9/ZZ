@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Ce script est UNIQUEMENT pour le développement local.
  * Il lance le serveur de développement de Genkit, qui fournit une interface
@@ -7,7 +8,7 @@
  * L'inspecteur sera disponible sur http://localhost:4000.
  */
 
-import { start } from '@genkit-ai/tools-common/dev';
+import { start } from '@genkit-ai/tools-common';
 
 // Démarre le serveur de flux de Genkit
 start();
