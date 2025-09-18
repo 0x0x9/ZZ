@@ -438,10 +438,10 @@ export default function HomepageOriaChat() {
 
       const history: OriaHistoryMessage[] = messages.slice(-10).map(msg => ({
         role: msg.type === 'user' ? 'user' : 'model',
-        content: msg.type === 'user' ? msg.text! : JSON.stringify(msg.result!)
+        content: msg.type === 'user' ? msg.text! : JSON.stringify(msg.result || ''),
       }));
       
-      formData.set('history', JSON.stringify(history));
+      formData.append('history', JSON.stringify(history));
       setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: prompt }]);
       
       formAction(formData);
@@ -455,3 +455,5 @@ export default function HomepageOriaChat() {
     </form>
   );
 }
+
+    

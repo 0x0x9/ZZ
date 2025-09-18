@@ -246,13 +246,16 @@ const oriaRouterFlow = ai.defineFlow(
   },
   async (input) => {
     
-    // Robust history processing: ensures each message is valid.
+    // Robust history processing: ensures each message is valid and has string content.
     const history = (input.history ?? [])
         .map(h => {
-            if (!h || !h.role) return null;
-            // The content MUST be a string. If it's an object, stringify it.
-            const content = typeof h.content === 'string' ? h.content : JSON.stringify(h.content);
-            if (!content || content.trim() === '') return null;
+            if (!h || typeof h !== 'object' || !h.role) return null;
+            let content = '';
+            if (h.content) {
+                 content = typeof h.content === 'string' ? h.content : JSON.stringify(h.content);
+            }
+            if (content.trim() === '') return null;
+
             return { role: h.role, content };
         })
         .filter((h): h is { role: 'user' | 'model'; content: string } => h !== null);
@@ -303,3 +306,5 @@ const oriaRouterFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
