@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import OriaAnimation from '@/components/ui/oria-animation';
 
 const environments = [
   {
@@ -157,6 +158,28 @@ export default function ToolsClient() {
                 </div>
                 <div className="space-y-8">
                      {environments.map(env => <EnvironmentCard key={env.title} env={env} />)}
+                </div>
+            </section>
+
+             <section className="container mx-auto px-4 md:px-6">
+                <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
+                    <div className="absolute -inset-20 z-0">
+                         <OriaAnimation className="w-full h-full opacity-30" />
+                    </div>
+                    <div className="relative z-10 text-center md:text-left">
+                        <h2 className="text-3xl md:text-4xl font-bold">Oria, votre chef d'orchestre IA.</h2>
+                        <p className="mt-4 text-lg text-muted-foreground max-w-xl">
+                            Oria est l'intelligence qui connecte tous les outils. Discutez avec elle pour lancer des projets, générer des idées, et trouver l'outil parfait pour chaque tâche.
+                        </p>
+                         <Button asChild size="lg" className="mt-8 rounded-full">
+                            <Link href="/xos?open=oria">
+                                Discuter avec Oria <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
+                     <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
+                         <OriaAnimation className="w-full h-full" />
+                    </div>
                 </div>
             </section>
 
