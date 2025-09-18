@@ -331,23 +331,8 @@ export const GenerateFluxInputSchema = z.object({
 });
 export type GenerateFluxInput = z.infer<typeof GenerateFluxInputSchema>;
 
-export const FluxToolEnum = z.enum([
-  'projectPlan',
-  'palette',
-  'tone',
-  'personas',
-  'ideas',
-  'deck',
-  'frame',
-  'text',
-  'motion',
-  'nexus',
-  'code',
-  'agenda',
-]);
-
 export const FluxAnalysisOutputSchema = z.object({
-  tools: z.array(FluxToolEnum).describe("La liste des outils à utiliser pour générer le projet. 'projectPlan' est obligatoire."),
+  tools: z.array(z.string()).describe("La liste des ID d'outils à utiliser (ex: ['projectPlan', 'palette', 'tone']). 'projectPlan' est obligatoire."),
 });
 export type FluxAnalysisOutput = z.infer<typeof FluxAnalysisOutputSchema>;
 
