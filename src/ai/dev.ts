@@ -8,7 +8,7 @@
  * L'inspecteur sera disponible sur http://localhost:4000.
  */
 
-import { start } from '@genkit-ai/tools-common';
+import { start } from '@genkit-ai/dot-prompt';
 
 // Démarre le serveur de flux de Genkit
 start();
