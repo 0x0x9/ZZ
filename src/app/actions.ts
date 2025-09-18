@@ -1,3 +1,4 @@
+
 // This file re-exports all the server actions for the client components.
 // It simplifies the import paths and provides a single entry point for all server-side logic.
 
@@ -10,14 +11,12 @@ export { generateSchedule } from '@/ai/flows/generate-schedule';
 export { generatePalette } from '@/ai/flows/generate-palette';
 export { generateTone } from '@/ai/flows/generate-tone';
 export { generatePersona } from '@/ai/flows/generate-persona';
-export { generateContent } from '@/ai/flows/content-generator';
 export { generateMotion } from '@/ai/flows/generate-motion';
 export { generateVoice } from '@/ai/flows/generate-voice';
 export { generateDeck } from '@/ai/flows/generate-deck';
 export { generateFrame } from '@/ai/flows/generate-frame';
 export { generateSound } from '@/ai/flows/generate-sound';
 export { generateNexus } from '@/ai/flows/generate-nexus';
-export { convertImage } from '@/ai/flows/convert-image';
 export { generateLightMood } from '@/ai/flows/generate-light-mood';
 export { generateMoodboard } from '@/ai/flows/generate-moodboard';
 export { copilotLyrics } from '@/ai/flows/copilot-lyrics';
@@ -32,18 +31,43 @@ export { shareDocument } from '@/ai/flows/share-document';
 export { uploadDocument } from '@/ai/flows/upload-document';
 export { oria } from '@/ai/flows/oria';
 
-// Re-export generateContent as reformatTextAction for specific use cases
-import { generateContent as reformatTextFlow } from '@/ai/flows/content-generator';
-export async function reformatTextAction(prevState: any, formData: FormData) {
+// Specific action wrappers
+import { generateContent as generateContentFlow } from '@/ai/flows/content-generator';
+import type { GenerateContentOutput } from '@/ai/types';
+
+export async function generateContent(prevState: any, formData: FormData): Promise<{ id: number, type: string, data: string | GenerateContentOutput['data'] | null, error: string | null }> {
   try {
-    const text = formData.get('text') as string;
+    const contentType = formData.get('contentType') as 'text' | 'image' | 'ideas' | 'reformat';
     const prompt = formData.get('prompt') as string;
-    const result = await reformatTextFlow({ contentType: 'reformat', prompt, textToReformat: text });
-    return { id: Date.now(), result: { reformattedText: result.data as string }, error: null, message: 'success' };
+    const style = formData.get('style') as string | undefined;
+    const textToReformat = formData.get('textToReformat') as string | undefined;
+    
+    const result = await generateContentFlow({ contentType, prompt, style, textToReformat });
+    return { id: Date.now(), type: result.type, data: result.data, error: null };
   } catch (error: any) {
-    return { id: Date.now(), result: null, error: error.message, message: 'error' };
+    return { id: Date.now(), type: 'error', data: null, error: error.message };
   }
 }
+
+import { convertImage as convertImageFlow } from '@/ai/flows/convert-image';
+import type { ConvertImageOutput } from '@/ai/types';
+
+export async function convertImage(prevState: any, formData: FormData): Promise<{id: number, result: ConvertImageOutput | null, error: string | null}> {
+    try {
+        const image = formData.get('image') as string;
+        const outputFormat = formData.get('outputFormat') as 'jpeg' | 'png' | 'webp';
+        const removeTransparency = formData.get('removeTransparency') === 'on';
+
+        if (!image) throw new Error("Image non fournie.");
+        if (!outputFormat) throw new Error("Format de sortie non spécifié.");
+
+        const result = await convertImageFlow({ image, outputFormat, removeTransparency });
+        return { id: Date.now(), result, error: null };
+    } catch(e: any) {
+        return { id: Date.now(), result: null, error: e.message };
+    }
+}
+
 
 // We keep the alias for chat for simplicity in the client
 export { oria as oriaChatAction } from '@/ai/flows/oria';
@@ -52,7 +76,7 @@ export { oria as oriaChatAction } from '@/ai/flows/oria';
 import { uploadDocument as uploadMuseDoc } from '@/ai/flows/upload-document';
 export const uploadMuseDocumentAction = uploadMuseDoc;
 
-import { generateSchedule } from '@/ai/flows/generate-schedule';
+import { generateSchedule as genSchedule } from '@/ai/flows/generate-schedule';
 import { ProjectPlanSchema, type ProjectPlan } from '@/ai/types';
 import { z } from 'zod';
 // Wrapper for manual project creation
@@ -74,7 +98,15 @@ export async function createManualProjectAction(prevState: any, formData: FormDa
       events: []
     };
     
-    const validatedProject = ProjectPlanSchema.parse(project);
+    // This will fail because tasks and imagePrompts might be empty, but the schema requires them.
+    // Let's adjust the object to satisfy the schema for validation purposes, even if fields are empty.
+    const projectToValidate: ProjectPlan = {
+      ...project,
+      tasks: project.tasks || [],
+      imagePrompts: project.imagePrompts || [],
+    };
+    
+    const validatedProject = ProjectPlanSchema.parse(projectToValidate);
 
     // Simulate saving the project
     const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(validatedProject))))}`;
@@ -126,7 +158,6 @@ export async function generateFrameAction(prevState: any, formData: FormData): P
   }
 }
 
-import { generateSchedule as genSchedule } from '@/ai/flows/generate-schedule';
 export const generateScheduleAction = genSchedule;
 
 import { listDocuments as listDocs } from '@/ai/flows/list-documents';

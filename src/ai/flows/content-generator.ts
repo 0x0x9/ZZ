@@ -3,7 +3,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { GenerateIdeasOutputSchema } from '@/ai/types';
+import { GenerateIdeasOutputSchema, ReformatTextWithPromptOutputSchema } from '@/ai/types';
 import { googleAI } from '@genkit-ai/googleai';
 
 const GenerateContentInputSchema = z.object({
@@ -16,7 +16,7 @@ type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>;
 
 const GenerateContentOutputSchema = z.object({
     type: z.enum(['text', 'image', 'ideas']),
-    data: z.union([z.string(), GenerateIdeasOutputSchema]),
+    data: z.union([z.string(), GenerateIdeasOutputSchema, ReformatTextWithPromptOutputSchema]),
 });
 type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>;
 
@@ -57,18 +57,18 @@ const generateContentFlow = ai.defineFlow(
         }
         return { type: 'image', data: media.url };
     }
-
-    let prompt = contentGenerationPromptText
-        .replace('{{{prompt}}}', input.prompt)
-        .replace('{{#if style}}Style: {{{style}}}{{/if}}', input.style ? `Style: ${input.style}`: '')
-        .replace('{{#if textToReformat}}Texte à reformater: {{{textToReformat}}}{{/if}}', input.textToReformat ? `Texte à reformater: ${input.textToReformat}`: '');
         
-    const response = await ai.generate({
-        model: 'googleai/gemini-1.5-flash-latest',
-        prompt,
+    const llmResponse = await ai.generate({
+        model: 'googleai/gemini-1.5-pro-latest',
+        prompt: contentGenerationPromptText,
+        input: {
+            prompt: input.prompt,
+            style: input.style || '',
+            textToReformat: input.textToReformat || '',
+        },
     });
 
-    const resultText = response.text;
+    const resultText = llmResponse.text;
     
     if (input.contentType === 'ideas') {
       try {
@@ -77,6 +77,10 @@ const generateContentFlow = ai.defineFlow(
       } catch (e) {
         throw new Error("L'IA a retourné un format d'idées invalide.");
       }
+    }
+    
+    if (input.contentType === 'reformat') {
+      return { type: 'text', data: { reformattedText: resultText } };
     }
 
     return { type: 'text', data: resultText };

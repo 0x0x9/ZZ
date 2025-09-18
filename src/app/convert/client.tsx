@@ -37,6 +37,7 @@ function ImageConverter() {
     
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     
     useEffect(() => {
@@ -64,18 +65,21 @@ function ImageConverter() {
             reader.onload = (loadEvent) => {
                 const dataUrl = loadEvent.target?.result as string;
                 setImagePreview(dataUrl);
-                // Also update the hidden input
-                const hiddenInput = e.target.form?.elements.namedItem('image') as HTMLInputElement;
-                if (hiddenInput) {
-                    hiddenInput.value = dataUrl;
-                }
             };
             reader.readAsDataURL(file);
         }
     }
+    
+    useEffect(() => {
+        if (!pending) {
+            formRef.current?.reset();
+            setImagePreview(null);
+        }
+    }, [pending]);
+
 
     return (
-        <form action={formAction} className="space-y-8">
+        <form ref={formRef} action={formAction} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div className="space-y-4">
                     <input
@@ -154,7 +158,7 @@ function ImageConverter() {
 }
 
 function DocumentConverter() {
-    const initialState = { type: '', data: '', error: null };
+    const initialState = { type: '', data: null, error: null, id: 0 };
     const [state, formAction] = useFormState(generateContent, initialState);
     const { toast } = useToast();
     const { pending } = useFormStatus();
@@ -166,8 +170,9 @@ function DocumentConverter() {
     }, [state, toast]);
 
     const handleCopy = () => {
-        if (typeof state.data !== 'string') return;
-        navigator.clipboard.writeText(state.data);
+        const textData = state.data as { reformattedText: string } | null;
+        if (!textData?.reformattedText) return;
+        navigator.clipboard.writeText(textData.reformattedText);
         toast({
             title: 'Copié !',
             description: 'Le texte transformé a été copié dans le presse-papiers.',
@@ -204,7 +209,7 @@ function DocumentConverter() {
                     <SubmitButton pending={pending} text="Transformer le texte" />
                 </div>
             </div>
-             {state.data && (
+             {state.data && state.type === 'text' && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -222,7 +227,7 @@ function DocumentConverter() {
                         <CardContent className="min-h-[200px]">
                             <Textarea
                                 readOnly
-                                value={typeof state.data === 'string' ? state.data : ''}
+                                value={(state.data as any)?.reformattedText || ''}
                                 rows={10}
                                 className="bg-background/50 text-base"
                             />
