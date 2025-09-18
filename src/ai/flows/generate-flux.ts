@@ -50,7 +50,7 @@ Adaptez votre sélection au métier. Exemples :
 - Si l'utilisateur est **Réalisateur** et veut "préparer un court-métrage de science-fiction", incluez 'projectPlan', 'motion', 'deck' (pour le pitch), 'ideas' et 'palette' (pour l'ambiance visuelle).
 - Si l'utilisateur est **Développeur** et veut "créer un portfolio en ligne", incluez 'projectPlan', 'frame', 'code', 'text', et 'palette'.
 
-Analysez la demande et le métier pour retourner la liste des ID d'outils les plus pertinents au format JSON.`;
+Analysez la demande et le métier pour retourner la liste des ID d'outils les plus pertinents. La réponse DOIT être un objet JSON valide qui respecte le schéma : { "tools": ["tool1", "tool2", ...] }`;
 
 const generateFluxFlow = ai.defineFlow(
   {
@@ -61,8 +61,12 @@ const generateFluxFlow = ai.defineFlow(
   async (input) => {
     // Phase 1: Analyse de la demande pour choisir les outils
     const analysisResponse = await ai.generate({
-        prompt: analysisPrompt.replace('{{{prompt}}}', input.prompt).replace('{{{job}}}', input.job || 'non spécifié'),
+        prompt: analysisPrompt,
         model: 'googleai/gemini-1.5-pro-latest',
+        input: {
+            prompt: input.prompt,
+            job: input.job || 'non spécifié',
+        },
         config: {
             response_mime_type: 'application/json',
             safetySettings: [

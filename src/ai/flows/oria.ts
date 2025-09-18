@@ -245,34 +245,17 @@ const oriaRouterFlow = ai.defineFlow(
     outputSchema: OriaChatOutputSchema,
   },
   async (input) => {
-    let history: OriaChatInput['history'] = [];
-    if (Array.isArray(input.history)) {
-      history = input.history
+    
+    // This is the robust way to handle history.
+    // It filters out any invalid messages and ensures each message has a valid 'content' string.
+    let history = (input.history ?? [])
         .map(h => {
-            if (!h || typeof h !== 'object' || !h.content) return null;
-            
-            let contentText = h.content;
-            if (typeof contentText !== 'string') {
-                try {
-                    contentText = JSON.stringify(contentText);
-                } catch {
-                    return null; // Ignore if cannot be stringified
-                }
-            }
-             // Ensure content is not an empty string
-            if (!contentText.trim()) {
-                return null;
-            }
-            
-            return {
-                role: h.role,
-                content: contentText,
-            };
+            if (!h || !h.role || typeof h.content !== 'string') return null;
+            if (h.content.trim() === '') return null;
+            return { role: h.role, content: h.content };
         })
         .filter((h): h is NonNullable<typeof h> => h !== null);
-    }
-
-
+    
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)
       .replace('{{{context}}}', input.context || 'non spécifié');
