@@ -28,9 +28,6 @@ export async function generateFlux(input: GenerateFluxInput): Promise<GenerateFl
 
 const analysisPrompt = ai.definePrompt({
   name: 'fluxAnalysisPrompt',
-  input: { schema: GenerateFluxInputSchema },
-  output: { schema: FluxAnalysisOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
   prompt: `Vous êtes un chef de projet expert et un stratège créatif. Votre rôle est d'analyser la demande d'un utilisateur et de sélectionner la combinaison d'outils la plus pertinente pour réaliser son projet, en tenant compte de son métier.
 
 Demande de l'utilisateur : {{{prompt}}}
@@ -56,14 +53,6 @@ Adaptez votre sélection au métier. Exemples :
 - Si l'utilisateur est **Développeur** et veut "créer un portfolio en ligne", incluez 'projectPlan', 'frame', 'code', 'text', et 'palette'.
 
 Analysez la demande et le métier pour retourner la liste des ID d'outils les plus pertinents au format JSON.`,
-  config: {
-    safetySettings: [
-      {
-        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
-    ],
-  },
 });
 
 const generateFluxFlow = ai.defineFlow(
@@ -74,7 +63,21 @@ const generateFluxFlow = ai.defineFlow(
   },
   async (input) => {
     // Phase 1: Analyse de la demande pour choisir les outils
-    const { output: analysis } = await analysisPrompt(input);
+    const { output: analysis } = await ai.generate({
+        prompt: analysisPrompt.prompt,
+        model: 'googleai/gemini-1.5-pro-latest',
+        input: input,
+        output: { schema: FluxAnalysisOutputSchema },
+        config: {
+            safetySettings: [
+                {
+                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                    threshold: 'BLOCK_ONLY_HIGH',
+                },
+            ],
+        },
+    });
+
     if (!analysis?.tools) {
       throw new Error(
         "(X)flux n'a pas pu déterminer les outils nécessaires pour votre projet."
