@@ -1,4 +1,4 @@
-import { genkit, configureGenkit } from 'genkit';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
 
 // Vérifie la présence de la clé API.
@@ -13,11 +13,9 @@ if (!process.env.GOOGLE_API_KEY) {
 
 // Initialise l'instance Genkit avec le plugin Google AI.
 // C'est le point d'entrée pour toutes les fonctionnalités d'IA.
-configureGenkit({
+export const ai = genkit({
   plugins: [googleAI({ apiKey: process.env.GOOGLE_API_KEY })],
   logSinks: [],
   traceSinks: [],
   enableTracingAndMetrics: true,
 });
-
-export const ai = genkit();
