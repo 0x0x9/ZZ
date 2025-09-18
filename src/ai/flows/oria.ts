@@ -245,10 +245,13 @@ const oriaRouterFlow = ai.defineFlow(
     outputSchema: OriaChatOutputSchema,
   },
   async (input) => {
-    const history = (input.history || []).map(h => ({
-        role: h.role,
-        content: [{ text: typeof h.content === 'string' ? h.content : JSON.stringify(h.content) }]
-    }));
+    const history = (input.history || [])
+        .map(h => ({
+            role: h.role,
+            content: [{ text: typeof h.content === 'string' ? h.content : JSON.stringify(h.content) }]
+        }))
+        .filter(h => h.content[0].text && h.content[0].text.trim() !== ''); // Filter out empty messages
+
 
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)
