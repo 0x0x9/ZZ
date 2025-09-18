@@ -345,19 +345,22 @@ function OriaChatWindow({ partner, onBack, activeProject }: { partner: ChatPartn
     const clientAction = async (prevState: any, formData: FormData) => {
         const prompt = formData.get('prompt') as string;
         if (!prompt.trim()) return { ...prevState, error: "Le message ne peut être vide." };
-        
-        const newHistory = [...messages, { role: 'user', content: prompt }] as OriaHistoryMessage[];
+
+        const newHistory: OriaHistoryMessage[] = [
+            ...messages,
+            { role: 'user', content: prompt }
+        ];
         setMessages(newHistory);
         
-        // Pass the history object directly to the form data.
-        formData.append('history', JSON.stringify(newHistory));
+        const stringifiedHistory = JSON.stringify(newHistory.map(msg => ({ role: msg.role, content: msg.content })));
+        formData.set('history', stringifiedHistory);
         
         const result = await oriaChatAction(prevState, formData);
         
         if (result.message === 'success' && result.result) {
             setMessages(prev => [...prev, { role: 'model', content: result.result as any }]);
         } else {
-            setMessages(prev => [...prev, { role: 'model', content: { type: 'response', response: result.error || "Désolée, une erreur est survenue." } }]);
+            setMessages(prev => [...prev, { role: 'model', content: { type: 'response', response: result.error || "Désolée, une erreur est survenue." } as any }]);
         }
         formRef.current?.reset();
         return result;

@@ -386,13 +386,15 @@ export default function OriaXOS({ openApp }: OriaXosProps) {
       const prompt = formData.get('prompt') as string;
       if (!prompt.trim()) return;
 
-      const history: OriaHistoryMessage[] = messages.slice(-10).map(msg => ({
-          role: msg.type === 'user' ? 'user' : 'model',
-          content: msg.text || (msg.result ? JSON.stringify(msg.result) : ''),
-      })).filter(msg => msg.content);
+      const history: OriaHistoryMessage[] = messages
+        .slice(-10)
+        .map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'model',
+            content: msg.type === 'user' ? (msg.text || '') : (msg.result ? JSON.stringify(msg.result) : (msg.text || '')),
+        }))
+        .filter(msg => msg.content && msg.content.trim() !== '');
     
-    // Pass the history array directly
-    formData.set('history', JSON.stringify(history) as any);
+    formData.append('history', JSON.stringify(history));
     
     setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: prompt }]);
     
@@ -406,4 +408,3 @@ export default function OriaXOS({ openApp }: OriaXosProps) {
     </form>
   );
 }
-
