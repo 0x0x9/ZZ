@@ -8,7 +8,7 @@
     "start": "next start --port 9002 --hostname 0.0.0.0",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "genkit:watch": "ts-node -r tsconfig-paths/register -r dotenv/config --transpileOnly src/ai/dev.ts"
+    "genkit:watch": "genkit start"
   },
   "dependencies": {
     "@codemirror/lang-cpp": "^6.0.2",
