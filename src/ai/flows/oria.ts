@@ -206,25 +206,7 @@ const fluxTool = ai.defineTool(
 );
 
 // The main prompt that guides Oria
-const oriaRouterPrompt = ai.definePrompt({
-  name: 'oriaRouterPrompt',
-  model: 'googleai/gemini-1.5-pro-latest',
-  tools: [
-    textTool,
-    paletteTool,
-    toneTool,
-    personaTool,
-    promptorTool,
-    motionTool,
-    voiceTool,
-    codeTool,
-    deckTool,
-    frameTool,
-    soundTool,
-    nexusTool,
-    fluxTool,
-  ],
-  system: `Vous êtes Oria, l'IA chef d'orchestre de la plateforme (X)yzz. Votre mission est de comprendre le besoin de l'utilisateur et de mobiliser les outils nécessaires pour y répondre. Votre réponse doit être **exclusivement** un objet JSON valide.
+const oriaRouterSystemPrompt = `Vous êtes Oria, l'IA chef d'orchestre de la plateforme (X)yzz. Votre mission est de comprendre le besoin de l'utilisateur et de mobiliser les outils nécessaires pour y répondre. Votre réponse doit être **exclusivement** un objet JSON valide.
 
 **CONTEXTE ACTUEL : {{{context}}}**
 
@@ -254,19 +236,7 @@ Vous avez 3 options principales :
 - **Historique**: Tenez compte des messages précédents pour garder le contexte de la conversation.
 
 Requête de l'utilisateur : {{{prompt}}}
-`,
-  config: {
-    safetySettings: [
-      {
-        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
-    ],
-  },
-  output: {
-    schema: OriaChatOutputSchema,
-  },
-});
+`;
 
 const oriaRouterFlow = ai.defineFlow(
   {
@@ -275,23 +245,35 @@ const oriaRouterFlow = ai.defineFlow(
     outputSchema: OriaChatOutputSchema,
   },
   async (input) => {
-    // Correctly format history for Genkit. It expects an array of specific structured objects.
     const history = (input.history || []).map(h => ({
         role: h.role,
         content: [{ text: typeof h.content === 'string' ? h.content : JSON.stringify(h.content) }]
     }));
 
+    const systemPrompt = oriaRouterSystemPrompt
+      .replace('{{{prompt}}}', input.prompt)
+      .replace('{{{context}}}', input.context || 'non spécifié');
 
     const llmResponse = await ai.generate({
-        model: oriaRouterPrompt.model,
+        model: 'googleai/gemini-1.5-pro-latest',
         prompt: input.prompt,
-        system: oriaRouterPrompt.prompt.replace('{{{prompt}}}', input.prompt).replace('{{{context}}}', input.context || 'non spécifié'),
+        system: systemPrompt,
         history,
-        tools: oriaRouterPrompt.tools,
+        tools: [
+          textTool, paletteTool, toneTool, personaTool, promptorTool, motionTool,
+          voiceTool, codeTool, deckTool, frameTool, soundTool, nexusTool, fluxTool,
+        ],
         output: {
-            schema: oriaRouterPrompt.output.schema,
+            schema: OriaChatOutputSchema,
         },
-        config: oriaRouterPrompt.config,
+        config: {
+          safetySettings: [
+            {
+                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+                threshold: 'BLOCK_ONLY_HIGH',
+            },
+          ],
+        },
     });
 
     const output = llmResponse.output;

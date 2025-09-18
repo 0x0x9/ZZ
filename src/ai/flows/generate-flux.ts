@@ -26,9 +26,7 @@ export async function generateFlux(input: GenerateFluxInput): Promise<GenerateFl
 }
 
 
-const analysisPrompt = ai.definePrompt({
-  name: 'fluxAnalysisPrompt',
-  prompt: `Vous êtes un chef de projet expert et un stratège créatif. Votre rôle est d'analyser la demande d'un utilisateur et de sélectionner la combinaison d'outils la plus pertinente pour réaliser son projet, en tenant compte de son métier.
+const analysisPrompt = `Vous êtes un chef de projet expert et un stratège créatif. Votre rôle est d'analyser la demande d'un utilisateur et de sélectionner la combinaison d'outils la plus pertinente pour réaliser son projet, en tenant compte de son métier.
 
 Demande de l'utilisateur : {{{prompt}}}
 Métier de l'utilisateur : {{{job}}}
@@ -52,8 +50,7 @@ Adaptez votre sélection au métier. Exemples :
 - Si l'utilisateur est **Réalisateur** et veut "préparer un court-métrage de science-fiction", incluez 'projectPlan', 'motion', 'deck' (pour le pitch), 'ideas' et 'palette' (pour l'ambiance visuelle).
 - Si l'utilisateur est **Développeur** et veut "créer un portfolio en ligne", incluez 'projectPlan', 'frame', 'code', 'text', et 'palette'.
 
-Analysez la demande et le métier pour retourner la liste des ID d'outils les plus pertinents au format JSON.`,
-});
+Analysez la demande et le métier pour retourner la liste des ID d'outils les plus pertinents au format JSON.`;
 
 const generateFluxFlow = ai.defineFlow(
   {
@@ -64,9 +61,8 @@ const generateFluxFlow = ai.defineFlow(
   async (input) => {
     // Phase 1: Analyse de la demande pour choisir les outils
     const { output: analysis } = await ai.generate({
-        prompt: analysisPrompt.prompt,
+        prompt: analysisPrompt.replace('{{{prompt}}}', input.prompt).replace('{{{job}}}', input.job || 'non spécifié'),
         model: 'googleai/gemini-1.5-pro-latest',
-        input: input,
         output: { schema: FluxAnalysisOutputSchema },
         config: {
             safetySettings: [

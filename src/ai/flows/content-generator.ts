@@ -20,12 +20,7 @@ const GenerateContentOutputSchema = z.object({
 });
 type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>;
 
-const contentGenerationPrompt = ai.definePrompt({
-    name: 'contentGenerationPrompt',
-    input: { schema: GenerateContentInputSchema },
-    output: { schema: z.object({ result: z.string() }) },
-    model: googleAI.model('gemini-1.5-flash-latest'),
-    prompt: `Vous êtes un générateur de contenu expert. Votre tâche dépend du 'contentType' fourni.
+const contentGenerationPromptText = `Vous êtes un générateur de contenu expert. Votre tâche dépend du 'contentType' fourni.
 
 - Si 'contentType' est 'text': Générez du contenu textuel créatif basé sur le 'prompt'.
 - Si 'contentType' est 'image': Créez un prompt d'image très détaillé et descriptif en anglais, basé sur le 'prompt' et le 'style' de l'utilisateur.
@@ -38,8 +33,7 @@ Prompt/Instruction: {{{prompt}}}
 {{#if textToReformat}}Texte à reformater: {{{textToReformat}}}{{/if}}
 ---
 
-Répondez UNIQUEMENT avec le résultat demandé.`,
-});
+Répondez UNIQUEMENT avec le résultat demandé.`;
 
 const generateContentFlow = ai.defineFlow(
   {
@@ -64,7 +58,17 @@ const generateContentFlow = ai.defineFlow(
         return { type: 'image', data: media.url };
     }
 
-    const { output } = await contentGenerationPrompt(input);
+    let prompt = contentGenerationPromptText
+        .replace('{{{prompt}}}', input.prompt)
+        .replace('{{#if style}}Style: {{{style}}}{{/if}}', input.style ? `Style: ${input.style}`: '')
+        .replace('{{#if textToReformat}}Texte à reformater: {{{textToReformat}}}{{/if}}', input.textToReformat ? `Texte à reformater: ${input.textToReformat}`: '');
+
+    const { output } = await ai.generate({
+        model: 'googleai/gemini-1.5-flash-latest',
+        prompt,
+        output: { schema: z.object({ result: z.string() }) },
+    });
+
     if (!output) {
       throw new Error("L'IA n'a pas pu générer le contenu.");
     }

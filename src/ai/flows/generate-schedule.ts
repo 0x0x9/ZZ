@@ -1,3 +1,4 @@
+
 'use server';
 
 import { ai } from '@/ai/genkit';
@@ -15,12 +16,7 @@ export async function generateSchedule(
   return scheduleFlow(input);
 }
 
-const schedulePrompt = ai.definePrompt({
-  name: 'maestroSchedulePrompt',
-  input: { schema: GenerateScheduleInputSchema.extend({ currentDate: z.string() }) },
-  output: { schema: ProjectPlanSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
-  prompt: `Vous êtes Maestro, un chef de projet IA expert en stratégie et en organisation de projets créatifs.
+const schedulePrompt = `Vous êtes Maestro, un chef de projet IA expert en stratégie et en organisation de projets créatifs.
 Votre mission est de transformer une simple description de projet en un plan d'action complet, structuré et prêt à être exécuté.
 
 **L'intégralité de la réponse, à l'exception des 'imagePrompts', doit être rédigée en français.**
@@ -45,16 +41,7 @@ Le plan doit inclure :
     *   **Durée :** Une estimation réaliste de la durée (ex: "2 jours", "1 semaine").
     *   **Checklist :** Une liste de 2 à 4 sous-tâches ou points de vérification très concrets et réalisables pour accomplir la tâche principale. Chaque item de la checklist doit être un objet avec un champ "text" et un champ "completed" initialisé à \`false\`.
 4.  **Prompts pour Moodboard :** Au moins 1 prompt unique et très descriptif, en anglais, pour générer un moodboard visuel sur Midjourney ou DALL-E. Ce prompt doit être directement inspiré du brief créatif et couvrir différents aspects (ambiance, personnages, style graphique).
-`,
-  config: {
-    safetySettings: [
-      {
-        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
-    ],
-  },
-});
+`;
 
 const scheduleFlow = ai.defineFlow(
   {
@@ -63,7 +50,25 @@ const scheduleFlow = ai.defineFlow(
     outputSchema: ProjectPlanSchema,
   },
   async (input) => {
-    const { output } = await schedulePrompt({ ...input, currentDate: new Date().toISOString() });
+    
+    const finalPrompt = schedulePrompt
+      .replace('{{{prompt}}}', input.prompt)
+      .replace('{{{currentDate}}}', new Date().toISOString());
+      
+    const { output } = await ai.generate({
+      prompt: finalPrompt,
+      model: 'googleai/gemini-1.5-pro-latest',
+      output: { schema: ProjectPlanSchema },
+      config: {
+        safetySettings: [
+          {
+            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+            threshold: 'BLOCK_ONLY_HIGH',
+          },
+        ],
+      }
+    });
+    
     if (!output) {
       throw new Error("Maestro n'a pas pu générer de plan de projet.");
     }
