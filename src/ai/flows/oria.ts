@@ -275,11 +275,12 @@ const oriaRouterFlow = ai.defineFlow(
     outputSchema: OriaChatOutputSchema,
   },
   async (input) => {
-    // Correctly format history for Genkit
-    const history = input.history?.map((h) => ({
-      role: h.role,
-      content: [{ text: h.content }],
+    // Correctly format history for Genkit. It expects an array of specific structured objects.
+    const history = (input.history || []).map(h => ({
+        role: h.role,
+        content: [{ text: typeof h.content === 'string' ? h.content : JSON.stringify(h.content) }]
     }));
+
 
     const llmResponse = await ai.generate({
         model: oriaRouterPrompt.model,
