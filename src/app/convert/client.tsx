@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { convertImageAction, reformatTextAction } from '@/app/actions';
+import { convertImage, generateContent } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,7 +13,7 @@ import { Upload, X, FileKey, Sparkles, Download, Image as ImageIcon, Loader2, Fi
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { ConvertImageOutput, ReformatTextWithPromptOutput } from '@/ai/types';
+import type { ConvertImageOutput } from '@/ai/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
@@ -32,8 +32,8 @@ function SubmitButton({ pending, text = "Lancer la conversion"}: { pending: bool
 }
 
 function ImageConverter() {
-    const initialState: { id: number, result: ConvertImageOutput | null, error: string | null } = { id: 0, result: null, error: null };
-    const [state, formAction] = useFormState(convertImageAction, initialState);
+    const initialState = { id: 0, result: null, error: null };
+    const [state, formAction] = useFormState(convertImage, initialState);
     
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,24 +57,31 @@ function ImageConverter() {
         document.body.removeChild(link);
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                const dataUrl = loadEvent.target?.result as string;
+                setImagePreview(dataUrl);
+                // Also update the hidden input
+                const hiddenInput = e.target.form?.elements.namedItem('image') as HTMLInputElement;
+                if (hiddenInput) {
+                    hiddenInput.value = dataUrl;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     return (
         <form action={formAction} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div className="space-y-4">
                     <input
                         type="file"
-                        name="imageFile"
                         accept="image/png, image/jpeg, image/webp"
-                        onChange={(e) => {
-                             const file = e.target.files?.[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (loadEvent) => {
-                                    setImagePreview(loadEvent.target?.result as string);
-                                };
-                                reader.readAsDataURL(file);
-                            }
-                        }}
+                        onChange={handleFileChange}
                         ref={fileInputRef}
                         className="hidden"
                     />
@@ -147,8 +154,8 @@ function ImageConverter() {
 }
 
 function DocumentConverter() {
-    const initialState: { id: number, result: ReformatTextWithPromptOutput | null, error: string | null } = { result: null, error: null, id: 0 };
-    const [state, formAction] = useFormState(reformatTextAction, initialState);
+    const initialState = { type: '', data: '', error: null };
+    const [state, formAction] = useFormState(generateContent, initialState);
     const { toast } = useToast();
     const { pending } = useFormStatus();
 
@@ -159,8 +166,8 @@ function DocumentConverter() {
     }, [state, toast]);
 
     const handleCopy = () => {
-        if (!state.result?.reformattedText) return;
-        navigator.clipboard.writeText(state.result.reformattedText);
+        if (typeof state.data !== 'string') return;
+        navigator.clipboard.writeText(state.data);
         toast({
             title: 'Copié !',
             description: 'Le texte transformé a été copié dans le presse-papiers.',
@@ -169,12 +176,13 @@ function DocumentConverter() {
     
     return (
         <form action={formAction} className="space-y-8">
+             <input type="hidden" name="contentType" value="reformat" />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 <div className="space-y-2">
-                    <Label htmlFor="text-input">Texte Original</Label>
+                    <Label htmlFor="textToReformat">Texte Original</Label>
                     <Textarea
-                        id="text-input"
-                        name="text"
+                        id="textToReformat"
+                        name="textToReformat"
                         placeholder="Collez ou écrivez votre texte ici..."
                         rows={15}
                         className="bg-background/50 text-base"
@@ -196,7 +204,7 @@ function DocumentConverter() {
                     <SubmitButton pending={pending} text="Transformer le texte" />
                 </div>
             </div>
-             {state.result && (
+             {state.data && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -205,7 +213,7 @@ function DocumentConverter() {
                     <Card className="glass-card bg-background/30">
                         <CardHeader className="flex flex-row justify-between items-center">
                             <CardTitle>Résultat Transformé</CardTitle>
-                            {state.result && (
+                            {state.data && (
                                 <Button variant="outline" size="icon" onClick={handleCopy}>
                                     <Copy className="h-4 w-4" />
                                 </Button>
@@ -214,7 +222,7 @@ function DocumentConverter() {
                         <CardContent className="min-h-[200px]">
                             <Textarea
                                 readOnly
-                                value={state.result?.reformattedText || ''}
+                                value={typeof state.data === 'string' ? state.data : ''}
                                 rows={10}
                                 className="bg-background/50 text-base"
                             />
