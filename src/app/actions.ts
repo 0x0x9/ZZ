@@ -57,9 +57,9 @@ import { oria } from '@/ai/flows/oria';
 import { createManualProject } from '@/ai/flows/client-actions';
 
 
-const createErrorResponse = (e: any, id: number, message: string) => {
-  const errorMessage = e.message || 'An unknown error occurred.';
-  console.error(`AI Action Error (${message}):`, errorMessage);
+const createErrorResponse = (e: any, id: number, actionName: string) => {
+  const errorMessage = e.message || `An unknown error occurred in ${actionName}.`;
+  console.error(`AI Action Error (${actionName}):`, e);
   return { id: id + 1, result: null, error: errorMessage };
 };
 
@@ -82,6 +82,16 @@ function createAction<TInput, TOutput>(
     if (actionName === 'convertImage' && !(rawData as any).removeTransparency) {
         (rawData as any).removeTransparency = false;
     }
+    
+    // Handle JSON string in history for oriaChatAction
+    if (actionName === 'oriaChat' && typeof rawData.history === 'string') {
+        try {
+            rawData.history = JSON.parse(rawData.history);
+        } catch (e) {
+             return { id: prevState.id + 1, result: null, error: 'Invalid history format.', message: "error" };
+        }
+    }
+
 
     const parseResult = schema.safeParse(rawData);
     if (!parseResult.success) {
@@ -232,3 +242,5 @@ export async function getActionResult(resultId: string): Promise<{ result: any; 
     }
     return null;
 }
+
+      
