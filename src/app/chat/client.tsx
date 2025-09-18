@@ -13,7 +13,7 @@ import { Send, ArrowLeft, MessageSquare, BrainCircuit, Trash2, Edit, PanelLeftOp
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { oriaChatAction, deleteDocumentAction, listDocumentsAction, fluxAction, createManualProjectAction } from '@/app/actions';
+import { oriaChatAction, deleteDocument, listDocuments, fluxAction, createManualProjectAction } from '@/app/actions';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import DocManager from '@/components/doc-manager';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -159,7 +159,7 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
         
         try {
             // This is a mock action. In a real app, this would delete from a database.
-            // await deleteDocumentAction({ docId: projectToDelete.id });
+            // await deleteDocument({ docId: projectToDelete.id });
              toast({ title: "Projet supprimé", description: `"${projectToDelete.name}" a été supprimé. (Simulation)` });
             const deletedId = projectToDelete.id;
             setProjectToDelete(null);
@@ -281,7 +281,7 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
 }
 
 function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (result: any) => void, onCancel: () => void}) {
-    const initialState = { message: '', result: null, error: null, id: 0, prompt: '', job: '' };
+    const initialState = { id: 0, result: null, error: null, prompt: '', job: '' };
     const [state, formAction] = useFormState(fluxAction, initialState);
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
@@ -349,8 +349,8 @@ function OriaChatWindow({ partner, onBack, activeProject }: { partner: ChatPartn
         const newHistory = [...messages, { role: 'user', content: prompt }] as OriaHistoryMessage[];
         setMessages(newHistory);
         
-        // Don't stringify, pass the object directly
-        formData.set('history', newHistory as any);
+        // Pass the history object directly to the form data.
+        formData.append('history', JSON.stringify(newHistory));
         
         const result = await oriaChatAction(prevState, formData);
         
@@ -601,7 +601,7 @@ export default function MessengerClient() {
     const fetchDocs = useCallback(async () => {
         setLoading(true);
         try {
-            const result = await listDocumentsAction();
+            const result = await listDocuments();
             setDocs(result || []);
         } catch (error: any) {
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les projets.'});

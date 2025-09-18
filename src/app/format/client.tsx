@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Copy, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { reformatTextAction } from '@/app/actions';
-import type { ReformatTextWithPromptOutput } from '@/ai/types';
 import { motion } from 'framer-motion';
 
 function SubmitButton() {
