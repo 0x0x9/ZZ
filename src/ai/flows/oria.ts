@@ -245,27 +245,34 @@ const oriaRouterFlow = ai.defineFlow(
     outputSchema: OriaChatOutputSchema,
   },
   async (input) => {
-    const history = (input.history || [])
-      .map(h => {
-        if (!h || !h.content) return null; // Filter out malformed history items
-        
-        let contentText: string;
-        try {
-            // content can be a string or a complex object. Stringify if it's not already a string.
-            contentText = typeof h.content === 'string' ? h.content : JSON.stringify(h.content);
-        } catch (e) {
-            // If stringifying fails, it's a problematic object. Skip it.
-            return null;
+    let history: OriaChatInput['history'] = [];
+    if (Array.isArray(input.history)) {
+      history = input.history.filter(
+        (h): h is Exclude<typeof h, null> => {
+          if (!h || typeof h !== 'object' || !h.content) {
+            return false;
+          }
+          if (typeof h.content === 'string' && !h.content.trim()) {
+            return false;
+          }
+          return true;
         }
-
-        if (!contentText.trim()) return null; // Filter out empty messages
-        
+      ).map(h => {
+        let contentText = h.content;
+        if (typeof contentText !== 'string') {
+          try {
+            contentText = JSON.stringify(contentText);
+          } catch {
+            // If stringification fails, treat as invalid content.
+            return null;
+          }
+        }
         return {
           role: h.role,
-          content: [{ text: contentText }]
+          content: contentText,
         };
-      })
-      .filter((h): h is Exclude<typeof h, null> => h !== null);
+      }).filter((h): h is Exclude<typeof h, null> => h !== null);
+    }
 
 
     const systemPrompt = oriaRouterSystemPrompt
@@ -314,4 +321,3 @@ const oriaRouterFlow = ai.defineFlow(
     return output;
   }
 );
-
