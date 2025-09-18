@@ -246,15 +246,16 @@ const oriaRouterFlow = ai.defineFlow(
   },
   async (input) => {
     
-    // This is the robust way to handle history.
-    // It filters out any invalid messages and ensures each message has a valid 'content' string.
-    let history = (input.history ?? [])
+    // Robust history processing: ensures each message is valid.
+    const history = (input.history ?? [])
         .map(h => {
-            if (!h || !h.role || typeof h.content !== 'string') return null;
-            if (h.content.trim() === '') return null;
-            return { role: h.role, content: h.content };
+            if (!h || !h.role) return null;
+            // The content MUST be a string. If it's an object, stringify it.
+            const content = typeof h.content === 'string' ? h.content : JSON.stringify(h.content);
+            if (!content || content.trim() === '') return null;
+            return { role: h.role, content };
         })
-        .filter((h): h is NonNullable<typeof h> => h !== null);
+        .filter((h): h is { role: 'user' | 'model'; content: string } => h !== null);
     
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)

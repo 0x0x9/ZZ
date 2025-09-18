@@ -67,8 +67,8 @@ const generateFluxFlow = ai.defineFlow(
             prompt: input.prompt,
             job: input.job || 'non spécifié',
         },
+        output: { schema: FluxAnalysisOutputSchema },
         config: {
-            response_mime_type: 'application/json',
             safetySettings: [
                 {
                     category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
@@ -78,7 +78,7 @@ const generateFluxFlow = ai.defineFlow(
         },
     });
 
-    const analysis = FluxAnalysisOutputSchema.parse(JSON.parse(analysisResponse.text));
+    const analysis = analysisResponse.output;
 
     if (!analysis?.tools) {
       throw new Error(
