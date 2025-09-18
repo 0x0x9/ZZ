@@ -8,7 +8,7 @@ Ce projet est une application web Next.js 14+ conçue comme un écosystème cré
 - **Langage**: TypeScript
 - **Style**: Tailwind CSS & shadcn/ui
 - **IA**: Google Genkit (avec Gemini)
-- **Déploiement**: Prêt pour Vercel
+- **Déploiement**: Firebase App Hosting
 
 ## Démarrage Rapide
 
@@ -31,11 +31,11 @@ npm install
 L'application utilise l'IA de Google (Gemini) via Genkit. Vous avez besoin d'une clé d'API pour que les fonctionnalités IA fonctionnent.
 
 1.  **Créez une clé d'API** sur [Google AI Studio](https://aistudio.google.com/app/apikey).
-2.  **Copiez le fichier d'exemple d'environnement :**
-    ```bash
-    cp .env.local.example .env.local
+2.  Créez un fichier `.env` à la racine du projet.
+3.  Ajoutez votre clé dans ce fichier :
     ```
-3.  **Ajoutez votre clé :** Ouvrez le fichier `.env.local` et collez votre clé à la place de `VOTRE_CLE_API_GOOGLE_GEMINI`.
+    GOOGLE_API_KEY=VOTRE_CLE_API_GOOGLE_GEMINI
+    ```
 
 ### 4. Lancer le Projet
 
@@ -47,13 +47,17 @@ npm run dev
 -   Votre site sera accessible sur [http://localhost:9002](http://localhost:9002).
 -   L'**inspecteur de Genkit** sera sur [http://localhost:4000](http://localhost:4000). **Cet outil est essentiel** pour voir les traces, les flux et les appels à l'IA en temps réel. C'est votre meilleur ami pour déboguer les fonctionnalités IA.
 
-## Déploiement sur Vercel
+## Déploiement sur Firebase App Hosting
 
-Le projet est optimisé pour Vercel.
+Le projet est optimisé pour Firebase App Hosting.
 
-1.  Connectez votre dépôt GitHub à Vercel.
-2.  Dans les paramètres de votre projet Vercel, ajoutez une variable d'environnement nommée `GOOGLE_API_KEY` avec la valeur de votre clé Gemini.
-3.  Chaque `push` sur la branche principale déclenchera un déploiement automatique.
+1.  Assurez-vous d'avoir la [Firebase CLI](https://firebase.google.com/docs/cli) installée et d'être connecté à votre compte Google.
+2.  Connectez votre projet local à un projet Firebase : `firebase projects:add`.
+3.  Déployez votre backend avec la commande :
+    ```bash
+    firebase apphosting:backends:create
+    ```
+4.  Dans le processus de création, n'oubliez pas de configurer le secret `GOOGLE_API_KEY` avec la valeur de votre clé API Gemini.
 
 ## Structure du Projet
 
