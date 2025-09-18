@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generatePersonaAction, generateImageAction } from '@/app/actions';
+import { generatePersona, generateContent } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -147,7 +147,7 @@ function ResultsDisplay({ personas, onReset }: { personas: PersonaWithImage[], o
 
 
 function PersonaForm({ state }: {
-    state: { message: string, result: GeneratePersonaOutput | null, error: string | null, id: number, prompt: string }
+    state: { result: GeneratePersonaOutput | null, error: string | null, prompt: string }
 }) {
     const { pending } = useFormStatus();
 
@@ -191,14 +191,12 @@ export default function PersonaGenerator({ initialResult, prompt }: { initialRes
     const [key, setKey] = useState(0);
     const [showForm, setShowForm] = useState(!initialResult);
 
-    const initialState = { 
-        message: initialResult ? 'success' : '', 
+    const initialState: { result: GeneratePersonaOutput | null, error: string | null, prompt: string } = { 
         result: initialResult || null, 
         error: null, 
-        id: key, 
         prompt: prompt || promptFromUrl || '' 
     };
-    const [state, formAction] = useFormState(generatePersonaAction, initialState);
+    const [state, formAction] = useFormState(generatePersona, initialState);
     const [personasWithImages, setPersonasWithImages] = useState<PersonaWithImage[]>([]);
     const { toast } = useToast();
     const { pending } = useFormStatus();
@@ -219,15 +217,12 @@ export default function PersonaGenerator({ initialResult, prompt }: { initialRes
             setPersonasWithImages(initialPersonas);
 
             initialPersonas.forEach((persona, index) => {
-                const formData = new FormData();
-                formData.append('prompt', persona.avatarPrompt);
-                
-                generateImageAction({ id: Math.random(), message: '', imageDataUri: null, error: null, prompt: '' }, formData)
+                generateContent({ contentType: 'image', prompt: persona.avatarPrompt })
                     .then(imageResult => {
-                        if (imageResult.message === 'success' && imageResult.imageDataUri) {
+                        if (imageResult.type === 'image' && imageResult.data) {
                             setPersonasWithImages(prev => {
                                 const newPersonas = [...prev];
-                                newPersonas[index] = { ...newPersonas[index], imageUrl: imageResult.imageDataUri, isLoadingImage: false };
+                                newPersonas[index] = { ...newPersonas[index], imageUrl: imageResult.data as string, isLoadingImage: false };
                                 return newPersonas;
                             });
                         } else {

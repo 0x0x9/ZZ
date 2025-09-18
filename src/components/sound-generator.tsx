@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateSoundAction, uploadDocumentAction } from '@/app/actions';
+import { generateSound, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -42,7 +42,7 @@ function ResultsDisplay({ result, onReset }: { result: GenerateSoundOutput, onRe
         setIsSaving(true);
         try {
             const fileName = `sounds/sound-${Date.now()}.wav`;
-            await uploadDocumentAction({ name: fileName, content: result.audioDataUri, mimeType: 'audio/wav' });
+            await uploadDocument({ name: fileName, content: result.audioDataUri, mimeType: 'audio/wav' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -81,7 +81,7 @@ function ResultsDisplay({ result, onReset }: { result: GenerateSoundOutput, onRe
 }
 
 function SoundForm({ state }: {
-    state: { message: string, result: GenerateSoundOutput | null, error: string | null, id: number, prompt: string }
+    state: { result: GenerateSoundOutput | null, error: string | null, prompt: string }
 }) {
     const { pending } = useFormStatus();
 
@@ -134,13 +134,11 @@ export default function SoundGenerator({ initialResult, prompt }: { initialResul
     const [showForm, setShowForm] = useState(!initialResult);
     
     const initialState = {
-        message: initialResult ? 'success' : '',
         result: initialResult || null,
         error: null,
-        id: key,
         prompt: prompt || promptFromUrl || ''
     };
-    const [state, formAction] = useFormState(generateSoundAction, initialState);
+    const [state, formAction] = useFormState(generateSound, initialState);
     const { toast } = useToast();
     const { addNotification } = useNotifications();
     const { pending } = useFormStatus();
@@ -156,7 +154,7 @@ export default function SoundGenerator({ initialResult, prompt }: { initialResul
         }
          if (state.result) {
             setShowForm(false);
-            const resultId = `sound-result-${state.id}`;
+            const resultId = `sound-result-${Math.random()}`;
             const handleClick = () => {
                 localStorage.setItem(resultId, JSON.stringify(state));
                 router.push(`/xos?open=sound&resultId=${resultId}`);

@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateLightMoodAction, generateMoodboardAction } from '@/app/actions';
+import { generateLightMood, generateMoodboard } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -109,23 +109,23 @@ function ResultsDisplay({ result }: { result: GenerateLightMoodOutput & { images
 }
 
 export default function LightGenerator() {
-    const initialState = { message: null, result: null, error: null, id: 0 };
-    const [state, formAction] = useFormState(generateLightMoodAction, initialState);
+    const initialState = null;
+    const [state, formAction] = useFormState(generateLightMood, initialState);
     const { toast } = useToast();
     const [resultWithImages, setResultWithImages] = useState<(GenerateLightMoodOutput & { images: string[], isLoadingImages: boolean }) | null>(null);
     const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
-        if (state.error) {
+        if (state?.error) {
             toast({ variant: 'destructive', title: 'Erreur', description: state.error });
             setResultWithImages(null);
         }
-        if (state.result) {
+        if (state?.result) {
             const newResult = { ...state.result, images: [], isLoadingImages: true };
             setResultWithImages(newResult);
-            generateMoodboardAction(state.result.imagePrompts)
+            generateMoodboard({ prompts: state.result.imagePrompts })
                 .then(imageResult => {
-                    if (imageResult.message === 'success' && imageResult.imageDataUris) {
+                    if (imageResult.imageDataUris) {
                         setResultWithImages(prev => prev ? ({ ...prev, images: imageResult.imageDataUris, isLoadingImages: false }) : null);
                     } else {
                         setResultWithImages(prev => prev ? ({ ...prev, isLoadingImages: false }) : null);

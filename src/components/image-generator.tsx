@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateImageAction, uploadDocumentAction } from '@/app/actions';
+import { generateContent, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -47,7 +47,7 @@ function SubmitButton() {
 }
 
 function ImageGeneratorFormBody({ state, onReset }: { 
-    state: { message: string; imageDataUri: string | null; error: string | null; prompt: string; style?: string; id: number },
+    state: { type: 'image', data: string | null } | { error: string } | null,
     onReset: () => void;
 }) {
     const { pending } = useFormStatus();
@@ -69,11 +69,11 @@ function ImageGeneratorFormBody({ state, onReset }: {
     };
     
     const handleSaveToDrive = async () => {
-        if (!state.imageDataUri) return;
+        if (!state || state.type !== 'image' || !state.data) return;
         setIsSaving(true);
         try {
             const fileName = `image-${Date.now()}.png`;
-            await uploadDocumentAction({ name: fileName, content: state.imageDataUri, mimeType: 'image/png' });
+            await uploadDocument({ name: fileName, content: state.data, mimeType: 'image/png' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)drive.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -81,7 +81,6 @@ function ImageGeneratorFormBody({ state, onReset }: {
             setIsSaving(false);
         }
     };
-
 
     return (
         <div className="glass-card w-full max-w-4xl min-h-[70vh] mx-auto overflow-hidden p-0 flex flex-col">
@@ -92,18 +91,18 @@ function ImageGeneratorFormBody({ state, onReset }: {
                 <div className="h-full p-6 flex items-center justify-center relative z-10 overflow-y-auto">
                     {pending ? (
                         <LoadingState text="Génération de l'image en cours..." />
-                    ) : state.imageDataUri ? (
+                    ) : state?.type === 'image' && state.data ? (
                         <div className="w-full max-w-lg space-y-4">
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <div className="relative group aspect-square w-full overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                                         <Image
-                                            src={state.imageDataUri}
+                                            src={state.data}
                                             alt="Image générée par l'IA"
                                             fill
                                             sizes="(max-width: 768px) 100vw, 50vw"
                                             className="object-cover"
-                                            data-ai-hint={getAiHint(state.prompt)}
+                                            data-ai-hint="ai generated"
                                         />
                                         <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <ZoomIn className="h-12 w-12 text-white" />
@@ -119,7 +118,7 @@ function ImageGeneratorFormBody({ state, onReset }: {
                                     </AlertDialogHeader>
                                     <div className="relative">
                                         <Image
-                                            src={state.imageDataUri}
+                                            src={state.data}
                                             alt="Image générée par l'IA"
                                             width={1024}
                                             height={1024}
@@ -130,7 +129,7 @@ function ImageGeneratorFormBody({ state, onReset }: {
                                             size="icon"
                                             variant="secondary"
                                             className="absolute top-4 right-4 h-10 w-10 bg-black/40 hover:bg-black/60 text-white"
-                                            onClick={() => handleDownload(state.imageDataUri!)}
+                                            onClick={() => handleDownload(state.data!)}
                                             aria-label="Télécharger l'image"
                                         >
                                             <Download className="h-5 w-5" />
@@ -143,7 +142,7 @@ function ImageGeneratorFormBody({ state, onReset }: {
                             </AlertDialog>
                             <div className="flex justify-center gap-2">
                                 <Button onClick={onReset} variant="outline"><RefreshCcw className="mr-2" /> Nouvelle image</Button>
-                                <Button onClick={() => handleDownload(state.imageDataUri!)}><Download className="mr-2" /> Télécharger</Button>
+                                <Button onClick={() => handleDownload(state.data!)}><Download className="mr-2" /> Télécharger</Button>
                                 <Button onClick={handleSaveToDrive} disabled={isSaving} variant="secondary">
                                     <Save className="mr-2" />
                                     {isSaving ? 'Sauvegarde...' : 'Sur (X)drive'}
@@ -161,6 +160,7 @@ function ImageGeneratorFormBody({ state, onReset }: {
             
             <div className="relative z-10 p-4 md:p-6 border-t border-white/10 shrink-0">
                 <div className="flex items-start gap-4">
+                     <input type="hidden" name="contentType" value="image" />
                     <Textarea
                         name="prompt"
                         placeholder="Ex: Un astronaute surfant sur une vague cosmique..."
@@ -168,7 +168,6 @@ function ImageGeneratorFormBody({ state, onReset }: {
                         required
                         className="flex-1 h-14 px-6 text-base rounded-full bg-background/50 border-border focus-visible:ring-primary/50 text-foreground placeholder:text-muted-foreground resize-none"
                         minLength={10}
-                        defaultValue={state.prompt ?? ""}
                         disabled={pending}
                         onInput={(e) => {
                             const textarea = e.currentTarget;
@@ -182,7 +181,7 @@ function ImageGeneratorFormBody({ state, onReset }: {
                     />
                     <div>
                          <Label htmlFor="style" className="sr-only">Style</Label>
-                         <Select name="style" defaultValue={state.style ?? 'none'} disabled={pending}>
+                         <Select name="style" defaultValue={'none'} disabled={pending}>
                             <SelectTrigger id="style" className="h-14 w-48 rounded-full bg-background/50 border-border text-foreground">
                                 <SelectValue placeholder="Style" />
                             </SelectTrigger>
@@ -202,46 +201,24 @@ function ImageGeneratorFormBody({ state, onReset }: {
 
 export default function ImageGenerator() {
     const [key, setKey] = useState(0);
-    const searchParams = useSearchParams();
-    const resultId = searchParams.get('resultId');
-
-    const initialState = useMemo(() => {
-        if (typeof window === 'undefined' || !resultId) {
-            return null;
-        }
-        const storedResult = localStorage.getItem(resultId);
-        if (storedResult) {
-            try {
-            localStorage.removeItem(resultId);
-            return JSON.parse(storedResult);
-            } catch (e) {
-            console.error("Failed to parse stored result for ImageGenerator", e);
-            return null;
-            }
-        }
-        return null;
-    }, [resultId]);
-
-    const promptFromUrl = searchParams.get('prompt');
-    const finalInitialState = initialState || { message: '', imageDataUri: null, error: '', prompt: promptFromUrl ?? '', id: 0, style: 'none' };
-    
-    const [state, formAction] = useFormState(generateImageAction, finalInitialState);
+    const initialState = null;
+    const [state, formAction] = useFormState(generateContent, initialState);
     const { toast } = useToast();
     const { addNotification } = useNotifications();
 
     useEffect(() => {
-        if (state.message === 'error' && state.error) {
-        toast({
-            variant: 'destructive',
-            title: 'Erreur',
-            description: state.error,
-        });
+        if (state?.error) {
+            toast({
+                variant: 'destructive',
+                title: 'Erreur',
+                description: state.error,
+            });
         }
-        if (state.message === 'success' && state.imageDataUri) {
+        if (state?.type === 'image' && state.data) {
             addNotification({
                 icon: ImageIcon,
                 title: "Image générée !",
-                description: `Votre image pour "${state.prompt.substring(0, 30)}..." est prête.`
+                description: `Votre image est prête.`
             });
         }
     }, [state, toast, addNotification]);

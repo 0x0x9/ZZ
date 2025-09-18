@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generatePaletteAction } from '@/app/actions';
+import { generatePalette } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -89,7 +89,7 @@ function ResultsDisplay({ result, onReset }: { result: GeneratePaletteOutput, on
 }
 
 function PaletteForm({ state }: {
-    state: { message: string, result: GeneratePaletteOutput | null, error: string | null, id: number, prompt: string }
+    state: { result: GeneratePaletteOutput | null, error: string | null, prompt: string }
 }) {
     const { pending } = useFormStatus();
     
@@ -133,14 +133,12 @@ export default function PaletteGenerator({ initialResult, prompt }: { initialRes
     const [key, setKey] = useState(0);
     const [showForm, setShowForm] = useState(!initialResult);
 
-    const initialState = { 
-        message: initialResult ? 'success' : '', 
+    const initialState: { result: GeneratePaletteOutput | null, error: string | null, prompt: string } = { 
         result: initialResult || null, 
-        error: null, 
-        id: key, 
+        error: null,
         prompt: prompt || promptFromUrl || '' 
     };
-    const [state, formAction] = useFormState(generatePaletteAction, initialState);
+    const [state, formAction] = useFormState(generatePalette, initialState);
     const { toast } = useToast();
     const { pending } = useFormStatus();
 

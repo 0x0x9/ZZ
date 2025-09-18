@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateMuseAction, copilotLyricsAction, uploadMuseDocumentAction } from '@/app/actions';
+import { generateMuse, copilotLyrics, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -140,7 +140,7 @@ function WriterPanel({
         try {
             const fileName = `${title.trim()}.txt`;
             const dataUri = `data:text/plain;base64,${btoa(unescape(encodeURIComponent(content)))}`;
-            await uploadMuseDocumentAction({ name: `muse-sessions/${fileName}`, content: dataUri, mimeType: 'text/plain' });
+            await uploadDocument({ name: `muse-sessions/${fileName}`, content: dataUri, mimeType: 'text/plain' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
         } catch (error: any) {
             toast({ variant: "destructive", title: "Erreur", description: error.message });
@@ -254,10 +254,12 @@ function SuggestionDialog({ open, title, suggestions, onSelect, onOpenChange }: 
 }
 
 export default function MuseGenerator() {
-    const initialState = { message: '', result: null, error: '', id: 0, theme: '', mood: 'Mélancolique', tempo: 'Modéré', references: '' };
-    const [state, formAction] = useFormState(generateMuseAction, initialState);
+    const initialState = { result: null, error: null, theme: '', mood: 'Mélancolique', tempo: 'Modéré', references: '' };
+    const [state, formAction] = useFormState(generateMuse, initialState);
 
-    const [copilotState, copilotAction] = useFormState(copilotLyricsAction, { success: false, suggestions: [], error: null, action: undefined as ('ENHANCE' | 'RHYMES' | undefined) });
+    const initialCopilotState = { suggestions: [], error: null, action: undefined as ('ENHANCE' | 'RHYMES' | undefined) };
+    const [copilotState, copilotAction] = useFormState(copilotLyrics, initialCopilotState);
+
     const [isCopilotLoading, setIsCopilotLoading] = useState(false);
     const [suggestionDialog, setSuggestionDialog] = useState<{ open: boolean, title: string, suggestions: string[] }>({ open: false, title: '', suggestions: [] });
     const [selection, setSelection] = useState<{ text: string; start: number; end: number} | null>(null);
@@ -271,14 +273,14 @@ export default function MuseGenerator() {
     const { pending: isMuseLoading } = useFormStatus();
 
     useEffect(() => {
-        if (state.message === 'error' && state.error) {
+        if (state.error) {
             toast({
                 variant: 'destructive',
                 title: 'Erreur (X)muse',
                 description: state.error,
             });
         }
-        if (state.message === 'success' && state.result?.initialLyrics) {
+        if (state.result?.initialLyrics) {
             setWriterContent(state.result.initialLyrics);
             const newTitle = state.result.mainStyle ? `Texte - ${state.result.mainStyle}` : 'Nouveau Texte Inspiré';
             setWriterTitle(newTitle);
@@ -287,13 +289,13 @@ export default function MuseGenerator() {
 
     useEffect(() => {
         setIsCopilotLoading(false);
-        if (copilotState.success && copilotState.suggestions) {
+        if (copilotState.suggestions && copilotState.suggestions.length > 0) {
             setSuggestionDialog({
                 open: true,
                 title: copilotState.action === 'ENHANCE' ? "Suggestions d'amélioration" : 'Suggestions de rimes',
                 suggestions: copilotState.suggestions
             });
-        } else if (!copilotState.success && copilotState.error) {
+        } else if (copilotState.error) {
             toast({ variant: 'destructive', title: 'Erreur du copilote', description: copilotState.error });
         }
     }, [copilotState, toast]);
@@ -326,7 +328,7 @@ export default function MuseGenerator() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6">
-                <form ref={formRef} action={formAction} key={state.id}>
+                <form ref={formRef} action={formAction}>
                      <Accordion type="single" collapsible defaultValue="inspiration-engine">
                         <AccordionItem value="inspiration-engine" className="border-none">
                             <Card className="glass-card">

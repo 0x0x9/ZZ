@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateVoiceAction, uploadDocumentAction } from '@/app/actions';
+import { generateVoice, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -41,7 +41,7 @@ function SubmitButton() {
   );
 }
 
-function VoiceGeneratorFormBody({ state }: { state: { message: string; result: GenerateVoiceOutput | null, error: string | null, id: number, text: string, voice: string } }) {
+function VoiceGeneratorFormBody({ state }: { state: { result: GenerateVoiceOutput | null, error: string | null, text: string, voice: string } }) {
   const { pending } = useFormStatus();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
@@ -51,7 +51,7 @@ function VoiceGeneratorFormBody({ state }: { state: { message: string; result: G
     setIsSaving(true);
     try {
         const fileName = `voice-${Date.now()}.wav`;
-        await uploadDocumentAction({ name: fileName, content: state.result.audioDataUri, mimeType: 'audio/wav' });
+        await uploadDocument({ name: fileName, content: state.result.audioDataUri, mimeType: 'audio/wav' });
         toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
     } catch (error: any) {
         toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -157,16 +157,14 @@ function VoiceGeneratorFormBody({ state }: { state: { message: string; result: G
 
 export default function VoiceGenerator({ initialText, initialAudioDataUri, prompt }: { initialText?: string, initialAudioDataUri?: string, prompt?: string }) {
   const router = useRouter();
-  const initialState = {
-      message: initialAudioDataUri ? 'success' : '',
-      result: { audioDataUri: initialAudioDataUri || null },
+  const initialState: { result: GenerateVoiceOutput | null, error: string | null, text: string, voice: string } = {
+      result: initialAudioDataUri ? { audioDataUri: initialAudioDataUri } : null,
       error: null,
-      id: 0,
       text: initialText || prompt || '',
       voice: 'Algenib'
   };
   
-  const [state, formAction] = useFormState(generateVoiceAction, initialState);
+  const [state, formAction] = useFormState(generateVoice, initialState);
   const { toast } = useToast();
   const { addNotification } = useNotifications();
 
@@ -178,7 +176,12 @@ export default function VoiceGenerator({ initialText, initialAudioDataUri, promp
         description: state.error,
       });
     }
-     if (state.message === 'success' && state.result?.audioDataUri) {
+     if (state.result?.audioDataUri) {
+        const resultId = `voice-result-${Math.random()}`;
+        const handleClick = () => {
+            localStorage.setItem(resultId, JSON.stringify(state));
+            router.push(`/xos?open=voice&resultId=${resultId}`);
+        };
         addNotification({
             icon: AudioLines,
             title: "Voix générée !",
@@ -188,7 +191,7 @@ export default function VoiceGenerator({ initialText, initialAudioDataUri, promp
   }, [state, toast, addNotification, router]);
 
   return (
-      <form action={formAction} key={state.id}>
+      <form action={formAction}>
         <VoiceGeneratorFormBody state={state} />
       </form>
   );

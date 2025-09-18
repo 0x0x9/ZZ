@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateScheduleAction, generateMoodboardAction, uploadDocumentAction } from '@/app/actions';
+import { generateSchedule, generateMoodboard, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -110,7 +110,7 @@ function ResultsDisplay({ plan, moodboard, isLoadingMoodboard, onReset }: { plan
             const contentToSave = JSON.stringify(plan);
             const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(contentToSave)))}`;
             
-            await uploadDocumentAction({ name: fileName, content: dataUri, mimeType: 'application/json' });
+            await uploadDocument({ name: fileName, content: dataUri, mimeType: 'application/json' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -283,7 +283,7 @@ function ResultsDisplay({ plan, moodboard, isLoadingMoodboard, onReset }: { plan
 }
 
 function MaestroForm({ state }: {
-    state: { message: string; result: ProjectPlan | null; error: string | null; id: number, prompt: string }
+    state: { result: ProjectPlan | null; error: string | null; prompt: string }
 }) {
     const { pending } = useFormStatus();
     
@@ -329,14 +329,12 @@ export default function MaestroGenerator({ initialResult, prompt }: { initialRes
   const [key, setKey] = useState(0); // To reset the form
   const [showForm, setShowForm] = useState(!initialResult);
 
-  const initialState = { 
-    message: initialResult ? 'success' : '', 
+  const initialState: { result: ProjectPlan | null, error: string | null, prompt: string } = { 
     result: initialResult || null, 
     error: null, 
-    id: key, 
     prompt: prompt || promptFromUrl || '' 
   };
-  const [state, formAction] = useFormState(generateScheduleAction, initialState);
+  const [state, formAction] = useFormState(generateSchedule, initialState);
 
   const [moodboard, setMoodboard] = useState<string[]>([]);
   const [isLoadingMoodboard, setIsLoadingMoodboard] = useState(false);
@@ -356,7 +354,7 @@ export default function MaestroGenerator({ initialResult, prompt }: { initialRes
 
     if (state.result) {
         setShowForm(false);
-        const resultId = `maestro-result-${state.id}`;
+        const resultId = `maestro-result-${Math.random()}`;
         
         if (addNotification) {
             addNotification({
@@ -374,14 +372,14 @@ export default function MaestroGenerator({ initialResult, prompt }: { initialRes
       const fetchMoodboard = async () => {
         setIsLoadingMoodboard(true);
         setMoodboard([]);
-        const { imageDataUris, error } = await generateMoodboardAction(plan.imagePrompts);
-        if (imageDataUris) {
-          setMoodboard(imageDataUris);
+        const result = await generateMoodboard({ prompts: plan.imagePrompts });
+        if (result.imageDataUris) {
+          setMoodboard(result.imageDataUris);
         } else {
           toast({
             variant: 'destructive',
             title: 'Erreur Moodboard',
-            description: error ?? "Une erreur inconnue est survenue.",
+            description: "Une erreur est survenue lors de la génération du moodboard.",
           });
         }
         setIsLoadingMoodboard(false);

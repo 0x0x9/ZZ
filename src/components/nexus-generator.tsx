@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateNexusAction } from '@/app/actions';
+import { generateNexus } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -126,7 +126,7 @@ function ResultsDisplay({ result, onReset }: { result: GenerateNexusOutput, onRe
 }
 
 function NexusForm({ state }: {
-    state: { message: string, result: GenerateNexusOutput | null, error: string | null, id: number, prompt: string },
+    state: { result: GenerateNexusOutput | null, error: string | null, prompt: string },
 }) {
     const { pending } = useFormStatus();
     
@@ -168,14 +168,12 @@ export default function NexusGenerator({ initialResult, prompt }: { initialResul
     const [key, setKey] = useState(0);
     const [showForm, setShowForm] = useState(!initialResult);
 
-    const initialState = {
-        message: initialResult ? 'success' : '',
+    const initialState: { result: GenerateNexusOutput | null, error: string | null, prompt: string } = {
         result: initialResult || null,
         error: null,
-        id: key,
         prompt: prompt || ''
     };
-    const [state, formAction] = useFormState(generateNexusAction, initialState);
+    const [state, formAction] = useFormState(generateNexus, initialState);
     const { toast } = useToast();
     const { pending } = useFormStatus();
     

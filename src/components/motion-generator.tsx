@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateMotionAction, generateImageAction } from '@/app/actions';
+import { generateMotion, generateContent } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -140,7 +140,7 @@ function ResultsDisplay({ result, onReset }: { result: MotionResultWithImage, on
 }
 
 function MotionForm({ state }: {
-    state: { message: string, result: VideoScript | null, error: string | null, id: number, prompt: string }
+    state: { result: VideoScript | null; error: string | null; prompt: string }
 }) {
     const { pending } = useFormStatus();
     
@@ -187,20 +187,18 @@ export default function MotionGenerator({ initialResult, prompt }: { initialResu
 
     const [resultWithImage, setResultWithImage] = useState<MotionResultWithImage | null>(initialResult ? { ...initialResult, isLoadingCover: true } : null);
     
-    const initialState = {
-        message: initialResult ? 'success' : '',
+    const initialState: { result: VideoScript | null; error: string | null; prompt: string } = {
         result: initialResult || null,
-        error: '',
-        id: key,
+        error: null,
         prompt: prompt || promptFromUrl || ''
     };
 
-    const [state, formAction] = useFormState(generateMotionAction, initialState);
+    const [state, formAction] = useFormState(generateMotion, initialState);
     const { toast } = useToast();
     const { pending } = useFormStatus();
 
     useEffect(() => {
-        if (state.message === 'error' && state.error) {
+        if (state.error) {
             setShowForm(true);
             toast({
                 variant: 'destructive',
@@ -208,7 +206,7 @@ export default function MotionGenerator({ initialResult, prompt }: { initialResu
                 description: state.error,
             });
         }
-        if (state.message === 'success' && state.result) {
+        if (state.result) {
             setShowForm(false);
             const script = state.result;
             const newResult: MotionResultWithImage = { ...script, isLoadingCover: true };
@@ -216,15 +214,13 @@ export default function MotionGenerator({ initialResult, prompt }: { initialResu
 
             const imagePrompt = `Image de couverture cinématographique pour une vidéo intitulée "${script.title}". La première scène est : "${script.scenes[0].narration}".`;
             
-            const formData = new FormData();
-            formData.append('prompt', imagePrompt);
-            generateImageAction({ id: Math.random(), message: '', imageDataUri: null, error: null, prompt: '' }, formData)
+            generateContent({ contentType: 'image', prompt: imagePrompt })
                 .then(imageResult => {
-                    if (imageResult.message === 'success' && imageResult.imageDataUri) {
-                        setResultWithImage(prev => prev ? ({ ...prev, coverImageDataUri: imageResult.imageDataUri, isLoadingCover: false }) : null);
+                    if (imageResult.type === 'image' && imageResult.data) {
+                        setResultWithImage(prev => prev ? ({ ...prev, coverImageDataUri: imageResult.data as string, isLoadingCover: false }) : null);
                     } else {
                          setResultWithImage(prev => prev ? ({ ...prev, isLoadingCover: false }) : null);
-                         toast({ variant: 'destructive', title: "Erreur de l'image de couverture", description: imageResult.error });
+                         toast({ variant: 'destructive', title: "Erreur de l'image de couverture" });
                     }
                 });
         }

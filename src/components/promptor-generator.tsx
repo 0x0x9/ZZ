@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateIdeasAction } from '@/app/actions';
+import { generateContent } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -118,7 +118,7 @@ function ResultsDisplay({ result, onReset }: { result: GenerateIdeasOutput, onRe
 }
 
 function PromptorForm({ state }: {
-    state: { message: string, result: GenerateIdeasOutput | null, error: string | null, id: number, prompt: string }
+    state: { result: GenerateIdeasOutput | null, error: string | null, prompt: string }
 }) {
     const { pending } = useFormStatus();
     
@@ -148,6 +148,7 @@ function PromptorForm({ state }: {
                 disabled={pending}
                 defaultValue={state.prompt ?? ''}
             />
+             <input type="hidden" name="contentType" value="ideas" />
             </CardContent>
             <div className="flex justify-center p-6 pt-0">
                 <SubmitButton />
@@ -162,19 +163,17 @@ export default function PromptorGenerator({ initialResult, prompt }: { initialRe
     const [key, setKey] = useState(0);
     const [showForm, setShowForm] = useState(!initialResult);
 
-    const initialState = {
-        message: initialResult ? 'success' : '',
+    const initialState: { result: GenerateIdeasOutput | null, error: string | null, prompt: string } = {
         result: initialResult || null,
         error: null,
-        id: key,
         prompt: prompt || promptFromUrl || ''
     };
-    const [state, formAction] = useFormState(generateIdeasAction, initialState);
+    const [state, formAction] = useFormState(generateContent, initialState);
     const { toast } = useToast();
     const { pending } = useFormStatus();
 
     useEffect(() => {
-        if (state.error) {
+        if (state?.error) {
             setShowForm(true);
             toast({
                 variant: 'destructive',
@@ -182,7 +181,7 @@ export default function PromptorGenerator({ initialResult, prompt }: { initialRe
                 description: state.error,
             });
         }
-        if (state.result) {
+        if (state?.result) {
             setShowForm(false);
         }
     }, [state, toast]);
@@ -210,7 +209,7 @@ export default function PromptorGenerator({ initialResult, prompt }: { initialRe
                     </div>
                 )}
 
-                {!showForm && state.result && <ResultsDisplay result={state.result} onReset={handleReset} />}
+                {!showForm && state?.type === 'ideas' && <ResultsDisplay result={state.data as GenerateIdeasOutput} onReset={handleReset} />}
             </div>
         </form>
     );

@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateCodeAction } from '@/app/actions';
+import { generateCode } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,7 +15,7 @@ import { Sparkles, Code2, Copy, FileText, TerminalSquare, Save, X } from 'lucide
 import type { GenerateCodeOutput } from '@/ai/types';
 import Link from 'next/link';
 import { LoadingState } from './loading-state';
-import { uploadDocumentAction } from '@/app/actions';
+import { uploadDocument } from '@/app/actions';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { useNotifications } from '@/hooks/use-notifications';
 
@@ -86,7 +86,7 @@ function ResultsDisplay({ result, language }: { result: GenerateCodeOutput, lang
             const fileName = `code-snippet-${Date.now()}.${fileExtension}`;
             const dataUri = `data:text/plain;base64,${btoa(unescape(encodeURIComponent(cleanCode)))}`;
             
-            await uploadDocumentAction({ name: fileName, content: dataUri, mimeType: 'text/plain' });
+            await uploadDocument({ name: fileName, content: dataUri, mimeType: 'text/plain' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)drive.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -147,7 +147,7 @@ function ResultsDisplay({ result, language }: { result: GenerateCodeOutput, lang
 }
 
 function CodeGeneratorFormBody({ state }: {
-    state: { message: string, result: GenerateCodeOutput | null, error: string | null, id: number, prompt?: string, language?: string },
+    state: { result: GenerateCodeOutput | null, error: string | null, prompt?: string, language?: string },
 }) {
     const { pending } = useFormStatus();
 
@@ -229,16 +229,14 @@ export default function CodeGenerator({ initialResult, prompt, language }: { ini
     const promptFromUrl = searchParams.get('prompt');
     const langFromUrl = searchParams.get('language');
 
-    const initialState = {
-        message: initialResult ? 'success' : '',
+    const initialState: { result: GenerateCodeOutput | null, error: string | null, prompt?: string, language?: string } = {
         result: initialResult || null,
         error: null,
-        id: 0,
         prompt: prompt || promptFromUrl || '',
         language: language || langFromUrl || 'typescript'
     };
     
-    const [state, formAction] = useFormState(generateCodeAction, initialState);
+    const [state, formAction] = useFormState(generateCode, initialState);
     const { toast } = useToast();
     const { addNotification } = useNotifications();
 
@@ -251,7 +249,7 @@ export default function CodeGenerator({ initialResult, prompt, language }: { ini
             });
         }
         if (state.result) {
-            const resultId = `code-result-${state.id}`;
+            const resultId = `code-result-${Math.random()}`;
             const handleClick = () => {
                 localStorage.setItem(resultId, JSON.stringify(state));
                 router.push(`/code?resultId=${resultId}`);
@@ -267,7 +265,7 @@ export default function CodeGenerator({ initialResult, prompt, language }: { ini
     }, [state, toast, addNotification, router]);
 
     return (
-        <form action={formAction} key={state.id}>
+        <form action={formAction}>
             <CodeGeneratorFormBody state={state} />
         </form>
     );

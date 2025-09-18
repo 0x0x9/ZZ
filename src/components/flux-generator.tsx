@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { fluxAction } from '@/ai/flows/generate-flux';
+import { generateFlux } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +16,7 @@ import type { GenerateFluxOutput } from '@/ai/types';
 import { Wand2, Sparkles, Loader, BrainCircuit, Palette, Mic, Users, Lightbulb, Presentation, LayoutTemplate, FileText, Film, Network, Code2, Calendar, ArrowRight, CheckCircle, RefreshCcw, BookOpen } from 'lucide-react';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
+import { useAppLauncher } from '@/hooks/use-app-launcher';
 
 interface FluxGeneratorProps {
     prompt?: string;
@@ -88,40 +89,12 @@ const toolInfoMap = {
 function ResultsDisplay({ result, prompt, onReset, openApp }: { result: GenerateFluxOutput, prompt: string, onReset: () => void, openApp?: FluxGeneratorProps['openApp'] }) {
     const router = useRouter();
     const { toast } = useToast();
+    const launcher = useAppLauncher(openApp || (() => {}));
+
 
     const handleOpenInXOS = async () => {
         if (openApp) {
-             const appMapping: { [key in keyof GenerateFluxOutput]?: string } = {
-                projectPlan: 'maestro', personas: 'persona', ideas: 'promptor', deck: 'deck',
-                frame: 'editor', text: 'text', motion: 'motion', nexus: 'nexus',
-                code: 'code', agenda: 'agenda',
-            };
-
-            const appsToOpen: {appId: string, props: any}[] = [];
-
-            if (result.palette || result.tone) {
-                appsToOpen.push({ appId: 'brand-identity', props: { initialPalette: result.palette, initialTone: result.tone, prompt: result.projectPlan?.creativeBrief } });
-            }
-            
-            for (const key in result) {
-                const typedKey = key as keyof GenerateFluxOutput;
-                if (typedKey !== 'palette' && typedKey !== 'tone' && result[typedKey] && appMapping[typedKey]) {
-                    const appId = appMapping[typedKey]!;
-                    let props: Record<string, any> = { prompt: result.projectPlan?.creativeBrief };
-
-                    if (typedKey === 'frame') props = { ...props, initialProjectCodes: { html: result.frame!.htmlCode, css: result.frame!.cssCode, js: result.frame!.jsCode }};
-                    else if (typedKey === 'text') props = { ...props, initialFile: { code: result.text!.text, language: 'markdown' } };
-                    else props = { ...props, initialFile: { code: result.code!.code, language: 'typescript' } };
-
-                    appsToOpen.push({ appId, props });
-                }
-            }
-            
-            for (const app of appsToOpen) {
-                await new Promise(resolve => setTimeout(resolve, 200));
-                openApp(app.appId, app.props);
-            }
-
+             launcher.launchFluxProject(result, prompt);
         } else {
             const resultId = `flux-result-${Date.now()}`;
             const dataToStore = {
@@ -219,19 +192,17 @@ export default function FluxGenerator({ prompt: promptProp, job: jobProp, initia
     const { toast } = useToast();
     const [key, setKey] = useState(0); // Used to reset the form
     
-    const initialState = { 
-        message: initialResultProp ? 'success' : '', 
+    const initialState: { result: GenerateFluxOutput | null, error: string, prompt: string, job: string } = { 
         result: initialResultProp || null,
         error: '', 
-        id: key, 
         prompt: promptProp || '',
         job: jobProp || ''
     };
-    const [state, formAction] = useFormState(fluxAction, initialState);
+    const [state, formAction] = useFormState(generateFlux, initialState);
     const { pending } = useFormStatus();
 
     useEffect(() => {
-        if (state?.message === 'error' && state.error) {
+        if (state?.error) {
           toast({
             variant: 'destructive',
             title: 'Erreur (X)flux',

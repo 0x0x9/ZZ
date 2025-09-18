@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateDeckAction, generateImageAction, uploadDocumentAction } from '@/app/actions';
+import { generateDeck, generateContent, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -94,7 +94,7 @@ function ResultsDisplay({ result, slidesWithImages, onReset }: { result: Generat
             const fileName = `decks/deck-${result.title.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_') || 'presentation'}.md`;
             const dataUri = `data:text/markdown;base64,${btoa(unescape(encodeURIComponent(markdownContent)))}`;
             
-            await uploadDocumentAction({ name: fileName, content: dataUri, mimeType: 'text/markdown' });
+            await uploadDocument({ name: fileName, content: dataUri, mimeType: 'text/markdown' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -177,7 +177,7 @@ function ResultsDisplay({ result, slidesWithImages, onReset }: { result: Generat
 }
 
 function DeckGeneratorForm({ state }: {
-    state: { message: string, result: GenerateDeckOutput | null, error: string | null, id: number, prompt: string },
+    state: { result: GenerateDeckOutput | null, error: string | null, prompt: string },
 }) {
     const { pending } = useFormStatus();
 
@@ -220,13 +220,11 @@ export default function DeckGenerator({ initialResult, prompt }: { initialResult
     const [showForm, setShowForm] = useState(!initialResult);
 
     const initialState = {
-        message: initialResult ? 'success' : '',
         result: initialResult || null,
         error: null,
-        id: key,
         prompt: prompt || ''
     };
-    const [state, formAction] = useFormState(generateDeckAction, initialState);
+    const [state, formAction] = useFormState(generateDeck, initialState);
     const [slidesWithImages, setSlidesWithImages] = useState<SlideWithImage[]>([]);
     const { toast } = useToast();
     const { addNotification } = useNotifications();
@@ -241,7 +239,7 @@ export default function DeckGenerator({ initialResult, prompt }: { initialResult
                 description: state.error,
             });
         }
-        if (state.message === 'success' && state.result?.slides) {
+        if (state.result?.slides) {
             setShowForm(false);
             
             addNotification({
@@ -254,14 +252,12 @@ export default function DeckGenerator({ initialResult, prompt }: { initialResult
             setSlidesWithImages(initialSlides);
 
             initialSlides.forEach((slide, index) => {
-                const formData = new FormData();
-                formData.append('prompt', slide.imagePrompt);
-                generateImageAction({ id: Math.random(), message: '', imageDataUri: null, error: null, prompt: '' }, formData)
+                generateContent({ contentType: 'image', prompt: slide.imagePrompt })
                     .then(imageResult => {
-                        if (imageResult.message === 'success' && imageResult.imageDataUri) {
+                        if (imageResult.type === 'image' && imageResult.data) {
                             setSlidesWithImages(prev => {
                                 const newSlides = [...prev];
-                                newSlides[index] = { ...newSlides[index], imageUrl: imageResult.imageDataUri, isLoadingImage: false };
+                                newSlides[index] = { ...newSlides[index], imageUrl: imageResult.data as string, isLoadingImage: false };
                                 return newSlides;
                             });
                         } else {
