@@ -5,7 +5,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import CloudDashboard from '@/app/cloud/client';
+import CloudDashboard from '@/components/cloud-dashboard';
 import SharingClient from '@/app/cloud/sharing/client';
 import DocManager from '@/components/doc-manager';
 import ActivityClient from '@/app/cloud/activity/client';
