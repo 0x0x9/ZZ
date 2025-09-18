@@ -246,11 +246,15 @@ const oriaRouterFlow = ai.defineFlow(
   },
   async (input) => {
     const history = (input.history || [])
-        .map(h => ({
-            role: h.role,
-            content: [{ text: typeof h.content === 'string' ? h.content : JSON.stringify(h.content) }]
-        }))
-        .filter(h => h.content[0].text && h.content[0].text.trim() !== ''); // Filter out empty messages
+        .map(h => {
+            const content = typeof h.content === 'string' ? h.content : JSON.stringify(h.content);
+            if (!content.trim()) return null;
+            return {
+                role: h.role,
+                content: [{ text: content }]
+            };
+        })
+        .filter((h): h is Exclude<typeof h, null> => h !== null);
 
 
     const systemPrompt = oriaRouterSystemPrompt
