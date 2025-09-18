@@ -89,14 +89,12 @@ const generateFluxFlow = ai.defineFlow(
     const projectPlan = await generateSchedule({ prompt: input.prompt });
     output.projectPlan = projectPlan;
 
-    if (!projectPlan?.title || !projectPlan?.creativeBrief) {
-      throw new Error(
-        "La génération du plan de projet a échoué ou n'a pas retourné de titre/brief."
-      );
-    }
+    // Use a fallback if title or brief are not generated
+    const projectTitle = projectPlan?.title || input.prompt;
+    const projectBrief = projectPlan?.creativeBrief || 'Aucun brief créatif généré.';
 
     // Construct a more detailed context prompt for sub-generators
-    const fullContextPrompt = `Pour un projet avec l'objectif suivant : "${input.prompt}", un plan a été généré. Le titre du projet est "${projectPlan.title}" et son brief créatif est : "${projectPlan.creativeBrief}". Sur cette base, effectue la tâche suivante :`;
+    const fullContextPrompt = `Pour un projet avec l'objectif suivant : "${input.prompt}", un plan a été généré. Le titre du projet est "${projectTitle}" et son brief créatif est : "${projectBrief}". Sur cette base, effectue la tâche suivante :`;
 
     // Phase 3: Préparation des promesses pour les outils sélectionnés
     const toolGeneratorMap: {
@@ -130,12 +128,12 @@ const generateFluxFlow = ai.defineFlow(
         generateNexus({ prompt: `${p.prompt} crée une carte mentale.` }),
       code: (p) =>
         generateCode({
-          prompt: `Basé sur le projet "${projectPlan.title}", génère un composant React simple avec TailwindCSS qui affiche le titre et le brief du projet : "${projectPlan.creativeBrief}"`,
+          prompt: `Basé sur le projet "${projectTitle}", génère un composant React simple avec TailwindCSS qui affiche le titre et le brief du projet : "${projectBrief}"`,
           language: 'typescript',
         }),
       agenda: (_) =>
         parseEvent({
-          prompt: `Planifier une réunion de lancement pour "${projectPlan.title}" demain à 10h`,
+          prompt: `Planifier une réunion de lancement pour "${projectTitle}" demain à 10h`,
           currentDate: new Date().toISOString(),
         }),
     };

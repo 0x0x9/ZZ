@@ -210,8 +210,9 @@ export const ProjectPlanSchema = z.object({
   id: z.string().optional().describe("ID unique pour le projet, peut être généré côté client/serveur."),
   title: z
     .string()
+    .optional()
     .describe("Un titre créatif et engageant pour le projet. Doit être en français et refléter l'essence de l'idée."),
-  creativeBrief: z.string().describe("Un paragraphe de 3-4 phrases qui définit la vision, le ton, le style et le public cible du projet. C'est la direction artistique."),
+  creativeBrief: z.string().optional().describe("Un paragraphe de 3-4 phrases qui définit la vision, le ton, le style et le public cible du projet. C'est la direction artistique."),
   tasks: z.array(
     z.object({
       title: z.string().describe('Le titre de la tâche, court et commençant par un verbe d\'action (ex: "Écrire le script").'),
