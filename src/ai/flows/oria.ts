@@ -247,31 +247,29 @@ const oriaRouterFlow = ai.defineFlow(
   async (input) => {
     let history: OriaChatInput['history'] = [];
     if (Array.isArray(input.history)) {
-      history = input.history.filter(
-        (h): h is Exclude<typeof h, null> => {
-          if (!h || typeof h !== 'object' || !h.content) {
-            return false;
-          }
-          if (typeof h.content === 'string' && !h.content.trim()) {
-            return false;
-          }
-          return true;
-        }
-      ).map(h => {
-        let contentText = h.content;
-        if (typeof contentText !== 'string') {
-          try {
-            contentText = JSON.stringify(contentText);
-          } catch {
-            // If stringification fails, treat as invalid content.
-            return null;
-          }
-        }
-        return {
-          role: h.role,
-          content: contentText,
-        };
-      }).filter((h): h is Exclude<typeof h, null> => h !== null);
+      history = input.history
+        .map(h => {
+            if (!h || typeof h !== 'object' || !h.content) return null;
+            
+            let contentText = h.content;
+            if (typeof contentText !== 'string') {
+                try {
+                    contentText = JSON.stringify(contentText);
+                } catch {
+                    return null; // Ignore if cannot be stringified
+                }
+            }
+             // Ensure content is not an empty string
+            if (!contentText.trim()) {
+                return null;
+            }
+            
+            return {
+                role: h.role,
+                content: contentText,
+            };
+        })
+        .filter((h): h is NonNullable<typeof h> => h !== null);
     }
 
 

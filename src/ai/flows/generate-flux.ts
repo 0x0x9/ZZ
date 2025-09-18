@@ -60,11 +60,11 @@ const generateFluxFlow = ai.defineFlow(
   },
   async (input) => {
     // Phase 1: Analyse de la demande pour choisir les outils
-    const { output: analysis } = await ai.generate({
+    const analysisResponse = await ai.generate({
         prompt: analysisPrompt.replace('{{{prompt}}}', input.prompt).replace('{{{job}}}', input.job || 'non spécifié'),
         model: 'googleai/gemini-1.5-pro-latest',
-        output: { schema: FluxAnalysisOutputSchema },
         config: {
+            response_mime_type: 'application/json',
             safetySettings: [
                 {
                     category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
@@ -74,19 +74,22 @@ const generateFluxFlow = ai.defineFlow(
         },
     });
 
+    const analysis = FluxAnalysisOutputSchema.parse(JSON.parse(analysisResponse.text));
+
     if (!analysis?.tools) {
       throw new Error(
         "(X)flux n'a pas pu déterminer les outils nécessaires pour votre projet."
       );
     }
 
+    // Phase 2: Génération du plan de projet, qui est la base de tout
+    // Nous le faisons en premier pour obtenir le brief créatif
+    const projectPlan = await generateSchedule({ prompt: input.prompt });
+
     const toolsToRun = new Set(analysis.tools);
     const output: Partial<GenerateFluxOutput> = {};
     const toolPromises: { [key: string]: Promise<any> } = {};
 
-    // Phase 2: Génération du plan de projet, qui est la base de tout
-    // Nous le faisons en premier pour obtenir le brief créatif
-    const projectPlan = await generateSchedule({ prompt: input.prompt });
     output.projectPlan = projectPlan;
 
     // Use a fallback if title or brief are not generated

@@ -30,17 +30,25 @@ Chaque événement doit avoir un titre, une date (YYYY-MM-DD) et une heure (HH:m
 
 Description du projet de l'utilisateur : {{{prompt}}}
 
-Le plan doit inclure :
-
-1.  **Titre du Projet :** Un nom accrocheur, mémorable et représentatif.
-2.  **Brief Créatif :** Un paragraphe concis (3-4 phrases) qui définit la vision stratégique, le ton, le style, et le public cible. Il doit servir de fil conducteur pour tout le projet.
-3.  **Plan d'Action (Tâches) :** Une liste d'au moins 5 tâches. Pour chaque tâche, vous devez fournir :
-    *   **Titre :** Un titre court et clair commençant par un verbe d'action (ex: "Définir l'identité visuelle", "Écrire le script de la vidéo").
-    *   **Description :** Une explication détaillée en 1 ou 2 phrases des objectifs de la tâche.
-    *   **Catégorie :** La phase du projet. Utilisez exclusivement une des catégories suivantes : "Stratégie & Recherche", "Pré-production", "Création & Production", "Post-production & Lancement".
-    *   **Durée :** Une estimation réaliste de la durée (ex: "2 jours", "1 semaine").
-    *   **Checklist :** Une liste de 2 à 4 sous-tâches ou points de vérification très concrets et réalisables pour accomplir la tâche principale. Chaque item de la checklist doit être un objet avec un champ "text" et un champ "completed" initialisé à \`false\`.
-4.  **Prompts pour Moodboard :** Au moins 1 prompt unique et très descriptif, en anglais, pour générer un moodboard visuel sur Midjourney ou DALL-E. Ce prompt doit être directement inspiré du brief créatif et couvrir différents aspects (ambiance, personnages, style graphique).
+Votre réponse DOIT être un objet JSON valide qui respecte le schéma suivant :
+{
+  "title": "Un titre créatif et engageant pour le projet.",
+  "creativeBrief": "Un paragraphe de 3-4 phrases qui définit la vision, le ton, le style et le public cible du projet.",
+  "tasks": [
+    {
+      "title": "Le titre de la tâche, court et commençant par un verbe d'action.",
+      "description": "Une description claire en 1 ou 2 phrases de ce que la tâche implique.",
+      "category": "Stratégie & Recherche | Pré-production | Création & Production | Post-production & Lancement",
+      "duration": "Une estimation de la durée (ex: '2 jours', '1 semaine').",
+      "checklist": [
+        { "text": "Sous-tâche 1", "completed": false },
+        { "text": "Sous-tâche 2", "completed": false }
+      ]
+    }
+  ],
+  "imagePrompts": ["Un prompt d'image en anglais pour le moodboard."],
+  "events": [{ "title": "...", "date": "...", "time": "..." }]
+}
 `;
 
 const scheduleFlow = ai.defineFlow(
@@ -55,11 +63,11 @@ const scheduleFlow = ai.defineFlow(
       .replace('{{{prompt}}}', input.prompt)
       .replace('{{{currentDate}}}', new Date().toISOString());
       
-    const { output } = await ai.generate({
+    const llmResponse = await ai.generate({
       prompt: finalPrompt,
       model: 'googleai/gemini-1.5-pro-latest',
-      output: { schema: ProjectPlanSchema },
       config: {
+        response_mime_type: 'application/json',
         safetySettings: [
           {
             category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
@@ -69,6 +77,9 @@ const scheduleFlow = ai.defineFlow(
       }
     });
     
+    const parsed = JSON.parse(llmResponse.text);
+    const output = ProjectPlanSchema.parse(parsed);
+
     if (!output) {
       throw new Error("Maestro n'a pas pu générer de plan de projet.");
     }

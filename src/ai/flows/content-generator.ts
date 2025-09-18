@@ -62,27 +62,24 @@ const generateContentFlow = ai.defineFlow(
         .replace('{{{prompt}}}', input.prompt)
         .replace('{{#if style}}Style: {{{style}}}{{/if}}', input.style ? `Style: ${input.style}`: '')
         .replace('{{#if textToReformat}}Texte à reformater: {{{textToReformat}}}{{/if}}', input.textToReformat ? `Texte à reformater: ${input.textToReformat}`: '');
-
-    const { output } = await ai.generate({
+        
+    const response = await ai.generate({
         model: 'googleai/gemini-1.5-flash-latest',
         prompt,
-        output: { schema: z.object({ result: z.string() }) },
     });
 
-    if (!output) {
-      throw new Error("L'IA n'a pas pu générer le contenu.");
-    }
+    const resultText = response.text;
     
     if (input.contentType === 'ideas') {
       try {
-        const ideasData = JSON.parse(output.result);
+        const ideasData = JSON.parse(resultText);
         return { type: 'ideas', data: ideasData };
       } catch (e) {
         throw new Error("L'IA a retourné un format d'idées invalide.");
       }
     }
 
-    return { type: 'text', data: output.result };
+    return { type: 'text', data: resultText };
   }
 );
 
