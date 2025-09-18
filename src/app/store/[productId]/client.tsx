@@ -146,7 +146,7 @@ export default function ProductClient({ product }: { product: Product }) {
                     <CarouselContent>
                         {product.images.map((img, index) => (
                             <CarouselItem key={index}>
-                                <div className="aspect-video relative bg-muted/20 rounded-lg overflow-hidden">
+                                <div className="aspect-video relative rounded-lg overflow-hidden">
                                      <Image 
                                         src={img} 
                                         alt={`${product.name} - vue ${index + 1}`} 
