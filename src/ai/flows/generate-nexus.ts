@@ -9,7 +9,7 @@
  */
 
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateNexusInputSchema, GenerateNexusOutputSchema, type GenerateNexusInput, type GenerateNexusOutput } from '@/ai/types';
 
 export async function generateNexus(input: GenerateNexusInput): Promise<GenerateNexusOutput> {

@@ -9,12 +9,12 @@
  */
 
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import * as fs from 'fs';
 import { Readable } from 'stream';
 import type { MediaPart } from 'genkit';
-import { GenerateVideoInputSchema, GenerateVideoOutputSchema, GenerateVideoInput, GenerateVideoOutput } from '@/ai/types';
+import { GenerateVideoInputSchema, GenerateVideoOutputSchema, type GenerateVideoInput, type GenerateVideoOutput } from '@/ai/types';
 
 
 // Helper function to download the video and convert to data URI

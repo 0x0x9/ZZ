@@ -7,7 +7,7 @@
  */
 
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateDeckInputSchema, GenerateDeckOutputSchema, type GenerateDeckInput, type GenerateDeckOutput } from '@/ai/types';
 
 export async function generateDeck(input: GenerateDeckInput): Promise<GenerateDeckOutput> {

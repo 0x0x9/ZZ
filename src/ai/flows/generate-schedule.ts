@@ -2,7 +2,7 @@
 'use server';
 
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import {
   GenerateScheduleInputSchema,
   ProjectPlanSchema,
@@ -23,6 +23,7 @@ const schedulePrompt = ai.definePrompt({
         currentDate: z.string(),
     }),
     output: { schema: ProjectPlanSchema, format: 'json' },
+    model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes Maestro, un chef de projet IA expert en stratégie et en organisation de projets créatifs.
 Votre mission est de transformer une simple description de projet en un plan d'action complet, structuré et prêt à être exécuté.
 

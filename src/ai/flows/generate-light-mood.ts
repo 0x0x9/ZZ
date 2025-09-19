@@ -8,7 +8,7 @@
  */
 
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateLightMoodInputSchema, GenerateLightMoodOutputSchema, type GenerateLightMoodInput, type GenerateLightMoodOutput } from '@/ai/types';
 
 export async function generateLightMood(input: GenerateLightMoodInput): Promise<GenerateLightMoodOutput> {

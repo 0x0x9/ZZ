@@ -11,7 +11,7 @@
 
 import { ai } from '@/genkit';
 import { ConvertImageInputSchema, ConvertImageOutputSchema, type ConvertImageInput, type ConvertImageOutput } from '@/ai/types';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 
 export async function convertImage(input: ConvertImageInput): Promise<ConvertImageOutput> {
   return convertImageFlow(input);

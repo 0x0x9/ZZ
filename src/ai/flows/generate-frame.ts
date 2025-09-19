@@ -7,7 +7,7 @@
  */
 
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateFrameInputSchema, GenerateFrameOutputSchema, type GenerateFrameInput, type GenerateFrameOutput } from '@/ai/types';
 
 export async function generateFrame(input: GenerateFrameInput): Promise<GenerateFrameOutput> {

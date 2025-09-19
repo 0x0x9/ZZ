@@ -1,3 +1,4 @@
+
 'use server';
 
 import { ai } from '@/genkit';
@@ -41,9 +42,6 @@ Prompt/Instruction: {{{prompt}}}
 ---
 
 Répondez UNIQUEMENT avec le résultat demandé.`,
-    output: {
-        format: 'json',
-    }
 });
 
 

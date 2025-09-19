@@ -9,7 +9,7 @@ import {
   type GenerateFluxOutput,
 } from '@/ai/types';
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { generateSchedule } from './generate-schedule';
 import { generatePalette } from './generate-palette';
 import { generateTone } from './generate-tone';
@@ -34,6 +34,7 @@ const analysisPrompt = ai.definePrompt({
         job: z.string().optional(),
     }),
     output: { schema: FluxAnalysisOutputSchema, format: 'json' },
+    model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes un chef de projet expert et un stratège créatif. Votre rôle est d'analyser la demande d'un utilisateur et de sélectionner la combinaison d'outils la plus pertinente pour réaliser son projet, en tenant compte de son métier.
 
 Demande de l'utilisateur : {{{prompt}}}
