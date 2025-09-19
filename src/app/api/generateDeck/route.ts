@@ -1,4 +1,12 @@
-import { generateDeck } from '@/genkit/flows/generate-deck';
-import { appRoute } from '@genkit-ai/next';
+import { generateDeck } from '@/ai/flows/generate-deck';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = appRoute(generateDeck);
+export async function POST(req: NextRequest) {
+    try {
+        const body = await req.json();
+        const result = await generateDeck(body);
+        return NextResponse.json(result);
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message || 'An error occurred' }, { status: 500 });
+    }
+}

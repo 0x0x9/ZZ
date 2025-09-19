@@ -1,4 +1,12 @@
-import { oria } from '@/genkit/flows/oria';
-import { appRoute } from '@genkit-ai/next';
+import { oria } from '@/ai/flows/oria';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = appRoute(oria);
+export async function POST(req: NextRequest) {
+    try {
+        const body = await req.json();
+        const result = await oria(body);
+        return NextResponse.json(result);
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message || 'An error occurred' }, { status: 500 });
+    }
+}

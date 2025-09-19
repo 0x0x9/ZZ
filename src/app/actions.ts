@@ -35,7 +35,8 @@ import { ProjectPlanSchema } from '@/ai/types';
 import { z } from 'zod';
 
 
-// AI Actions
+// AI Actions - These are now called via API routes, but we keep the exports here
+// in case some components still reference them directly (though they shouldn't).
 export { generateCode, generateSchedule, generateMotion, generateContent, generateDeck, generateLightMood, generateMoodboard, generateMuse, generateNexus, generatePalette, generatePersona, generateSound, generateTone, generateVoice, copilotLyrics };
 
 // Cloud Storage Actions
@@ -99,6 +100,7 @@ export async function createManualProjectAction(prevState: any, formData: FormDa
   }
 }
 
+// Oria chat action remains as it has complex state management with useFormState
 export async function oriaChatAction(prevState: any, formData: FormData): Promise<{ id: number, result: OriaChatOutput | null, error: string | null, message: 'success' | 'error' }> {
   const prompt = formData.get('prompt') as string;
   const context = formData.get('context') as OriaChatInput['context'];
@@ -123,8 +125,7 @@ export async function oriaChatAction(prevState: any, formData: FormData): Promis
   }
 }
 
-
-// Re-exporting for client components that might still use them, but these should be migrated.
+// Re-exporting for client components that might still use them.
 export const listDocumentsAction = listDocuments;
 export const uploadDocumentAction = uploadDocument;
 export const shareDocumentAction = shareDocument;
@@ -137,7 +138,6 @@ export const parseEventAction = parseEvent;
 
 
 // Flux Action - An example of how to handle more complex state with useFormState
-// We return the full state to be able to use it on the client
 export async function fluxAction(prevState: any, formData: FormData): Promise<{
     id: number,
     result: GenerateFluxOutput | null,

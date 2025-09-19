@@ -1,4 +1,12 @@
-import { generateFrame } from '@/genkit/flows/generate-frame';
-import { appRoute } from '@genkit-ai/next';
+import { generateFrame } from '@/ai/flows/generate-frame';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = appRoute(generateFrame);
+export async function POST(req: NextRequest) {
+    try {
+        const body = await req.json();
+        const result = await generateFrame(body);
+        return NextResponse.json(result);
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message || 'An error occurred' }, { status: 500 });
+    }
+}

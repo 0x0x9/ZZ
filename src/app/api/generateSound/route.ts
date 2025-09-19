@@ -1,4 +1,12 @@
-import { generateSound } from '@/genkit/flows/generate-sound';
-import { appRoute } from '@genkit-ai/next';
+import { generateSound } from '@/ai/flows/generate-sound';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = appRoute(generateSound);
+export async function POST(req: NextRequest) {
+    try {
+        const body = await req.json();
+        const result = await generateSound(body);
+        return NextResponse.json(result);
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message || 'An error occurred' }, { status: 500 });
+    }
+}
