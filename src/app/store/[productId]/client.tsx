@@ -1,7 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles } from 'lucide-react';
 import type { Product } from '@/lib/products';
@@ -17,7 +18,6 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import OriaAnimation from "@/components/ui/oria-animation";
-import { useRouter } from "next/navigation";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -41,28 +41,48 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
 
 export default function ProductClient({ product: initialProduct }: { product: Product }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [product, setProduct] = useState(initialProduct);
   const [totalPrice, setTotalPrice] = useState(product.price);
-  const [configuration, setConfiguration] = useState<Configuration | null>(null);
-  const { addItem } = useCart();
   const { toast } = useToast();
-  const [pcConfiguratorKey, setPcConfiguratorKey] = useState(Date.now());
 
+  const getInitialConfig = () => {
+    const cpu = searchParams.get('cpu');
+    const gpu = searchParams.get('gpu');
+    const ram = searchParams.get('ram');
+    const storage = searchParams.get('storage');
+
+    if (cpu && gpu && ram && storage) {
+      return { cpu, gpu, ram, storage };
+    }
+    return null;
+  };
+  
+  const [configuration, setConfiguration] = useState<Configuration | null>(getInitialConfig());
+  const [pcConfiguratorKey, setPcConfiguratorKey] = useState(Date.now());
+  const { addItem } = useCart();
 
   const handleConfigChange = (newConfig: Configuration, newPrice: number) => {
     setConfiguration(newConfig);
     setTotalPrice(newPrice);
   };
   
-  const handleAiConfigSelect = (newConfig: Configuration, modelName: string) => {
-    if (!modelName.toLowerCase().includes(product.name.toLowerCase().split(' ')[0].replace('(x)-', ''))) {
-        router.push(`/store/${product.id}`); // This is a mock, ideally it would go to the right product
+  const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
+    if (modelId !== product.id) {
+        const params = new URLSearchParams({
+            cpu: newConfig.cpu,
+            gpu: newConfig.gpu,
+            ram: newConfig.ram,
+            storage: newConfig.storage,
+        });
+        router.push(`/store/${modelId}?${params.toString()}`);
         toast({
             title: `Redirection vers ${modelName}`,
-            description: "Ce modèle semble plus adapté à vos besoins.",
+            description: "Ce modèle semble plus adapté à vos besoins. Votre configuration a été transférée.",
         });
         return;
     }
+    
     setConfiguration(newConfig);
     setPcConfiguratorKey(Date.now()); // Force re-render of PCConfigurator with new initial values
     const configuratorElement = document.getElementById('configurator');
@@ -217,7 +237,8 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         <PCConfigurator 
                             key={pcConfiguratorKey}
                             product={product} 
-                            onConfigChange={handleConfigChange} 
+                            onConfigChange={handleConfigChange}
+                            initialConfig={configuration}
                         />
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">

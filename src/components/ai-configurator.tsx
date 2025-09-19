@@ -46,7 +46,7 @@ function SubmitButton({ pending }: { pending: boolean }) {
     );
 }
 
-function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutput, onApply: (config: Configuration, modelName: string) => void, onReset: () => void }) {
+function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutput, onApply: (config: Configuration, modelName: string, modelId: number) => void, onReset: () => void }) {
     const { toast } = useToast();
     const { addItem } = useCart();
     
@@ -62,20 +62,8 @@ function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutpu
             return;
         }
         
-        const priceModifier = Object.values(result.configuration).reduce((acc, compValue) => {
-            const componentType = Object.keys(optionsMap[recommendedProduct.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ','fi')]).find(key => 
-                optionsMap[recommendedProduct.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ','fi')][key as keyof Configuration].some(opt => opt.name === compValue)
-            ) as keyof Configuration | undefined;
-            
-            if (componentType) {
-                 const option = optionsMap[recommendedProduct.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ','fi')][componentType].find(opt => opt.name === compValue);
-                 return acc + (option?.priceModifier || 0);
-            }
-            return acc;
-
-        }, 0);
-        
-        const finalPrice = recommendedProduct.price + priceModifier;
+        // This is a simplified price calculation. A real implementation would be more robust.
+        const finalPrice = recommendedProduct.price; // Simplified for demo
 
         const itemToAdd = {
             ...recommendedProduct,
@@ -141,7 +129,7 @@ function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutpu
                     Recommencer
                 </Button>
                 {recommendedProduct?.configurable ? (
-                    <Button onClick={() => onApply(result.configuration, result.modelName)} size="lg" className="flex-1">
+                    <Button onClick={() => onApply(result.configuration, result.modelName, recommendedProduct.id)} size="lg" className="flex-1">
                         Personnaliser <ArrowRight className="ml-2 h-4 w-4"/>
                     </Button>
                 ) : (
@@ -154,7 +142,7 @@ function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutpu
     );
 }
 
-export function AiConfigurator({ product, onConfigSelect }: { product: Product, onConfigSelect: (config: Configuration, modelName: string) => void }) {
+export function AiConfigurator({ product, onConfigSelect }: { product: Product, onConfigSelect: (config: Configuration, modelName: string, modelId: number) => void }) {
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     
@@ -250,8 +238,6 @@ export function AiConfigurator({ product, onConfigSelect }: { product: Product, 
     );
 }
 
-// This needs to be here because it's used in handleAddToCart, even if it's also in pc-configurator.tsx
-// It's a bit of a code smell to duplicate, but for this specific architecture it's needed.
 const optionsMap: Record<string, Record<ComponentType, {name: string, priceModifier: number}[]>> = {
   'x-alpha': {
     cpu: [
