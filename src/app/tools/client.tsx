@@ -172,8 +172,8 @@ export default function ToolsClient() {
                             Oria est l'intelligence qui connecte tous les outils. Discutez avec elle pour lancer des projets, générer des idées, et trouver l'outil parfait pour chaque tâche.
                         </p>
                          <Button asChild size="lg" className="mt-8 rounded-full">
-                            <Link href="/xos?open=oria">
-                                Discuter avec Oria <ArrowRight className="ml-2 h-4 w-4" />
+                            <Link href="/features">
+                                En savoir plus <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>
                     </div>
