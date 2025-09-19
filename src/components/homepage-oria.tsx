@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -314,7 +313,7 @@ function OriaChatUI({ messages, handleReset, formRef }: { messages: Message[], h
         if (scrollAreaRef.current) {
             scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
         }
-    }, [messages]);
+    }, [messages, pending]);
 
     return (
         <div className="relative glass-card w-full max-w-4xl min-h-[60vh] mx-auto overflow-hidden p-0 flex flex-col">
@@ -440,7 +439,7 @@ export default function HomepageOriaChat() {
         .slice(-10)
         .map(msg => ({
             role: msg.type === 'user' ? 'user' : 'model',
-            content: msg.type === 'user' ? (msg.text || '') : (msg.result ? JSON.stringify(msg.result) : (msg.text || '')),
+            content: msg.text || (msg.result ? JSON.stringify(msg.result) : ''),
         }))
         .filter(msg => msg.content && msg.content.trim() !== '');
       
@@ -458,3 +457,5 @@ export default function HomepageOriaChat() {
     </form>
   );
 }
+
+    

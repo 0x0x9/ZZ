@@ -246,6 +246,7 @@ const oriaRouterFlow = ai.defineFlow(
   },
   async (input) => {
     
+    // Robust history validation
     const validHistory = (input.history || [])
         .map(h => {
             if (!h || typeof h.content !== 'string' || !h.content.trim()) {
@@ -253,7 +254,7 @@ const oriaRouterFlow = ai.defineFlow(
             }
             return { role: h.role, content: h.content };
         })
-        .filter(Boolean);
+        .filter(h => h !== null) as { role: 'user' | 'model', content: string }[];
     
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)
@@ -263,7 +264,7 @@ const oriaRouterFlow = ai.defineFlow(
         model: 'googleai/gemini-1.5-pro-latest',
         prompt: input.prompt,
         system: systemPrompt,
-        history: validHistory as any[], // Cast as any to bypass potential strict type issues if library is picky
+        history: validHistory,
         tools: [
           textTool, paletteTool, toneTool, personaTool, promptorTool, motionTool,
           voiceTool, codeTool, deckTool, frameTool, soundTool, nexusTool, fluxTool,
@@ -301,3 +302,5 @@ const oriaRouterFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
