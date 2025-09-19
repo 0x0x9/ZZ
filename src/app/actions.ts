@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -31,8 +32,10 @@ import { generateSound } from '@/ai/flows/generate-sound';
 import { generateTone } from '@/ai/flows/generate-tone';
 import { copilotLyrics } from '@/ai/flows/copilot-lyrics';
 import { convertImage } from '@/ai/flows/convert-image';
+import { configurePc } from '@/ai/flows/configure-pc';
 
-import type { ProjectPlan, OriaChatInput, OriaChatOutput, GenerateFluxInput } from '@/ai/types';
+
+import type { ProjectPlan, OriaChatInput, OriaChatOutput, GenerateFluxInput, ConfigurePcInput, ConfigurePcOutput } from '@/ai/types';
 import { ProjectPlanSchema } from '@/ai/types';
 import { z } from 'zod';
 
@@ -57,7 +60,7 @@ export const getSignedUrlAction = getSignedUrl;
 export const renameDocumentAction = renameDocument;
 
 // AI Actions
-export { generateSchedule, generateContent, generateCode, debugCode, explainCode, refactorCode, copilotLyrics, convertImage, generateFlux, generateMotion, generateDeck, generateLightMood, generateMuse, generateNexus, generatePalette, generatePersona, generateSound, generateTone };
+export { generateSchedule, generateContent, generateCode, debugCode, explainCode, refactorCode, copilotLyrics, convertImage, generateFlux, generateMotion, generateDeck, generateLightMood, generateMuse, generateNexus, generatePalette, generatePersona, generateSound, generateTone, configurePc };
 
 export const generateMoodboard = generateMoodboardFlow;
 

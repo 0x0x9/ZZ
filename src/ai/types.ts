@@ -455,6 +455,32 @@ export const GenerateVideoOutputSchema = z.object({
 });
 export type GenerateVideoOutput = z.infer<typeof GenerateVideoOutputSchema>;
 
+// From: src/ai/flows/configure-pc.ts
+export const ConfigurePcInputSchema = z.object({
+    product: z.string().describe("Le nom du produit à configurer (ex: '(X)-fi')"),
+    job: z.string().describe("Le métier ou le rôle principal de l'utilisateur (ex: 'Monteur vidéo', 'Développeur 3D')."),
+    software: z.string().describe("Les logiciels principaux que l'utilisateur utilise (ex: 'DaVinci Resolve, Unreal Engine 5, Blender')."),
+    priority: z.enum(['performance', 'storage', 'balanced']).describe("La priorité de l'utilisateur: performance brute, capacité de stockage, ou un équilibre performance/prix."),
+});
+export type ConfigurePcInput = z.infer<typeof ConfigurePcInputSchema>;
+
+export const PcConfigurationSchema = z.object({
+  cpu: z.string().describe("Le nom exact du processeur recommandé."),
+  gpu: z.string().describe("Le nom exact de la carte graphique recommandée."),
+  ram: z.string().describe("La quantité de RAM recommandée (ex: '64GB DDR5')."),
+  storage: z.string().describe("La configuration de stockage recommandée (ex: '4TB NVMe SSD')."),
+});
+export type Configuration = z.infer<typeof PcConfigurationSchema>;
+
+
+export const ConfigurePcOutputSchema = z.object({
+  modelName: z.string().describe("Le nom du modèle de base recommandé (ex: '(X)-fi')."),
+  configuration: PcConfigurationSchema,
+  justification: z.string().describe("Une explication claire et concise des raisons de cette recommandation, en liant les choix de composants aux besoins de l'utilisateur."),
+});
+export type ConfigurePcOutput = z.infer<typeof ConfigurePcOutputSchema>;
+
+
 // IMPORTANT: The Oria schemas must be defined LAST, after all the schemas
 // they might reference in their `data` union type.
 

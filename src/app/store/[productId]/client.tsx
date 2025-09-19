@@ -11,6 +11,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import PerformanceChart from "@/components/ui/performance-chart";
 import { PCConfigurator, type Configuration } from "@/components/ui/pc-configurator";
+import { AiConfigurator } from "@/components/ai-configurator";
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -43,10 +44,21 @@ export default function ProductClient({ product }: { product: Product }) {
   const [configuration, setConfiguration] = useState<Configuration | null>(null);
   const { addItem } = useCart();
   const { toast } = useToast();
+  const [pcConfiguratorKey, setPcConfiguratorKey] = useState(Date.now());
+
 
   const handleConfigChange = (newConfig: Configuration, newPrice: number) => {
     setConfiguration(newConfig);
     setTotalPrice(newPrice);
+  };
+  
+  const handleAiConfigSelect = (newConfig: Configuration) => {
+    setConfiguration(newConfig);
+    setPcConfiguratorKey(Date.now()); // Force re-render of PCConfigurator with new initial values
+    const configuratorElement = document.getElementById('configurator');
+    if (configuratorElement) {
+        configuratorElement.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
   const handleAddToCart = () => {
@@ -155,7 +167,6 @@ export default function ProductClient({ product }: { product: Product }) {
                                         className="object-contain p-4 md:p-8" 
                                         sizes="(max-width: 768px) 100vw, 75vw"
                                         priority={index === 0}
-                                        data-ai-hint={product.hint}
                                     />
                                 </div>
                             </CarouselItem>
@@ -187,12 +198,17 @@ export default function ProductClient({ product }: { product: Product }) {
         </section>
 
         <div className="space-y-24 md:space-y-36 my-24 md:my-36">
+            <section className="container mx-auto px-4 md:px-6">
+                 <AiConfigurator product={product} onConfigSelect={handleAiConfigSelect} />
+            </section>
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
                         <PCConfigurator 
+                            key={pcConfiguratorKey}
                             product={product} 
                             basePrice={product.price}
+                            initialConfig={configuration}
                             onConfigChange={handleConfigChange} 
                         />
                     </div>
@@ -205,7 +221,6 @@ export default function ProductClient({ product }: { product: Product }) {
                                     fill
                                     className="object-contain"
                                     sizes="(max-width: 768px) 100vw, 50vw"
-                                    data-ai-hint={product.hint}
                                 />
                             </div>
                         </div>
@@ -238,7 +253,7 @@ export default function ProductClient({ product }: { product: Product }) {
                  <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
                     <AnimatedSection>
                          <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-                            <Image src="https://picsum.photos/seed/cooling/800/800" alt="Système de refroidissement" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint="liquid cooling computer"/>
+                            <Image src="https://picsum.photos/seed/cooling/800/800" alt="Système de refroidissement" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                          </div>
                     </AnimatedSection>
                     <AnimatedSection>
@@ -255,7 +270,7 @@ export default function ProductClient({ product }: { product: Product }) {
                  <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
                      <AnimatedSection className="md:order-2">
                          <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-                            <Image src="https://picsum.photos/seed/chassis/800/800" alt="Châssis modulaire" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint="open computer case"/>
+                            <Image src="https://picsum.photos/seed/chassis/800/800" alt="Châssis modulaire" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                          </div>
                     </AnimatedSection>
                     <AnimatedSection className="md:order-1">
