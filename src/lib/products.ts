@@ -1,5 +1,4 @@
 
-
 export type Product = {
   id: number;
   name: string;
@@ -19,7 +18,7 @@ export type Product = {
 export const products: Product[] = [
   {
     id: 1,
-    name: "(X)-φ (fi)",
+    name: "(X)-fi",
     description: "Le summum de la puissance créative. Pour celles et ceux qui repoussent les limites de ce qu’une machine peut faire… et de ce qu’un esprit peut créer. Ce n'est pas qu'un ordinateur. C’est un studio, une galerie, une scène, un lab.",
     price: 4499.00,
     images: [
