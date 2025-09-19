@@ -1,5 +1,6 @@
 import MaestroClient from './client';
 import { BrainCircuit } from 'lucide-react';
+import { Suspense } from 'react';
 
 const MaestroPage = () => {
     return (
@@ -18,7 +19,9 @@ const MaestroPage = () => {
                 </p>
             </section>
             
-            <MaestroClient />
+            <Suspense>
+                <MaestroClient />
+            </Suspense>
         </>
     );
 }
