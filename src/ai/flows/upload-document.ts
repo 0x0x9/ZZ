@@ -2,7 +2,7 @@
 
 import { ai } from '@/genkit';
 import { z } from 'genkit';
-import { mockDocs } from './list-documents';
+import { mockDocs } from '@/lib/mock-db';
 import { v4 as uuidv4 } from 'uuid';
 import type { Doc } from '@/ai/types';
 

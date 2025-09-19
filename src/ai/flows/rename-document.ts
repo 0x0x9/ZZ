@@ -2,7 +2,7 @@
 
 import { ai } from '@/genkit';
 import { z } from 'genkit';
-import { mockDocs } from './list-documents';
+import { mockDocs } from '@/lib/mock-db';
 
 const InputSchema = z.object({
   oldPath: z.string(),
