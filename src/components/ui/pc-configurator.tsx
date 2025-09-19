@@ -22,9 +22,9 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: 'Intel Core i9-14900K', priceModifier: -100 },
     ],
     gpu: [
-        { name: 'NVIDIA RTX 5080', priceModifier: 0 },
-        { name: 'AMD Radeon RX 7900 XT', priceModifier: -200 },
-        { name: '2x AMD Radeon RX 7800 XT (X)Bridge', priceModifier: 400 },
+        { name: 'NVIDIA RTX 5080 (16Go VRAM)', priceModifier: 0 },
+        { name: 'AMD Radeon RX 7900 XT (20Go VRAM)', priceModifier: -200 },
+        { name: 'Technologie (X)bridge (AMD) 32Go VRAM', priceModifier: 400 },
     ],
     ram: [
         { name: '64GB DDR5', priceModifier: 0 },
@@ -41,8 +41,8 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: 'AMD Ryzen 7 7800X3D', priceModifier: 50 },
     ],
     gpu: [
-        { name: 'NVIDIA RTX 5070', priceModifier: 0 },
-        { name: 'AMD Radeon RX 7800 XT', priceModifier: -150 },
+        { name: 'NVIDIA RTX 5070 (12Go VRAM)', priceModifier: 0 },
+        { name: 'AMD Radeon RX 7800 XT (16Go VRAM)', priceModifier: -150 },
     ],
     ram: [
         { name: '32GB DDR5', priceModifier: 0 },
@@ -59,11 +59,10 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: 'AMD Ryzen 9 7950X3D', priceModifier: 150 },
     ],
     gpu: [
-        { name: 'NVIDIA RTX 5080', priceModifier: 0 },
-        { name: 'NVIDIA RTX 4090', priceModifier: 600 },
-        { name: 'AMD Radeon RX 7900 XTX', priceModifier: -100 },
-        { name: '2x NVIDIA RTX 5080 (X)Bridge', priceModifier: 1200 },
-        { name: '2x AMD Radeon RX 7900 XTX (X)Bridge', priceModifier: 800 },
+        { name: 'NVIDIA RTX 5080 (16Go VRAM)', priceModifier: 0 },
+        { name: 'NVIDIA RTX 4090 (24Go VRAM)', priceModifier: 600 },
+        { name: 'Technologie (X)bridge (NVIDIA) 32Go VRAM', priceModifier: 1200 },
+        { name: 'Technologie (X)bridge (AMD) 48Go VRAM', priceModifier: 800 },
     ],
     ram: [
         { name: '96GB DDR5', priceModifier: 0 },
