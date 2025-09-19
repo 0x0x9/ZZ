@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap } from 'lucide-react';
@@ -119,7 +119,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         router.push(`/store/${modelId}?${params.toString()}`);
     };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
     if (product.configurable && !configuration) {
         toast({
             variant: "destructive",
@@ -143,7 +143,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         title: "Ajouté au panier !",
         description: `"${product.name}" a été ajouté à votre panier.`,
     });
-  };
+  }, [product, configuration, totalPrice, addItem, toast]);
 
     useEffect(() => {
         setProductHeaderState({
@@ -210,6 +210,13 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   return (
     <>
         <div className="space-y-24 md:space-y-36 mt-16 md:mt-24">
+            <section className="container mx-auto px-4 md:px-6">
+                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+                  <Link href="/store" className="hover:text-primary transition-colors">Boutique</Link>
+                  <ChevronRight className="h-4 w-4" />
+                  <span className="font-medium text-foreground">{product.name}</span>
+                </div>
+            </section>
             
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
@@ -331,28 +338,28 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </section>
             )}
 
-             <section className="container mx-auto px-4 md:px-6">
-                 <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
                     <div className="absolute -inset-20 z-0">
-                         <OriaAnimation className="w-full h-full opacity-30" />
+                        <OriaAnimation className="w-full h-full opacity-30" />
                     </div>
                     <div className="relative z-10 text-center md:text-left">
                         <h2 className="text-3xl md:text-4xl font-bold">Oria. Le chef d'orchestre de votre station.</h2>
-                         <p className="mt-4 text-lg text-muted-foreground max-w-xl">
+                        <p className="mt-4 text-lg text-muted-foreground max-w-xl">
                             Oria ne se contente pas d'assister ; elle anticipe, optimise et unifie. Demandez-lui d'allouer plus de puissance à votre rendu 3D ou de trouver le fichier parfait dans votre cloud. Elle est l'intelligence qui rend votre matériel vivant.
                         </p>
-                         <Button asChild size="lg" className="mt-8 rounded-full">
+                        <Button asChild size="lg" className="mt-8 rounded-full">
                             <Link href="/oria">
                                 Découvrir Oria <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>
                     </div>
-                     <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
-                         <OriaAnimation className="w-full h-full" />
+                    <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
+                        <OriaAnimation className="w-full h-full" />
                     </div>
                 </div>
             </section>
-
+            
             <section className="container mx-auto px-4 md:px-6 py-12">
                  <AiConfigurator product={product} onConfigSelect={handleAiConfigSelect} />
             </section>
