@@ -11,17 +11,14 @@ import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { useNotifications } from '@/hooks/use-notifications';
 import type { GenerateTextOutput } from '@/ai/types';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateContent } from '@/app/api/content-generator/route';
 import { uploadDocument } from '@/app/actions';
 
-function SubmitButton() {
-    const [isLoading, setIsLoading] = useState(false);
-  return (
-    <Button type="submit" size="icon" disabled={isLoading} aria-label="Générer le texte" className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full">
-        <Send className="h-5 w-5" />
-    </Button>
-  );
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
+    return (
+        <Button type="submit" size="icon" disabled={isLoading} aria-label="Générer le texte" className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full">
+            <Send className="h-5 w-5" />
+        </Button>
+    );
 }
 
 export default function TextGenerator({ initialResult, prompt: promptProp }: { initialResult?: GenerateTextOutput, prompt?: string }) {
@@ -52,9 +49,21 @@ export default function TextGenerator({ initialResult, prompt: promptProp }: { i
     setIsLoading(true);
     setResult(null);
     try {
-        const response = await runFlow(generateContent, { contentType: 'text', prompt });
-        if (response.type === 'text') {
-            const textResult = { text: response.data as string };
+        const response = await fetch('/api/content-generator', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contentType: 'text', prompt }),
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Une erreur est survenue.');
+        }
+        
+        const responseData = await response.json();
+
+        if (responseData.type === 'text') {
+            const textResult = { text: responseData.data as string };
             setResult(textResult);
             const resultId = `text-result-${Date.now()}`;
             localStorage.setItem(resultId, JSON.stringify({ result: textResult, prompt }));

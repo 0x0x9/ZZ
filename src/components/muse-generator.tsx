@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
@@ -23,7 +24,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
-import { runFlow } from '@genkit-ai/next/client';
 import { copilotLyrics } from '@/ai/flows/copilot-lyrics';
 
 
@@ -296,12 +296,21 @@ export default function MuseGenerator() {
         setIsMuseLoading(true);
         const formData = new FormData(e.currentTarget);
         try {
-            const result = await runFlow(generateMuse, {
-                theme: formData.get('theme') as string,
-                mood: formData.get('mood') as string,
-                tempo: formData.get('tempo') as string,
-                references: formData.get('references') as string,
+            const response = await fetch('/api/generateMuse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    theme: formData.get('theme') as string,
+                    mood: formData.get('mood') as string,
+                    tempo: formData.get('tempo') as string,
+                    references: formData.get('references') as string,
+                })
             });
+             if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Une erreur est survenue.');
+            }
+            const result = await response.json();
             setMuseState({ ...initialState, result });
         } catch(e: any) {
             toast({ variant: 'destructive', title: 'Erreur (X)muse', description: e.message });
@@ -320,12 +329,21 @@ export default function MuseGenerator() {
         setCopilotAction(action);
         const mood = formRef.current ? (new FormData(formRef.current).get('mood') as string || 'neutre') : 'neutre';
         try {
-            const result = await runFlow(copilotLyrics, {
-                textToEdit: selection.text,
-                fullText: writerContent,
-                mood: mood,
-                action: action,
+            const response = await fetch('/api/copilotLyrics', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    textToEdit: selection.text,
+                    fullText: writerContent,
+                    mood: mood,
+                    action: action,
+                })
             });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Une erreur est survenue.');
+            }
+            const result = await response.json();
             setCopilotSuggestions(result.suggestions);
         } catch(e: any) {
             toast({ variant: 'destructive', title: 'Erreur du copilote', description: e.message });
