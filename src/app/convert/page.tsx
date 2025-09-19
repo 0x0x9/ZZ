@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 
 const ConvertPage = () => {
   return (
-    <>
+    <div className="w-full space-y-16">
       <section className="text-center mb-12">
         <div className="flex justify-center mb-6">
             <div className="bg-gradient-to-r from-teal-400 via-cyan-500 to-sky-500 p-3 rounded-full w-fit animate-gradient-x">
@@ -22,7 +22,7 @@ const ConvertPage = () => {
       <Suspense>
         <ConvertClient />
       </Suspense>
-    </>
+    </div>
   );
 }
 export default ConvertPage;

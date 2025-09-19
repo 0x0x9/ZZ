@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { format, isSameDay, parse, isValid } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar as CalendarIcon, Plus, Sparkles, Trash2, Loader, Send } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Sparkles, Trash2, Loader, Send, Brain, Link, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -27,7 +27,6 @@ import {
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -109,6 +108,23 @@ const SkeletonLoader = () => (
     </div>
 );
 
+const features = [
+    {
+        icon: Brain,
+        title: "Analyse Intelligente",
+        description: "(X)agenda comprend le langage naturel. Décrivez simplement vos rendez-vous et laissez l'IA les placer correctement dans votre emploi du temps."
+    },
+    {
+        icon: Link,
+        title: "Synchronisation Connectée",
+        description: "Intégré à l'écosystème (X)yzz, votre agenda se synchronise avec les échéances de vos projets Maestro et les événements de votre équipe."
+    },
+    {
+        icon: Eye,
+        title: "Vue Claire et Épurée",
+        description: "Une interface minimaliste qui vous permet de visualiser vos journées, semaines et mois en un clin d'œil, sans distractions."
+    }
+];
 
 export default function AgendaClient() {
     const [loading, setLoading] = useState(true);
@@ -208,126 +224,147 @@ export default function AgendaClient() {
         .sort((a,b) => a.time.localeCompare(b.time));
 
     return (
-        <div className="grid md:grid-cols-3 gap-8 items-start w-full max-w-6xl">
-            <div className="md:col-span-2">
-                 <Card className="glass-card min-h-[600px] flex flex-col">
-                    <CardHeader>
-                        <CardTitle className="text-2xl font-bold">
-                            {selectedDate ? format(selectedDate, "eeee dd MMMM", { locale: fr }) : "Aucune date sélectionnée"}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col p-4 md:p-6 pt-0">
-                        {loading ? (
-                            <SkeletonLoader />
-                        ) : dailyEvents.length > 0 ? (
-                             <div className="space-y-4">
-                                <AnimatePresence>
-                                    {dailyEvents.map((event) => (
-                                        <motion.div
-                                            key={event.id}
-                                            layout
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0.95 }}
-                                            transition={{ duration: 0.3 }}
-                                        >
-                                            <div className="group relative flex items-center gap-4 rounded-2xl p-4 bg-background/50 border border-border/50 hover:border-primary/50 transition-colors">
-                                                <div className="flex flex-col items-center justify-center text-center w-16 p-2 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20">
-                                                    <span className="text-3xl font-bold text-primary tracking-tighter">{event.time.split(':')[0]}</span>
-                                                    <span className="text-sm font-medium text-primary/80 -mt-1">{event.time.split(':')[1]}</span>
+        <div className="w-full space-y-16">
+            <div className="grid md:grid-cols-3 gap-8 items-start w-full max-w-6xl mx-auto">
+                <div className="md:col-span-2">
+                    <Card className="glass-card min-h-[600px] flex flex-col">
+                        <CardHeader>
+                            <CardTitle className="text-2xl font-bold">
+                                {selectedDate ? format(selectedDate, "eeee dd MMMM", { locale: fr }) : "Aucune date sélectionnée"}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex-1 flex flex-col p-4 md:p-6 pt-0">
+                            {loading ? (
+                                <SkeletonLoader />
+                            ) : dailyEvents.length > 0 ? (
+                                <div className="space-y-4">
+                                    <AnimatePresence>
+                                        {dailyEvents.map((event) => (
+                                            <motion.div
+                                                key={event.id}
+                                                layout
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, scale: 0.95 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                <div className="group relative flex items-center gap-4 rounded-2xl p-4 bg-background/50 border border-border/50 hover:border-primary/50 transition-colors">
+                                                    <div className="flex flex-col items-center justify-center text-center w-16 p-2 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20">
+                                                        <span className="text-3xl font-bold text-primary tracking-tighter">{event.time.split(':')[0]}</span>
+                                                        <span className="text-sm font-medium text-primary/80 -mt-1">{event.time.split(':')[1]}</span>
+                                                    </div>
+                                                    <p className="font-semibold text-foreground flex-1">{event.title}</p>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-9 w-9 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        onClick={() => setEventToDelete(event)}
+                                                        aria-label="Supprimer l'événement"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
                                                 </div>
-                                                <p className="font-semibold text-foreground flex-1">{event.title}</p>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-9 w-9 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    onClick={() => setEventToDelete(event)}
-                                                    aria-label="Supprimer l'événement"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                            </div>
-                        ) : (
-                            <div className="flex flex-1 flex-col items-center justify-center text-center py-16 h-full">
-                                <CalendarIcon className="h-16 w-16 text-muted-foreground/30" />
-                                <p className="mt-4 text-muted-foreground">Aucun événement pour ce jour.</p>
-                                <p className="text-xs text-muted-foreground/60 mt-1">Utilisez l'ajout intelligent ci-dessous ou le bouton manuel.</p>
-                            </div>
-                        )}
-                    </CardContent>
-                    <CardFooter className="p-4 border-t border-white/10 mt-auto">
-                         <form ref={smartAddFormRef} action={smartAddAction} className="relative w-full">
-                            <Textarea
-                                name="prompt"
-                                placeholder="Ajout intelligent : “Rendez-vous dentiste demain 10h30”"
-                                rows={1}
-                                className="bg-transparent pr-[140px] resize-none py-3 text-base rounded-full"
-                                required
-                            />
-                            <SmartAddButton />
-                        </form>
-                    </CardFooter>
-                </Card>
-            </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+                            ) : (
+                                <div className="flex flex-1 flex-col items-center justify-center text-center py-16 h-full">
+                                    <CalendarIcon className="h-16 w-16 text-muted-foreground/30" />
+                                    <p className="mt-4 text-muted-foreground">Aucun événement pour ce jour.</p>
+                                    <p className="text-xs text-muted-foreground/60 mt-1">Utilisez l'ajout intelligent ci-dessous ou le bouton manuel.</p>
+                                </div>
+                            )}
+                        </CardContent>
+                        <CardFooter className="p-4 border-t border-white/10 mt-auto">
+                            <form ref={smartAddFormRef} action={smartAddAction} className="relative w-full">
+                                <Textarea
+                                    name="prompt"
+                                    placeholder="Ajout intelligent : “Rendez-vous dentiste demain 10h30”"
+                                    rows={1}
+                                    className="bg-transparent pr-[140px] resize-none py-3 text-base rounded-full"
+                                    required
+                                />
+                                <SmartAddButton />
+                            </form>
+                        </CardFooter>
+                    </Card>
+                </div>
 
-            <div className="md:col-span-1 space-y-4">
-                <Card className="glass-card p-0 md:p-2">
-                    <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        className="w-full"
-                        locale={fr}
-                    />
-                </Card>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button className="w-full">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Ajouter un événement
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="glass-card">
-                        <form action={handleAddEventManually} ref={manualAddFormRef}>
-                            <DialogHeader>
-                                <DialogTitle>Nouvel événement pour le {selectedDate ? format(selectedDate, "dd MMMM", { locale: fr }) : ''}</DialogTitle>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <Input name="title" placeholder="Titre de l'événement" required />
-                                <Input name="time" type="time" required />
-                            </div>
-                            <DialogFooter>
-                                <DialogClose asChild><Button id="close-manual-add-dialog" type="button" variant="ghost">Annuler</Button></DialogClose>
-                                <ManualAddButton isPending={isManualAddPending} />
-                            </DialogFooter>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-            </div>
+                <div className="md:col-span-1 space-y-4">
+                    <Card className="glass-card p-0 md:p-2">
+                        <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            className="w-full"
+                            locale={fr}
+                        />
+                    </Card>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="w-full">
+                                <Plus className="mr-2 h-4 w-4" />
+                                Ajouter un événement
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="glass-card">
+                            <form action={handleAddEventManually} ref={manualAddFormRef}>
+                                <DialogHeader>
+                                    <DialogTitle>Nouvel événement pour le {selectedDate ? format(selectedDate, "dd MMMM", { locale: fr }) : ''}</DialogTitle>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <Input name="title" placeholder="Titre de l'événement" required />
+                                    <Input name="time" type="time" required />
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild><Button id="close-manual-add-dialog" type="button" variant="ghost">Annuler</Button></DialogClose>
+                                    <ManualAddButton isPending={isManualAddPending} />
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
 
-            <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
-                <AlertDialogContent className="glass-card">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer l'événement ?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                           Êtes-vous sûr de vouloir supprimer l'événement "{eventToDelete?.title}" ? Cette action est irréversible.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDeleteEvent}
-                            className="bg-destructive hover:bg-destructive/90"
+                <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
+                    <AlertDialogContent className="glass-card">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Supprimer l'événement ?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                            Êtes-vous sûr de vouloir supprimer l'événement "{eventToDelete?.title}" ? Cette action est irréversible.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDeleteEvent}
+                                className="bg-destructive hover:bg-destructive/90"
+                            >
+                                Supprimer
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                    {features.map((feature, index) => (
+                        <motion.div
+                            key={feature.title}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.5 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
                         >
-                            Supprimer
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                            <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
+                                <feature.icon className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="text-2xl font-bold">{feature.title}</h3>
+                            <p className="text-muted-foreground mt-3">{feature.description}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 }

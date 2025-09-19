@@ -1,10 +1,29 @@
+
 import MaestroClient from './client';
-import { BrainCircuit } from 'lucide-react';
+import { BrainCircuit, BookOpen, CheckSquare, CalendarPlus } from 'lucide-react';
 import { Suspense } from 'react';
+
+const features = [
+    {
+        icon: BookOpen,
+        title: "Brief Créatif Automatisé",
+        description: "Maestro ne se contente pas de lister des tâches. Il synthétise votre idée en un brief créatif qui définit la vision, le ton et le public de votre projet."
+    },
+    {
+        icon: CheckSquare,
+        title: "Plan d'Action Structuré",
+        description: "Recevez un plan détaillé avec des phases claires (Recherche, Création, Lancement) et des tâches concrètes, chacune avec sa propre checklist."
+    },
+    {
+        icon: CalendarPlus,
+        title: "Planification Intelligente",
+        description: "Mentionnez une date dans votre description, et Maestro extraira l'information pour créer automatiquement des événements dans votre agenda."
+    }
+];
 
 const MaestroPage = () => {
     return (
-        <>
+        <div className="w-full space-y-24">
             <section className="text-center mb-12">
                 <div className="flex justify-center mb-6">
                     <div className="bg-gradient-to-r from-orange-400 via-rose-500 to-fuchsia-600 p-3 rounded-full w-fit animate-gradient-x">
@@ -22,7 +41,21 @@ const MaestroPage = () => {
             <Suspense>
                 <MaestroClient />
             </Suspense>
-        </>
+
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                    {features.map((feature, index) => (
+                        <div key={feature.title}>
+                            <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
+                                <feature.icon className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="text-2xl font-bold">{feature.title}</h3>
+                            <p className="text-muted-foreground mt-3">{feature.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+        </div>
     );
 }
 

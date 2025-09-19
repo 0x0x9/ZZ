@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { Upload, X, FileKey, Sparkles, Download, Image as ImageIcon, Loader2, FileText, Music, Copy } from 'lucide-react';
+import { Upload, X, FileKey, Sparkles, Download, Image as ImageIcon, Loader2, FileText, Music, Copy, Replace, Layers, Zap } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -251,38 +251,77 @@ const PlaceholderConverter = ({ title, comingSoon = true }: { title: string, com
     </div>
 );
 
+const features = [
+    {
+        icon: Replace,
+        title: "Conversion Intelligente",
+        description: "Utilise l'IA pour des conversions de haute qualité, préservant les détails de vos images et la mise en forme de vos textes."
+    },
+    {
+        icon: Layers,
+        title: "Formats Multiples",
+        description: "Passez d'un format d'image à un autre (JPEG, PNG, WEBP) ou transformez n'importe quel texte selon vos besoins (listes, résumés, traductions)."
+    },
+    {
+        icon: Zap,
+        title: "Workflow Accéléré",
+        description: "Ne perdez plus de temps avec des outils externes. Convertissez et transformez vos fichiers directement dans l'écosystème (X)yzz."
+    }
+];
 
 export default function ConvertClient() {
   return (
-    <Card className="glass-card max-w-5xl mx-auto">
-      <CardHeader>
-        <CardTitle>Convertisseur Universel</CardTitle>
-        <CardDescription>
-          Choisissez un type de fichier pour commencer la conversion.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="image" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="image"><ImageIcon className="mr-2 h-4 w-4"/>Image</TabsTrigger>
-                <TabsTrigger value="document"><FileText className="mr-2 h-4 w-4"/>Document</TabsTrigger>
-                <TabsTrigger value="audio" disabled><Music className="mr-2 h-4 w-4"/>Audio</TabsTrigger>
-                <TabsTrigger value="3d" disabled><FileKey className="mr-2 h-4 w-4"/>3D</TabsTrigger>
-            </TabsList>
-            <TabsContent value="image" className="py-6">
-                <ImageConverter />
-            </TabsContent>
-            <TabsContent value="document" className="py-6">
-                 <DocumentConverter />
-            </TabsContent>
-             <TabsContent value="audio" className="py-6">
-                 <PlaceholderConverter title="Convertisseur Audio" />
-            </TabsContent>
-             <TabsContent value="3d" className="py-6">
-                 <PlaceholderConverter title="Convertisseur 3D" />
-            </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <div className="w-full space-y-16">
+        <Card className="glass-card max-w-5xl mx-auto">
+        <CardHeader>
+            <CardTitle>Convertisseur Universel</CardTitle>
+            <CardDescription>
+            Choisissez un type de fichier pour commencer la conversion.
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Tabs defaultValue="image" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="image"><ImageIcon className="mr-2 h-4 w-4"/>Image</TabsTrigger>
+                    <TabsTrigger value="document"><FileText className="mr-2 h-4 w-4"/>Document</TabsTrigger>
+                    <TabsTrigger value="audio" disabled><Music className="mr-2 h-4 w-4"/>Audio</TabsTrigger>
+                    <TabsTrigger value="3d" disabled><FileKey className="mr-2 h-4 w-4"/>3D</TabsTrigger>
+                </TabsList>
+                <TabsContent value="image" className="py-6">
+                    <ImageConverter />
+                </TabsContent>
+                <TabsContent value="document" className="py-6">
+                    <DocumentConverter />
+                </TabsContent>
+                <TabsContent value="audio" className="py-6">
+                    <PlaceholderConverter title="Convertisseur Audio" />
+                </TabsContent>
+                <TabsContent value="3d" className="py-6">
+                    <PlaceholderConverter title="Convertisseur 3D" />
+                </TabsContent>
+            </Tabs>
+        </CardContent>
+        </Card>
+
+        <section className="container mx-auto px-4 md:px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                {features.map((feature, index) => (
+                    <motion.div
+                        key={feature.title}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.5 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                        <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
+                            <feature.icon className="h-8 w-8 text-primary" />
+                        </div>
+                        <h3 className="text-2xl font-bold">{feature.title}</h3>
+                        <p className="text-muted-foreground mt-3">{feature.description}</p>
+                    </motion.div>
+                ))}
+            </div>
+        </section>
+    </div>
   );
 }

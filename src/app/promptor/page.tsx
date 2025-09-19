@@ -1,10 +1,29 @@
+
 import PromptorClient from './client';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, Palette, Film, Type } from 'lucide-react';
 import { Suspense } from 'react';
+
+const features = [
+    {
+        icon: Type,
+        title: "Titres Accrocheurs",
+        description: "Obtenez une liste de titres percutants et créatifs pour vos articles, vidéos ou projets, parfaitement adaptés à votre idée de base."
+    },
+    {
+        icon: Palette,
+        title: "Styles Artistiques",
+        description: "Explorez des directions visuelles et des tons uniques. (X)promptor vous suggère des styles comme 'Néonoir' ou 'Aquarelle surréaliste' pour guider votre création."
+    },
+    {
+        icon: Film,
+        title: "Prompts d'Image Détaillés",
+        description: "Générez des prompts prêts à l'emploi pour les IA de génération d'images, transformant votre concept en descriptions riches et évocatrices."
+    }
+];
 
 const PromptorPage = () => {
     return (
-        <>
+        <div className="w-full space-y-24">
             <section className="text-center mb-12">
                 <div className="flex justify-center mb-6">
                     <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 p-3 rounded-full w-fit animate-gradient-x">
@@ -22,7 +41,21 @@ const PromptorPage = () => {
             <Suspense>
                 <PromptorClient />
             </Suspense>
-        </>
+
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                    {features.map((feature, index) => (
+                        <div key={feature.title}>
+                            <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
+                                <feature.icon className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="text-2xl font-bold">{feature.title}</h3>
+                            <p className="text-muted-foreground mt-3">{feature.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+        </div>
     );
 }
 
