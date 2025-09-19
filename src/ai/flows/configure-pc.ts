@@ -7,7 +7,7 @@
  * - configurePc - Une fonction qui prend les besoins d'un utilisateur et recommande une configuration PC.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { ConfigurePcInputSchema, ConfigurePcOutputSchema, type ConfigurePcInput, type ConfigurePcOutput } from '@/ai/types';
 
@@ -21,12 +21,12 @@ const componentOptions = `
   - Stockage: ['8TB SSD + 12TB HDD', '16TB SSD + 24TB HDD']
 - Modèle (X)-alpha:
   - CPU: ['AMD Ryzen 9 7950X3D', 'Intel Core i9-14900K']
-  - GPU: ['NVIDIA RTX 5080 (16Go VRAM)', 'AMD Radeon RX 7900 XT (20Go VRAM)', 'Technologie (X)bridge (AMD) 32Go VRAM']
+  - GPU: ['NVIDIA RTX 5080 (16Go VRAM)', 'Technologie (X)bridge (AMD) 32Go VRAM']
   - RAM: ['64GB DDR5', '128GB DDR5']
   - Stockage: ['2TB NVMe SSD', '4TB NVMe SSD']
 - Modèle (X)-oméga:
   - CPU: ['Intel Core i7-14700K', 'AMD Ryzen 7 7800X3D']
-  - GPU: ['NVIDIA RTX 5070 (12Go VRAM)', 'AMD Radeon RX 7800 XT (16Go VRAM)']
+  - GPU: ['NVIDIA RTX 5070 (12Go VRAM)', 'Technologie (X)bridge (AMD) 24Go VRAM']
   - RAM: ['32GB DDR5', '64GB DDR5']
   - Stockage: ['2TB SSD + 8TB HDD', '4TB SSD + 12TB HDD']
 `;
