@@ -155,7 +155,7 @@ export default function HardwareClient() {
             </ClientOnly>
 
             <Section>
-                <div className="relative isolate">
+                <div className="relative isolate overflow-hidden rounded-3xl">
                     <div className="absolute inset-0 -z-10 h-full w-full">
                          <iframe
                             src="https://www.youtube.com/embed/YUEb23FQVhA?autoplay=1&mute=1&loop=1&playlist=YUEb23FQVhA&controls=0&showinfo=0&autohide=1&wmode=transparent"
