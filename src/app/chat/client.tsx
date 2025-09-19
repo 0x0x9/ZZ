@@ -12,7 +12,7 @@ import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, S
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { oriaChatAction, deleteDocument, listDocuments, fluxAction, createManualProjectAction } from '@/app/actions';
+import { oriaChatAction, deleteDocument, listDocuments, createManualProjectAction, fluxAction } from '@/app/actions';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import DocManager from '@/components/doc-manager';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -28,7 +28,7 @@ import { fr } from 'date-fns/locale';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
-import OriaXOS from '../oria-xos';
+import OriaXOS from '@/components/oria-xos';
 
 type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
 
@@ -211,23 +211,19 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
 
 function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (project: ProjectPlan) => void, onCancel: () => void }) {
     const { toast } = useToast();
-    const [pending, setPending] = useState(false);
-    
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        setPending(true);
-        const result = await createManualProjectAction(null, formData);
-        if (result.success && result.project) {
-            onProjectCreated(result.project);
-        } else if (result.error) {
-            toast({ variant: 'destructive', title: "Erreur", description: result.error });
+    const [state, formAction] = useFormState(createManualProjectAction, { success: false });
+    const { pending } = useFormStatus();
+
+    useEffect(() => {
+        if (state.success && state.project) {
+            onProjectCreated(state.project);
+        } else if (state.error) {
+            toast({ variant: 'destructive', title: "Erreur", description: state.error });
         }
-        setPending(false);
-    };
+    }, [state, onProjectCreated, toast]);
     
     return (
-        <form onSubmit={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
+        <form action={formAction} className="w-full max-w-lg mt-8 space-y-4 text-left">
             <div className="space-y-2">
                 <Label htmlFor="title">Titre du projet</Label>
                 <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={pending} />
@@ -251,20 +247,16 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
 function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (result: any) => void, onCancel: () => void}) {
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
-    const [isFluxPending, setIsFluxPending] = useState(false);
+    const [state, formAction] = useFormState(fluxAction, { result: null, error: null, prompt: '', job: '' });
+    const { pending } = useFormStatus();
     
-    const handleFluxAction = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        setIsFluxPending(true);
-        const result = await fluxAction(null, formData);
-        if (result.result) {
-            onProjectCreated(result.result);
-        } else if (result.error) {
-            toast({variant: 'destructive', title: 'Erreur (X)flux', description: result.error});
+    useEffect(() => {
+        if (state.result) {
+            onProjectCreated(state.result);
+        } else if (state.error) {
+            toast({variant: 'destructive', title: 'Erreur (X)flux', description: state.error});
         }
-        setIsFluxPending(false);
-    }
+    }, [state, onProjectCreated, toast]);
     
     return (
         <div className="h-full flex flex-col items-center justify-center text-center p-8">
@@ -282,14 +274,14 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
                             <Sparkles className="mx-auto h-20 w-20 text-muted-foreground/30" />
                             <h2 className="mt-6 text-xl font-semibold text-foreground">Créer un nouveau projet avec l'IA</h2>
                             <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez (X)flux générer tous les livrables de départ.</p>
-                            <form onSubmit={handleFluxAction} className="w-full max-w-lg mt-8 space-y-4">
-                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={isFluxPending} />
-                                <Input name="job" placeholder="Votre métier ? (ex: Développeur, Artiste...) - Optionnel" className="bg-background/50 text-base text-center" disabled={isFluxPending} />
-                                <Button type="submit" size="lg" disabled={isFluxPending} className="w-full">
-                                    {isFluxPending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
-                                    {isFluxPending ? 'Génération en cours...' : 'Lancer (X)flux'}
+                            <form action={formAction} className="w-full max-w-lg mt-8 space-y-4">
+                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={pending} />
+                                <Input name="job" placeholder="Votre métier ? (ex: Développeur, Artiste...) - Optionnel" className="bg-background/50 text-base text-center" disabled={pending} />
+                                <Button type="submit" size="lg" disabled={pending} className="w-full">
+                                    {pending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
+                                    {pending ? 'Génération en cours...' : 'Lancer (X)flux'}
                                 </Button>
-                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={isFluxPending}>Ou créer manuellement</Button>
+                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={pending}>Ou créer manuellement</Button>
                             </form>
                         </>
                     ) : (
@@ -302,7 +294,7 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
                     )}
                 </motion.div>
             </AnimatePresence>
-            <Button variant="ghost" onClick={onCancel} disabled={isFluxPending} className="mt-8">Retour</Button>
+            <Button variant="ghost" onClick={onCancel} disabled={pending} className="mt-8">Retour</Button>
         </div>
     )
 }
@@ -438,18 +430,19 @@ export default function PulseClient() {
 
             const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
             
+            // This is a mock plan based on file name, as we can't read file content in the client.
+            // A real implementation would fetch and parse the JSON content.
             const parsedProjects: Project[] = maestroDocs.map(doc => {
                 const name = doc.name.replace('.json', '').replace(/-/g, ' ');
-                // This is a mock plan based on file name, as we can't read file content here.
-                 const mockPlan: ProjectPlan = {
+                const mockPlan: ProjectPlan = {
                     id: doc.id,
                     title: name,
-                    creativeBrief: `Brief créatif pour le projet ${name}.`,
+                    creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}". Dans une application réelle, ce contenu serait chargé depuis le fichier JSON.`,
                     tasks: [
-                        { title: 'Tâche simulée 1', description: 'Description simulée', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}]},
-                        { title: 'Tâche simulée 2', description: 'Description simulée', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
+                        { title: 'Tâche simulée 1', description: 'Description de la première tâche simulée pour ce projet.', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}, {text: 'Point 2', completed: false}]},
+                        { title: 'Tâche simulée 2', description: 'Description pour la seconde tâche importante.', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
                     ],
-                    imagePrompts: [],
+                    imagePrompts: ['abstract'],
                 };
                 return { id: doc.id, name, plan: mockPlan, path: doc.path };
             });
@@ -524,7 +517,7 @@ export default function PulseClient() {
                     </div>
                 </TabsContent>
                 <TabsContent value="files" className="flex-1 min-h-0 mt-0">
-                    <DocManager initialPath={`maestro-projets/${activeProject.name.replace(/\s+/g, '-')}/`} />
+                    <DocManager initialPath={`maestro-projets/`} />
                 </TabsContent>
             </Tabs>
         )
