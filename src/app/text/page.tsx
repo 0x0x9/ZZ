@@ -1,7 +1,10 @@
 
+
 import TextGenerator from '@/components/text-generator';
-import { FileText, Type, Sparkles, BookOpen } from 'lucide-react';
+import { FileText, Type, Sparkles, BookOpen, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const TextPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Votre rédacteur IA personnel. Générez des articles, des scripts, des poèmes ou tout autre contenu textuel en quelques secondes.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=text">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

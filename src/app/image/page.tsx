@@ -1,7 +1,10 @@
 
+
 import ImageGenerator from '@/components/image-generator';
-import { Image as ImageIcon, Sparkles, Brush, Layers } from 'lucide-react';
+import { Image as ImageIcon, Sparkles, Brush, Layers, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const ImagePage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Votre studio de création visuelle. Transformez vos mots en images spectaculaires avec la puissance de l'IA.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=image">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

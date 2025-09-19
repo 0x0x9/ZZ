@@ -1,7 +1,10 @@
 
+
 import SoundClient from './client';
-import { Music, Sparkles, Waves, Download } from 'lucide-react';
+import { Music, Sparkles, Waves, Download, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const SoundPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Le sound designer de votre équipe IA. Décrivez n'importe quel son, du bruit d'un vaisseau spatial à une ambiance de forêt, et écoutez le résultat.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=sound">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

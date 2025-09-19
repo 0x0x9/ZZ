@@ -1,6 +1,9 @@
 
+
 import LightClient from './client';
-import { Sparkles, Palette, Image as ImageIcon, FileText } from 'lucide-react';
+import { Sparkles, Palette, Image as ImageIcon, FileText, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -35,6 +38,14 @@ const LightPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Votre sanctuaire créatif. Explorez des ambiances, des images et des idées pour allumer l'étincelle de votre prochain projet.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=light">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <LightClient />

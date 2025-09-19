@@ -1,7 +1,10 @@
 
+
 import PaletteClient from './client';
-import { Palette, Sparkles, Droplets, Copy } from 'lucide-react';
+import { Palette, Sparkles, Droplets, Copy, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const PalettePage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Le coloriste de votre équipe IA. Décrivez une ambiance, (X)palette compose une harmonie de couleurs pour l'incarner.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=palette">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

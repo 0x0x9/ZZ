@@ -1,7 +1,10 @@
 
+
 import VoiceClient from './client';
-import { AudioLines, Sparkles, SlidersHorizontal, Download } from 'lucide-react';
+import { AudioLines, Sparkles, SlidersHorizontal, Download, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export const metadata = {
   title: '(X)voice - Votre Studio de Doublage IA',
@@ -41,6 +44,14 @@ const VoicePage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Votre studio de doublage IA. Donnez une voix professionnelle et naturelle à vos textes en choisissant parmi une sélection de voix de haute qualité.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=voice">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

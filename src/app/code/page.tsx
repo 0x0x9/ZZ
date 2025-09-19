@@ -1,9 +1,12 @@
 
+
 import CodeGenerator from '@/components/code-generator';
-import { CodeXml, Bug, BrainCircuit, Wand2 } from 'lucide-react';
+import { CodeXml, Bug, BrainCircuit, Wand2, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -38,6 +41,14 @@ const CodePage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Votre partenaire de code IA. Générez des snippets, des fonctions ou des composants dans n'importe quel langage, à partir d'une simple description.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=code">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

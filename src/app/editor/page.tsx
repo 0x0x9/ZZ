@@ -1,7 +1,10 @@
 
+
 import AlphaClient from './client';
-import { TerminalSquare, Bug, BrainCircuit, Wand2 } from 'lucide-react';
+import { TerminalSquare, Bug, BrainCircuit, Wand2, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -37,6 +40,14 @@ const AlphaPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 L'éditeur de code intelligent. Générez, éditez et prévisualisez vos projets et fichiers, assisté par l'IA.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=editor">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <AlphaClient />

@@ -1,6 +1,9 @@
 
+
 import ToneClient from './client';
-import { Mic, Pencil, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Mic, Pencil, ThumbsUp, ThumbsDown, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -35,6 +38,14 @@ const TonePage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Trouvez la bonne voix pour votre marque. Décrivez votre projet et obtenez un guide de style pour communiquer avec impact et cohérence.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=tone">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <ToneClient />

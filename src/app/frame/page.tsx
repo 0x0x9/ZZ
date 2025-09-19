@@ -1,7 +1,10 @@
 
+
 import FrameGenerator from '@/components/frame-generator';
-import { LayoutTemplate, Sparkles, Code, TabletSmartphone } from 'lucide-react';
+import { LayoutTemplate, Sparkles, Code, TabletSmartphone, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const FramePage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Le designer d'interface qui code. Décrivez une maquette ou fournissez une image, (X)frame la transforme en code React fonctionnel.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=frame">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <FrameGenerator />

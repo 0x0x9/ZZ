@@ -1,6 +1,9 @@
 
+
 import TerminalClient from './client';
-import { Terminal, Command, Zap } from 'lucide-react';
+import { Terminal, Command, Zap, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -35,6 +38,14 @@ const TerminalPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Une interface de ligne de commande pour interagir avec vos outils et vos fichiers.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=terminal">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <TerminalClient />

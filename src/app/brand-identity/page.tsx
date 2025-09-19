@@ -1,7 +1,10 @@
 
+
 import BrandIdentityClient from './client';
-import { Layers } from 'lucide-react';
+import { Layers, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const BrandIdentityPage = () => {
     return (
@@ -18,6 +21,14 @@ const BrandIdentityPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Votre studio de branding IA. Définissez l'identité visuelle et vocale de votre marque en quelques clics.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=brand-identity">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

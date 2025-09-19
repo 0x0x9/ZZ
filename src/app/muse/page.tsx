@@ -1,8 +1,11 @@
 
+
 import MuseClient from './client';
-import { Guitar, Music, User, FilePenLine } from 'lucide-react';
+import { Guitar, Music, User, FilePenLine, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
 import MuseLayout from './layout';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export const metadata = {
   title: '(X)muse - Votre Parolier & Producteur IA',
@@ -43,6 +46,14 @@ const MusePage = () => {
                     <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                     Votre parolier et producteur IA. Trouvez votre style, découvrez des artistes inspirants et commencez à écrire votre prochain tube.
                     </p>
+                     <div className="mt-8">
+                        <Button size="lg" className="rounded-full" asChild>
+                            <Link href="/xos?open=muse">
+                                Ouvrir dans (X)OS
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </div>
                 </section>
                 
                 <Suspense>

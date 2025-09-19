@@ -1,7 +1,10 @@
 
+
 import NexusClient from './client';
-import { Network, BrainCircuit, GitBranch, Share2 } from 'lucide-react';
+import { Network, BrainCircuit, GitBranch, Share2, ArrowRight } from 'lucide-react';
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const NexusPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Votre stratège visuel. Transformez une idée complexe en une carte mentale claire et interactive.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=nexus">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <Suspense>

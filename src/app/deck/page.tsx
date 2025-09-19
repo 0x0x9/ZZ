@@ -1,7 +1,10 @@
 
+
 import DeckClient from './client';
-import { Presentation, BrainCircuit, Wand2, Share2 } from 'lucide-react';
+import { Presentation, BrainCircuit, Wand2, Share2, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const DeckPage = () => {
                 <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
                 Transformez vos idées en présentations percutantes. Donnez un sujet, l'IA s'occupe de la structure et du contenu.
                 </p>
+                 <div className="mt-8">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="/xos?open=deck">
+                            Ouvrir dans (X)OS
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
             </section>
             
             <DeckClient />

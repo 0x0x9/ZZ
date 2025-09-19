@@ -1,7 +1,10 @@
 
+
 import RealityClient from "./client";
-import { View, Upload, Zap } from "lucide-react";
+import { View, Upload, Zap, ArrowRight } from "lucide-react";
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const features = [
     {
@@ -36,6 +39,14 @@ const RealityPage = () => {
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4">
           Plongez vos créations dans le monde réel. Prévisualisez vos modèles 3D en réalité augmentée, directement depuis votre navigateur.
         </p>
+         <div className="mt-8">
+            <Button size="lg" className="rounded-full" asChild>
+                <Link href="/xos?open=reality">
+                    Ouvrir dans (X)OS
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
+        </div>
       </section>
       <Suspense>
         <RealityClient />

@@ -1,7 +1,10 @@
 
+
 import ConvertClient from "./client";
-import { FileKey } from "lucide-react";
+import { FileKey, ArrowRight } from "lucide-react";
 import { Suspense } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const ConvertPage = () => {
   return (
@@ -18,6 +21,14 @@ const ConvertPage = () => {
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4">
           L'outil de conversion universel pour les créatifs. Simplifiez vos workflows en convertissant facilement vos fichiers.
         </p>
+         <div className="mt-8">
+            <Button size="lg" className="rounded-full" asChild>
+                <Link href="/xos?open=convert">
+                    Ouvrir dans (X)OS
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
+        </div>
       </section>
       <Suspense>
         <ConvertClient />
