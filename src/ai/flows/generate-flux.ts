@@ -21,6 +21,7 @@ import { generateMotion } from './generate-motion';
 import { generateNexus } from './generate-nexus';
 import { generateCode } from './generate-code';
 import { parseEvent } from './parse-event';
+import { z } from 'zod';
 
 export async function generateFlux(input: GenerateFluxInput): Promise<GenerateFluxOutput> {
   return generateFluxFlow(input);
@@ -32,7 +33,7 @@ const analysisPrompt = ai.definePrompt({
         prompt: z.string(),
         job: z.string().optional(),
     }),
-    output: { schema: FluxAnalysisOutputSchema },
+    output: { schema: FluxAnalysisOutputSchema, format: 'json' },
     prompt: `Vous êtes un chef de projet expert et un stratège créatif. Votre rôle est d'analyser la demande d'un utilisateur et de sélectionner la combinaison d'outils la plus pertinente pour réaliser son projet, en tenant compte de son métier.
 
 Demande de l'utilisateur : {{{prompt}}}
