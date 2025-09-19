@@ -11,11 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import type { GeneratePaletteOutput } from '@/ai/types';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
-import { runFlow } from '@genkit-ai/next/client';
-import { generatePalette } from '@/app/api/generatePalette/route';
 
-function SubmitButton() {
-    const [isLoading, setIsLoading] = useState(false);
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
     return (
         <Button type="submit" disabled={isLoading} size="lg">
         {isLoading ? (
@@ -88,9 +85,10 @@ function ResultsDisplay({ result, onReset }: { result: GeneratePaletteOutput, on
     );
 }
 
-function PaletteForm({ prompt, onPromptChange }: {
+function PaletteForm({ prompt, onPromptChange, isLoading }: {
     prompt: string;
     onPromptChange: (value: string) => void;
+    isLoading: boolean;
 }) {
     return (
         <Card className="glass-card">
@@ -113,12 +111,13 @@ function PaletteForm({ prompt, onPromptChange }: {
                 required
                 minLength={10}
                 className="bg-transparent text-base"
+                disabled={isLoading}
                 value={prompt}
                 onChange={(e) => onPromptChange(e.target.value)}
             />
             </CardContent>
             <CardFooter className="justify-center">
-                <SubmitButton />
+                <SubmitButton isLoading={isLoading} />
             </CardFooter>
         </Card>
     );
@@ -146,8 +145,17 @@ export default function PaletteGenerator({ initialResult: initialResultFromProps
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await runFlow(generatePalette, { prompt });
-            setResult(response);
+            const response = await fetch('/api/generatePalette', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Une erreur est survenue lors de la génération.");
+            }
+            const data: GeneratePaletteOutput = await response.json();
+            setResult(data);
             setShowForm(false);
         } catch(error: any) {
             toast({ variant: 'destructive', title: 'Erreur (X)palette', description: error.message });
@@ -168,12 +176,13 @@ export default function PaletteGenerator({ initialResult: initialResultFromProps
         setKey(k => k + 1);
         setResult(null);
         setShowForm(true);
+        setPrompt('');
     };
 
     return (
         <form onSubmit={handleSubmit} key={key}>
              <div className="max-w-4xl mx-auto">
-                {showForm && <PaletteForm prompt={prompt} onPromptChange={setPrompt} />}
+                {showForm && <PaletteForm prompt={prompt} onPromptChange={setPrompt} isLoading={isLoading} />}
                 
                 {isLoading && (
                     <div className="mt-6">

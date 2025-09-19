@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense } from 'react';
@@ -7,8 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Copy, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateContent } from '@/ai/flows/content-generator';
 import React, { useState } from 'react';
 
 function SubmitButton({ isLoading }: { isLoading: boolean }) {
@@ -39,11 +38,20 @@ function FormatClient() {
         e.preventDefault();
         setIsLoading(true);
         try {
-            const result = await runFlow(generateContent, {
-                contentType: 'reformat',
-                textToReformat: originalText,
-                prompt: prompt
+            const response = await fetch('/api/content-generator', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contentType: 'reformat',
+                    textToReformat: originalText,
+                    prompt: prompt
+                })
             });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Une erreur est survenue.");
+            }
+            const result = await response.json();
              if (result.type === 'text' && typeof result.data === 'object' && result.data && 'reformattedText' in result.data) {
                 setReformattedText((result.data as { reformattedText: string }).reformattedText);
             } else if (result.type === 'text' && typeof result.data === 'string') {

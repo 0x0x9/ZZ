@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { format, isSameDay, parse, isValid } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar as CalendarIcon, Plus, Sparkles, Trash2, Loader, Send, Brain, Link, Eye } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Sparkles, Trash2, Loader, Send, Brain, Link as LinkIcon, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -32,8 +32,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
-import { runFlow } from '@genkit-ai/next/client';
-import { parseEvent } from '@/app/api/parseEvent/route';
 import { type AgendaEvent } from '@/ai/types';
 
 type Event = {
@@ -116,7 +114,7 @@ const features = [
         description: "(X)agenda comprend le langage naturel. Décrivez simplement vos rendez-vous et laissez l'IA les placer correctement dans votre emploi du temps."
     },
     {
-        icon: Link,
+        icon: LinkIcon,
         title: "Synchronisation Connectée",
         description: "Intégré à l'écosystème (X)yzz, votre agenda se synchronise avec les échéances de vos projets Maestro et les événements de votre équipe."
     },
@@ -181,7 +179,18 @@ export default function AgendaClient() {
 
         setIsSmartAddPending(true);
         try {
-            const result = await runFlow(parseEvent, { prompt: smartAddPrompt, currentDate: new Date().toISOString() });
+            const response = await fetch('/api/parseEvent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: smartAddPrompt, currentDate: new Date().toISOString() })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Une erreur est survenue.');
+            }
+
+            const result: AgendaEvent = await response.json();
             handleCreateEvent(result);
             setSmartAddPrompt('');
         } catch (error: any) {

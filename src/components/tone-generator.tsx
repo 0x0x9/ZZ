@@ -11,11 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import type { GenerateToneOutput } from '@/ai/types';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateTone } from '@/app/api/generateTone/route';
 
-function SubmitButton() {
-    const [isLoading, setIsLoading] = useState(false);
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
     <Button type="submit" disabled={isLoading} size="lg">
       {isLoading ? (
@@ -83,9 +80,10 @@ function ResultsDisplay({ result, onReset }: { result: GenerateToneOutput, onRes
     );
 }
 
-function ToneForm({ prompt, onPromptChange }: {
+function ToneForm({ prompt, onPromptChange, isLoading }: {
     prompt: string;
     onPromptChange: (value: string) => void;
+    isLoading: boolean;
 }) {
     return (
         <Card className="glass-card">
@@ -108,12 +106,13 @@ function ToneForm({ prompt, onPromptChange }: {
                 required
                 minLength={10}
                 className="bg-transparent text-base"
+                disabled={isLoading}
                 value={prompt}
                 onChange={(e) => onPromptChange(e.target.value)}
             />
             </CardContent>
             <CardFooter className="justify-center">
-                <SubmitButton />
+                <SubmitButton isLoading={isLoading} />
             </CardFooter>
         </Card>
     );
@@ -146,8 +145,17 @@ export default function ToneGenerator({ initialResult: initialResultFromProps, p
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await runFlow(generateTone, { prompt });
-            setResult(response);
+            const response = await fetch('/api/generateTone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Une erreur est survenue.');
+            }
+            const data: GenerateToneOutput = await response.json();
+            setResult(data);
             setShowForm(false);
         } catch(error: any) {
             toast({ variant: 'destructive', title: 'Erreur (X)tone', description: error.message });
@@ -159,15 +167,15 @@ export default function ToneGenerator({ initialResult: initialResultFromProps, p
 
     const handleReset = () => {
         setKey(k => k + 1);
-        setShowForm(true);
         setResult(null);
+        setShowForm(true);
         setPrompt('');
     };
 
     return (
         <form onSubmit={handleSubmit} key={key}>
             <div className="max-w-4xl mx-auto">
-                {showForm && <ToneForm prompt={prompt} onPromptChange={setPrompt} />}
+                {showForm && <ToneForm prompt={prompt} onPromptChange={setPrompt} isLoading={isLoading} />}
             
                 {isLoading && (
                     <div className="mt-6">
