@@ -4,7 +4,7 @@
 import { useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getActionResult } from '@/app/actions';
-import type { GenerateFluxOutput } from '@/ai/types';
+import type { GenerateFluxOutput, ProjectPlan } from '@/ai/types';
 
 type OpenWindowFn = (appId: string, props?: Record<string, any>) => void;
 
@@ -32,9 +32,10 @@ export function useAppLauncher(openWindow: OpenWindowFn) {
                 const appId = appMapping[typedKey]!;
                 let props: Record<string, any> = { prompt };
 
-                if (typedKey === 'frame') props = { ...props, initialProjectCodes: { html: fluxResult.frame!.htmlCode, css: fluxResult.frame!.cssCode, js: fluxResult.frame!.jsCode }};
-                else if (typedKey === 'text') props = { ...props, initialFile: { code: fluxResult.text!.text, language: 'markdown' } };
-                else if (typedKey === 'code') props = { ...props, initialFile: { code: fluxResult.code!.code, language: 'typescript' } };
+                if (typedKey === 'frame' && fluxResult.frame) props = { ...props, initialProjectCodes: { html: fluxResult.frame.htmlCode, css: fluxResult.frame.cssCode, js: fluxResult.frame.jsCode }};
+                else if (typedKey === 'text' && fluxResult.text) props = { ...props, initialResult: fluxResult.text, prompt: fluxResult.text.text.substring(0,100) };
+                else if (typedKey === 'code' && fluxResult.code) props = { ...props, initialFile: { code: fluxResult.code.code, language: 'typescript' } };
+                else if (typedKey === 'projectPlan') props = { ...props, initialResult: fluxResult.projectPlan as ProjectPlan };
                 else props = { ...props, initialResult: fluxResult[typedKey] };
 
                 appsToOpen.push({ appId, props });
