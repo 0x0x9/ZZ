@@ -22,8 +22,9 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: 'Intel Core i9-14900K', priceModifier: -100 },
     ],
     gpu: [
-        { name: 'NVIDIA RTX 4080 Super FE', priceModifier: 0 },
+        { name: 'NVIDIA RTX 5080', priceModifier: 0 },
         { name: 'AMD Radeon RX 7900 XT', priceModifier: -200 },
+        { name: '2x AMD Radeon RX 7800 XT (X)Bridge', priceModifier: 400 },
     ],
     ram: [
         { name: '64GB DDR5', priceModifier: 0 },
@@ -40,7 +41,7 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: 'AMD Ryzen 7 7800X3D', priceModifier: 50 },
     ],
     gpu: [
-        { name: 'NVIDIA RTX 4070 Ti Super', priceModifier: 0 },
+        { name: 'NVIDIA RTX 5070', priceModifier: 0 },
         { name: 'AMD Radeon RX 7800 XT', priceModifier: -150 },
     ],
     ram: [
@@ -58,9 +59,11 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: 'AMD Ryzen 9 7950X3D', priceModifier: 150 },
     ],
     gpu: [
-        { name: 'NVIDIA RTX 4080 Super', priceModifier: 0 },
+        { name: 'NVIDIA RTX 5080', priceModifier: 0 },
         { name: 'NVIDIA RTX 4090', priceModifier: 600 },
         { name: 'AMD Radeon RX 7900 XTX', priceModifier: -100 },
+        { name: '2x NVIDIA RTX 5080 (X)Bridge', priceModifier: 1200 },
+        { name: '2x AMD Radeon RX 7900 XTX (X)Bridge', priceModifier: 800 },
     ],
     ram: [
         { name: '96GB DDR5', priceModifier: 0 },
@@ -70,38 +73,6 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
     storage: [
         { name: '8TB SSD + 12TB HDD', priceModifier: 0 },
         { name: '16TB SSD + 24TB HDD', priceModifier: 800 },
-    ],
-  },
-   'xbridge': {
-    cpu: [
-        { name: 'AMD Ryzen 9 7950X3D', priceModifier: 0 }
-    ],
-    gpu: [
-        { name: '2x NVIDIA RTX 4070 Ti Super (32Go VRAM totale)', priceModifier: 0 }
-    ],
-    ram: [
-        { name: '64GB DDR5', priceModifier: 0 },
-        { name: '128GB DDR5', priceModifier: 350 },
-    ],
-    storage: [
-        { name: '4TB NVMe SSD', priceModifier: 0 },
-        { name: '8TB NVMe SSD', priceModifier: 400 },
-    ],
-  },
-   'xbridgepro': {
-    cpu: [
-        { name: 'Intel Core i9-14900K', priceModifier: 0 }
-    ],
-    gpu: [
-        { name: '2x NVIDIA RTX 4080 Super (48Go VRAM totale)', priceModifier: 0 }
-    ],
-    ram: [
-        { name: '128GB DDR5', priceModifier: 0 },
-        { name: '192GB DDR5', priceModifier: 250 },
-    ],
-    storage: [
-        { name: '8TB NVMe SSD', priceModifier: 0 },
-        { name: '16TB NVMe SSD', priceModifier: 600 },
     ],
   },
 };
