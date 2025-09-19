@@ -195,23 +195,22 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   // Default Hardware Layout
   return (
     <>
-        <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-16 text-center">
-            <div className="space-y-4">
-                <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                    <ArrowLeft className="h-4 w-4" /> Voir tous les produits
-                </Link>
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">{product.name}</h1>
-                <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
-                 <div className="!mt-6 flex items-center justify-center gap-4">
-                    <span className="text-lg">À partir de {product.price.toFixed(2)}€</span>
-                    <Button size="lg" className="rounded-full text-lg" onClick={handleAddToCart}>
+        <div className="container mx-auto px-4 md:px-6 py-4 pt-24 border-b border-border/50">
+            <div className="flex justify-between items-center">
+                <div>
+                     <h1 className="text-2xl font-bold tracking-tight">{product.name}</h1>
+                     <p className="text-sm text-muted-foreground">{product.tagline}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                    <span className="text-lg font-medium">À partir de {product.price.toFixed(2)}€</span>
+                    <Button size="default" className="rounded-full" onClick={handleAddToCart}>
                         Acheter
                     </Button>
                 </div>
             </div>
-        </section>
+        </div>
       
-        <div className="space-y-24 md:space-y-36 my-24 md:my-36">
+        <div className="space-y-24 md:space-y-36 my-16 md:my-24">
             
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
@@ -225,7 +224,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
                          <div className="glass-card">
-                            <div className="relative aspect-square">
+                             <div className="relative aspect-square">
                                 <Image 
                                     src={product.images[0]} 
                                     alt={product.name} 
@@ -234,7 +233,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                                     data-ai-hint={product.hint}
                                 />
                             </div>
-                             <div className="p-6 border-t border-border">
+                            <div className="p-6 border-t border-border">
                                 <h3 className="text-xl font-bold">Total de votre configuration</h3>
                                 <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
                                 <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
@@ -244,6 +243,29 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         </div>
                     </div>
                 </div>
+            </section>
+
+             <section className="container mx-auto px-4 md:px-6">
+                <Carousel className="w-full">
+                    <CarouselContent>
+                        {product.images.map((img, index) => (
+                            <CarouselItem key={index}>
+                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
+                                        <Image 
+                                        src={img} 
+                                        alt={`${product.name} - vue ${index + 1}`} 
+                                        fill 
+                                        className="object-contain p-4 md:p-8" 
+                                        sizes="(max-width: 768px) 100vw, 75vw"
+                                        priority={index === 0}
+                                    />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
             </section>
             
             <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
@@ -299,29 +321,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </div>
             </section>
 
-             <section className="container mx-auto px-4 md:px-6">
-                <Carousel className="w-full">
-                    <CarouselContent>
-                        {product.images.map((img, index) => (
-                            <CarouselItem key={index}>
-                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
-                                        <Image 
-                                        src={img} 
-                                        alt={`${product.name} - vue ${index + 1}`} 
-                                        fill 
-                                        className="object-contain p-4 md:p-8" 
-                                        sizes="(max-width: 768px) 100vw, 75vw"
-                                        priority={index === 0}
-                                    />
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
-            </section>
-
              <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
                  <AnimatedSection className="text-center">
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
@@ -373,19 +372,19 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </section>
             )}
 
-             <section className="container mx-auto px-4 md:px-6">
-                <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
+            <section className="container mx-auto px-4 md:px-6">
+                 <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
                     <div className="absolute -inset-20 z-0">
                          <OriaAnimation className="w-full h-full opacity-30" />
                     </div>
                     <div className="relative z-10 text-center md:text-left">
-                        <h2 className="text-3xl md:text-4xl font-bold">Oria, votre chef d'orchestre IA.</h2>
-                        <p className="mt-4 text-lg text-muted-foreground max-w-xl">
-                            Oria est l'intelligence qui connecte tous les outils. Discutez avec elle pour lancer des projets, générer des idées, et trouver l'outil parfait pour chaque tâche.
+                        <h2 className="text-3xl md:text-4xl font-bold">Oria. Le chef d'orchestre de votre station.</h2>
+                         <p className="mt-4 text-lg text-muted-foreground max-w-xl">
+                            Oria ne se contente pas d'assister ; elle anticipe, optimise et unifie. Demandez-lui d'allouer plus de puissance à votre rendu 3D ou de trouver le fichier parfait dans votre cloud. Elle est l'intelligence qui rend votre matériel vivant.
                         </p>
                          <Button asChild size="lg" className="mt-8 rounded-full">
                             <Link href="/oria">
-                                En savoir plus <ArrowRight className="ml-2 h-4 w-4" />
+                                Découvrir Oria <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>
                     </div>
