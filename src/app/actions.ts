@@ -1,7 +1,14 @@
-// This file is being deprecated in favor of API routes.
-// For now, we are keeping it for non-AI actions or actions that are harder to migrate.
-
 'use server';
+
+import {
+  generateSchedule,
+} from '@/ai/flows/generate-schedule';
+import { generateContent } from '@/ai/flows/content-generator';
+import { generateMoodboard as generateMoodboardFlow } from '@/ai/flows/generate-moodboard';
+import { generateCode } from '@/ai/flows/generate-code';
+import { debugCode } from '@/ai/flows/debug-code';
+import { explainCode } from '@/ai/flows/explain-code';
+import { refactorCode } from '@/ai/flows/refactor-code';
 
 import { createFolder as createFolderFlow } from '@/ai/flows/create-folder';
 import { deleteDocument as deleteDocumentFlow } from '@/ai/flows/delete-document';
@@ -12,8 +19,20 @@ import { renameDocument as renameDocumentFlow } from '@/ai/flows/rename-document
 import { shareDocument as shareDocumentFlow } from '@/ai/flows/share-document';
 import { uploadDocument as uploadDocumentFlow } from '@/ai/flows/upload-document';
 import { oria } from '@/ai/flows/oria';
+import { generateFlux } from '@/ai/flows/generate-flux';
+import { generateMotion } from '@/ai/flows/generate-motion';
+import { generateDeck } from '@/ai/flows/generate-deck';
+import { generateLightMood } from '@/ai/flows/generate-light-mood';
+import { generateMuse } from '@/ai/flows/generate-muse';
+import { generateNexus } from '@/ai/flows/generate-nexus';
+import { generatePalette } from '@/ai/flows/generate-palette';
+import { generatePersona } from '@/ai/flows/generate-persona';
+import { generateSound } from '@/ai/flows/generate-sound';
+import { generateTone } from '@/ai/flows/generate-tone';
+import { copilotLyrics } from '@/ai/flows/copilot-lyrics';
+import { convertImage } from '@/ai/flows/convert-image';
 
-import type { ProjectPlan, OriaChatInput, OriaChatOutput } from '@/ai/types';
+import type { ProjectPlan, OriaChatInput, OriaChatOutput, GenerateFluxInput } from '@/ai/types';
 import { ProjectPlanSchema } from '@/ai/types';
 import { z } from 'zod';
 
@@ -36,6 +55,11 @@ export const createFolderAction = createFolder;
 export const deleteFolderAction = deleteFolder;
 export const getSignedUrlAction = getSignedUrl;
 export const renameDocumentAction = renameDocument;
+
+// AI Actions
+export { generateSchedule, generateContent, generateCode, debugCode, explainCode, refactorCode, copilotLyrics, convertImage, generateFlux, generateMotion, generateDeck, generateLightMood, generateMuse, generateNexus, generatePalette, generatePersona, generateSound, generateTone };
+
+export const generateMoodboard = generateMoodboardFlow;
 
 // Specific action wrappers
 export async function getActionResult(resultId: string): Promise<{ result: any; prompt?: string } | null> {
@@ -112,5 +136,17 @@ export async function oriaChatAction(prevState: any, formData: FormData): Promis
   } catch (e: any) {
     console.error("Oria chat action failed:", e);
     return { id: prevState.id + 1, result: null, error: e.message || "Une erreur est survenue lors de l'appel à Oria.", message: 'error' };
+  }
+}
+
+export async function fluxAction(prevState: any, formData: FormData): Promise<{ result: GenerateFluxOutput | null; error: string | null; prompt: string, job: string }> {
+  const prompt = formData.get('prompt') as string;
+  const job = formData.get('job') as string;
+  
+  try {
+    const result = await generateFlux({ prompt, job });
+    return { result, error: null, prompt, job };
+  } catch (e: any) {
+    return { result: null, error: e.message || 'An error occurred', prompt, job };
   }
 }

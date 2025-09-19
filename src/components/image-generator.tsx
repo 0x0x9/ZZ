@@ -3,7 +3,6 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -24,8 +23,6 @@ import AiLoadingAnimation from './ui/ai-loading-animation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useNotifications } from '@/hooks/use-notifications';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateContent } from '@/app/api/content-generator/route';
 import { uploadDocument } from '@/app/actions';
 
 const imageStyles = [
@@ -39,10 +36,9 @@ const imageStyles = [
   { value: 'pixel-art', label: 'Pixel Art' },
 ];
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
-    <Button type="submit" size="icon" disabled={pending} aria-label="Générer l'image" className="w-14 h-14 rounded-full flex-shrink-0">
+    <Button type="submit" size="icon" disabled={isLoading} aria-label="Générer l'image" className="w-14 h-14 rounded-full flex-shrink-0">
         <Send className="h-5 w-5" />
     </Button>
   );
@@ -67,9 +63,16 @@ export default function ImageGenerator() {
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await runFlow(generateContent, { contentType: 'image', prompt, style });
-            if (response.type === 'image' && typeof response.data === 'string') {
-                setResult(response.data);
+            const response = await fetch('/api/content-generator', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contentType: 'image', prompt, style }),
+            });
+            if (!response.ok) throw new Error((await response.json()).error);
+            const data = await response.json();
+
+            if (data.type === 'image' && typeof data.data === 'string') {
+                setResult(data.data);
                 addNotification({
                     icon: ImageIcon,
                     title: "Image générée !",
@@ -188,7 +191,7 @@ export default function ImageGenerator() {
                                 </SelectContent>
                              </Select>
                         </div>
-                        <SubmitButton />
+                        <SubmitButton isLoading={isLoading} />
                     </div>
                 </div>
             </div>
