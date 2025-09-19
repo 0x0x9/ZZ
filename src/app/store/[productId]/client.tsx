@@ -38,22 +38,6 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
     )
 };
 
-const StickyBuyBar = ({ productName, price }: { productName: string, price: number }) => {
-  return (
-    <div className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border/50">
-      <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
-        <h2 className="font-semibold text-xl">{productName}</h2>
-        <div className="flex items-center gap-4">
-          <p className="text-xl font-bold">{price.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</p>
-          <Button asChild className="rounded-full">
-            <Link href="#configurator">Configurer</Link>
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
     return (
         <section id="specs" className="container mx-auto px-4 md:px-6 my-24 md:my-36">
@@ -193,7 +177,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   // Default Hardware Layout
   return (
     <>
-      {product.id === 1 && <StickyBuyBar productName={product.name} price={totalPrice} />}
         <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
              <div className="text-center mb-16">
                  <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4">
