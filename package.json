@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"npm:genkit:watch\" \"next dev --port 9002 --hostname 0.0.0.0\"",
-    "build": "genkit-cli build && next build -p tsconfig.prod.json",
+    "build": "genkit build && next build",
     "start": "next start --port 9002 --hostname 0.0.0.0",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -24,7 +24,8 @@
     "@codemirror/language": "^6.10.1",
     "@codemirror/legacy-modes": "^6.4.0",
     "@codemirror/view": "^6.26.3",
-    "@genkit-ai/googleai": "^1.19.0",
+    "@genkit-ai/googleai": "^1.19.2",
+    "@genkit-ai/next": "^1.18.0",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -59,8 +60,7 @@
     "dotenv": "^16.4.5",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.7",
-    "genkit": "^1.19.0",
-    "genkit-cli": "^1.19.0",
+    "genkit": "^1.19.2",
     "lucide-react": "^0.525.0",
     "next": "14.2.6",
     "next-themes": "^0.4.6",
@@ -86,7 +86,9 @@
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.167.1",
     "@types/uuid": "^10.0.0",
+    "genkit-cli": "^1.19.2",
     "ts-node": "^10.9.2",
+    "tsx": "^4.16.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.3"
   }

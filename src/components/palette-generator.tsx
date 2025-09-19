@@ -1,32 +1,33 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
-import { generatePalette } from '@/app/actions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Palette, Copy, RefreshCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GeneratePaletteOutput } from '@/ai/types';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
+import { runFlow } from '@genkit-ai/next/client';
+import { generatePalette } from '@/app/api/generatePalette/route';
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending} size="lg">
-      {pending ? (
-        <LoadingState text="Composition en cours..." isCompact={true} />
-      ) : (
-        <>
-          Générer la palette
-          <Sparkles className="ml-2 h-5 w-5" />
-        </>
-      )}
-    </Button>
-  );
+    const [isLoading, setIsLoading] = useState(false);
+    return (
+        <Button type="submit" disabled={isLoading} size="lg">
+        {isLoading ? (
+            <LoadingState text="Composition en cours..." isCompact={true} />
+        ) : (
+            <>
+            Générer la palette
+            <Sparkles className="ml-2 h-5 w-5" />
+            </>
+        )}
+        </Button>
+    );
 }
 
 function CopyButton({ textToCopy, description }: { textToCopy: string, description: string }) {
@@ -87,11 +88,10 @@ function ResultsDisplay({ result, onReset }: { result: GeneratePaletteOutput, on
     );
 }
 
-function PaletteForm({ state }: {
-    state: { result: GeneratePaletteOutput | null, error: string | null, prompt: string }
+function PaletteForm({ prompt, onPromptChange }: {
+    prompt: string;
+    onPromptChange: (value: string) => void;
 }) {
-    const { pending } = useFormStatus();
-    
     return (
         <Card className="glass-card">
             <CardHeader>
@@ -113,8 +113,8 @@ function PaletteForm({ state }: {
                 required
                 minLength={10}
                 className="bg-transparent text-base"
-                disabled={pending}
-                defaultValue={state.prompt ?? ''}
+                value={prompt}
+                onChange={(e) => onPromptChange(e.target.value)}
             />
             </CardContent>
             <CardFooter className="justify-center">
@@ -124,46 +124,58 @@ function PaletteForm({ state }: {
     );
 }
 
-export default function PaletteGenerator({ initialResult, prompt }: { initialResult?: GeneratePaletteOutput, prompt?: string }) {
+export default function PaletteGenerator({ initialResult: initialResultFromProps, prompt: promptFromProps }: { initialResult?: GeneratePaletteOutput, prompt?: string }) {
     const searchParams = useSearchParams();
     const promptFromUrl = searchParams.get('prompt');
-    const [key, setKey] = useState(0);
-    const [showForm, setShowForm] = useState(!initialResult);
 
-    const initialState: { result: GeneratePaletteOutput | null, error: string | null, prompt: string } = { 
-        result: initialResult || null, 
-        error: null,
-        prompt: prompt || promptFromUrl || '' 
-    };
-    const [state, formAction] = useFormState(generatePalette, initialState);
+    const [result, setResult] = useState<GeneratePaletteOutput | null>(initialResultFromProps || null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [prompt, setPrompt] = useState(promptFromProps || promptFromUrl || '');
+    const [showForm, setShowForm] = useState(!initialResultFromProps);
+    const [key, setKey] = useState(0); // To reset the form
+    
     const { toast } = useToast();
-    const { pending } = useFormStatus();
 
-    useEffect(() => {
-        if (state.error) {
-            setShowForm(true);
-            toast({
-                variant: 'destructive',
-                title: 'Erreur (X)palette',
-                description: state.error,
-            });
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!prompt.trim()) {
+            toast({ variant: 'destructive', description: "Le prompt est requis." });
+            return;
         }
-        if (state.result) {
+
+        setIsLoading(true);
+        setResult(null);
+        try {
+            const response = await runFlow(generatePalette, { prompt });
+            setResult(response);
+            setShowForm(false);
+        } catch(error: any) {
+            toast({ variant: 'destructive', title: 'Erreur (X)palette', description: error.message });
+            setShowForm(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    useEffect(() => {
+        if (initialResultFromProps) {
+            setResult(initialResultFromProps);
             setShowForm(false);
         }
-    }, [state, toast]);
+    }, [initialResultFromProps]);
 
     const handleReset = () => {
         setKey(k => k + 1);
+        setResult(null);
         setShowForm(true);
     };
 
     return (
-        <form action={formAction} key={key}>
+        <form onSubmit={handleSubmit} key={key}>
              <div className="max-w-4xl mx-auto">
-                {showForm && <PaletteForm state={initialState} />}
+                {showForm && <PaletteForm prompt={prompt} onPromptChange={setPrompt} />}
                 
-                {pending && (
+                {isLoading && (
                     <div className="mt-6">
                         <Card className="glass-card min-h-[300px] relative overflow-hidden">
                             <div className="absolute inset-0 z-0">
@@ -176,7 +188,7 @@ export default function PaletteGenerator({ initialResult, prompt }: { initialRes
                     </div>
                 )}
 
-                {!showForm && state.result && <ResultsDisplay result={state.result} onReset={handleReset} />}
+                {!showForm && result && <ResultsDisplay result={result} onReset={handleReset} />}
             </div>
         </form>
     );

@@ -2,9 +2,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    serverComponentsExternalPackages: ['@genkit-ai/core', '@genkit-ai/googleai']
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -42,16 +39,6 @@ const nextConfig = {
   devIndicators: {
     allowedDevOrigins: ['*'],
   },
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-    };
-    config.externals = [...config.externals, 'handlebars'];
-    return config;
-  }
 };
 
 module.exports = nextConfig;

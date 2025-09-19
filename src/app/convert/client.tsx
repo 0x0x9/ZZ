@@ -2,9 +2,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
-import { convertImage, generateContent } from '@/app/actions';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +14,9 @@ import type { ConvertImageOutput } from '@/ai/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
-
+import { runFlow } from '@genkit-ai/next/client';
+import { convertImage } from '@/app/api/convert-image/route';
+import { generateContent } from '@/app/api/content-generator/route';
 
 function SubmitButton({ pending, text = "Lancer la conversion"}: { pending: boolean, text?: string }) {
     return (
@@ -32,54 +31,63 @@ function SubmitButton({ pending, text = "Lancer la conversion"}: { pending: bool
 }
 
 function ImageConverter() {
-    const initialState = { id: 0, result: null, error: null };
-    const [state, formAction] = useFormState(convertImage, initialState);
-    
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imagePreview, setImagePreview] = useState<string |null>(null);
+    const [result, setResult] = useState<ConvertImageOutput | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
-    
-    useEffect(() => {
-        if(state.error) {
-            toast({ variant: 'destructive', title: 'Erreur', description: state.error });
-        }
-    }, [state, toast]);
-
-    const { pending } = useFormStatus();
-
-    const handleDownload = (dataUri: string) => {
-        const format = dataUri.split(';')[0].split('/')[1];
-        const link = document.createElement("a");
-        link.href = dataUri;
-        link.download = `converted-image.${format}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (loadEvent) => {
-                const dataUrl = loadEvent.target?.result as string;
-                setImagePreview(dataUrl);
+                setImagePreview(loadEvent.target?.result as string);
+                setResult(null);
             };
             reader.readAsDataURL(file);
         }
     }
     
-    useEffect(() => {
-        if (!pending) {
-            formRef.current?.reset();
-            setImagePreview(null);
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget as HTMLFormElement);
+        const image = formData.get('image') as string;
+        const outputFormat = formData.get('outputFormat') as 'jpeg' | 'png' | 'webp';
+        const removeTransparency = !!formData.get('removeTransparency');
+        
+        if (!image) {
+            toast({ variant: 'destructive', description: "Veuillez choisir une image." });
+            return;
         }
-    }, [pending]);
 
+        setIsLoading(true);
+        setResult(null);
+        try {
+            const response = await runFlow(convertImage, { image, outputFormat, removeTransparency });
+            setResult(response);
+            toast({ title: 'Conversion réussie !'});
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Erreur', description: error.message });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const handleDownload = () => {
+        if (!result) return;
+        const format = result.convertedImageUri.split(';')[0].split('/')[1];
+        const link = document.createElement("a");
+        link.href = result.convertedImageUri;
+        link.download = `converted-image.${format}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
-        <form ref={formRef} action={formAction} className="space-y-8">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div className="space-y-4">
                     <input
@@ -132,11 +140,11 @@ function ImageConverter() {
                        <Checkbox id="removeTransparency" name="removeTransparency" />
                        <Label htmlFor="removeTransparency">Supprimer la transparence (fond blanc)</Label>
                     </div>
-                     <SubmitButton pending={pending} />
+                     <SubmitButton pending={isLoading} />
                 </div>
             </div>
 
-            {state.result && (
+            {result && (
                  <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -144,9 +152,9 @@ function ImageConverter() {
                     <h3 className="text-lg font-semibold mb-4">Résultat de la Conversion</h3>
                     <div className="flex flex-col items-center gap-4">
                         <div className="relative w-full max-w-sm aspect-square rounded-lg border-2 border-dashed bg-muted/20">
-                             <Image src={(state.result as ConvertImageOutput).convertedImageUri} alt="Image convertie" layout="fill" objectFit="contain" className="p-2"/>
+                             <Image src={result.convertedImageUri} alt="Image convertie" layout="fill" objectFit="contain" className="p-2"/>
                         </div>
-                        <Button onClick={() => handleDownload((state.result as ConvertImageOutput).convertedImageUri)}>
+                        <Button onClick={handleDownload}>
                             <Download className="mr-2 h-4 w-4" />
                             Télécharger l'image convertie
                         </Button>
@@ -158,21 +166,33 @@ function ImageConverter() {
 }
 
 function DocumentConverter() {
-    const initialState = { type: '', data: null, error: null, id: 0 };
-    const [state, formAction] = useFormState(generateContent, initialState);
     const { toast } = useToast();
-    const { pending } = useFormStatus();
+    const [originalText, setOriginalText] = useState('');
+    const [prompt, setPromptText] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [resultText, setResultText] = useState('');
 
-     useEffect(() => {
-        if (state.error) {
-            toast({ variant: 'destructive', title: 'Erreur', description: state.error });
+     const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setResultText('');
+        try {
+            const response = await runFlow(generateContent, { contentType: 'reformat', textToReformat: originalText, prompt });
+            if (response.type === 'text' && typeof response.data === 'object' && response.data && 'reformattedText' in response.data) {
+                setResultText((response.data as { reformattedText: string }).reformattedText);
+            } else {
+                 throw new Error("L'IA n'a pas retourné de texte valide.");
+            }
+        } catch (error: any) {
+             toast({ variant: 'destructive', title: 'Erreur', description: error.message });
+        } finally {
+            setIsLoading(false);
         }
-    }, [state, toast]);
+    };
 
     const handleCopy = () => {
-        const textData = state.data as { reformattedText: string } | null;
-        if (!textData?.reformattedText) return;
-        navigator.clipboard.writeText(textData.reformattedText);
+        if (!resultText) return;
+        navigator.clipboard.writeText(resultText);
         toast({
             title: 'Copié !',
             description: 'Le texte transformé a été copié dans le presse-papiers.',
@@ -180,8 +200,7 @@ function DocumentConverter() {
     };
     
     return (
-        <form action={formAction} className="space-y-8">
-             <input type="hidden" name="contentType" value="reformat" />
+        <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 <div className="space-y-2">
                     <Label htmlFor="textToReformat">Texte Original</Label>
@@ -192,6 +211,8 @@ function DocumentConverter() {
                         rows={15}
                         className="bg-background/50 text-base"
                         required
+                        value={originalText}
+                        onChange={(e) => setOriginalText(e.target.value)}
                     />
                 </div>
                 <div className="space-y-4">
@@ -204,12 +225,14 @@ function DocumentConverter() {
                             rows={5}
                             className="bg-background/50 text-base"
                             required
+                             value={prompt}
+                            onChange={(e) => setPromptText(e.target.value)}
                         />
                     </div>
-                    <SubmitButton pending={pending} text="Transformer le texte" />
+                    <SubmitButton pending={isLoading} text="Transformer le texte" />
                 </div>
             </div>
-             {state.data && state.type === 'text' && (
+             {resultText && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -218,16 +241,14 @@ function DocumentConverter() {
                     <Card className="glass-card bg-background/30">
                         <CardHeader className="flex flex-row justify-between items-center">
                             <CardTitle>Résultat Transformé</CardTitle>
-                            {state.data && (
-                                <Button variant="outline" size="icon" onClick={handleCopy}>
-                                    <Copy className="h-4 w-4" />
-                                </Button>
-                            )}
+                             <Button variant="outline" size="icon" onClick={handleCopy}>
+                                <Copy className="h-4 w-4" />
+                            </Button>
                         </CardHeader>
                         <CardContent className="min-h-[200px]">
                             <Textarea
                                 readOnly
-                                value={(state.data as any)?.reformattedText || ''}
+                                value={resultText}
                                 rows={10}
                                 className="bg-background/50 text-base"
                             />

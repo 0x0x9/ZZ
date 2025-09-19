@@ -1,9 +1,8 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
-import { generateSound, uploadDocument } from '@/app/actions';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,13 +13,16 @@ import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNotifications } from '@/hooks/use-notifications';
+import { runFlow } from '@genkit-ai/next/client';
+import { generateSound } from '@/app/api/generateSound/route';
+import { uploadDocument } from '@/app/actions';
 
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+    const [isLoading, setIsLoading] = useState(false);
   return (
-    <Button type="submit" disabled={pending} size="lg">
-      {pending ? (
+    <Button type="submit" disabled={isLoading} size="lg">
+      {isLoading ? (
         <LoadingState text="Composition en cours..." isCompact={true} />
       ) : (
         <>
@@ -79,11 +81,10 @@ function ResultsDisplay({ result, onReset }: { result: GenerateSoundOutput, onRe
     );
 }
 
-function SoundForm({ state }: {
-    state: { result: GenerateSoundOutput | null, error: string | null, prompt: string }
+function SoundForm({ prompt, onPromptChange }: {
+    prompt: string;
+    onPromptChange: (value: string) => void;
 }) {
-    const { pending } = useFormStatus();
-
     return (
         <Card className="glass-card">
             <CardHeader>
@@ -112,8 +113,8 @@ function SoundForm({ state }: {
                     required
                     minLength={5}
                     className="bg-transparent text-base"
-                    disabled={pending}
-                    defaultValue={state.prompt ?? ''}
+                    value={prompt}
+                    onChange={(e) => onPromptChange(e.target.value)}
                 />
             </CardContent>
             <CardFooter className="justify-center">
@@ -123,59 +124,66 @@ function SoundForm({ state }: {
     );
 }
 
-export default function SoundGenerator({ initialResult, prompt }: { initialResult?: GenerateSoundOutput, prompt?: string }) {
-    const searchParams = useSearchParams();
+export default function SoundGenerator({ initialResult: initialResultFromProps, prompt: promptFromProps }: { initialResult?: GenerateSoundOutput, prompt?: string }) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const promptFromUrl = searchParams.get('prompt');
+    const [result, setResult] = useState<GenerateSoundOutput | null>(initialResultFromProps || null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [prompt, setPrompt] = useState(promptFromProps || promptFromUrl || '');
+    const [showForm, setShowForm] = useState(!initialResultFromProps);
     const [key, setKey] = useState(0);
-    const [showForm, setShowForm] = useState(!initialResult);
-    
-    const initialState = {
-        result: initialResult || null,
-        error: null,
-        prompt: prompt || promptFromUrl || ''
-    };
-    const [state, formAction] = useFormState(generateSound, initialState);
+
     const { toast } = useToast();
     const { addNotification } = useNotifications();
-    const { pending } = useFormStatus();
 
-    useEffect(() => {
-        if (state.error) {
-            setShowForm(true);
-            toast({
-                variant: 'destructive',
-                title: 'Erreur (X)sound',
-                description: state.error,
-            });
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!prompt.trim()) {
+            toast({ variant: 'destructive', description: "Le prompt est requis." });
+            return;
         }
-         if (state.result) {
+        setIsLoading(true);
+        setResult(null);
+        try {
+            const response = await runFlow(generateSound, { prompt });
+            setResult(response);
             setShowForm(false);
             const resultId = `sound-result-${Math.random()}`;
-            const handleClick = () => {
-                localStorage.setItem(resultId, JSON.stringify(state));
-                router.push(`/xos?open=sound&resultId=${resultId}`);
-            };
+            localStorage.setItem(resultId, JSON.stringify({ result: response, prompt }));
             addNotification({
                 icon: Music,
                 title: "Son généré !",
-                description: `Votre son pour "${state.prompt.substring(0, 30)}..." est prêt.`,
-                onClick: handleClick,
+                description: `Votre son pour "${prompt.substring(0, 30)}..." est prêt.`,
             });
+        } catch(error: any) {
+            toast({ variant: 'destructive', title: 'Erreur (X)sound', description: error.message });
+            setShowForm(true);
+        } finally {
+            setIsLoading(false);
         }
-    }, [state, toast, addNotification, router]);
+    };
+
+    useEffect(() => {
+        if (initialResultFromProps) {
+            setResult(initialResultFromProps);
+            setShowForm(false);
+        }
+    }, [initialResultFromProps]);
 
     const handleReset = () => {
         setKey(k => k + 1);
+        setResult(null);
         setShowForm(true);
-    }
+        setPrompt('');
+    };
 
     return (
-        <form action={formAction} key={key}>
+        <form onSubmit={handleSubmit} key={key}>
              <div className="max-w-2xl mx-auto">
-                {showForm && <SoundForm state={initialState} />}
+                {showForm && <SoundForm prompt={prompt} onPromptChange={setPrompt} />}
 
-                {pending && (
+                {isLoading && (
                     <div className="mt-6">
                         <Card className="glass-card min-h-[200px] relative overflow-hidden">
                             <div className="absolute inset-0 z-0"><AiLoadingAnimation isLoading={true} /></div>
@@ -186,7 +194,7 @@ export default function SoundGenerator({ initialResult, prompt }: { initialResul
                     </div>
                 )}
 
-                {!showForm && state.result && <ResultsDisplay result={state.result} onReset={handleReset} />}
+                {!showForm && result && <ResultsDisplay result={result} onReset={handleReset} />}
             </div>
         </form>
     );

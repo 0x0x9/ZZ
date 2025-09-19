@@ -40,8 +40,6 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { useToast } from '@/hooks/use-toast';
 import { Loader, Wand2, Bug, BrainCircuit, Save, TerminalSquare, FileText, AppWindow, Upload, Image as ImageIconLucide, PanelLeftOpen, PanelLeftClose, LayoutTemplate, X, Sparkles } from 'lucide-react';
-import { refactorCodeAction, debugCodeAction, explainCodeAction } from '@/app/actions';
-import { generateFrameAction } from '@/app/actions';
 import { uploadDocumentAction } from '@/app/actions';
 import { Skeleton } from './ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -52,6 +50,12 @@ import { javascript } from '@codemirror/lang-javascript';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
+import { runFlow } from '@genkit-ai/next/client';
+import { type GenerateCodeOutput, type ExplainCodeOutput, type DebugCodeOutput } from '@/ai/types';
+import { generateFrame } from '@/app/api/generateFrame/route';
+import { explainCode } from '@/app/api/explainCode/route';
+import { debugCode } from '@/app/api/debugCode/route';
+import { refactorCode } from '@/app/api/refactorCode/route';
 
 
 type AiAction = 'explain' | 'refactor' | 'debug';
@@ -73,38 +77,31 @@ const makeTransparent = EditorView.theme({
 
 const FrameGeneratorPanel = ({ onProjectGenerated }: { onProjectGenerated: (codes: { html: string; css: string; js: string }) => void }) => {
     const { toast } = useToast();
-    const initialState = { message: '', error: '', id: 0, result: null };
-    const [state, formAction] = useFormState(generateFrameAction, initialState);
+    const [prompt, setPrompt] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [imageDataUri, setImageDataUri] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const formRef = useRef<HTMLFormElement>(null);
-
-    function SubmitButton() {
-        const { pending } = useFormStatus();
-        return (
-          <Button type="submit" disabled={pending} className="w-full">
-            {pending ? (
-              <LoadingState text="Construction..." isCompact={true} />
-            ) : (
-              <>
-                Générer la maquette
-                <Sparkles className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
-        );
-    }
     
-    useEffect(() => {
-        if (state.id > 0 && state.result) {
-            onProjectGenerated({ html: state.result.htmlCode, css: state.result.cssCode, js: state.result.jsCode || '' });
-            formRef.current?.reset();
-            setImageDataUri(null);
-            toast({ title: "Maquette générée !", description: "Le projet a été chargé dans l'éditeur." });
-        } else if (state.id > 0 && state.error) {
-            toast({ variant: 'destructive', title: 'Erreur (X)frame', description: state.error });
+    async function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        if (!prompt && !imageDataUri) {
+            toast({ variant: 'destructive', description: "Veuillez fournir une description ou une image." });
+            return;
         }
-    }, [state, onProjectGenerated, toast]);
+        
+        setIsLoading(true);
+        try {
+            const result = await runFlow(generateFrame, { prompt, photoDataUri: imageDataUri || undefined });
+            onProjectGenerated({ html: result.htmlCode, css: result.cssCode, js: result.jsCode || '' });
+            toast({ title: "Maquette générée !", description: "Le projet a été chargé dans l'éditeur." });
+            setPrompt('');
+            setImageDataUri(null);
+        } catch(e: any) {
+            toast({ variant: 'destructive', title: 'Erreur (X)frame', description: e.message });
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -114,12 +111,9 @@ const FrameGeneratorPanel = ({ onProjectGenerated }: { onProjectGenerated: (code
             reader.readAsDataURL(file);
         }
     };
-    
-    const { pending } = useFormStatus();
 
     return (
-        <form ref={formRef} action={formAction} className="p-4 flex flex-col h-full space-y-4">
-            <input type="hidden" name="photoDataUri" value={imageDataUri || ''} />
+        <form onSubmit={handleSubmit} className="p-4 flex flex-col h-full space-y-4">
             <div className="flex-1 space-y-4 overflow-y-auto no-scrollbar">
                 <Textarea
                     name="prompt"
@@ -127,7 +121,9 @@ const FrameGeneratorPanel = ({ onProjectGenerated }: { onProjectGenerated: (code
                     rows={6}
                     minLength={10}
                     className="bg-transparent text-sm"
-                    disabled={pending}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    disabled={isLoading}
                 />
                 <div className="space-y-2">
                     <span className="text-sm font-medium">Inspiration (Optionnel)</span>
@@ -150,7 +146,7 @@ const FrameGeneratorPanel = ({ onProjectGenerated }: { onProjectGenerated: (code
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
                             className="w-full h-32 rounded-lg border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:bg-accent hover:border-primary transition-colors"
-                            disabled={pending}
+                            disabled={isLoading}
                         >
                             <Upload className="h-6 w-6 mb-2" />
                             <span>Déposer une image</span>
@@ -159,7 +155,16 @@ const FrameGeneratorPanel = ({ onProjectGenerated }: { onProjectGenerated: (code
                 </div>
             </div>
             <div className="flex-shrink-0">
-                <SubmitButton />
+                <Button type="submit" disabled={isLoading} className="w-full">
+                    {isLoading ? (
+                    <LoadingState text="Construction..." isCompact={true} />
+                    ) : (
+                    <>
+                        Générer la maquette
+                        <Sparkles className="ml-2 h-4 w-4" />
+                    </>
+                    )}
+                </Button>
             </div>
         </form>
     );
@@ -195,10 +200,6 @@ const FileBasedEditor = ({
 
     const { theme } = useTheme();
     const { toast } = useToast();
-    
-    const [refactorState, refactorFormAction] = useFormState(refactorCodeAction, { id: 0, result: null, error: null });
-    const [debugState, debugFormAction] = useFormState(debugCodeAction, { id: 0, result: null, error: null });
-    const [explainState, explainFormAction] = useFormState(explainCodeAction, { id: 0, result: null, error: null });
     
     const language = useMemo(() => {
         if (activeFile) {
@@ -286,61 +287,39 @@ const FileBasedEditor = ({
         return match ? match[1].trim() : markdown.trim();
     };
     
-    const handleAiAction = (action: AiAction) => {
-        const formData = new FormData();
-        formData.append('code', code);
-        formData.append('language', language);
-    
+    const handleAiAction = async (action: AiAction) => {
         setIsLoadingAi(true);
 
-        if (action === 'explain') {
-            (explainFormAction as (payload: FormData) => void)(formData);
-        } else if (action === 'debug') {
-            (debugFormAction as (payload: FormData) => void)(formData);
-        } else if (action === 'refactor') {
-            if (!refactorPrompt.trim()) {
-                toast({ variant: 'destructive', description: "Veuillez fournir une instruction pour améliorer le code." });
-                setIsLoadingAi(false);
-                return;
+        try {
+            if (action === 'explain') {
+                const result = await runFlow(explainCode, { code, language });
+                setDialogTitle("Explication du code");
+                setExplanation(result.explanation);
+            } else if (action === 'debug') {
+                const result = await runFlow(debugCode, { code, language });
+                setCode(extractCodeFromMarkdown(result.fixedCode));
+                setIsDirty(true);
+                setDialogTitle("Rapport de débogage");
+                setExplanation(result.explanation);
+            } else if (action === 'refactor') {
+                if (!refactorPrompt.trim()) {
+                    toast({ variant: 'destructive', description: "Veuillez fournir une instruction pour améliorer le code." });
+                    return;
+                }
+                const result = await runFlow(refactorCode, { code, language, prompt: refactorPrompt });
+                setCode(extractCodeFromMarkdown(result.code));
+                setIsDirty(true);
+                setDialogTitle("Code amélioré");
+                setExplanation(result.explanation);
+                setRefactorPrompt('');
+                setIsRefactorDialogOpen(false);
             }
-            formData.append('prompt', refactorPrompt);
-            (refactorFormAction as (payload: FormData) => void)(formData);
-            setIsRefactorDialogOpen(false);
+        } catch(e: any) {
+             toast({ variant: 'destructive', title: `Erreur IA`, description: e.message });
+        } finally {
+            setIsLoadingAi(false);
         }
     };
-    
-     useEffect(() => {
-        if (explainState.id > 0 && explainState.result) {
-            setDialogTitle("Explication du code");
-            setExplanation(explainState.result.explanation);
-        }
-        if (explainState.id > 0 && explainState.error) toast({ variant: 'destructive', title: `Erreur d'explication`, description: explainState.error });
-        if (explainState.id > 0) setIsLoadingAi(false);
-    }, [explainState, toast]);
-
-    useEffect(() => {
-        if (debugState.id > 0 && debugState.result) {
-            setCode(extractCodeFromMarkdown(debugState.result.fixedCode));
-            setIsDirty(true);
-            setDialogTitle("Rapport de débogage");
-            setExplanation(debugState.result.explanation);
-        }
-        if (debugState.id > 0 && debugState.error) toast({ variant: 'destructive', title: `Erreur de débogage`, description: debugState.error });
-        if (debugState.id > 0) setIsLoadingAi(false);
-    }, [debugState, toast]);
-
-    useEffect(() => {
-        if (refactorState.id > 0 && refactorState.result) {
-            setCode(extractCodeFromMarkdown(refactorState.result.code));
-            setIsDirty(true);
-            setDialogTitle("Code amélioré");
-            setExplanation(refactorState.result.explanation);
-            setRefactorPrompt('');
-        }
-        if (refactorState.id > 0 && refactorState.error) toast({ variant: 'destructive', title: `Erreur d'amélioration`, description: refactorState.error });
-        if (refactorState.id > 0) setIsLoadingAi(false);
-    }, [refactorState, toast]);
-
     
     const languageExtension = getLanguageExtension(`file.${language}`);
     const codeMirrorOptions = {

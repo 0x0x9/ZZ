@@ -1,21 +1,20 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Copy, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { reformatTextAction } from '@/app/actions';
 import { motion } from 'framer-motion';
+import { runFlow } from '@genkit-ai/next/client';
+import { generateContent } from '@/app/api/content-generator/route';
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
     return (
-        <Button type="submit" size="lg" className="w-full" disabled={pending}>
-            {pending ? (
+        <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+            {isLoading ? (
                 <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Transformation...
@@ -30,13 +29,37 @@ function SubmitButton() {
 }
 
 export default function FormatClient() {
-    const initialState = { message: '', error: null, result: null, id: 0 };
-    const [state, formAction] = useFormState(reformatTextAction, initialState);
+    const [originalText, setOriginalText] = useState('');
+    const [prompt, setPrompt] = useState('');
+    const [reformattedText, setReformattedText] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const result = await runFlow(generateContent, {
+                contentType: 'reformat',
+                textToReformat: originalText,
+                prompt: prompt
+            });
+             if (result.type === 'text' && typeof result.data === 'object' && result.data && 'reformattedText' in result.data) {
+                setReformattedText((result.data as { reformattedText: string }).reformattedText);
+            } else if (result.type === 'text' && typeof result.data === 'string') {
+                // Handle older format for safety
+                 setReformattedText(result.data);
+            }
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Erreur', description: error.message });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleCopy = () => {
-        if (!state.result?.reformattedText) return;
-        navigator.clipboard.writeText(state.result.reformattedText);
+        if (!reformattedText) return;
+        navigator.clipboard.writeText(reformattedText);
         toast({
             title: 'Copié !',
             description: 'Le texte transformé a été copié dans le presse-papiers.',
@@ -44,7 +67,7 @@ export default function FormatClient() {
     };
     
     return (
-        <form action={formAction} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 <Card className="glass-card">
                     <CardHeader>
@@ -57,6 +80,8 @@ export default function FormatClient() {
                             rows={15}
                             className="bg-background/50 text-base"
                             required
+                            value={originalText}
+                            onChange={(e) => setOriginalText(e.target.value)}
                         />
                     </CardContent>
                 </Card>
@@ -71,13 +96,15 @@ export default function FormatClient() {
                             rows={5}
                             className="bg-background/50 text-base"
                             required
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
                         />
-                        <SubmitButton />
+                        <SubmitButton isLoading={isLoading} />
                     </CardContent>
                 </Card>
             </div>
 
-            {(state.id > 0) && (
+            {(isLoading || reformattedText) && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -86,25 +113,25 @@ export default function FormatClient() {
                     <Card className="glass-card bg-background/30">
                         <CardHeader className="flex flex-row justify-between items-center">
                             <CardTitle>3. Résultat Transformé</CardTitle>
-                            {state.result && (
+                            {reformattedText && (
                                 <Button variant="outline" size="icon" onClick={handleCopy}>
                                     <Copy className="h-4 w-4" />
                                 </Button>
                             )}
                         </CardHeader>
                         <CardContent className="min-h-[200px]">
-                             {state.result ? (
-                                <Textarea
-                                    readOnly
-                                    value={state.result?.reformattedText || ''}
-                                    rows={15}
-                                    className="bg-background/50 text-base"
-                                />
-                             ) : (
+                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
                                     <Loader2 className="mr-4 h-8 w-8 animate-spin text-primary" />
                                     L'IA est en train de réécrire...
                                 </div>
+                             ) : (
+                                <Textarea
+                                    readOnly
+                                    value={reformattedText}
+                                    rows={15}
+                                    className="bg-background/50 text-base"
+                                />
                              )}
                         </CardContent>
                     </Card>

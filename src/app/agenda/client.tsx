@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
 import { format, isSameDay, parse, isValid } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Plus, Sparkles, Trash2, Loader, Send, Brain, Link, Eye } from 'lucide-react';
@@ -31,9 +30,11 @@ import {
     AlertDialogTitle,
     AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { parseEventAction } from '@/app/actions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
+import { runFlow } from '@genkit-ai/next/client';
+import { parseEvent } from '@/app/api/parseEvent/route';
+import { type AgendaEvent } from '@/ai/types';
 
 type Event = {
     id: string; 
@@ -74,11 +75,10 @@ const mockApi = {
     }
 };
 
-function SmartAddButton() {
-    const { pending } = useFormStatus();
+function SmartAddButton({ isPending }: { isPending: boolean }) {
     return (
-        <Button type="submit" disabled={pending} className="absolute top-1/2 right-3 -translate-y-1/2 h-10 px-4 rounded-full">
-            {pending ? (
+        <Button type="submit" disabled={isPending} className="absolute top-1/2 right-3 -translate-y-1/2 h-10 px-4 rounded-full">
+            {isPending ? (
                 <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
             ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
@@ -136,8 +136,9 @@ export default function AgendaClient() {
     const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
 
     // AI "Smart Add" form state
-    const [smartAddState, smartAddAction] = useFormState(parseEventAction, { success: false, error: null, event: null, id: 0 });
+    const [isSmartAddPending, setIsSmartAddPending] = useState(false);
     const smartAddFormRef = useRef<HTMLFormElement>(null);
+    const [smartAddPrompt, setSmartAddPrompt] = useState('');
     
     // Manual Add form state
     const manualAddFormRef = useRef<HTMLFormElement>(null);
@@ -174,15 +175,21 @@ export default function AgendaClient() {
         }
     }, [fetchEvents, toast]);
 
-    useEffect(() => {
-        if (smartAddState.success && smartAddState.event && smartAddState.id > 0) {
-            const { title, date, time } = smartAddState.event;
-            handleCreateEvent({ title, date, time });
-            smartAddFormRef.current?.reset();
-        } else if (!smartAddState.success && smartAddState.error && smartAddState.id > 0) {
-            toast({ variant: 'destructive', title: 'Erreur IA', description: smartAddState.error });
+    const handleSmartAdd = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!smartAddPrompt.trim()) return;
+
+        setIsSmartAddPending(true);
+        try {
+            const result = await runFlow(parseEvent, { prompt: smartAddPrompt, currentDate: new Date().toISOString() });
+            handleCreateEvent(result);
+            setSmartAddPrompt('');
+        } catch (error: any) {
+             toast({ variant: 'destructive', title: 'Erreur IA', description: error.message });
+        } finally {
+            setIsSmartAddPending(false);
         }
-    }, [smartAddState, handleCreateEvent, toast]);
+    };
 
 
     const handleAddEventManually = async (formData: FormData) => {
@@ -278,15 +285,17 @@ export default function AgendaClient() {
                             )}
                         </CardContent>
                         <CardFooter className="p-4 border-t border-white/10 mt-auto">
-                            <form ref={smartAddFormRef} action={smartAddAction} className="relative w-full">
+                            <form ref={smartAddFormRef} onSubmit={handleSmartAdd} className="relative w-full">
                                 <Textarea
                                     name="prompt"
                                     placeholder="Ajout intelligent : “Rendez-vous dentiste demain 10h30”"
                                     rows={1}
                                     className="bg-transparent pr-[140px] resize-none py-3 text-base rounded-full"
                                     required
+                                    value={smartAddPrompt}
+                                    onChange={(e) => setSmartAddPrompt(e.target.value)}
                                 />
-                                <SmartAddButton />
+                                <SmartAddButton isPending={isSmartAddPending} />
                             </form>
                         </CardFooter>
                     </Card>

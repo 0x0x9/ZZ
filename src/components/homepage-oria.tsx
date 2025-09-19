@@ -6,7 +6,6 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { oriaChatAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, ArrowRight, Copy, ZoomIn, Download, BadgeCheck, BadgeX, TerminalSquare, RotateCcw, Presentation, LayoutTemplate, Music, Wand2, Users, Film, Network, Lightbulb, FileText, Palette, Mic, AudioLines, Code2, Loader2 } from 'lucide-react';
@@ -17,6 +16,8 @@ import { useFusionDock } from '@/hooks/use-fusion-dock';
 import type { OriaChatOutput, GenerateImageOutput, GeneratePaletteOutput, GenerateToneOutput, GenerateCodeOutput, GenerateTextOutput, GenerateVoiceOutput, GenerateDeckOutput, GenerateFrameOutput, GenerateSoundOutput, GenerateFluxOutput, GenerateMotionOutput, GenerateNexusOutput, GenerateIdeasOutput, GeneratePersonaOutput, OriaHistoryMessage } from '@/ai/types';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogDescription } from './ui/alert-dialog';
 import OriaAnimation from './ui/oria-animation';
+import { runFlow } from '@genkit-ai/next/client';
+import { oria } from '@/app/api/oria/route';
 
 type Message = {
     id: number;
@@ -78,24 +79,24 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
 
     const handleRedirection = (tool: string, promptForTool?: string, data?: any) => {
         const params = new URLSearchParams();
-        params.set('open', tool);
         
-        if (promptForTool) {
-            params.set('prompt', promptForTool);
-        }
-
         if (tool === 'flux' && data) {
              const resultId = `flux-result-${Date.now()}`;
              const dataToStore = { result: data, prompt: promptForTool };
              localStorage.setItem(resultId, JSON.stringify(dataToStore));
              params.set('resultId', resultId);
+             router.push(`/flux?${params.toString()}`);
         } else if (data) {
              const resultId = `result-${Date.now()}`;
              localStorage.setItem(resultId, JSON.stringify({ result: data, prompt: promptForTool }));
              params.set('resultId', resultId);
+             router.push(`/${tool}?${params.toString()}`);
+        } else if (tool === 'fusion') {
+            loadTools(promptForTool || '');
+        } else {
+             if (promptForTool) params.set('prompt', promptForTool);
+             router.push(`/${tool}?${params.toString()}`);
         }
-
-        router.push(`/xos?${params.toString()}`);
     };
     
     const handleCopy = (textToCopy: string, description: string) => {
@@ -121,27 +122,11 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
             return <p>{result.response}</p>;
 
         case 'redirect':
-             // For complex redirects like flux, we now handle the data storage and redirection here.
-            if (result.tool === 'flux' && result.data) {
-                 return (
-                    <div className='space-y-3'>
-                        <p>{result.response}</p>
-                        <Button
-                            onClick={() => handleRedirection('flux', result.promptForTool, result.data)}
-                            variant="ghost"
-                            className="w-full h-auto justify-start p-3 rounded-lg text-left bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 animate-gradient-x font-semibold text-primary-foreground hover:opacity-95"
-                        >
-                            Ouvrir le projet dans (X)OS
-                            <ArrowRight className="ml-auto h-4 w-4" />
-                        </Button>
-                    </div>
-                );
-            }
             return (
                 <div className='space-y-3'>
                     <p>{result.response}</p>
                     <Button
-                        onClick={() => handleRedirection(result.tool, result.promptForTool)}
+                        onClick={() => handleRedirection(result.tool, result.promptForTool, result.data)}
                         variant="ghost"
                         className={cn("w-full h-auto justify-start p-3 rounded-lg text-left text-foreground", result.tool === 'fusion' ? "bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 animate-gradient-x font-semibold text-primary-foreground hover:opacity-95" : "bg-background/80 hover:bg-accent border")}
                     >
@@ -158,22 +143,6 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
                     <p>{result.response}</p>
                     <div className="p-4 rounded-xl bg-background/50 dark:bg-black/50 backdrop-blur-2xl border border-white/20 shadow-inner">
                     {(() => {
-                        const itemNames = {
-                            projectPlan: 'Plan de projet',
-                            palette: 'Palette de couleurs',
-                            tone: 'Ton de voix',
-                            personas: 'Personas',
-                            ideas: 'Idées créatives',
-                            deck: 'Présentation',
-                            frame: 'Maquette UI',
-                            text: 'Article de blog',
-                            motion: 'Vidéo Teaser',
-                            nexus: 'Carte mentale',
-                            code: 'Snippet de code',
-                            moodboard: 'Moodboard',
-                            agenda: 'Événements Clés',
-                        };
-
                         if (tool === 'flux') {
                             const fluxData = data as GenerateFluxOutput;
                             return (
@@ -181,7 +150,7 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
                                     <h4 className="font-semibold flex items-center gap-2"><Wand2 className="h-4 w-4" /> Projet complexe généré</h4>
                                     <p className="text-muted-foreground">Plusieurs livrables ont été créés pour votre projet.</p>
                                     <Button onClick={() => handleRedirection('flux', result.promptForTool, fluxData)} size="sm" className="w-full !mt-3 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 animate-gradient-x font-semibold text-white hover:opacity-95">
-                                        Ouvrir dans (X)OS
+                                        Voir le projet complet
                                         <ArrowRight className="ml-auto h-4 w-4" />
                                     </Button>
                                 </div>
@@ -305,7 +274,7 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
 }
 
 function OriaChatUI({ messages, handleReset, formRef }: { messages: Message[], handleReset: () => void, formRef: React.RefObject<HTMLFormElement> }) {
-    const { pending } = useFormStatus();
+    const [pending, setPending] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const showWelcomeOverlay = !pending && messages.length === 0;
 
@@ -404,58 +373,50 @@ function OriaChatUI({ messages, handleReset, formRef }: { messages: Message[], h
 export default function HomepageOriaChat() {
   const formRef = useRef<HTMLFormElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   
-  const initialState = { id: 0, result: null, error: '', message: '' };
-  const [state, formAction] = useFormState(oriaChatAction, initialState);
-
   const handleReset = () => {
     setMessages([]);
   };
 
-  useEffect(() => {
-    if (state.id > 0) { // Action has been processed
-        if (state.message === 'success' && state.result) {
-            setMessages(prev => [...prev, {
-                id: state.id,
-                type: 'oria',
-                result: state.result,
-            }]);
-        } else if (state.message === 'error') {
-            let errorMessage = "Désolé, une erreur est survenue. Veuillez réessayer.";
-             if (state.error && (state.error.includes('quota') || state.error.includes('rate-limit'))) {
-                errorMessage = "Désolé, le quota de l'API a été atteint. Veuillez réessayer plus tard ou vérifier votre clé d'API Google.";
-            }
-            setMessages(prev => [...prev, { id: state.id, type: 'oria', text: errorMessage }]);
-        }
-        formRef.current?.reset();
-    }
-  }, [state]);
-  
-  const wrappedAction = (formData: FormData) => {
+  const handleSubmit = async (formData: FormData) => {
       const prompt = formData.get('prompt') as string;
       if (!prompt.trim()) return;
 
-      const history: OriaHistoryMessage[] = messages
-        .slice(-10)
-        .map(msg => ({
-            role: msg.type === 'user' ? 'user' : 'model',
-            content: msg.text || (msg.result ? JSON.stringify(msg.result) : ''),
-        }))
-        .filter(msg => msg.content && msg.content.trim() !== '');
+      setIsLoading(true);
+      const userMessage: Message = { id: Date.now(), type: 'user', text: prompt };
+      setMessages(prev => [...prev, userMessage]);
+      formRef.current?.reset();
       
-      formData.append('history', JSON.stringify(history));
-      setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: prompt }]);
-      
-      formAction(formData);
+      try {
+          const history: OriaHistoryMessage[] = [...messages, userMessage]
+            .slice(-10)
+            .map(msg => ({
+                role: msg.type === 'user' ? 'user' : 'model',
+                content: msg.type === 'user' ? (msg.text || '') : (msg.result ? JSON.stringify(msg.result) : (msg.text || '')),
+            }))
+            .filter(msg => msg.content && msg.content.trim() !== '');
+
+        const result = await runFlow(oria, { prompt, history, context: 'homepage' });
+
+        setMessages(prev => [...prev, { id: Date.now() + 1, type: 'oria', result }]);
+      } catch (e: any) {
+        let errorMessage = "Désolé, une erreur est survenue. Veuillez réessayer.";
+        if (e.message && (e.message.includes('quota') || e.message.includes('rate-limit'))) {
+            errorMessage = "Désolé, le quota de l'API a été atteint. Veuillez réessayer plus tard ou vérifier votre clé d'API Google.";
+        }
+        setMessages(prev => [...prev, { id: Date.now() + 1, type: 'oria', text: errorMessage }]);
+        toast({variant: 'destructive', title: 'Erreur Oria', description: errorMessage})
+      } finally {
+        setIsLoading(false);
+      }
   };
 
 
   return (
-    <form ref={formRef} action={wrappedAction}>
-        <input type="hidden" name="context" value="homepage" />
+    <form ref={formRef} action={handleSubmit}>
         <OriaChatUI messages={messages} handleReset={handleReset} formRef={formRef} />
     </form>
   );
 }
-
-    

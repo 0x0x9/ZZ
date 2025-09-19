@@ -1,9 +1,8 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
-import { generateTone } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,12 +11,14 @@ import { useToast } from '@/hooks/use-toast';
 import type { GenerateToneOutput } from '@/ai/types';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
+import { runFlow } from '@genkit-ai/next/client';
+import { generateTone } from '@/app/api/generateTone/route';
 
 function SubmitButton() {
-  const { pending } = useFormStatus();
+    const [isLoading, setIsLoading] = useState(false);
   return (
-    <Button type="submit" disabled={pending} size="lg">
-      {pending ? (
+    <Button type="submit" disabled={isLoading} size="lg">
+      {isLoading ? (
         <LoadingState text="Définition en cours..." isCompact={true} />
       ) : (
         <>
@@ -82,11 +83,10 @@ function ResultsDisplay({ result, onReset }: { result: GenerateToneOutput, onRes
     );
 }
 
-function ToneForm({ state }: {
-    state: { result: GenerateToneOutput | null, error: string | null, prompt: string }
+function ToneForm({ prompt, onPromptChange }: {
+    prompt: string;
+    onPromptChange: (value: string) => void;
 }) {
-    const { pending } = useFormStatus();
-    
     return (
         <Card className="glass-card">
             <CardHeader>
@@ -108,8 +108,8 @@ function ToneForm({ state }: {
                 required
                 minLength={10}
                 className="bg-transparent text-base"
-                disabled={pending}
-                defaultValue={state.prompt ?? ''}
+                value={prompt}
+                onChange={(e) => onPromptChange(e.target.value)}
             />
             </CardContent>
             <CardFooter className="justify-center">
@@ -119,46 +119,57 @@ function ToneForm({ state }: {
     );
 }
 
-export default function ToneGenerator({ initialResult, prompt }: { initialResult?: GenerateToneOutput, prompt?: string }) {
+export default function ToneGenerator({ initialResult: initialResultFromProps, prompt: promptFromProps }: { initialResult?: GenerateToneOutput, prompt?: string }) {
     const searchParams = useSearchParams();
     const promptFromUrl = searchParams.get('prompt');
     const [key, setKey] = useState(0);
-    const [showForm, setShowForm] = useState(!initialResult);
-
-    const initialState: { result: GenerateToneOutput | null, error: string | null, prompt: string } = { 
-        result: initialResult || null, 
-        error: null,
-        prompt: prompt || promptFromUrl || '' 
-    };
-    const [state, formAction] = useFormState(generateTone, initialState);
+    const [showForm, setShowForm] = useState(!initialResultFromProps);
+    const [result, setResult] = useState<GenerateToneOutput | null>(initialResultFromProps || null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [prompt, setPrompt] = useState(promptFromProps || promptFromUrl || '');
     const { toast } = useToast();
-    const { pending } = useFormStatus();
 
     useEffect(() => {
-        if (state.error) {
-            setShowForm(true);
-            toast({
-                variant: 'destructive',
-                title: 'Erreur (X)tone',
-                description: state.error,
-            });
-        }
-        if (state.result) {
+        if (initialResultFromProps) {
+            setResult(initialResultFromProps);
             setShowForm(false);
         }
-    }, [state, toast]);
+    }, [initialResultFromProps]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!prompt.trim()) {
+            toast({ variant: 'destructive', description: "Le prompt est requis." });
+            return;
+        }
+
+        setIsLoading(true);
+        setResult(null);
+        try {
+            const response = await runFlow(generateTone, { prompt });
+            setResult(response);
+            setShowForm(false);
+        } catch(error: any) {
+            toast({ variant: 'destructive', title: 'Erreur (X)tone', description: error.message });
+            setShowForm(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleReset = () => {
         setKey(k => k + 1);
         setShowForm(true);
+        setResult(null);
+        setPrompt('');
     };
 
     return (
-        <form action={formAction} key={key}>
+        <form onSubmit={handleSubmit} key={key}>
             <div className="max-w-4xl mx-auto">
-                {showForm && <ToneForm state={initialState} />}
+                {showForm && <ToneForm prompt={prompt} onPromptChange={setPrompt} />}
             
-                {pending && (
+                {isLoading && (
                     <div className="mt-6">
                         <Card className="glass-card min-h-[400px] relative overflow-hidden">
                             <div className="absolute inset-0 z-0">
@@ -171,7 +182,7 @@ export default function ToneGenerator({ initialResult, prompt }: { initialResult
                     </div>
                 )}
 
-                {!showForm && state.result && <ResultsDisplay result={state.result} onReset={handleReset} />}
+                {!showForm && result && <ResultsDisplay result={result} onReset={handleReset} />}
             </div>
         </form>
     );
