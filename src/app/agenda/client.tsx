@@ -29,6 +29,7 @@ import {
     AlertDialogDescription,
     AlertDialogHeader,
     AlertDialogTitle,
+    AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
 import { parseEventAction } from '@/app/actions';
 import { AnimatePresence, motion } from 'framer-motion';
