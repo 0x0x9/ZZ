@@ -6,6 +6,7 @@ import { Sparkles, BrainCircuit, Zap, Link as LinkIcon, MessageSquare } from 'lu
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import OriaAnimation from '@/components/ui/oria-animation';
+import HomepageOriaChat from '@/components/homepage-oria';
 
 const features = [
     {
@@ -28,12 +29,17 @@ const features = [
 export default function OriaClient() {
   return (
     <div className="py-28 md:py-36 space-y-24 md:space-y-32 overflow-hidden">
-        <section className="relative h-[80vh] flex flex-col items-center justify-center text-center container mx-auto px-4 md:px-6">
+        
+        <section className="container mx-auto px-4 md:px-6">
+            <HomepageOriaChat />
+        </section>
+
+        <section className="relative flex flex-col items-center justify-center text-center container mx-auto px-4 md:px-6">
             <motion.div
                  initial={{ opacity: 0, scale: 0.8 }}
                  animate={{ opacity: 1, scale: 1 }}
                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                 className="w-64 h-64 md:w-96 md:h-96"
+                 className="w-48 h-48 md:w-64 md:h-64"
             >
                 <OriaAnimation />
             </motion.div>
