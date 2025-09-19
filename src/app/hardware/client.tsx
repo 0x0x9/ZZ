@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AiConfigurator } from '@/components/ai-configurator';
 import type { Configuration } from '@/components/ui/pc-configurator';
 import { products } from '@/lib/products';
+import { useIsClient } from '@/hooks/use-is-client';
 
 
 function Section({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -28,11 +29,8 @@ function Section({ children, className }: { children: React.ReactNode, className
 }
 
 function ClientOnly({ children }: { children: React.ReactNode }) {
-    const [hasMounted, setHasMounted] = useState(false);
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
-    if (!hasMounted) {
+    const isClient = useIsClient();
+    if (!isClient) {
         return null;
     }
     return <>{children}</>;
