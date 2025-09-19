@@ -1,9 +1,7 @@
-import MessengerClient from './client';
+import PulseClient from './client';
 
 export default function PulsePage() {
     return (
-        <MessengerClient />
+        <PulseClient />
     );
 }
-
-    

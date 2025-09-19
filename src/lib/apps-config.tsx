@@ -39,7 +39,7 @@ const LazyCareersApp = dynamic(() => import('@/components/careers-app'));
 const LazyContactApp = dynamic(() => import('@/components/contact-app'));
 const LazyFormatApp = dynamic(() => import('@/components/format-app'));
 const LazyConvertApp = dynamic(() => import('@/components/convert-app'));
-const LazyChatApp = dynamic(() => import('@/components/chat-app'));
+const LazyPulseApp = dynamic(() => import('@/components/pulse-app'));
 const LazyRealityApp = dynamic(() => import('@/components/reality-app'));
 const LazyLightApp = dynamic(() => import('@/components/light-generator'));
 const LazyGoogleDriveApp = dynamic(() => import('@/components/google/drive-app'));
@@ -90,7 +90,7 @@ const GoogleSlidesIcon = (props: any) => (
 
 export const ALL_APPS_CONFIG = [
     { id: 'welcome', name: 'Bienvenue', icon: Star, component: (props: any) => <LazyWelcomeApp {...props} />, defaultPos: { x: 80, y: 20 }, defaultSize: { width: 1000, height: 750 } },
-    { id: 'chat', name: 'Pulse', icon: Heart, component: (props: any) => <LazyChatApp {...props} />, defaultPos: { x: 50, y: 50}, defaultSize: { width: 1200, height: 800 } },
+    { id: 'pulse', name: 'Pulse', icon: Heart, component: (props: any) => <LazyPulseApp {...props} />, defaultPos: { x: 50, y: 50}, defaultSize: { width: 1200, height: 800 } },
     { id: 'cloud', name: '(X)cloud', icon: Cloud, component: (props: any) => <LazyCloud {...props} />, defaultPos: { x: 150, y: 50}, defaultSize: { width: 1200, height: 750 } },
     { id: 'explorer', name: '(X)plorer', icon: Folder, component: (props: any) => <LazyExplorer {...props} />, defaultPos: { x: 170, y: 50}, defaultSize: { width: 800, height: 550 } },
     { id: 'fusion', name: '(X)fusion', icon: Zap, component: (props: any) => <LazyFusion isPanel={true} {...props} />, defaultPos: { x: 290, y: 50}, defaultSize: { width: 1000, height: 750 } },

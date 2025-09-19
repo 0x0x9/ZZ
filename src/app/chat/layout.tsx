@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "Pilotez vos projets créatifs, de l'idée à la réalisation. Suivez vos tâches, gérez vos fichiers et collaborez avec votre assistant IA.",
 };
 
-export default function ChatLayout({
+export default function PulseLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -16,5 +16,3 @@ export default function ChatLayout({
     </div>
   );
 }
-
-    

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -584,7 +583,7 @@ function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProjec
 }
 
 // Main Component
-export default function MessengerClient() {
+export default function PulseClient() {
     const { toast } = useToast();
     const { user } = useAuth();
     
