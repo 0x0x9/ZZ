@@ -2,12 +2,12 @@
 
 import { ai } from '@/genkit';
 import { z } from 'genkit';
+import { mockDocs } from './list-documents';
 
 const InputSchema = z.object({
   docId: z.string(),
 });
 
-// In a real app, this would delete the document from storage and its metadata from a database.
 const deleteDocumentFlow = ai.defineFlow(
   {
     name: 'deleteDocumentFlow',
@@ -16,8 +16,12 @@ const deleteDocumentFlow = ai.defineFlow(
   },
   async ({ docId }) => {
     console.log(`Deleting document: ${docId}`);
-    // Simulate success
-    return { success: true };
+    const index = mockDocs.findIndex(d => d.id === docId);
+    if (index !== -1) {
+      mockDocs.splice(index, 1);
+      return { success: true };
+    }
+    return { success: false };
   }
 );
 

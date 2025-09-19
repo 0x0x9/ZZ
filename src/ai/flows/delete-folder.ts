@@ -2,6 +2,7 @@
 
 import { ai } from '@/genkit';
 import { z } from 'genkit';
+import { mockDocs } from './list-documents';
 
 const InputSchema = z.object({
   folderPath: z.string(),
@@ -16,8 +17,13 @@ const deleteFolderFlow = ai.defineFlow(
   },
   async ({ folderPath }) => {
     console.log(`Deleting folder and its contents: ${folderPath}`);
-    // Simulate success
-    return { success: true };
+    const initialCount = mockDocs.length;
+    const filteredDocs = mockDocs.filter(doc => !doc.path.startsWith(folderPath));
+    
+    mockDocs.length = 0; // Clear original array
+    mockDocs.push(...filteredDocs); // Push back filtered items
+
+    return { success: mockDocs.length < initialCount };
   }
 );
 

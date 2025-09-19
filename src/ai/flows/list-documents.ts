@@ -1,19 +1,19 @@
 'use server';
 
 import { ai } from '@/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import { DocSchema } from '@/ai/types';
 
 // In a real application, this would fetch from a database or cloud storage.
 // For this prototype, we'll return a static list of mock documents for a demo project.
 
-const mockDocs = [
+export const mockDocs: Doc[] = [
   // --- Project: "Nébuleuse" ---
 
   // Main folder
   {
     id: 'folder-nebuleuse',
-    name: 'Nébuleuse/',
+    name: 'Nébuleuse',
     path: 'Nébuleuse/',
     mimeType: 'application/x-directory',
     size: 0,
@@ -24,7 +24,7 @@ const mockDocs = [
   // Sub-folders
   {
     id: 'folder-nebuleuse-scenario',
-    name: 'Nébuleuse/Scénario/',
+    name: 'Scénario',
     path: 'Nébuleuse/Scénario/',
     mimeType: 'application/x-directory',
     size: 0,
@@ -34,7 +34,7 @@ const mockDocs = [
   },
   {
     id: 'folder-nebuleuse-concept',
-    name: 'Nébuleuse/Concept Art/',
+    name: 'Concept Art',
     path: 'Nébuleuse/Concept Art/',
     mimeType: 'application/x-directory',
     size: 0,
@@ -44,7 +44,7 @@ const mockDocs = [
   },
   {
     id: 'folder-nebuleuse-prod',
-    name: 'Nébuleuse/Production/',
+    name: 'Production',
     path: 'Nébuleuse/Production/',
     mimeType: 'application/x-directory',
     size: 0,
@@ -54,7 +54,7 @@ const mockDocs = [
   },
   {
     id: 'folder-nebuleuse-branding',
-    name: 'Nébuleuse/Branding/',
+    name: 'Branding',
     path: 'Nébuleuse/Branding/',
     mimeType: 'application/x-directory',
     size: 0,
@@ -66,7 +66,7 @@ const mockDocs = [
   // Files
   {
     id: 'doc-neb-1',
-    name: 'Nébuleuse/Scénario/script-v3-final.md',
+    name: 'script-v3-final.md',
     path: 'Nébuleuse/Scénario/script-v3-final.md',
     mimeType: 'text/markdown',
     size: 128000,
@@ -76,7 +76,7 @@ const mockDocs = [
   },
   {
     id: 'doc-neb-2',
-    name: 'Nébuleuse/Concept Art/personnage-principal.png',
+    name: 'personnage-principal.png',
     path: 'Nébuleuse/Concept Art/personnage-principal.png',
     mimeType: 'image/png',
     size: 1200000,
@@ -86,7 +86,7 @@ const mockDocs = [
   },
   {
     id: 'doc-neb-3',
-    name: 'Nébuleuse/Concept Art/vaisseau-eclaireur.jpg',
+    name: 'vaisseau-eclaireur.jpg',
     path: 'Nébuleuse/Concept Art/vaisseau-eclaireur.jpg',
     mimeType: 'image/jpeg',
     size: 2500000,
@@ -96,7 +96,7 @@ const mockDocs = [
   },
   {
     id: 'doc-neb-4',
-    name: 'Nébuleuse/Production/plan-de-tournage.json',
+    name: 'plan-de-tournage.json',
     path: 'Nébuleuse/Production/plan-de-tournage.json',
     mimeType: 'application/json',
     size: 8192,
@@ -106,7 +106,7 @@ const mockDocs = [
   },
    {
     id: 'doc-neb-5',
-    name: 'Nébuleuse/Branding/moodboard.png',
+    name: 'moodboard.png',
     path: 'Nébuleuse/Branding/moodboard.png',
     mimeType: 'image/png',
     size: 3145728,
@@ -114,8 +114,6 @@ const mockDocs = [
     updatedAt: '2024-07-25T14:00:00Z',
     shareId: null,
   },
-  // Previous mock data for compatibility
-  { id: 'maestro-projet-nebula.json', name: 'maestro-projet-nebula.json', path: 'maestro-projet-nebula.json', mimeType: 'application/json', size: 8192, createdAt: '2024-07-21T11:20:00Z', updatedAt: '2024-07-22T09:00:00Z', shareId: null },
 ];
 
 const listDocumentsFlow = ai.defineFlow(
