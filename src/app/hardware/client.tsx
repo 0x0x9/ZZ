@@ -12,10 +12,6 @@ import { cn } from "@/lib/utils";
 import PerformanceChart from "@/components/ui/performance-chart";
 import { Card, CardContent } from "@/components/ui/card";
 import imageData from '@/lib/placeholder-images.json';
-import { useRouter } from 'next/navigation';
-import { useToast } from "@/hooks/use-toast";
-import { AiConfigurator } from "@/components/ai-configurator";
-import type { Configuration } from '@/components/ui/pc-configurator';
 import { products } from '@/lib/products';
 import { useIsClient } from "@/hooks/use-is-client";
 
@@ -69,13 +65,10 @@ const hardwareProducts = products.filter(p => p.category === 'Matériel');
 
 function HeroScrollAnimation() {
     const targetRef = useRef<HTMLDivElement>(null);
-    const isClient = useIsClient();
-
-    // Use a default value for server-side rendering
-    const scrollYProgress = isClient ? useScroll({
+    const { scrollYProgress } = useScroll({
       target: targetRef,
       offset: ["start start", "end start"],
-    }).scrollYProgress : { get: () => 0 };
+    });
 
     const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1.8]);
     const imageOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
@@ -123,31 +116,7 @@ function HeroScrollAnimation() {
 }
 
 export default function HardwareClient() {
-    const router = useRouter();
-    const { toast } = useToast();
-
-    const workstationProduct = products.find(p => p.name === '(X)-fi');
-
-    if (!workstationProduct) {
-        return <div>Produit principal non trouvé.</div>;
-    }
     
-    const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
-        const params = new URLSearchParams({
-            cpu: newConfig.cpu,
-            gpu: newConfig.gpu,
-            ram: newConfig.ram,
-            storage: newConfig.storage,
-        });
-        
-        toast({
-            title: `Redirection vers ${modelName}`,
-            description: "Nous vous redirigeons vers la page du produit recommandé avec votre configuration.",
-        });
-
-        router.push(`/store/${modelId}?${params.toString()}`);
-    };
-
     return (
         <div>
             <ClientOnly>
@@ -178,10 +147,6 @@ export default function HardwareClient() {
                 </div>
             </Section>
             
-            <Section>
-                <AiConfigurator product={workstationProduct} onConfigSelect={handleAiConfigSelect} />
-            </Section>
-
             <Section>
                 <AnimatedSection className="text-center">
                     <h2 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">

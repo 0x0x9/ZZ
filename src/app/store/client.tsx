@@ -10,11 +10,36 @@ import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/product-card';
 import Image from 'next/image';
 import imageData from '@/lib/placeholder-images.json';
+import { AiConfigurator } from '@/components/ai-configurator';
+import type { Configuration } from '@/components/ui/pc-configurator';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+
 
 export default function StoreClient() {
     const hardwareProducts = products.filter(p => p.category === 'Matériel');
     const softwareProducts = products.filter(p => p.category === 'Logiciel');
     const accessoryProducts = products.filter(p => p.category === 'Accessoire');
+    const router = useRouter();
+    const { toast } = useToast();
+    
+    const workstationProduct = products.find(p => p.name === '(X)-fi');
+
+    const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
+        const params = new URLSearchParams({
+            cpu: newConfig.cpu,
+            gpu: newConfig.gpu,
+            ram: newConfig.ram,
+            storage: newConfig.storage,
+        });
+        
+        toast({
+            title: `Redirection vers ${modelName}`,
+            description: "Nous vous redirigeons vers la page du produit recommandé avec votre configuration.",
+        });
+
+        router.push(`/store/${modelId}?${params.toString()}`);
+    };
 
   return (
     <>
@@ -39,17 +64,23 @@ export default function StoreClient() {
           </div>
       </section>
       
+       <section className="container mx-auto px-4 md:px-6 mb-24 md:mb-32">
+        {workstationProduct && (
+            <AiConfigurator product={workstationProduct} onConfigSelect={handleAiConfigSelect} />
+        )}
+       </section>
+
       <section className="container mx-auto px-4 md:px-6">
         <motion.div
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
              transition={{ duration: 0.5, delay: 0.2 }}
         >
-            <Link href="/store/1">
+            <Link href="/hardware">
                 <div className="relative aspect-video w-full rounded-2xl overflow-hidden glass-card group">
                      <Image 
                         src={imageData.store.workstation.src}
-                        alt="(X)-fi Workstation"
+                        alt="Workstations (X)yzz"
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         data-ai-hint={imageData.store.workstation.hint}
@@ -59,9 +90,9 @@ export default function StoreClient() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-6 md:p-12 text-white">
                         <h2 className="text-2xl md:text-4xl font-bold tracking-tight">Workstations</h2>
-                        <p className="mt-2 text-md md:text-lg text-white/80 max-w-lg">La puissance n'est que le début. Découvrez notre station de travail phare.</p>
+                        <p className="mt-2 text-md md:text-lg text-white/80 max-w-lg">La puissance n'est que le début. Découvrez notre gamme de stations de travail.</p>
                         <Button variant="outline" className="mt-6 rounded-full bg-white/10 border-white/20 backdrop-blur-md text-white hover:bg-white/20">
-                            Explorer le modèle <ArrowRight className="ml-2 h-4 w-4" />
+                            Explorer le matériel <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </div>
                 </div>
