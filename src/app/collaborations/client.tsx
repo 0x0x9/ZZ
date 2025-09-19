@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import imageData from '@/lib/placeholder-images.json';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useIsClient } from '@/hooks/use-is-client';
 
 
 function ContactModal({ author, open, onOpenChange }: { author: string, open: boolean, onOpenChange: (open: boolean) => void }) {
@@ -73,6 +74,16 @@ export default function CollaborationsClient() {
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [contactingAuthor, setContactingAuthor] = useState<string | null>(null);
+    const [showAiCard, setShowAiCard] = useState(false);
+    const isClient = useIsClient();
+
+    useEffect(() => {
+        // This ensures the AI card is only shown on the client after initial render,
+        // preventing hydration mismatch issues.
+        if (isClient) {
+            setShowAiCard(Math.random() > 0.5); // Show AI card randomly
+        }
+    }, [isClient]);
 
     const filteredPosts = posts.filter(post => {
         const matchesCategory = category === 'Tout' || post.type === category;
@@ -200,26 +211,21 @@ export default function CollaborationsClient() {
                              </div>
                          </CardContent>
                          <CardFooter className="mt-auto">
-                            {post.type === 'Offre de service' && (
+                            {post.type === 'Offre de service' ? (
                                 <Button variant="outline" className="w-full" onClick={() => setContactingAuthor(post.author)}>
-                                    Contacter <ExternalLink className="ml-2 h-4 w-4" />
+                                    Contacter <Send className="ml-2 h-4 w-4" />
                                 </Button>
-                            )}
-                             {post.type === 'Recherche de projet' && (
-                                <Button asChild className="w-full">
-                                    <Link href="#">Voir l'offre <ExternalLink className="ml-2 h-4 w-4" /></Link>
-                                </Button>
-                            )}
-                             {post.type === 'Portfolio' && (
-                                <Button asChild variant="secondary" className="w-full">
-                                    <Link href="#">Voir le portfolio <ExternalLink className="ml-2 h-4 w-4" /></Link>
+                            ) : (
+                                 <Button asChild className="w-full" variant={post.type === 'Recherche de projet' ? 'default' : 'secondary'}>
+                                    <Link href="#">Voir {post.type === 'Recherche de projet' ? "l'offre" : "le portfolio"} <ExternalLink className="ml-2 h-4 w-4" /></Link>
                                 </Button>
                             )}
                          </CardFooter>
                      </Card>
                  ))}
                  {/* AI Generated Post Card */}
-                 <Card className="glass-card flex flex-col group border-primary/50 ring-2 ring-primary/20">
+                 {showAiCard && (
+                     <Card className="glass-card flex flex-col group border-primary/50 ring-2 ring-primary/20">
                          <CardHeader className="flex-row items-center gap-4">
                              <Avatar className="w-14 h-14 bg-primary/10 border-2 border-primary/30">
                                  <Bot className="w-8 h-8 text-primary m-auto" />
@@ -244,6 +250,7 @@ export default function CollaborationsClient() {
                             </Button>
                          </CardFooter>
                      </Card>
+                 )}
             </div>
             
             {contactingAuthor && (
