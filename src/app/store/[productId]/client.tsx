@@ -19,7 +19,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import HomepageOriaChat from "@/components/homepage-oria";
+import OriaAnimation from "@/components/ui/oria-animation";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -360,33 +360,24 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </section>
             )}
 
-            <section className="container mx-auto px-4 md:px-6 my-24 md:my-32">
-                <AnimatedSection className="text-center">
-                     <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
-                        <Sparkles className="h-10 w-10 text-primary" />
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
+                    <div className="absolute -inset-20 z-0">
+                         <OriaAnimation className="w-full h-full opacity-30" />
                     </div>
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                       Oria. Le chef d'orchestre de votre station.
-                    </h2>
-                     <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                      Oria n'est pas qu'un simple assistant. C'est une IA intégrée au cœur du système, conçue pour anticiper vos besoins, gérer les ressources de votre machine et amplifier votre créativité.
-                    </p>
-                </AnimatedSection>
-                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-                     <div className="glass-card p-8">
-                        <BrainCircuit className="h-8 w-8 text-primary mb-4" />
-                        <h3 className="text-xl font-bold">Orchestration Intelligente</h3>
-                        <p className="text-muted-foreground mt-2">Oria alloue dynamiquement la puissance du CPU et des GPU là où vous en avez besoin, assurant une fluidité parfaite entre les OS et les applications.</p>
+                    <div className="relative z-10 text-center md:text-left">
+                        <h2 className="text-3xl md:text-4xl font-bold">Oria, votre chef d'orchestre IA.</h2>
+                        <p className="mt-4 text-lg text-muted-foreground max-w-xl">
+                            Oria est l'intelligence qui connecte tous les outils. Discutez avec elle pour lancer des projets, générer des idées, et trouver l'outil parfait pour chaque tâche.
+                        </p>
+                         <Button asChild size="lg" className="mt-8 rounded-full">
+                            <Link href="/oria">
+                                En savoir plus <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
                     </div>
-                    <div className="glass-card p-8">
-                        <Zap className="h-8 w-8 text-primary mb-4" />
-                        <h3 className="text-xl font-bold">Catalyseur Créatif</h3>
-                        <p className="text-muted-foreground mt-2">À court d'idées ? Demandez à Oria de générer des concepts, des scripts ou des palettes de couleurs directement depuis votre bureau.</p>
-                    </div>
-                    <div className="glass-card p-8">
-                        <LinkIcon className="h-8 w-8 text-primary mb-4" />
-                        <h3 className="text-xl font-bold">Contexte Unifié</h3>
-                        <p className="text-muted-foreground mt-2">Oria comprend le contexte de vos projets. Passez d'un logiciel de montage à votre IDE, elle sait sur quoi vous travaillez et vous assiste en conséquence.</p>
+                     <div className="relative z-10 w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
+                         <OriaAnimation className="w-full h-full" />
                     </div>
                 </div>
             </section>
@@ -410,3 +401,4 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
     </>
   );
 }
+
