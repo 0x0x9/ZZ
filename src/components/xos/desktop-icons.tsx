@@ -2,13 +2,14 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { ALL_APPS_CONFIG, AppConfig } from "@/lib/apps-config";
+import { ALL_APPS_CONFIG } from "@/lib/apps-config";
 import { motion } from 'framer-motion';
+import { type AppConfig } from "@/lib/apps-config";
 
 const iconGroupCategories: { title: string; ids: string[] }[] = [
     {
         title: "Applications Principales",
-        ids: ['chat', 'cloud', 'fusion']
+        ids: ['pulse', 'cloud', 'fusion']
     },
     {
         title: "Stratégie & Idéation",
