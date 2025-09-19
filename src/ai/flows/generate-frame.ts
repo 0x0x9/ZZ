@@ -6,7 +6,8 @@
  * - generateFrame - Une fonction qui prend une description d'UI et génère du code React pour un composant.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { GenerateFrameInputSchema, GenerateFrameOutputSchema, type GenerateFrameInput, type GenerateFrameOutput } from '@/ai/types';
 
 export async function generateFrame(input: GenerateFrameInput): Promise<GenerateFrameOutput> {
@@ -16,8 +17,8 @@ export async function generateFrame(input: GenerateFrameInput): Promise<Generate
 const framePrompt = ai.definePrompt({
   name: 'generateFramePrompt',
   input: { schema: GenerateFrameInputSchema },
-  output: { schema: GenerateFrameOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: GenerateFrameOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)frame, un développeur frontend expert spécialisé dans l'écosystème Next.js, React, Tailwind CSS et shadcn/ui. Votre mission est de transformer une description ou une image en un **composant React fonctionnel, interactif et esthétique de qualité production**.
 
 Instructions impératives :

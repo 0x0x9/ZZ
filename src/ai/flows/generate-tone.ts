@@ -7,7 +7,8 @@
  * - generateTone - Une fonction qui prend une description de projet et génère un guide de ton.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   GenerateToneInputSchema,
   GenerateToneOutputSchema,
@@ -22,8 +23,8 @@ export async function generateTone(input: GenerateToneInput): Promise<GenerateTo
 const tonePrompt = ai.definePrompt({
   name: 'tonePrompt',
   input: { schema: GenerateToneInputSchema },
-  output: { schema: GenerateToneOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: GenerateToneOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)tone, un expert en branding et en stratégie de contenu. Votre mission est de définir une voix de marque (tone of voice) claire, cohérente et percutante. La réponse doit être en français.
 
 À partir de la description du projet ou de la marque, vous devez générer un mini-guide de style :

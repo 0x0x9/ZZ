@@ -8,7 +8,7 @@
  * - GenerateVideoOutput - The return type for the generateVideo function.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
 import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'zod';
 import * as fs from 'fs';

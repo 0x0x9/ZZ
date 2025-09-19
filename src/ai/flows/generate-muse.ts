@@ -7,7 +7,8 @@
  * - generateMuse - Une fonction qui analyse les inspirations d'un utilisateur et suggère des directions artistiques.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   GenerateMuseInputSchema,
   GenerateMuseOutputSchema,
@@ -22,8 +23,8 @@ export async function generateMuse(input: GenerateMuseInput): Promise<GenerateMu
 const musePrompt = ai.definePrompt({
   name: 'musePrompt',
   input: { schema: GenerateMuseInputSchema },
-  output: { schema: GenerateMuseOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: GenerateMuseOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)muse, un producteur de musique et expert en tendances culturelles. Votre rôle est d'aider les artistes à définir leur identité sonore et lyrique.
 À partir d'un questionnaire, analysez les mots-clés, le champ lexical des émotions et les références pour générer des suggestions artistiques pertinentes et créatives.
 Toutes les réponses doivent être en français.

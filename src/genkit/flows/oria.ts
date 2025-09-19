@@ -43,18 +43,18 @@ import {
   GenerateFluxOutputSchema
 } from '@/ai/types';
 
-import { generateContent } from './content-generator';
-import { generatePalette } from './generate-palette';
-import { generateTone } from './generate-tone';
-import { generatePersona } from './generate-persona';
-import { generateMotion } from './generate-motion';
-import { generateVoice } from './generate-voice';
-import { generateCode } from './generate-code';
-import { generateDeck } from './generate-deck';
-import { generateFrame } from './generate-frame';
-import { generateSound } from './generate-sound';
-import { generateNexus } from './generate-nexus';
-import { generateFlux } from './generate-flux';
+import { generateContent } from '../../ai/flows/content-generator';
+import { generatePalette } from '../../ai/flows/generate-palette';
+import { generateTone } from '../../ai/flows/generate-tone';
+import { generatePersona } from '../../ai/flows/generate-persona';
+import { generateMotion } from '../../ai/flows/generate-motion';
+import { generateVoice } from '../../ai/flows/generate-voice';
+import { generateCode } from '../../ai/flows/generate-code';
+import { generateDeck } from '../../ai/flows/generate-deck';
+import { generateFrame } from '../../ai/flows/generate-frame';
+import { generateSound } from '../../ai/flows/generate-sound';
+import { generateNexus } from '../../ai/flows/generate-nexus';
+import { generateFlux } from '../../ai/flows/generate-flux';
 
 // Tools that the AI can call
 const textTool = ai.defineTool(
@@ -244,17 +244,11 @@ export const oria = ai.defineFlow(
     // Robust history validation to prevent errors
     const validHistory = (input.history || [])
       .map(h => {
-        // Ensure content is a non-empty string or a valid JSON object for model roles
-        if (h.role === 'model') {
-            if (typeof h.content === 'string' && h.content.trim()) return h;
-            // Attempt to parse if it's not a string, might be a result object
-            try {
-                const contentStr = JSON.stringify(h.content);
-                if (contentStr) return {...h, content: contentStr};
-            } catch(e) { /* ignore */ }
-            return null;
+        // Ensure content is a non-empty string for model roles
+        if (h.role === 'model' && (typeof h.content !== 'string' || !h.content.trim())) {
+          return null;
         }
-        // Ensure content is a non-empty string for user roles
+        // Ensure content is valid for user roles
         if (h.role === 'user' && (typeof h.content !== 'string' || !h.content.trim())) {
             return null;
         }
@@ -267,7 +261,7 @@ export const oria = ai.defineFlow(
       .replace('{{{context}}}', input.context || 'non spécifié');
 
     const { output } = await ai.generate({
-        model: googleAI.model('gemini-1.5-pro'),
+        model: googleAI.model('gemini-1.5-pro-latest'),
         prompt: input.prompt,
         system: systemPrompt,
         history: validHistory,

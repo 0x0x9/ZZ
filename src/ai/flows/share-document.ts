@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
 import { z } from 'genkit';
 import { v4 as uuidv4 } from 'uuid';
 

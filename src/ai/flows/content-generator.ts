@@ -1,7 +1,7 @@
 
 'use server';
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
 import { z } from 'zod';
 import { GenerateIdeasOutputSchema, ReformatTextWithPromptOutputSchema } from '@/ai/types';
 import { googleAI } from '@genkit-ai/googleai';
@@ -16,7 +16,7 @@ type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>;
 
 const GenerateContentOutputSchema = z.object({
     type: z.enum(['text', 'image', 'ideas']),
-    data: z.union([z.string(), GenerateIdeasOutputSchema, ReformatTextWithPromptOutputSchema]),
+    data: z.any(),
 });
 type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>;
 
@@ -42,6 +42,9 @@ Prompt/Instruction: {{{prompt}}}
 ---
 
 Répondez UNIQUEMENT avec le résultat demandé.`,
+    output: {
+        format: 'json',
+    }
 });
 
 

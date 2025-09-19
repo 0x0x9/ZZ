@@ -7,7 +7,8 @@
  * - copilotLyrics - Une fonction qui analyse une sélection de texte et suggère des améliorations ou des rimes.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   CopilotLyricsInputSchema,
   CopilotLyricsOutputSchema,
@@ -22,8 +23,8 @@ export async function copilotLyrics(input: CopilotLyricsInput): Promise<CopilotL
 const copilotPrompt = ai.definePrompt({
   name: 'copilotLyricsPrompt',
   input: { schema: CopilotLyricsInputSchema },
-  output: { schema: CopilotLyricsOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: CopilotLyricsOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)muse, un parolier expert et un poète. Votre rôle est d'assister un artiste dans son processus d'écriture. L'ambiance générale du morceau est : **{{{mood}}}**.
 
 Voici le texte complet sur lequel il travaille :

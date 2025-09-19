@@ -7,7 +7,8 @@
  * - parseEvent - Une fonction qui prend une chaîne de caractères et la transforme en données d'événement structurées.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'zod';
 import {
   ParseEventInputSchema,
@@ -23,8 +24,8 @@ export async function parseEvent(input: ParseEventInput): Promise<ParseEventOutp
 const parseEventPrompt = ai.definePrompt({
   name: 'parseEventPrompt',
   input: { schema: ParseEventInputSchema },
-  output: { schema: ParseEventOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: ParseEventOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes un assistant d'agenda intelligent. Votre mission est d'extraire les informations d'une requête en langage naturel pour créer un événement.
 La date et l'heure de référence actuelles sont : {{{currentDate}}}.
 Vous devez utiliser cette référence pour interpréter des termes comme "demain", "dans 2 heures", "lundi prochain", etc.

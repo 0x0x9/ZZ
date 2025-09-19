@@ -7,7 +7,8 @@
  * - explainCode - Une fonction qui prend un code et son langage, puis retourne une explication claire.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   ExplainCodeInputSchema,
   ExplainCodeOutputSchema,
@@ -22,8 +23,8 @@ export async function explainCode(input: ExplainCodeInput): Promise<ExplainCodeO
 const explainPrompt = ai.definePrompt({
     name: 'explainCodePrompt',
     input: { schema: ExplainCodeInputSchema },
-    output: { schema: ExplainCodeOutputSchema },
-    model: 'googleai/gemini-1.5-pro-latest',
+    output: { schema: ExplainCodeOutputSchema, format: 'json' },
+    model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes (X)code, un excellent pédagogue et expert en programmation. Votre mission est d'expliquer un extrait de code de manière simple, claire et concise.
 
 L'utilisateur a fourni le code suivant en **{{{language}}}** :

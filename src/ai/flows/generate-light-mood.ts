@@ -7,7 +7,8 @@
  * - generateLightMood - Une fonction qui prend un prompt et génère une ambiance complète.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { GenerateLightMoodInputSchema, GenerateLightMoodOutputSchema, type GenerateLightMoodInput, type GenerateLightMoodOutput } from '@/ai/types';
 
 export async function generateLightMood(input: GenerateLightMoodInput): Promise<GenerateLightMoodOutput> {
@@ -17,8 +18,8 @@ export async function generateLightMood(input: GenerateLightMoodInput): Promise<
 const moodPrompt = ai.definePrompt({
     name: 'generateLightMoodPrompt',
     input: { schema: GenerateLightMoodInputSchema },
-    output: { schema: GenerateLightMoodOutputSchema },
-    model: 'googleai/gemini-1.5-pro-latest',
+    output: { schema: GenerateLightMoodOutputSchema, format: 'json' },
+    model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes (X)light, une IA conçue pour inspirer la créativité. Votre rôle est de transformer une idée ou une ambiance en un concept créatif complet.
 
 Le thème donné est : {{{prompt}}}

@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
 import { z } from 'genkit';
 
 // In a real application, this would handle uploading to a cloud storage bucket.

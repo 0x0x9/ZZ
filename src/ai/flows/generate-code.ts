@@ -7,7 +7,8 @@
  * - generateCode - Une fonction qui prend une requête et génère du code et une explication.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   GenerateCodeInputSchema,
   GenerateCodeOutputSchema,
@@ -22,8 +23,8 @@ export async function generateCode(input: GenerateCodeInput): Promise<GenerateCo
 const codeGenerationPrompt = ai.definePrompt({
   name: 'generateCodePrompt',
   input: { schema: GenerateCodeInputSchema },
-  output: { schema: GenerateCodeOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: GenerateCodeOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)code, un assistant développeur IA expert. Votre tâche est de générer un extrait de code de haute qualité, prêt à l'emploi, basé sur la demande de l'utilisateur, accompagné d'une explication claire.
 
 L'utilisateur souhaite un snippet en **{{{language}}}**.

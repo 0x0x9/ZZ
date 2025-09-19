@@ -7,7 +7,8 @@
  * - debugCode - Une fonction qui prend un code et son langage, puis retourne le code corrigé et une explication.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   DebugCodeInputSchema,
   DebugCodeOutputSchema,
@@ -22,8 +23,8 @@ export async function debugCode(input: DebugCodeInput): Promise<DebugCodeOutput>
 const debugPrompt = ai.definePrompt({
   name: 'debugCodePrompt',
   input: { schema: DebugCodeInputSchema },
-  output: { schema: DebugCodeOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: DebugCodeOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)code, un expert en débogage de code. Votre rôle est de trouver et corriger les erreurs dans le code fourni par l'utilisateur.
 
 L'utilisateur a fourni le code suivant en **{{{language}}}** :

@@ -7,7 +7,8 @@
  * - refactorCode - Une fonction qui prend un code et des instructions, puis retourne le code amélioré.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   RefactorCodeInputSchema,
   GenerateCodeOutputSchema as RefactorCodeOutputSchema,
@@ -22,8 +23,8 @@ export async function refactorCode(input: RefactorCodeInput): Promise<RefactorCo
 const refactorPrompt = ai.definePrompt({
   name: 'refactorCodePrompt',
   input: { schema: RefactorCodeInputSchema },
-  output: { schema: RefactorCodeOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: RefactorCodeOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)code, un développeur senior expert en bonnes pratiques de programmation. Votre mission est de refactoriser et d'améliorer le code fourni par l'utilisateur en suivant ses instructions.
 
 L'utilisateur a fourni le code suivant en **{{{language}}}** :

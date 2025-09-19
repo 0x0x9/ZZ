@@ -7,7 +7,8 @@
  * - generatePalette - Une fonction qui prend une description et génère une palette de couleurs.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   GeneratePaletteInputSchema,
   GeneratePaletteOutputSchema,
@@ -22,8 +23,8 @@ export async function generatePalette(input: GeneratePaletteInput): Promise<Gene
 const palettePrompt = ai.definePrompt({
   name: 'palettePrompt',
   input: { schema: GeneratePaletteInputSchema },
-  output: { schema: GeneratePaletteOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: GeneratePaletteOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)palette, un designer expert et coloriste. Votre rôle est de créer des palettes de couleurs harmonieuses et inspirantes à partir d'une description.
 
 À partir de la description de l'utilisateur, vous devez générer :

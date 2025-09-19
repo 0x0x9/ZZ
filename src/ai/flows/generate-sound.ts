@@ -8,7 +8,8 @@
  * l'IA décrit le son demandé et cette description est convertie en parole.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import wav from 'wav';
 import {
   GenerateSoundInputSchema,
@@ -30,8 +31,8 @@ const SoundDescriptionSchema = z.object({
 const descriptionPrompt = ai.definePrompt({
   name: 'soundDescriptionPrompt',
   input: { schema: GenerateSoundInputSchema },
-  output: { schema: SoundDescriptionSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: SoundDescriptionSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes un bruiteur expert. Un utilisateur vous demande de créer un son. Comme vous ne pouvez pas créer le son directement, vous allez le décrire de la manière la plus vivante possible, en utilisant des onomatopées.
 
 La demande est : {{{prompt}}}
@@ -78,7 +79,7 @@ const soundFlow = ai.defineFlow(
 
     // 2. Convert the description to speech
     const { media } = await ai.generate({
-        model: 'googleai/gemini-2.5-flash-preview-tts',
+        model: googleAI.model('gemini-2.5-flash-preview-tts'),
         config: {
             responseModalities: ['AUDIO'],
             speechConfig: {

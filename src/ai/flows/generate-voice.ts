@@ -6,7 +6,8 @@
  * - generateVoice - Une fonction qui prend du texte et retourne des données audio.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import wav from 'wav';
 import {
   GenerateVoiceInputSchema,
@@ -52,7 +53,7 @@ const voiceFlow = ai.defineFlow(
   async ({ text, voice }) => {
     // Generate speech using the specified voice
     const { media } = await ai.generate({
-      model: 'googleai/gemini-2.5-flash-preview-tts',
+      model: googleAI.model('gemini-2.5-flash-preview-tts'),
       config: {
         responseModalities: ['AUDIO'],
         speechConfig: {

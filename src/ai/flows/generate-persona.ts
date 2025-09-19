@@ -7,7 +7,8 @@
  * - generatePersona - Une fonction qui prend une description de projet et génère des personas d'utilisateurs.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   GeneratePersonaInputSchema,
   GeneratePersonaOutputSchema,
@@ -22,8 +23,8 @@ export async function generatePersona(input: GeneratePersonaInput): Promise<Gene
 const personaPrompt = ai.definePrompt({
   name: 'personaPrompt',
   input: { schema: GeneratePersonaInputSchema },
-  output: { schema: GeneratePersonaOutputSchema },
-  model: 'googleai/gemini-1.5-pro-latest',
+  output: { schema: GeneratePersonaOutputSchema, format: 'json' },
+  model: googleAI.model('gemini-1.5-pro-latest'),
   prompt: `Vous êtes (X)persona, un expert en stratégie marketing et en design d'expérience utilisateur. Votre rôle est de créer des personas d'utilisateurs réalistes et exploitables pour guider la création d'un projet. L'intégralité de la réponse doit être en **français**, à l'exception du champ "avatarPrompt" qui doit être en **anglais**.
 
 À partir de la description du projet de l'utilisateur, vous devez générer 2 ou 3 personas. Pour chaque persona, fournissez :

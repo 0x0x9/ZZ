@@ -6,7 +6,8 @@
  * - generateDeck - Une fonction qui prend un sujet et génère une présentation complète.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { GenerateDeckInputSchema, GenerateDeckOutputSchema, type GenerateDeckInput, type GenerateDeckOutput } from '@/ai/types';
 
 export async function generateDeck(input: GenerateDeckInput): Promise<GenerateDeckOutput> {
@@ -16,8 +17,8 @@ export async function generateDeck(input: GenerateDeckInput): Promise<GenerateDe
 const deckPrompt = ai.definePrompt({
     name: 'deckPrompt',
     input: { schema: GenerateDeckInputSchema },
-    output: { schema: GenerateDeckOutputSchema },
-    model: 'googleai/gemini-1.5-pro-latest',
+    output: { schema: GenerateDeckOutputSchema, format: 'json' },
+    model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes (X)deck, un concepteur de présentations expert. Votre mission est de transformer un sujet en une présentation structurée, claire et visuellement inspirante.
 
 Le sujet est : {{{prompt}}}

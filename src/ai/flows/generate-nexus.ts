@@ -8,7 +8,8 @@
  * - generateNexus - Une fonction qui prend une idée centrale et génère une structure de carte mentale hiérarchique.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { GenerateNexusInputSchema, GenerateNexusOutputSchema, type GenerateNexusInput, type GenerateNexusOutput } from '@/ai/types';
 
 export async function generateNexus(input: GenerateNexusInput): Promise<GenerateNexusOutput> {
@@ -18,8 +19,8 @@ export async function generateNexus(input: GenerateNexusInput): Promise<Generate
 const nexusPrompt = ai.definePrompt({
     name: 'nexusPrompt',
     input: { schema: GenerateNexusInputSchema },
-    output: { schema: GenerateNexusOutputSchema },
-    model: 'googleai/gemini-1.5-pro-latest',
+    output: { schema: GenerateNexusOutputSchema, format: 'json' },
+    model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes (X)nexus, un spécialiste de la visualisation d'idées et du brainstorming structuré. Votre mission est de transformer une idée centrale en une carte mentale hiérarchique et cohérente.
 
 À partir de l'idée de l'utilisateur, vous devez générer une structure d'arbre. L'arbre doit avoir :

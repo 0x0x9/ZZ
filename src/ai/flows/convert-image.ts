@@ -9,7 +9,7 @@
  * - ConvertImageOutput - The return type for the convertImage function.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
 import { ConvertImageInputSchema, ConvertImageOutputSchema, type ConvertImageInput, type ConvertImageOutput } from '@/ai/types';
 import { googleAI } from '@genkit-ai/googleai';
 

@@ -7,7 +7,8 @@
  *
  * - generateMotion - Une fonction qui prend un prompt et génère un script, des images et une voix off.
  */
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { GenerateMotionInputSchema, GenerateMotionOutputSchema, type GenerateMotionInput, type GenerateMotionOutput } from '@/ai/types';
 
 export async function generateMotion(input: GenerateMotionInput): Promise<GenerateMotionOutput> {
@@ -17,8 +18,8 @@ export async function generateMotion(input: GenerateMotionInput): Promise<Genera
 const motionPrompt = ai.definePrompt({
     name: 'motionPrompt',
     input: { schema: GenerateMotionInputSchema },
-    output: { schema: GenerateMotionOutputSchema },
-    model: 'googleai/gemini-1.5-pro-latest',
+    output: { schema: GenerateMotionOutputSchema, format: 'json' },
+    model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes (X)motion, un réalisateur IA. Votre tâche est de transformer l'idée d'un utilisateur en un court script vidéo.
 Le script doit avoir un titre et entre 3 et 6 scènes distinctes.
 Le titre et la narration doivent être en **français**.
