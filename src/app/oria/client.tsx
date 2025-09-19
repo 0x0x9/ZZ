@@ -48,31 +48,33 @@ export default function OriaClient() {
     <div className="py-28 md:py-36 space-y-24 md:space-y-36 overflow-hidden">
         
         <section className="container mx-auto px-4 md:px-6">
-            <HomepageOriaChat />
-        </section>
-
-        <section className="relative flex flex-col items-center justify-center text-center container mx-auto px-4 md:px-6">
-            <motion.div
-                 initial={{ opacity: 0, scale: 0.8 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                 className="w-48 h-48 md:w-64 md:h-64"
-            >
-                <OriaAnimation />
-            </motion.div>
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-                className="relative z-10 mt-8"
-            >
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+            <div className="text-center mb-12">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                    className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-6"
+                >
+                    <OriaAnimation />
+                </motion.div>
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+                    className="text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70"
+                >
                     Oria. Votre symphonie créative.
-                </h1>
-                <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground">
+                </motion.h1>
+                <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
+                    className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground"
+                >
                     Oria n'est pas un assistant. C'est le chef d'orchestre de votre créativité, l'intelligence qui unifie l'écosystème (X)yzz et transforme vos idées en réalité.
-                </p>
-            </motion.div>
+                </motion.p>
+            </div>
+            <HomepageOriaChat />
         </section>
 
         <section className="container mx-auto px-4 md:px-6">
@@ -131,9 +133,9 @@ export default function OriaClient() {
                  <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
                     <MessageSquare className="h-10 w-10 text-primary" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Essayez Oria maintenant.</h2>
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Essayez Oria dans son environnement natif.</h2>
                 <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                    La meilleure façon de comprendre Oria est de lui parler. Lancez une conversation et découvrez comment elle peut transformer votre workflow.
+                    La meilleure façon de comprendre Oria est de l'utiliser dans (X)OS. Lancez une conversation et découvrez comment elle peut transformer votre workflow.
                 </p>
                 <Button size="lg" asChild className="rounded-full text-lg mt-8">
                     <Link href="/xos?open=oria">
