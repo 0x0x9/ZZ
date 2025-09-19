@@ -7,7 +7,7 @@
  * - oria - Une fonction qui analyse la demande d'un utilisateur et recommande un outil ou fournit une réponse directe.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '@/genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import {
@@ -306,5 +306,3 @@ export const oria = ai.defineFlow(
     return output;
   }
 );
-
-    
