@@ -1,23 +1,21 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import PerformanceChart from "@/components/ui/performance-chart";
 import { PCConfigurator, type Configuration } from "@/components/ui/pc-configurator";
-import { AiConfigurator } from "@/components/ai-configurator";
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import OriaAnimation from "@/components/ui/oria-animation";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 
@@ -39,9 +37,26 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
     )
 };
 
+const StickyBuyBar = ({ productName, price }: { productName: string, price: number }) => {
+  return (
+    <div className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border/50">
+      <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        <h2 className="font-semibold text-xl">{productName}</h2>
+        <div className="flex items-center gap-4">
+          <p className="text-xl font-bold">{price.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€</p>
+          <Button asChild className="rounded-full">
+            <Link href="#configurator">Configurer</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
     return (
-        <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
+        <section id="specs" className="container mx-auto px-4 md:px-6 my-24 md:my-36">
             <AnimatedSection>
                 <div className="text-center">
                     <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Caractéristiques techniques</h2>
@@ -55,8 +70,8 @@ const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
                             <TableBody>
                                 {Object.entries(specs).map(([key, value]) => (
                                     <TableRow key={key} className="border-b border-white/10">
-                                        <TableCell className="font-semibold text-foreground/90 w-1/3">{key}</TableCell>
-                                        <TableCell className="text-muted-foreground">{value}</TableCell>
+                                        <TableCell className="font-semibold text-foreground/90 w-1/3 py-3 px-4">{key}</TableCell>
+                                        <TableCell className="text-muted-foreground py-3 px-4">{value}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -98,30 +113,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   const handleConfigChange = (newConfig: Configuration, newPrice: number) => {
     setConfiguration(newConfig);
     setTotalPrice(newPrice);
-  };
-  
-  const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
-    if (modelId !== product.id) {
-        const params = new URLSearchParams({
-            cpu: newConfig.cpu,
-            gpu: newConfig.gpu,
-            ram: newConfig.ram,
-            storage: newConfig.storage,
-        });
-        router.push(`/store/${modelId}?${params.toString()}`);
-        toast({
-            title: `Redirection vers ${modelName}`,
-            description: "Ce modèle semble plus adapté à vos besoins. Votre configuration a été transférée.",
-        });
-        return;
-    }
-    
-    setConfig(newConfig);
-    setPcConfiguratorKey(Date.now()); // Force re-render of PCConfigurator with new initial values
-    const configuratorElement = document.getElementById('configurator');
-    if (configuratorElement) {
-        configuratorElement.scrollIntoView({ behavior: 'smooth' });
-    }
   };
   
   const handleAddToCart = () => {
@@ -202,6 +193,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   // Default Hardware Layout
   return (
     <>
+      {product.id === 1 && <StickyBuyBar productName={product.name} price={totalPrice} />}
         <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
             <div className="text-center mb-12">
                 <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4">
@@ -243,7 +235,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
             </Card>
         </section>
       
-        <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
+         <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
              <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
                 <div className="absolute inset-0 -z-10 h-full w-full">
                      <iframe
