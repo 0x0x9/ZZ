@@ -219,61 +219,8 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
             </Card>
         </section>
       
-         <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
-             <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
-                <div className="absolute inset-0 -z-10 h-full w-full">
-                     <iframe
-                        src="https://www.youtube.com/embed/YUEb23FQVhA?autoplay=1&mute=1&loop=1&playlist=YUEb23FQVhA&controls=0&showinfo=0&autohide=1&wmode=transparent"
-                        title="Hero Video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full object-cover scale-150"
-                    ></iframe>
-                     <div className="absolute inset-0 bg-black/60"></div>
-                </div>
-                <div className="text-center py-20 md:py-32 px-6">
-                    <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white [text-shadow:0_2px_15px_rgba(0,0,0,0.4)]">
-                       Un Studio. Tous les Mondes.
-                    </h2>
-                    <p className="mt-6 text-lg md:text-xl text-white/80 max-w-3xl mx-auto [text-shadow:0_1px_10px_rgba(0,0,0,0.4)]">
-                        Arrêtez de choisir. (X)OS est le seul système capable d'exécuter Windows, macOS et Linux simultanément, en natif. Lancez un jeu sur Windows pendant qu'un rendu tourne sur Linux. Sans compromis. Sans redémarrage.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-         <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
-             <AnimatedSection className="text-center">
-                <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Pensée pour vos créations extrêmes.</h2>
-            </AnimatedSection>
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-                 <AnimatedSection>
-                    <Card className="glass-card h-full text-center p-8">
-                        <Video className="h-10 w-10 mx-auto text-primary mb-4"/>
-                        <h3 className="text-xl font-bold">Post-production 8K</h3>
-                        <p className="text-muted-foreground mt-2">Montez, étalonnez et exportez vos projets les plus lourds sans la moindre latence.</p>
-                    </Card>
-                 </AnimatedSection>
-                 <AnimatedSection>
-                    <Card className="glass-card h-full text-center p-8">
-                        <Cpu className="h-10 w-10 mx-auto text-primary mb-4"/>
-                        <h3 className="text-xl font-bold">Rendu 3D & Animation</h3>
-                        <p className="text-muted-foreground mt-2">Plus de rendu, moins d’attente. Profitez de la puissance du multi-GPU pour des itérations quasi-instantanées.</p>
-                    </Card>
-                 </AnimatedSection>
-                 <AnimatedSection>
-                    <Card className="glass-card h-full text-center p-8">
-                        <BrainCircuit className="h-10 w-10 mx-auto text-primary mb-4"/>
-                        <h3 className="text-xl font-bold">IA & Data Science</h3>
-                        <p className="text-muted-foreground mt-2">Entraînez des modèles complexes et manipulez des datasets massifs avec une puissance de calcul phénoménale.</p>
-                    </Card>
-                 </AnimatedSection>
-            </div>
-        </section>
-
         <div className="space-y-24 md:space-y-36 my-24 md:my-36">
-            <section id="configurator" className="container mx-auto px-4 md:px-6">
+             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
                         <PCConfigurator 
@@ -303,6 +250,59 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                             </Button>
                         </div>
                     </div>
+                </div>
+            </section>
+
+             <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
+                 <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
+                    <div className="absolute inset-0 -z-10 h-full w-full">
+                         <iframe
+                            src="https://www.youtube.com/embed/YUEb23FQVhA?autoplay=1&mute=1&loop=1&playlist=YUEb23FQVhA&controls=0&showinfo=0&autohide=1&wmode=transparent"
+                            title="Hero Video"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full object-cover scale-150"
+                        ></iframe>
+                         <div className="absolute inset-0 bg-black/60"></div>
+                    </div>
+                    <div className="text-center py-20 md:py-32 px-6">
+                        <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white [text-shadow:0_2px_15px_rgba(0,0,0,0.4)]">
+                           Un Studio. Tous les Mondes.
+                        </h2>
+                        <p className="mt-6 text-lg md:text-xl text-white/80 max-w-3xl mx-auto [text-shadow:0_1px_10px_rgba(0,0,0,0.4)]">
+                            Arrêtez de choisir. (X)OS est le seul système capable d'exécuter Windows, macOS et Linux simultanément, en natif. Lancez un jeu sur Windows pendant qu'un rendu tourne sur Linux. Sans compromis. Sans redémarrage.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
+                 <AnimatedSection className="text-center">
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Pensée pour vos créations extrêmes.</h2>
+                </AnimatedSection>
+                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                     <AnimatedSection>
+                        <Card className="glass-card h-full text-center p-8">
+                            <Video className="h-10 w-10 mx-auto text-primary mb-4"/>
+                            <h3 className="text-xl font-bold">Post-production 8K</h3>
+                            <p className="text-muted-foreground mt-2">Montez, étalonnez et exportez vos projets les plus lourds sans la moindre latence.</p>
+                        </Card>
+                     </AnimatedSection>
+                     <AnimatedSection>
+                        <Card className="glass-card h-full text-center p-8">
+                            <Cpu className="h-10 w-10 mx-auto text-primary mb-4"/>
+                            <h3 className="text-xl font-bold">Rendu 3D & Animation</h3>
+                            <p className="text-muted-foreground mt-2">Plus de rendu, moins d’attente. Profitez de la puissance du multi-GPU pour des itérations quasi-instantanées.</p>
+                        </Card>
+                     </AnimatedSection>
+                     <AnimatedSection>
+                        <Card className="glass-card h-full text-center p-8">
+                            <BrainCircuit className="h-10 w-10 mx-auto text-primary mb-4"/>
+                            <h3 className="text-xl font-bold">IA & Data Science</h3>
+                            <p className="text-muted-foreground mt-2">Entraînez des modèles complexes et manipulez des datasets massifs avec une puissance de calcul phénoménale.</p>
+                        </Card>
+                     </AnimatedSection>
                 </div>
             </section>
             
@@ -379,5 +379,3 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
     </>
   );
 }
-
-    
