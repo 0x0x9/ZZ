@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -147,7 +148,7 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
                                 <div className="space-y-2 text-sm">
                                     <h4 className="font-semibold flex items-center gap-2"><Wand2 className="h-4 w-4" /> Projet complexe généré</h4>
                                     <p className="text-muted-foreground">Plusieurs livrables ont été créés pour votre projet.</p>
-                                    <Button onClick={() => handleRedirection('flux', result.promptForTool, fluxData)} size="sm" className="w-full !mt-3 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 animate-gradient-x font-semibold text-white hover:opacity-95">
+                                    <Button onClick={() => handleRedirection('flux', result.promptForTool, fluxData)} size="sm" className="w-full !mt-3">
                                         Voir le projet complet
                                         <ArrowRight className="ml-auto h-4 w-4" />
                                     </Button>
@@ -271,21 +272,20 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
     }
 }
 
-function OriaChatUI({ messages, handleReset, formRef }: { messages: Message[], handleReset: () => void, formRef: React.RefObject<HTMLFormElement> }) {
-    const [pending, setPending] = useState(false);
+function OriaChatUI({ messages, handleReset, formRef, isLoading }: { messages: Message[], handleReset: () => void, formRef: React.RefObject<HTMLFormElement>, isLoading: boolean }) {
     const scrollAreaRef = useRef<HTMLDivElement>(null);
-    const showWelcomeOverlay = !pending && messages.length === 0;
+    const showWelcomeOverlay = !isLoading && messages.length === 0;
 
     useEffect(() => {
         if (scrollAreaRef.current) {
             scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
         }
-    }, [messages, pending]);
+    }, [messages, isLoading]);
 
     return (
         <div className="relative glass-card w-full max-w-4xl min-h-[60vh] mx-auto overflow-hidden p-0 flex flex-col">
             <div className="absolute inset-0 z-0">
-                 <AiLoadingAnimation isLoading={pending} />
+                 <AiLoadingAnimation isLoading={isLoading} />
             </div>
             
              <div
@@ -327,7 +327,7 @@ function OriaChatUI({ messages, handleReset, formRef }: { messages: Message[], h
                         placeholder="Décrivez votre idée, demandez un conseil..."
                         className="w-full bg-background/50 dark:bg-black/20 border-white/20 focus-visible:ring-primary/50 text-sm placeholder:text-muted-foreground resize-none rounded-2xl pl-4 pr-24 py-3 min-h-[48px] no-scrollbar max-h-40"
                         autoComplete="off"
-                        disabled={pending}
+                        disabled={isLoading}
                         required
                         rows={1}
                         onInput={(e) => {
@@ -353,12 +353,12 @@ function OriaChatUI({ messages, handleReset, formRef }: { messages: Message[], h
                             aria-label="Réinitialiser la conversation"
                             className={cn(
                                 "h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent transition-opacity duration-300 ease-in-out",
-                                (messages.length === 0 || pending) && "opacity-0 pointer-events-none"
+                                (messages.length === 0 || isLoading) && "opacity-0 pointer-events-none"
                             )}
                         >
                             <RotateCcw className="h-4 w-4" />
                         </Button>
-                        <Button type="submit" size="icon" disabled={pending} aria-label="Envoyer" className="w-8 h-8 rounded-full shrink-0">
+                        <Button type="submit" size="icon" disabled={isLoading} aria-label="Envoyer" className="w-8 h-8 rounded-full shrink-0">
                             <Send className="h-4 w-4" />
                         </Button>
                     </div>
@@ -378,7 +378,9 @@ export default function HomepageOriaChat() {
     setMessages([]);
   };
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
       const prompt = formData.get('prompt') as string;
       if (!prompt.trim()) return;
 
@@ -424,8 +426,8 @@ export default function HomepageOriaChat() {
 
 
   return (
-    <form ref={formRef} action={handleSubmit}>
-        <OriaChatUI messages={messages} handleReset={handleReset} formRef={formRef} />
+    <form ref={formRef} onSubmit={handleSubmit}>
+        <OriaChatUI messages={messages} handleReset={handleReset} formRef={formRef} isLoading={isLoading} />
     </form>
   );
 }

@@ -145,7 +145,7 @@ const OriaResultDisplay = ({ result, openApp }: { result: OriaChatOutput, openAp
                                 <div className="space-y-2 text-sm">
                                     <h4 className="font-semibold flex items-center gap-2"><Wand2 className="h-4 w-4" /> Projet complexe généré</h4>
                                     <p className="text-muted-foreground">Plusieurs livrables ont été créés pour votre projet.</p>
-                                    <Button onClick={() => handleRedirection('flux', result.promptForTool, fluxData)} size="sm" className="w-full !mt-3 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 animate-gradient-x font-semibold text-white hover:opacity-95">
+                                    <Button onClick={() => handleRedirection('flux', result.promptForTool, fluxData)} size="sm" className="w-full !mt-3">
                                         Ouvrir dans (X)OS
                                         <ArrowRight className="ml-auto h-4 w-4" />
                                     </Button>
