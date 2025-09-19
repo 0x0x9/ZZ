@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -14,9 +14,6 @@ import type { ConvertImageOutput } from '@/ai/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { motion } from 'framer-motion';
-import { runFlow } from '@genkit-ai/next/client';
-import { convertImage } from '@/app/api/convert-image/route';
-import { generateContent } from '@/app/api/content-generator/route';
 
 function SubmitButton({ pending, text = "Lancer la conversion"}: { pending: boolean, text?: string }) {
     return (
@@ -65,8 +62,17 @@ function ImageConverter() {
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await runFlow(convertImage, { image, outputFormat, removeTransparency });
-            setResult(response);
+            const response = await fetch('/api/convert-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image, outputFormat, removeTransparency }),
+            });
+            if (!response.ok) {
+                 const errorData = await response.json();
+                throw new Error(errorData.error || 'Une erreur est survenue.');
+            }
+            const responseData = await response.json();
+            setResult(responseData);
             toast({ title: 'Conversion réussie !'});
         } catch (error: any) {
             toast({ variant: 'destructive', title: 'Erreur', description: error.message });
@@ -177,11 +183,22 @@ function DocumentConverter() {
         setIsLoading(true);
         setResultText('');
         try {
-            const response = await runFlow(generateContent, { contentType: 'reformat', textToReformat: originalText, prompt });
-            if (response.type === 'text' && typeof response.data === 'object' && response.data && 'reformattedText' in response.data) {
-                setResultText((response.data as { reformattedText: string }).reformattedText);
+            const response = await fetch('/api/content-generator', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contentType: 'reformat', textToReformat: originalText, prompt })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Une erreur est survenue.');
+            }
+            
+            const result = await response.json();
+            if (result.type === 'text' && typeof result.data === 'object' && result.data && 'reformattedText' in result.data) {
+                setResultText((result.data as { reformattedText: string }).reformattedText);
             } else {
-                 throw new Error("L'IA n'a pas retourné de texte valide.");
+                throw new Error("L'IA n'a pas retourné de texte valide.");
             }
         } catch (error: any) {
              toast({ variant: 'destructive', title: 'Erreur', description: error.message });
