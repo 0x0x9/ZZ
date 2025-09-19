@@ -41,6 +41,38 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
     )
 };
 
+function StickyBuyBar({ product, onAddToCart }: { product: Product, onAddToCart: () => void }) {
+    const { scrollY } = useScroll();
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        return scrollY.onChange((latest) => {
+            setIsVisible(latest > 50);
+        });
+    }, [scrollY]);
+
+    return (
+        <motion.div
+            initial={{ y: -100 }}
+            animate={{ y: isVisible ? 0 : -100 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+            className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50"
+        >
+            <div className="container mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
+                <div>
+                    <h1 className="text-xl font-bold tracking-tight">{product.name}</h1>
+                </div>
+                <div className="flex items-center gap-4">
+                    <span className="text-lg font-medium">À partir de {product.price.toFixed(2)}€</span>
+                    <Button size="default" className="rounded-full" onClick={onAddToCart}>
+                        Acheter
+                    </Button>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
 const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
     return (
         <section id="specs" className="container mx-auto px-4 md:px-6 my-24 md:my-36">
@@ -195,20 +227,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   // Default Hardware Layout
   return (
     <>
-        <div className="container mx-auto px-4 md:px-6 py-4 pt-24 border-b border-border/50">
-            <div className="flex justify-between items-center">
-                <div>
-                     <h1 className="text-2xl font-bold tracking-tight">{product.name}</h1>
-                     <p className="text-sm text-muted-foreground">{product.tagline}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <span className="text-lg font-medium">À partir de {product.price.toFixed(2)}€</span>
-                    <Button size="default" className="rounded-full" onClick={handleAddToCart}>
-                        Acheter
-                    </Button>
-                </div>
-            </div>
-        </div>
+        <StickyBuyBar product={product} onAddToCart={handleAddToCart} />
       
         <div className="space-y-24 md:space-y-36 my-16 md:my-24">
             
@@ -224,7 +243,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
                          <div className="glass-card">
-                             <div className="relative aspect-square">
+                            <div className="relative aspect-square">
                                 <Image 
                                     src={product.images[0]} 
                                     alt={product.name} 
@@ -233,7 +252,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                                     data-ai-hint={product.hint}
                                 />
                             </div>
-                            <div className="p-6 border-t border-border">
+                            <div className="mt-6 p-6 glass-card">
                                 <h3 className="text-xl font-bold">Total de votre configuration</h3>
                                 <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
                                 <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
@@ -243,29 +262,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         </div>
                     </div>
                 </div>
-            </section>
-
-             <section className="container mx-auto px-4 md:px-6">
-                <Carousel className="w-full">
-                    <CarouselContent>
-                        {product.images.map((img, index) => (
-                            <CarouselItem key={index}>
-                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
-                                        <Image 
-                                        src={img} 
-                                        alt={`${product.name} - vue ${index + 1}`} 
-                                        fill 
-                                        className="object-contain p-4 md:p-8" 
-                                        sizes="(max-width: 768px) 100vw, 75vw"
-                                        priority={index === 0}
-                                    />
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
             </section>
             
             <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
@@ -321,23 +317,43 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </div>
             </section>
 
-             <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
-                 <AnimatedSection className="text-center">
+            <section className="container mx-auto px-4 md:px-6">
+                <Carousel className="w-full">
+                    <CarouselContent>
+                        {product.images.map((img, index) => (
+                            <CarouselItem key={index}>
+                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
+                                        <Image 
+                                        src={img} 
+                                        alt={`${product.name} - vue ${index + 1}`} 
+                                        fill 
+                                        className="object-contain p-4 md:p-8" 
+                                        sizes="(max-width: 768px) 100vw, 75vw"
+                                        priority={index === 0}
+                                    />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </section>
+
+             <section className="container mx-auto px-4 md:px-6">
+                 <AnimatedSection className="text-center mb-12">
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                        Conçu pour l'extrême.
+                        Design & Bénéfices
                     </h2>
-                     <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                      Chaque détail de la {product.name} a été pensé pour les créatifs qui ne font aucun compromis.
-                    </p>
                 </AnimatedSection>
-                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <AnimatedSection>
                        <Card className="glass-card h-full p-8 flex flex-col items-center text-center">
                             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6">
                                 <Fan className="h-8 w-8 text-primary" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">Silence de Studio</h3>
-                            <p className="text-muted-foreground text-sm flex-grow">Même en pleine charge, le système de refroidissement liquide sur mesure maintient un environnement de travail calme, vous laissant vous concentrer sur votre création.</p>
+                            <p className="text-muted-foreground text-sm flex-grow">Refroidissement liquide, bruit maîtrisé. Même en pleine charge, vous restez dans un espace calme.</p>
                         </Card>
                     </AnimatedSection>
                     <AnimatedSection>
@@ -346,7 +362,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                                 <Box className="h-8 w-8 text-primary" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">Design Iconique</h3>
-                            <p className="text-muted-foreground text-sm flex-grow">Un boîtier sur mesure en aluminium, un halo LED discret. Un objet d'ingénierie aussi inspirant que fonctionnel qui sublime votre espace de travail.</p>
+                            <p className="text-muted-foreground text-sm flex-grow">Boîtier sur mesure, halo discret, identité iconique. Un objet aussi inspirant que fonctionnel.</p>
                         </Card>
                     </AnimatedSection>
                     <AnimatedSection>
@@ -354,8 +370,8 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6">
                                 <Scaling className="h-8 w-8 text-primary" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">Évolutivité Sans Limite</h3>
-                            <p className="text-muted-foreground text-sm flex-grow">Ajoutez un GPU, étendez votre stockage. Le châssis modulaire est conçu pour que votre station grandisse avec l'ampleur de vos projets.</p>
+                            <h3 className="text-xl font-bold mb-2">Évolutivité</h3>
+                            <p className="text-muted-foreground text-sm flex-grow">Ajout de GPU, stockage modulable. Une machine qui grandit avec vos projets.</p>
                         </Card>
                     </AnimatedSection>
                 </div>
@@ -372,7 +388,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </section>
             )}
 
-            <section className="container mx-auto px-4 md:px-6">
+             <section className="container mx-auto px-4 md:px-6">
                  <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
                     <div className="absolute -inset-20 z-0">
                          <OriaAnimation className="w-full h-full opacity-30" />
