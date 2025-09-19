@@ -35,10 +35,10 @@ function SubmitButton({ pending }: { pending: boolean }) {
     return (
         <Button type="submit" disabled={pending} size="lg" className="w-full">
             {pending ? (
-                <LoadingState text="Recherche de la configuration..." isCompact={true} />
+                <LoadingState text="Recherche..." isCompact={true} />
             ) : (
                 <>
-                    Obtenir ma recommandation
+                    Recommander
                     <Wand2 className="ml-2 h-5 w-5" />
                 </>
             )}
@@ -99,6 +99,7 @@ function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutpu
                                     alt={recommendedProduct.name}
                                     fill
                                     className="object-contain"
+                                    data-ai-hint={recommendedProduct.hint}
                                 />
                             </div>
                             <h4 className="text-center font-bold text-xl mt-2">{recommendedProduct.name}</h4>
@@ -201,34 +202,36 @@ export function AiConfigurator({ product, onConfigSelect }: { product: Product, 
                 ) : result ? (
                     <ResultsDisplay result={result} onApply={onConfigSelect} onReset={handleReset} />
                 ) : (
-                    <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6 max-w-xl mx-auto">
+                    <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6 max-w-3xl mx-auto">
                         <input type="hidden" name="product" value={product.name} />
-                        <div className="space-y-2">
-                            <Label htmlFor="job">Quel est votre métier principal ?</Label>
-                            <Input id="job" name="job" placeholder="Ex: Monteur Vidéo, Développeur 3D, Musicien..." required />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                            <div className="space-y-2">
+                                <Label htmlFor="job">Votre métier ?</Label>
+                                <Input id="job" name="job" placeholder="Ex: Monteur Vidéo, Développeur 3D..." required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="software">Vos logiciels principaux ?</Label>
+                                <Input id="software" name="software" placeholder="Ex: DaVinci Resolve, Blender..." required />
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="software">Quels logiciels utilisez-vous le plus ?</Label>
-                            <Textarea id="software" name="software" placeholder="Ex: DaVinci Resolve, Unreal Engine 5, Ableton Live, Blender..." required rows={3}/>
-                        </div>
-                        <div className="space-y-2">
+                        <div className="space-y-3 text-center">
                             <Label>Quelle est votre priorité ?</Label>
-                            <RadioGroup name="priority" defaultValue="balanced" className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
+                            <RadioGroup name="priority" defaultValue="balanced" className="flex flex-wrap gap-x-4 gap-y-2 justify-center pt-2">
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="performance" id="p-perf" />
-                                    <Label htmlFor="p-perf">Performance Brute</Label>
+                                    <Label htmlFor="p-perf" className="font-normal">Performance</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="storage" id="p-storage" />
-                                    <Label htmlFor="p-storage">Capacité de Stockage</Label>
+                                    <Label htmlFor="p-storage">Stockage</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="balanced" id="p-balanced" />
-                                    <Label htmlFor="p-balanced">Équilibre / Prix</Label>
+                                    <Label htmlFor="p-balanced" className="font-normal">Équilibre</Label>
                                 </div>
                             </RadioGroup>
                         </div>
-                        <div className="pt-4">
+                        <div className="pt-4 flex justify-center">
                             <SubmitButton pending={isPending} />
                         </div>
                     </form>
