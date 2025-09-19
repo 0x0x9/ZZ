@@ -23,7 +23,6 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
     ],
     gpu: [
         { name: 'NVIDIA RTX 5080 (16Go VRAM)', priceModifier: 0 },
-        { name: 'AMD Radeon RX 7900 XT (20Go VRAM)', priceModifier: -200 },
         { name: 'Technologie (X)bridge (AMD) 32Go VRAM', priceModifier: 400 },
     ],
     ram: [
@@ -42,7 +41,7 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
     ],
     gpu: [
         { name: 'NVIDIA RTX 5070 (12Go VRAM)', priceModifier: 0 },
-        { name: 'AMD Radeon RX 7800 XT (16Go VRAM)', priceModifier: -150 },
+        { name: 'Technologie (X)bridge (AMD) 24Go VRAM', priceModifier: 250 },
     ],
     ram: [
         { name: '32GB DDR5', priceModifier: 0 },
@@ -60,9 +59,9 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
     ],
     gpu: [
         { name: 'NVIDIA RTX 5080 (16Go VRAM)', priceModifier: 0 },
+        { name: 'NVIDIA RTX 5090 (24Go VRAM)', priceModifier: 700 },
         { name: 'NVIDIA RTX 4090 (24Go VRAM)', priceModifier: 600 },
-        { name: 'Technologie (X)bridge (NVIDIA) 32Go VRAM', priceModifier: 1200 },
-        { name: 'Technologie (X)bridge (AMD) 48Go VRAM', priceModifier: 800 },
+        { name: 'Technologie (X)bridge (AMD) 48Go VRAM', priceModifier: 900 },
     ],
     ram: [
         { name: '96GB DDR5', priceModifier: 0 },

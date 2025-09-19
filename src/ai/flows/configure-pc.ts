@@ -16,7 +16,7 @@ import { ConfigurePcInputSchema, ConfigurePcOutputSchema, type ConfigurePcInput,
 const componentOptions = `
 - Modèle (X)-fi:
   - CPU: ['Intel Core i9-14900K', 'AMD Ryzen 9 7950X3D']
-  - GPU: ['NVIDIA RTX 5080 (16Go VRAM)', 'NVIDIA RTX 4090 (24Go VRAM)', 'Technologie (X)bridge (NVIDIA) 32Go VRAM', 'Technologie (X)bridge (AMD) 48Go VRAM']
+  - GPU: ['NVIDIA RTX 5080 (16Go VRAM)', 'NVIDIA RTX 5090 (24Go VRAM)', 'Technologie (X)bridge (AMD) 32Go VRAM', 'Technologie (X)bridge (AMD) 48Go VRAM']
   - RAM: ['96GB DDR5', '128GB DDR5', '192GB DDR5']
   - Stockage: ['8TB SSD + 12TB HDD', '16TB SSD + 24TB HDD']
 - Modèle (X)-alpha:
@@ -55,7 +55,7 @@ ${componentOptions}
 Votre tâche est de :
 1.  Choisir le **meilleur modèle de base** (fi, alpha, oméga) pour l'utilisateur.
 2.  Pour ce modèle, choisir la meilleure option pour chaque catégorie de composant (CPU, GPU, RAM, Stockage). Si l'utilisateur a des besoins très élevés en rendu 3D ou en IA qui peuvent bénéficier du multi-GPU, recommandez la technologie (X)bridge.
-3.  Justifier vos choix en expliquant pourquoi le modèle et les composants sont adaptés (métier, logiciels, priorité). Par exemple, "Pour le montage vidéo 8K, une RTX 4090 est recommandée pour sa puissance de calcul CUDA." ou "La technologie (X)bridge est idéale car vos logiciels tirent parti du multi-GPU, doublant ainsi les performances de rendu."
+3.  Justifier vos choix en expliquant pourquoi le modèle et les composants sont adaptés (métier, logiciels, priorité). Par exemple, "Pour le montage vidéo 8K, une RTX 5090 est recommandée pour sa puissance de calcul CUDA." ou "La technologie (X)bridge est idéale car vos logiciels tirent parti du multi-GPU, doublant ainsi les performances de rendu."
 4.  Retourner le modèle et la configuration complète avec la justification au format JSON. Le nom du modèle retourné doit être celui que vous avez choisi.
 `,
 });
