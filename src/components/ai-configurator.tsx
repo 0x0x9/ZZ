@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { configurePc as configurePcAction } from '@/app/actions';
 import { Button } from '@/components/ui/button';
@@ -88,17 +88,39 @@ function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutpu
 export function AiConfigurator({ product, onConfigSelect }: { product: Product, onConfigSelect: (config: Configuration) => void }) {
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
-    const initialState = { result: null, error: null, product: product.name };
-    const [state, formAction] = useFormState(configurePcAction, initialState);
-    const { pending } = useFormStatus();
+    
+    // Manage state locally for more control over reset
+    const [result, setResult] = useState<ConfigurePcOutput | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isPending, setIsPending] = useState(false);
+    
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setIsPending(true);
+        setError(null);
+
+        const formData = new FormData(event.currentTarget);
+        
+        try {
+            const res = await configurePcAction({
+                product: formData.get('product') as string,
+                job: formData.get('job') as string,
+                software: formData.get('software') as string,
+                priority: formData.get('priority') as 'performance' | 'storage' | 'balanced',
+            });
+            setResult(res);
+        } catch (e: any) {
+            setError(e.message || "Une erreur est survenue.");
+            toast({ variant: 'destructive', title: 'Erreur', description: e.message });
+        } finally {
+            setIsPending(false);
+        }
+    };
 
     const handleReset = () => {
         formRef.current?.reset();
-        // This is a trick to reset the form state in useFormState
-        const resetData = new FormData();
-        resetData.set('product', product.name);
-        resetData.set('reset', 'true');
-        formAction(resetData);
+        setResult(null);
+        setError(null);
     };
 
     return (
@@ -113,17 +135,17 @@ export function AiConfigurator({ product, onConfigSelect }: { product: Product, 
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {pending ? (
+                {isPending ? (
                      <div className="min-h-[250px] relative overflow-hidden flex items-center justify-center">
                         <div className="absolute inset-0 z-0"><AiLoadingAnimation isLoading={true} /></div>
                         <div className="relative z-10">
                             <LoadingState text="Oria analyse vos besoins..." />
                         </div>
                     </div>
-                ) : state.result ? (
-                    <ResultsDisplay result={state.result} onApply={onConfigSelect} onReset={handleReset} />
+                ) : result ? (
+                    <ResultsDisplay result={result} onApply={onConfigSelect} onReset={handleReset} />
                 ) : (
-                    <form ref={formRef} action={formAction} className="space-y-6 max-w-xl mx-auto">
+                    <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-6 max-w-xl mx-auto">
                         <input type="hidden" name="product" value={product.name} />
                         <div className="space-y-2">
                             <Label htmlFor="job">Quel est votre métier principal ?</Label>
@@ -151,9 +173,9 @@ export function AiConfigurator({ product, onConfigSelect }: { product: Product, 
                             </RadioGroup>
                         </div>
                         <div className="pt-4">
-                            <SubmitButton pending={pending} />
+                            <SubmitButton pending={isPending} />
                         </div>
-                        {state.error && <p className="text-sm text-destructive text-center">{state.error}</p>}
+                        {error && <p className="text-sm text-destructive text-center">{error}</p>}
                     </form>
                 )}
             </CardContent>
