@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
@@ -52,7 +53,6 @@ const StickyBuyBar = ({ productName, price }: { productName: string, price: numb
     </div>
   );
 };
-
 
 const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
     return (
@@ -195,12 +195,13 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
     <>
       {product.id === 1 && <StickyBuyBar productName={product.name} price={totalPrice} />}
         <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
-            <div className="text-center mb-12">
-                <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4">
+             <div className="text-center mb-16">
+                 <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4">
                     <ArrowLeft className="h-4 w-4" /> Voir tous les produits
                 </Link>
-                <h1 className="text-4xl md:text-6xl font-bold">{product.name}</h1>
-                <p className="text-muted-foreground text-lg md:text-xl mt-4 max-w-2xl mx-auto">{product.tagline}</p>
+                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">{product.name}</h1>
+                <p className="mt-4 text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
+                <p className="mt-6 text-2xl font-semibold">À partir de {product.price.toFixed(2)}€</p>
                  <div className="mt-8 flex items-center justify-center gap-4">
                     <Button size="lg" className="rounded-full" asChild>
                         <Link href="#configurator">Configurer</Link>
