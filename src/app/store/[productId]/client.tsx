@@ -18,6 +18,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import OriaAnimation from "@/components/ui/oria-animation";
+import { useRouter } from "next/navigation";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -39,7 +40,9 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
 };
 
 
-export default function ProductClient({ product }: { product: Product }) {
+export default function ProductClient({ product: initialProduct }: { product: Product }) {
+  const router = useRouter();
+  const [product, setProduct] = useState(initialProduct);
   const [totalPrice, setTotalPrice] = useState(product.price);
   const [configuration, setConfiguration] = useState<Configuration | null>(null);
   const { addItem } = useCart();
@@ -52,7 +55,15 @@ export default function ProductClient({ product }: { product: Product }) {
     setTotalPrice(newPrice);
   };
   
-  const handleAiConfigSelect = (newConfig: Configuration) => {
+  const handleAiConfigSelect = (newConfig: Configuration, modelName: string) => {
+    if (!modelName.toLowerCase().includes(product.name.toLowerCase().split(' ')[0].replace('(x)-', ''))) {
+        router.push(`/store/${product.id}`); // This is a mock, ideally it would go to the right product
+        toast({
+            title: `Redirection vers ${modelName}`,
+            description: "Ce modèle semble plus adapté à vos besoins.",
+        });
+        return;
+    }
     setConfiguration(newConfig);
     setPcConfiguratorKey(Date.now()); // Force re-render of PCConfigurator with new initial values
     const configuratorElement = document.getElementById('configurator');
@@ -207,8 +218,6 @@ export default function ProductClient({ product }: { product: Product }) {
                         <PCConfigurator 
                             key={pcConfiguratorKey}
                             product={product} 
-                            basePrice={product.price}
-                            initialConfig={configuration}
                             onConfigChange={handleConfigChange} 
                         />
                     </div>

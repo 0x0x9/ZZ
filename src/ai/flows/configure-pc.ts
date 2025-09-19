@@ -29,6 +29,16 @@ const componentOptions = `
   - GPU: ['NVIDIA RTX 4070 Ti Super', 'AMD Radeon RX 7800 XT']
   - RAM: ['32GB DDR5', '64GB DDR5']
   - Stockage: ['2TB SSD + 8TB HDD', '4TB SSD + 12TB HDD']
+- Modèle (X)bridge Pro:
+  - CPU: ['Intel Core i9-14900K']
+  - GPU: ['2x NVIDIA RTX 4080 Super (48Go VRAM totale)']
+  - RAM: ['128GB DDR5', '192GB DDR5']
+  - Stockage: ['8TB NVMe SSD', '16TB NVMe SSD']
+- Modèle (X)bridge:
+  - CPU: ['AMD Ryzen 9 7950X3D']
+  - GPU: ['2x NVIDIA RTX 4070 Ti Super (32Go VRAM totale)']
+  - RAM: ['64GB DDR5', '128GB DDR5']
+  - Stockage: ['4TB NVMe SSD', '8TB NVMe SSD']
 `;
 
 
@@ -44,18 +54,19 @@ const configurePcPrompt = ai.definePrompt({
     prompt: `Vous êtes un expert en configuration de matériel informatique pour créatifs. Votre rôle est de recommander la meilleure configuration pour un utilisateur en fonction de ses besoins.
 
 Voici les besoins de l'utilisateur :
-- Modèle de base souhaité : {{{product}}}
 - Métier / Rôle : {{{job}}}
 - Logiciels utilisés : {{{software}}}
 - Priorité : {{{priority}}}
+- Modèle de base suggéré (non obligatoire) : {{{product}}}
 
 Voici les options de composants disponibles pour chaque modèle :
 ${componentOptions}
 
 Votre tâche est de :
-1.  Choisir la meilleure option pour chaque catégorie de composant (CPU, GPU, RAM, Stockage) pour le modèle de base demandé.
-2.  Justifier vos choix en expliquant pourquoi ils sont adaptés aux besoins de l'utilisateur (métier, logiciels, priorité). Par exemple, "Pour le montage vidéo 8K, une RTX 4090 est recommandée pour sa puissance de calcul CUDA." ou "Pour stocker de gros projets vidéo, le stockage de 16TB est plus adapté."
-3.  Retourner la configuration complète et la justification au format JSON. Le nom du modèle retourné doit être le même que celui fourni en entrée.
+1.  Choisir le **meilleur modèle de base** (fi, alpha, oméga, bridge) pour l'utilisateur. Si l'utilisateur a des besoins très élevés en rendu 3D ou en IA, privilégiez un modèle (X)bridge.
+2.  Pour ce modèle, choisir la meilleure option pour chaque catégorie de composant (CPU, GPU, RAM, Stockage).
+3.  Justifier vos choix en expliquant pourquoi le modèle et les composants sont adaptés (métier, logiciels, priorité). Par exemple, "Pour le montage vidéo 8K, une RTX 4090 est recommandée pour sa puissance de calcul CUDA." ou "Le modèle (X)bridge Pro est idéal car vos logiciels tirent parti du multi-GPU, doublant ainsi les performances de rendu."
+4.  Retourner le modèle et la configuration complète avec la justification au format JSON. Le nom du modèle retourné doit être celui que vous avez choisi.
 `,
 });
 

@@ -72,6 +72,38 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: '16TB SSD + 24TB HDD', priceModifier: 800 },
     ],
   },
+   'xbridge': {
+    cpu: [
+        { name: 'AMD Ryzen 9 7950X3D', priceModifier: 0 }
+    ],
+    gpu: [
+        { name: '2x NVIDIA RTX 4070 Ti Super (32Go VRAM totale)', priceModifier: 0 }
+    ],
+    ram: [
+        { name: '64GB DDR5', priceModifier: 0 },
+        { name: '128GB DDR5', priceModifier: 350 },
+    ],
+    storage: [
+        { name: '4TB NVMe SSD', priceModifier: 0 },
+        { name: '8TB NVMe SSD', priceModifier: 400 },
+    ],
+  },
+   'xbridgepro': {
+    cpu: [
+        { name: 'Intel Core i9-14900K', priceModifier: 0 }
+    ],
+    gpu: [
+        { name: '2x NVIDIA RTX 4080 Super (48Go VRAM totale)', priceModifier: 0 }
+    ],
+    ram: [
+        { name: '128GB DDR5', priceModifier: 0 },
+        { name: '192GB DDR5', priceModifier: 250 },
+    ],
+    storage: [
+        { name: '8TB NVMe SSD', priceModifier: 0 },
+        { name: '16TB NVMe SSD', priceModifier: 600 },
+    ],
+  },
 };
 
 const componentInfo: Record<ComponentType, { title: string; icon: React.ElementType }> = {
@@ -90,8 +122,8 @@ export type Configuration = {
 
 interface PCConfiguratorProps {
     product: Product;
-    basePrice: number;
     onConfigChange: (config: Configuration, newPrice: number) => void;
+    initialConfig?: Configuration | null;
 }
 
 const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSelect }: {
@@ -145,20 +177,26 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
     );
 };
 
-export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfiguratorProps) {
+export function PCConfigurator({ product, onConfigChange, initialConfig }: PCConfiguratorProps) {
     const productKey = product.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ','fi');
     const options = optionsMap[productKey];
-
+    
     if (!options) {
         return null;
     }
 
-    const [config, setConfig] = useState<Configuration>({
+    const [config, setConfig] = useState<Configuration>(initialConfig || {
         cpu: options.cpu[0].name,
         gpu: options.gpu[0].name,
         ram: options.ram[0].name,
         storage: options.storage[0].name,
     });
+    
+    useEffect(() => {
+        if(initialConfig) {
+            setConfig(initialConfig);
+        }
+    }, [initialConfig]);
 
     useEffect(() => {
         const cpuPrice = options.cpu.find(o => o.name === config.cpu)?.priceModifier ?? 0;
@@ -166,9 +204,9 @@ export function PCConfigurator({ product, basePrice, onConfigChange }: PCConfigu
         const ramPrice = options.ram.find(o => o.name === config.ram)?.priceModifier ?? 0;
         const storagePrice = options.storage.find(o => o.name === config.storage)?.priceModifier ?? 0;
 
-        const newPrice = basePrice + cpuPrice + gpuPrice + ramPrice + storagePrice;
+        const newPrice = product.price + cpuPrice + gpuPrice + ramPrice + storagePrice;
         onConfigChange(config, newPrice);
-    }, [config, basePrice, onConfigChange, options]);
+    }, [config, product.price, onConfigChange, options]);
 
     const handleSelection = (type: ComponentType, value: string) => {
         setConfig(prevConfig => ({
