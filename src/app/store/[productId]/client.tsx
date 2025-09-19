@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -230,32 +230,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </div>
             </section>
             
-             <section className="container mx-auto px-4 md:px-6">
-                <Card className="glass-card">
-                    <Carousel>
-                        <CarouselContent>
-                            {product.images.map((img, index) => (
-                                <CarouselItem key={index}>
-                                    <div className="aspect-video relative rounded-lg overflow-hidden">
-                                         <Image 
-                                            src={img} 
-                                            alt={`${product.name} - vue ${index + 1}`} 
-                                            fill 
-                                            className="object-contain p-4 md:p-8" 
-                                            sizes="(max-width: 768px) 100vw, 75vw"
-                                            priority={index === 0}
-                                        />
-                                    </div>
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                    </Carousel>
-                </Card>
-            </section>
-
-
              <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
                  <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
                     <div className="absolute inset-0 -z-10 h-full w-full">
@@ -308,6 +282,69 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                      </AnimatedSection>
                 </div>
             </section>
+
+            <section className="container mx-auto px-4 md:px-6">
+                <Carousel className="w-full">
+                    <CarouselContent>
+                        {product.images.map((img, index) => (
+                            <CarouselItem key={index}>
+                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
+                                        <Image 
+                                        src={img} 
+                                        alt={`${product.name} - vue ${index + 1}`} 
+                                        fill 
+                                        className="object-contain p-4 md:p-8" 
+                                        sizes="(max-width: 768px) 100vw, 75vw"
+                                        priority={index === 0}
+                                    />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </section>
+
+            <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
+                 <AnimatedSection className="text-center">
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                        Conçu pour l'extrême.
+                    </h2>
+                     <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+                      Chaque détail de la {product.name} a été pensé pour les créatifs qui ne font aucun compromis.
+                    </p>
+                </AnimatedSection>
+                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <AnimatedSection>
+                       <Card className="glass-card h-full p-8 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6">
+                                <Fan className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2">Silence de Studio</h3>
+                            <p className="text-muted-foreground text-sm flex-grow">Même en pleine charge, le système de refroidissement liquide sur mesure maintient un environnement de travail calme, vous laissant vous concentrer sur votre création.</p>
+                        </Card>
+                    </AnimatedSection>
+                    <AnimatedSection>
+                       <Card className="glass-card h-full p-8 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6">
+                                <Box className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2">Design Iconique</h3>
+                            <p className="text-muted-foreground text-sm flex-grow">Un boîtier sur mesure en aluminium, un halo LED discret. Un objet d'ingénierie aussi inspirant que fonctionnel qui sublime votre espace de travail.</p>
+                        </Card>
+                    </AnimatedSection>
+                    <AnimatedSection>
+                       <Card className="glass-card h-full p-8 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6">
+                                <Scaling className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2">Évolutivité Sans Limite</h3>
+                            <p className="text-muted-foreground text-sm flex-grow">Ajoutez un GPU, étendez votre stockage. Le châssis modulaire est conçu pour que votre station grandisse avec l'ampleur de vos projets.</p>
+                        </Card>
+                    </AnimatedSection>
+                </div>
+            </section>
             
             {product.specs && <SpecsSection specs={product.specs} />}
 
@@ -320,49 +357,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </section>
             )}
 
-            <section className="container mx-auto px-4 md:px-6">
-                <AnimatedSection>
-                     <div className="text-center">
-                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Conçu pour l'extrême.</h2>
-                        <p className="text-muted-foreground mt-3 max-w-2xl mx-auto text-md md:text-lg">Chaque détail de la {product.name} a été pensé pour les créatifs qui ne font aucun compromis.</p>
-                    </div>
-                </AnimatedSection>
-                 <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
-                    <AnimatedSection>
-                         <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-                            <Image src="https://picsum.photos/seed/cooling/800/800" alt="Système de refroidissement" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-                         </div>
-                    </AnimatedSection>
-                    <AnimatedSection>
-                        <div className="space-y-4">
-                            <h3 className="text-2xl font-bold">Refroidissement Cryo-Silencieux</h3>
-                            <p className="text-muted-foreground">Notre système de refroidissement liquide sub-ambiant maintient des performances maximales dans un silence quasi-absolu. Poussez votre machine à ses limites, elle restera de glace.</p>
-                            <ul className="space-y-2 pt-2">
-                              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-primary" /><span>Pompe à double chambre</span></li>
-                              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-primary" /><span>Ventilateurs à lévitation magnétique</span></li>
-                            </ul>
-                        </div>
-                    </AnimatedSection>
-                </div>
-                 <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
-                     <AnimatedSection className="md:order-2">
-                         <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-                            <Image src="https://picsum.photos/seed/chassis/800/800" alt="Châssis modulaire" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-                         </div>
-                    </AnimatedSection>
-                    <AnimatedSection className="md:order-1">
-                        <div className="space-y-4">
-                            <h3 className="text-2xl font-bold">Modulable à l'infini</h3>
-                            <p className="text-muted-foreground">Accès sans outils. Composants standards. La {product.name} est conçue pour être mise à niveau facilement, garantissant que votre investissement dure dans le temps.</p>
-                            <ul className="space-y-2 pt-2">
-                              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-primary" /><span>Slots PCIe 5.0</span></li>
-                              <li className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-primary" /><span>Baies de stockage échangeables à chaud</span></li>
-                            </ul>
-                        </div>
-                    </AnimatedSection>
-                </div>
-            </section>
-            
             <section className="container mx-auto px-4 md:px-6 py-12">
                 <div className="glass-card grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
                     <div className="text-center md:text-left">
