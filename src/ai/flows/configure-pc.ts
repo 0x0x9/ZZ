@@ -16,7 +16,7 @@ import { ConfigurePcInputSchema, ConfigurePcOutputSchema, type ConfigurePcInput,
 const componentOptions = `
 - Modèle (X)-fi:
   - CPU: ['Intel Core i9-14900K', 'AMD Ryzen 9 7950X3D']
-  - GPU: ['NVIDIA RTX 5080 (16Go VRAM)', 'NVIDIA RTX 5090 (24Go VRAM)', 'Technologie (X)bridge (AMD) 32Go VRAM', 'Technologie (X)bridge (AMD) 48Go VRAM']
+  - GPU: ['NVIDIA RTX 5080 (16Go VRAM)', 'NVIDIA RTX 5090 (24Go VRAM)', 'Technologie (X)bridge (AMD) 24Go VRAM', 'Technologie (X)bridge (AMD) 32Go VRAM']
   - RAM: ['96GB DDR5', '128GB DDR5', '192GB DDR5']
   - Stockage: ['8TB SSD + 12TB HDD', '16TB SSD + 24TB HDD']
 - Modèle (X)-alpha:
@@ -41,7 +41,7 @@ const configurePcPrompt = ai.definePrompt({
     input: { schema: ConfigurePcInputSchema },
     output: { schema: ConfigurePcOutputSchema, format: 'json' },
     model: googleAI.model('gemini-1.5-pro-latest'),
-    prompt: `Vous êtes un expert en configuration de matériel informatique pour créatifs. Votre rôle est de recommander la meilleure configuration pour un utilisateur en fonction de ses besoins.
+    prompt: `Vous êtes un expert en configuration de matériel informatique pour créatifs. Votre rôle est de recommander la meilleure configuration pour un utilisateur en fonction de ses besoins. Votre réponse DOIT être en français.
 
 Voici les besoins de l'utilisateur :
 - Métier / Rôle : {{{job}}}
