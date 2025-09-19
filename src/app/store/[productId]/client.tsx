@@ -203,7 +203,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 <p className="mt-4 text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
                  <p className="mt-6 text-2xl font-semibold">À partir de {totalPrice.toFixed(2)}€</p>
                  <div className="mt-8 flex items-center justify-center gap-4">
-                     <Button size="lg" className="rounded-full h-14 px-10 text-lg" onClick={handleAddToCart}>
+                     <Button size="lg" className="rounded-full text-lg h-14 px-10" onClick={handleAddToCart}>
                        Acheter
                     </Button>
                 </div>
@@ -223,6 +223,15 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
                          <div className="mt-6 p-6 glass-card">
+                            <div className="relative aspect-square mb-4">
+                                <Image 
+                                    src={product.images[0]} 
+                                    alt={product.name} 
+                                    fill 
+                                    className="object-contain" 
+                                    data-ai-hint={product.hint}
+                                />
+                            </div>
                             <h3 className="text-xl font-bold">Total de votre configuration</h3>
                             <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
                             <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
@@ -360,7 +369,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </section>
             )}
 
-            <section className="container mx-auto px-4 md:px-6">
+             <section className="container mx-auto px-4 md:px-6">
                 <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
                     <div className="absolute -inset-20 z-0">
                          <OriaAnimation className="w-full h-full opacity-30" />
@@ -383,19 +392,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
             </section>
 
             <section className="container mx-auto px-4 md:px-6 py-12">
-                <div className="glass-card grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
-                    <div className="text-center md:text-left">
-                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Prêt à créer sans limites ?</h2>
-                        <p className="mt-4 text-lg text-muted-foreground max-w-xl md:mx-0 mx-auto">
-                           Ajoutez la {product.name} à votre panier et entrez dans une nouvelle ère de la création.
-                        </p>
-                    </div>
-                    <div className="flex justify-center md:justify-end">
-                        <Button size="lg" className="rounded-full text-lg h-16 px-10" onClick={handleAddToCart}>
-                            Ajouter au panier - {totalPrice.toFixed(2)}€
-                        </Button>
-                    </div>
-                </div>
+                 <AiConfigurator product={product} onConfigSelect={handleAiConfigSelect} />
             </section>
         </div>
     </>
