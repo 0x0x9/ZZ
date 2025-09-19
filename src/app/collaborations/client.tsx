@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Briefcase, Search, PlusCircle, ExternalLink, Bot, Sparkles } from 'lucide-react';
+import { Briefcase, Search, PlusCircle, ExternalLink, Bot, Sparkles, Send } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -21,6 +21,49 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import imageData from '@/lib/placeholder-images.json';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+
+
+function ContactModal({ author, open, onOpenChange }: { author: string, open: boolean, onOpenChange: (open: boolean) => void }) {
+    const { toast } = useToast();
+
+    const handleContactSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        toast({ title: "Message envoyé !", description: `Votre message a bien été envoyé à ${author}.` });
+        onOpenChange(false);
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="glass-card">
+                <form onSubmit={handleContactSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>Contacter {author}</DialogTitle>
+                        <DialogDescription>
+                            Envoyez un message direct pour discuter d'une collaboration.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="contact-subject">Sujet</Label>
+                            <Input id="contact-subject" defaultValue={`Collaboration : Opportunité de projet`} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="contact-message">Votre message</Label>
+                            <Textarea id="contact-message" rows={5} placeholder={`Bonjour ${author}, je suis intéressé(e) par vos services...`} />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild><Button type="button" variant="ghost">Annuler</Button></DialogClose>
+                        <Button type="submit"><Send className="mr-2 h-4 w-4" /> Envoyer</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 
 export default function CollaborationsClient() {
     const [posts, setPosts] = useState<CollaborationPost[]>(initialPosts);
@@ -29,6 +72,7 @@ export default function CollaborationsClient() {
     const categories = ['Tout', 'Recherche de projet', 'Offre de service', 'Portfolio'];
     const { toast } = useToast();
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [contactingAuthor, setContactingAuthor] = useState<string | null>(null);
 
     const filteredPosts = posts.filter(post => {
         const matchesCategory = category === 'Tout' || post.type === category;
@@ -133,7 +177,10 @@ export default function CollaborationsClient() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                  {filteredPosts.map(post => (
-                     <Card key={post.id} className="glass-card flex flex-col group">
+                     <Card key={post.id} className={cn(
+                        "glass-card flex flex-col group transition-all duration-300 hover:border-primary/30 hover:-translate-y-2",
+                        post.type === 'Recherche de projet' && 'bg-primary/10 border-primary/20'
+                     )}>
                          <CardHeader className="flex-row items-center gap-4">
                              <Avatar className="w-14 h-14">
                                  <AvatarImage src={post.avatar} alt={post.author} data-ai-hint={post.imageHint} />
@@ -148,24 +195,24 @@ export default function CollaborationsClient() {
                              <p className="text-sm text-muted-foreground mb-4">{post.description}</p>
                              <div className="flex flex-wrap gap-2">
                                  {post.skills.map(skill => (
-                                     <Badge key={skill} variant="secondary">{skill}</Badge>
+                                     <Badge key={skill} variant={post.type === 'Recherche de projet' ? 'default' : 'secondary'}>{skill}</Badge>
                                  ))}
                              </div>
                          </CardContent>
                          <CardFooter className="mt-auto">
                             {post.type === 'Offre de service' && (
-                                <Button variant="outline" className="w-full">
+                                <Button variant="outline" className="w-full" onClick={() => setContactingAuthor(post.author)}>
                                     Contacter <ExternalLink className="ml-2 h-4 w-4" />
                                 </Button>
                             )}
                              {post.type === 'Recherche de projet' && (
-                                <Button className="w-full">
-                                    Voir l'offre <ExternalLink className="ml-2 h-4 w-4" />
+                                <Button asChild className="w-full">
+                                    <Link href="#">Voir l'offre <ExternalLink className="ml-2 h-4 w-4" /></Link>
                                 </Button>
                             )}
                              {post.type === 'Portfolio' && (
-                                <Button variant="secondary" className="w-full">
-                                    Voir le portfolio <ExternalLink className="ml-2 h-4 w-4" />
+                                <Button asChild variant="secondary" className="w-full">
+                                    <Link href="#">Voir le portfolio <ExternalLink className="ml-2 h-4 w-4" /></Link>
                                 </Button>
                             )}
                          </CardFooter>
@@ -198,6 +245,14 @@ export default function CollaborationsClient() {
                          </CardFooter>
                      </Card>
             </div>
+            
+            {contactingAuthor && (
+                <ContactModal 
+                    author={contactingAuthor}
+                    open={!!contactingAuthor}
+                    onOpenChange={(open) => !open && setContactingAuthor(null)}
+                />
+            )}
         </div>
     );
 }
