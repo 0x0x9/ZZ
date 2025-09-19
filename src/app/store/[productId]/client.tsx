@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect } from "react";
@@ -237,7 +238,7 @@ export default function ProductClient({ product }: { product: Product }) {
                  <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
                     <AnimatedSection>
                          <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-                            <Image src="https://picsum.photos/seed/cooling/800/800" alt="Système de refroidissement" fill className="object-cover" data-ai-hint="liquid cooling computer"/>
+                            <Image src="https://picsum.photos/seed/cooling/800/800" alt="Système de refroidissement" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint="liquid cooling computer"/>
                          </div>
                     </AnimatedSection>
                     <AnimatedSection>
@@ -254,7 +255,7 @@ export default function ProductClient({ product }: { product: Product }) {
                  <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
                      <AnimatedSection className="md:order-2">
                          <div className="relative aspect-square rounded-2xl overflow-hidden glass-card p-4">
-                            <Image src="https://picsum.photos/seed/chassis/800/800" alt="Châssis modulaire" fill className="object-cover" data-ai-hint="open computer case"/>
+                            <Image src="https://picsum.photos/seed/chassis/800/800" alt="Châssis modulaire" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint="open computer case"/>
                          </div>
                     </AnimatedSection>
                     <AnimatedSection className="md:order-1">

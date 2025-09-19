@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -41,16 +42,7 @@ import {
   BookOpen,
   Paintbrush,
   Users,
-  Palette,
-  Mic,
-  Presentation,
-  Terminal,
-  Calendar,
-  Network,
-  Wand2,
-  Cloud,
-  Guitar,
-  Star,
+  Check,
   Plus,
   Minus,
   Download,
@@ -160,6 +152,7 @@ function CartSheet() {
                         alt={item.name}
                         fill
                         className="object-cover"
+                        sizes="80px"
                       />
                     </div>
                     <div className="flex-1">
@@ -323,7 +316,7 @@ export function Header() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="rounded-full flex items-center gap-2">
-                                <Image src={user.photoURL || imageData.general.user_avatar.src} alt={user.displayName || "Avatar"} width={28} height={28} className="rounded-full" data-ai-hint="person portrait"/>
+                                <Image src={user.photoURL || imageData.general.user_avatar.src} alt={user.displayName || "Avatar"} width={28} height={28} className="rounded-full" data-ai-hint="person portrait" sizes="28px" />
                                 {user.displayName}
                                 <ChevronDown className="h-4 w-4" />
                             </Button>

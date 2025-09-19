@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -53,6 +54,7 @@ export default function StoreClient() {
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         data-ai-hint={imageData.store.workstation.hint}
+                        sizes="100vw"
                         priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

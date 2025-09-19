@@ -33,7 +33,7 @@ export { oria } from '@/ai/flows/oria';
 
 // Specific action wrappers
 import { generateContent as generateContentFlow } from '@/ai/flows/content-generator';
-import type { GenerateContentOutput } from '@/ai/types';
+import type { GenerateContentOutput, ReformatTextWithPromptOutput } from '@/ai/types';
 
 export async function generateContent(prevState: any, formData: FormData): Promise<{ id: number, type: string, data: string | GenerateContentOutput['data'] | null, error: string | null }> {
   try {
@@ -210,4 +210,15 @@ export async function getActionResult(resultId: string): Promise<{ result: any; 
         }
     }
     return null;
+}
+
+export async function reformatTextAction(prevState: any, formData: FormData): Promise<{ message: string; error: string | null, result: ReformatTextWithPromptOutput | null, id: number }> {
+    const text = formData.get('text') as string;
+    const prompt = formData.get('prompt') as string;
+    try {
+        const result = await generateContentFlow({ contentType: 'reformat', prompt, textToReformat: text });
+        return { message: 'success', error: null, result: result.data as ReformatTextWithPromptOutput, id: Date.now() };
+    } catch (e: any) {
+        return { message: 'error', error: e.message, result: null, id: Date.now() };
+    }
 }

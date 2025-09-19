@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -43,6 +44,7 @@ function MasonryLayout({ items, onImageClick }: { items: GalleryItem[], onImageC
                 height={500}
                 className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 data-ai-hint={item.imageHint}
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute bottom-0 left-0 p-4 text-white">
@@ -76,6 +78,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
                   fill
                   className="object-contain"
                   data-ai-hint={selectedItem.imageHint}
+                  sizes="(max-width: 768px) 100vw, 67vw"
                 />
               </div>
               <div className="w-full md:w-1/3 p-6 flex flex-col">

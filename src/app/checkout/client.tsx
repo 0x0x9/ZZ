@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useCart } from "@/hooks/use-cart-store";
@@ -179,7 +180,7 @@ export default function CheckoutClient() {
                                     {items.map(item => (
                                         <div key={item.cartItemId} className="flex items-start gap-4">
                                             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-white/10">
-                                                <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                                <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
                                             </div>
                                             <div className="flex-1">
                                                 <h3 className="font-semibold text-sm">{item.name}</h3>

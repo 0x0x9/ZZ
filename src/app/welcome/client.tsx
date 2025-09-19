@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useRef } from 'react';
@@ -190,6 +191,7 @@ export default function WelcomeClient() {
                                     fill
                                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                                     data-ai-hint={item.imageHint}
+                                    sizes="(max-width: 768px) 100vw, 33vw"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                                 <div className="absolute bottom-0 left-0 p-8 text-white">
