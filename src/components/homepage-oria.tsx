@@ -83,8 +83,9 @@ const OriaResultDisplay = ({ result }: { result: OriaChatOutput }) => {
              const resultId = `flux-result-${Date.now()}`;
              const dataToStore = { result: data, prompt: promptForTool };
              localStorage.setItem(resultId, JSON.stringify(dataToStore));
+             params.set('open', 'flux');
              params.set('resultId', resultId);
-             router.push(`/flux?${params.toString()}`);
+             router.push(`/xos?${params.toString()}`);
         } else if (data) {
              const resultId = `result-${Date.now()}`;
              localStorage.setItem(resultId, JSON.stringify({ result: data, prompt: promptForTool }));
