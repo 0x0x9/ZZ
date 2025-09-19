@@ -13,13 +13,9 @@ import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNotifications } from '@/hooks/use-notifications';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateSound } from '@/app/api/generateSound/route';
-import { uploadDocument } from '@/app/actions';
+import { uploadDocument as uploadDocumentAction } from '@/app/actions';
 
-
-function SubmitButton() {
-    const [isLoading, setIsLoading] = useState(false);
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
     <Button type="submit" disabled={isLoading} size="lg">
       {isLoading ? (
@@ -43,7 +39,7 @@ function ResultsDisplay({ result, onReset }: { result: GenerateSoundOutput, onRe
         setIsSaving(true);
         try {
             const fileName = `sounds/sound-${Date.now()}.wav`;
-            await uploadDocument({ name: fileName, content: result.audioDataUri, mimeType: 'audio/wav' });
+            await uploadDocumentAction({ name: fileName, content: result.audioDataUri, mimeType: 'audio/wav' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -81,9 +77,10 @@ function ResultsDisplay({ result, onReset }: { result: GenerateSoundOutput, onRe
     );
 }
 
-function SoundForm({ prompt, onPromptChange }: {
+function SoundForm({ prompt, onPromptChange, isLoading }: {
     prompt: string;
     onPromptChange: (value: string) => void;
+    isLoading: boolean;
 }) {
     return (
         <Card className="glass-card">
@@ -115,10 +112,11 @@ function SoundForm({ prompt, onPromptChange }: {
                     className="bg-transparent text-base"
                     value={prompt}
                     onChange={(e) => onPromptChange(e.target.value)}
+                    disabled={isLoading}
                 />
             </CardContent>
             <CardFooter className="justify-center">
-                <SubmitButton />
+                <SubmitButton isLoading={isLoading} />
             </CardFooter>
         </Card>
     );
@@ -146,11 +144,18 @@ export default function SoundGenerator({ initialResult: initialResultFromProps, 
         setIsLoading(true);
         setResult(null);
         try {
-            const response = await runFlow(generateSound, { prompt });
-            setResult(response);
+            const response = await fetch('/api/generateSound', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+            if (!response.ok) throw new Error((await response.json()).error);
+            const data: GenerateSoundOutput = await response.json();
+            
+            setResult(data);
             setShowForm(false);
             const resultId = `sound-result-${Math.random()}`;
-            localStorage.setItem(resultId, JSON.stringify({ result: response, prompt }));
+            localStorage.setItem(resultId, JSON.stringify({ result: data, prompt }));
             addNotification({
                 icon: Music,
                 title: "Son généré !",
@@ -181,7 +186,7 @@ export default function SoundGenerator({ initialResult: initialResultFromProps, 
     return (
         <form onSubmit={handleSubmit} key={key}>
              <div className="max-w-2xl mx-auto">
-                {showForm && <SoundForm prompt={prompt} onPromptChange={setPrompt} />}
+                {showForm && <SoundForm prompt={prompt} onPromptChange={setPrompt} isLoading={isLoading} />}
 
                 {isLoading && (
                     <div className="mt-6">

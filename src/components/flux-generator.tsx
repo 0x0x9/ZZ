@@ -1,10 +1,8 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { generateFlux } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +15,8 @@ import { Wand2, Sparkles, Loader, BrainCircuit, Palette, Mic, Users, Lightbulb, 
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { useAppLauncher } from '@/hooks/use-app-launcher';
+import { runFlow } from '@genkit-ai/next/client';
+import { generateFlux } from '@/ai/flows/generate-flux';
 
 interface FluxGeneratorProps {
     prompt?: string;
@@ -26,8 +26,7 @@ interface FluxGeneratorProps {
 }
 
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button type="submit" disabled={pending} size="lg" className="h-12 text-base">
       {pending ? (
@@ -191,39 +190,43 @@ export default function FluxGenerator({ prompt: promptProp, job: jobProp, initia
     const formRef = useRef<HTMLFormElement>(null);
     const { toast } = useToast();
     const [key, setKey] = useState(0); // Used to reset the form
+    const [result, setResult] = useState<GenerateFluxOutput | null>(initialResultProp || null);
+    const [prompt, setPrompt] = useState(promptProp || '');
+    const [job, setJob] = useState(jobProp || '');
+    const [isPending, setIsPending] = useState(false);
     
-    const initialState: { result: GenerateFluxOutput | null, error: string, prompt: string, job: string } = { 
-        result: initialResultProp || null,
-        error: '', 
-        prompt: promptProp || '',
-        job: jobProp || ''
-    };
-    const [state, formAction] = useFormState(generateFlux, initialState);
-    const { pending } = useFormStatus();
-
-    useEffect(() => {
-        if (state?.error) {
-          toast({
-            variant: 'destructive',
-            title: 'Erreur (X)flux',
-            description: state.error,
-          });
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsPending(true);
+        try {
+            const data = await runFlow(generateFlux, { prompt, job });
+            setResult(data);
+        } catch (err: any) {
+             toast({
+                variant: 'destructive',
+                title: 'Erreur (X)flux',
+                description: err.message || "Une erreur est survenue.",
+              });
+        } finally {
+            setIsPending(false);
         }
-    }, [state, toast]);
+    };
     
     const handleReset = () => {
         setKey(prevKey => prevKey + 1);
-        formRef.current?.reset();
+        setResult(null);
+        setPrompt('');
+        setJob('');
     };
 
     return (
          <div className="max-w-7xl mx-auto">
-            {pending ? (
+            {isPending ? (
                 <LoadingDisplay />
-            ) : state.result ? (
-                <ResultsDisplay result={state.result} prompt={state.prompt} onReset={handleReset} openApp={openApp} />
+            ) : result ? (
+                <ResultsDisplay result={result} prompt={prompt} onReset={handleReset} openApp={openApp} />
             ) : (
-                <form ref={formRef} action={formAction} key={key}>
+                <form ref={formRef} onSubmit={handleSubmit} key={key}>
                     <Card className="glass-card max-w-2xl mx-auto w-full">
                         <CardHeader className="text-center">
                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4 border-4 border-primary/20">
@@ -242,17 +245,19 @@ export default function FluxGenerator({ prompt: promptProp, job: jobProp, initia
                                 required
                                 minLength={15}
                                 className="bg-transparent text-base text-center"
-                                defaultValue={initialState.prompt}
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
                             />
                             <Input 
                                 name="job"
                                 placeholder="Votre métier ? (ex: Développeur, Artiste, etc.) - Optionnel"
                                 className="bg-transparent text-base text-center"
-                                defaultValue={initialState.job}
+                                value={job}
+                                onChange={(e) => setJob(e.target.value)}
                             />
                         </CardContent>
                         <div className="flex justify-center p-6 pt-0">
-                            <SubmitButton />
+                            <SubmitButton pending={isPending} />
                         </div>
                     </Card>
                 </form>

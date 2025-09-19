@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -8,7 +7,7 @@
  */
 
 import { ai } from '@/genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import {
   OriaChatInputSchema,
@@ -55,12 +54,6 @@ import { generateFrame } from './generate-frame';
 import { generateSound } from './generate-sound';
 import { generateNexus } from './generate-nexus';
 import { generateFlux } from './generate-flux';
-
-export async function oria(
-  input: OriaChatInput
-): Promise<OriaChatOutput> {
-  return oriaRouterFlow(input);
-}
 
 // Tools that the AI can call
 const textTool = ai.defineTool(
@@ -239,9 +232,9 @@ Vous avez 3 options principales :
 Requête de l'utilisateur : {{{prompt}}}
 `;
 
-const oriaRouterFlow = ai.defineFlow(
+export const oria = ai.defineFlow(
   {
-    name: 'oriaRouterFlow',
+    name: 'oria',
     inputSchema: OriaChatInputSchema,
     outputSchema: OriaChatOutputSchema,
   },

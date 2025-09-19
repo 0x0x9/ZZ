@@ -1,10 +1,9 @@
-
 'use server';
 
 import { ai } from '@/genkit';
 import { z } from 'zod';
 import { GenerateIdeasOutputSchema, ReformatTextWithPromptOutputSchema } from '@/ai/types';
-import { googleAI } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const GenerateContentInputSchema = z.object({
     contentType: z.enum(['text', 'image', 'ideas', 'reformat']),
@@ -12,13 +11,13 @@ const GenerateContentInputSchema = z.object({
     style: z.string().optional(),
     textToReformat: z.string().optional(),
 });
-type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>;
+export type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>;
 
 const GenerateContentOutputSchema = z.object({
     type: z.enum(['text', 'image', 'ideas']),
     data: z.any(),
 });
-type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>;
+export type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>;
 
 const contentGenerationPrompt = ai.definePrompt({
     name: 'contentGenerationPrompt',
@@ -48,9 +47,9 @@ Répondez UNIQUEMENT avec le résultat demandé.`,
 });
 
 
-const generateContentFlow = ai.defineFlow(
+export const generateContent = ai.defineFlow(
   {
-    name: 'generateContentFlow',
+    name: 'generateContent',
     inputSchema: GenerateContentInputSchema,
     outputSchema: GenerateContentOutputSchema,
   },
@@ -90,8 +89,3 @@ const generateContentFlow = ai.defineFlow(
     return { type: 'text', data: resultText };
   }
 );
-
-
-export async function generateContent(input: GenerateContentInput): Promise<GenerateContentOutput> {
-    return generateContentFlow(input);
-}

@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -10,15 +9,23 @@
 
 import type { GenerateMoodboardInput, GenerateMoodboardOutput } from '@/ai/types';
 import { generateContent } from './content-generator';
+import { ai } from '@/genkit';
+import { z } from 'zod';
 
-
-export async function generateMoodboard(input: GenerateMoodboardInput): Promise<GenerateMoodboardOutput> {
-  const imagePromises = input.prompts.map(prompt => generateContent({
-    prompt,
-    style: 'photorealistic',
-    contentType: 'image'
-  }));
-  const imageResults = await Promise.all(imagePromises);
-  const imageDataUris = imageResults.map(result => result.data as string);
-  return { imageDataUris };
-}
+export const generateMoodboard = ai.defineFlow(
+  {
+    name: 'generateMoodboard',
+    inputSchema: z.object({ prompts: z.array(z.string()) }),
+    outputSchema: z.object({ imageDataUris: z.array(z.string()) }),
+  },
+  async (input) => {
+    const imagePromises = input.prompts.map(prompt => generateContent({
+      prompt,
+      style: 'photorealistic',
+      contentType: 'image'
+    }));
+    const imageResults = await Promise.all(imagePromises);
+    const imageDataUris = imageResults.map(result => result.data as string);
+    return { imageDataUris };
+  }
+);

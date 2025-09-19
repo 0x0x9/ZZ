@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateMuse, copilotLyrics, uploadDocument } from '@/app/actions';
+import { generateMuse, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,6 +23,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from '@/lib/utils';
+import { runFlow } from '@genkit-ai/next/client';
+import { copilotLyrics } from '@/ai/flows/copilot-lyrics';
+
 
 const moods = ['Mélancolique', 'Planant', 'Sombre', 'Festif', 'Épique', 'Intimiste'];
 const tempos = ['Lent', 'Modéré', 'Rapide'];
@@ -255,11 +257,11 @@ function SuggestionDialog({ open, title, suggestions, onSelect, onOpenChange }: 
 
 export default function MuseGenerator() {
     const initialState = { result: null, error: null, theme: '', mood: 'Mélancolique', tempo: 'Modéré', references: '' };
-    const [state, formAction] = useFormState(generateMuse, initialState);
+    const [museState, setMuseState] = useState(initialState);
+    const [isMuseLoading, setIsMuseLoading] = useState(false);
 
-    const initialCopilotState = { suggestions: [], error: null, action: undefined as ('ENHANCE' | 'RHYMES' | undefined) };
-    const [copilotState, copilotAction] = useFormState(copilotLyrics, initialCopilotState);
-
+    const [copilotSuggestions, setCopilotSuggestions] = useState<string[]>([]);
+    const [copilotAction, setCopilotAction] = useState<'ENHANCE' | 'RHYMES' | undefined>();
     const [isCopilotLoading, setIsCopilotLoading] = useState(false);
     const [suggestionDialog, setSuggestionDialog] = useState<{ open: boolean, title: string, suggestions: string[] }>({ open: false, title: '', suggestions: [] });
     const [selection, setSelection] = useState<{ text: string; start: number; end: number} | null>(null);
@@ -270,51 +272,66 @@ export default function MuseGenerator() {
     const formRef = useRef<HTMLFormElement>(null);
 
     const { toast } = useToast();
-    const { pending: isMuseLoading } = useFormStatus();
 
     useEffect(() => {
-        if (state.error) {
-            toast({
-                variant: 'destructive',
-                title: 'Erreur (X)muse',
-                description: state.error,
-            });
-        }
-        if (state.result?.initialLyrics) {
-            setWriterContent(state.result.initialLyrics);
-            const newTitle = state.result.mainStyle ? `Texte - ${state.result.mainStyle}` : 'Nouveau Texte Inspiré';
+        if (museState.result?.initialLyrics) {
+            setWriterContent(museState.result.initialLyrics);
+            const newTitle = museState.result.mainStyle ? `Texte - ${museState.result.mainStyle}` : 'Nouveau Texte Inspiré';
             setWriterTitle(newTitle);
         }
-    }, [state, toast]);
+    }, [museState.result]);
 
     useEffect(() => {
-        setIsCopilotLoading(false);
-        if (copilotState.suggestions && copilotState.suggestions.length > 0) {
+        if (copilotSuggestions.length > 0) {
             setSuggestionDialog({
                 open: true,
-                title: copilotState.action === 'ENHANCE' ? "Suggestions d'amélioration" : 'Suggestions de rimes',
-                suggestions: copilotState.suggestions
+                title: copilotAction === 'ENHANCE' ? "Suggestions d'amélioration" : 'Suggestions de rimes',
+                suggestions: copilotSuggestions
             });
-        } else if (copilotState.error) {
-            toast({ variant: 'destructive', title: 'Erreur du copilote', description: copilotState.error });
         }
-    }, [copilotState, toast]);
+    }, [copilotSuggestions, copilotAction]);
+    
+    const handleMuseSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsMuseLoading(true);
+        const formData = new FormData(e.currentTarget);
+        try {
+            const result = await runFlow(generateMuse, {
+                theme: formData.get('theme') as string,
+                mood: formData.get('mood') as string,
+                tempo: formData.get('tempo') as string,
+                references: formData.get('references') as string,
+            });
+            setMuseState({ ...initialState, result });
+        } catch(e: any) {
+            toast({ variant: 'destructive', title: 'Erreur (X)muse', description: e.message });
+        } finally {
+            setIsMuseLoading(false);
+        }
+    };
 
-    const handleCopilotRequest = (action: 'ENHANCE' | 'RHYMES') => {
+    const handleCopilotRequest = async (action: 'ENHANCE' | 'RHYMES') => {
         if (!selection) {
             toast({ variant: "destructive", description: "Veuillez sélectionner du texte à modifier." });
             return;
         }
         
         setIsCopilotLoading(true);
-        const formData = new FormData(formRef.current!);
-        const copilotFormData = new FormData();
-        copilotFormData.append('textToEdit', selection.text);
-        copilotFormData.append('fullText', writerContent);
-        copilotFormData.append('mood', formData.get('mood') as string || 'neutre');
-        copilotFormData.append('action', action);
-        
-        copilotAction(copilotFormData);
+        setCopilotAction(action);
+        const mood = formRef.current ? (new FormData(formRef.current).get('mood') as string || 'neutre') : 'neutre';
+        try {
+            const result = await runFlow(copilotLyrics, {
+                textToEdit: selection.text,
+                fullText: writerContent,
+                mood: mood,
+                action: action,
+            });
+            setCopilotSuggestions(result.suggestions);
+        } catch(e: any) {
+            toast({ variant: 'destructive', title: 'Erreur du copilote', description: e.message });
+        } finally {
+            setIsCopilotLoading(false);
+        }
     };
 
     const handleSuggestionSelect = (suggestion: string) => {
@@ -328,7 +345,7 @@ export default function MuseGenerator() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6">
-                <form ref={formRef} action={formAction}>
+                <form ref={formRef} onSubmit={handleMuseSubmit}>
                      <Accordion type="single" collapsible defaultValue="inspiration-engine">
                         <AccordionItem value="inspiration-engine" className="border-none">
                             <Card className="glass-card">
@@ -345,11 +362,11 @@ export default function MuseGenerator() {
                                     <div className="space-y-4 pt-4 border-t border-border">
                                         <div>
                                             <Label htmlFor="theme">Thème principal</Label>
-                                            <Textarea id="theme" name="theme" placeholder="Ex: La solitude dans une grande ville..." rows={2} required className="mt-2 bg-transparent" minLength={5} disabled={isMuseLoading} defaultValue={state.theme ?? ''} />
+                                            <Textarea id="theme" name="theme" placeholder="Ex: La solitude dans une grande ville..." rows={2} required className="mt-2 bg-transparent" minLength={5} disabled={isMuseLoading} defaultValue={museState.theme ?? ''} />
                                         </div>
                                         <div>
                                             <Label>Ambiance souhaitée</Label>
-                                            <RadioGroup name="mood" defaultValue={state.mood ?? "Mélancolique"} className="mt-2 grid grid-cols-2 gap-2">
+                                            <RadioGroup name="mood" defaultValue={museState.mood ?? "Mélancolique"} className="mt-2 grid grid-cols-2 gap-2">
                                                 {moods.map(mood => (
                                                     <div key={mood} className="flex items-center space-x-2"><RadioGroupItem value={mood} id={`mood-${mood}`} /><Label htmlFor={`mood-${mood}`} className="font-normal text-sm">{mood}</Label></div>
                                                 ))}
@@ -357,7 +374,7 @@ export default function MuseGenerator() {
                                         </div>
                                         <div>
                                             <Label>Tempo</Label>
-                                            <RadioGroup name="tempo" defaultValue={state.tempo ?? "Modéré"} className="mt-2 flex gap-4">
+                                            <RadioGroup name="tempo" defaultValue={museState.tempo ?? "Modéré"} className="mt-2 flex gap-4">
                                                 {tempos.map(tempo => (
                                                     <div key={tempo} className="flex items-center space-x-2"><RadioGroupItem value={tempo} id={`tempo-${tempo}`} /><Label htmlFor={`tempo-${tempo}`} className="font-normal text-sm">{tempo}</Label></div>
                                                 ))}
@@ -365,10 +382,14 @@ export default function MuseGenerator() {
                                         </div>
                                         <div>
                                             <Label htmlFor="references">Références (Facultatif)</Label>
-                                            <Input id="references" name="references" placeholder="Ex: L'univers de Blade Runner..." className="mt-2 bg-transparent" disabled={isMuseLoading} defaultValue={state.references ?? ''}/>
+                                            <Input id="references" name="references" placeholder="Ex: L'univers de Blade Runner..." className="mt-2 bg-transparent" disabled={isMuseLoading} defaultValue={museState.references ?? ''}/>
                                         </div>
                                     </div>
-                                     <CardFooter className="px-0 pt-6"><SubmitButton /></CardFooter>
+                                     <CardFooter className="px-0 pt-6">
+                                        <Button type="submit" disabled={isMuseLoading} size="lg" className="w-full">
+                                            {isMuseLoading ? ( <LoadingState text="Analyse en cours..." isCompact={true} /> ) : ( <>Trouver l'inspiration<Sparkles className="ml-2 h-5 w-5" /></> )}
+                                        </Button>
+                                    </CardFooter>
                                 </AccordionContent>
                             </Card>
                         </AccordionItem>
@@ -384,7 +405,7 @@ export default function MuseGenerator() {
                     </Card>
                 )}
 
-                {!isMuseLoading && state.result && <InspirationPanel result={state.result} />}
+                {!isMuseLoading && museState.result && <InspirationPanel result={museState.result} />}
             </div>
 
             <div className="lg:col-span-3 h-[85vh] sticky top-24">

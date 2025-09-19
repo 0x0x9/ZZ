@@ -40,7 +40,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 import { useToast } from '@/hooks/use-toast';
 import { Loader, Wand2, Bug, BrainCircuit, Save, TerminalSquare, FileText, AppWindow, Upload, Image as ImageIconLucide, PanelLeftOpen, PanelLeftClose, LayoutTemplate, X, Sparkles } from 'lucide-react';
-import { uploadDocumentAction } from '@/app/actions';
+import { uploadDocument as uploadDocumentAction } from '@/app/actions';
 import { Skeleton } from './ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
@@ -50,12 +50,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
-import { runFlow } from '@genkit-ai/next/client';
 import { type GenerateCodeOutput, type ExplainCodeOutput, type DebugCodeOutput } from '@/ai/types';
-import { generateFrame } from '@/app/api/generateFrame/route';
-import { explainCode } from '@/app/api/explainCode/route';
-import { debugCode } from '@/app/api/debugCode/route';
-import { refactorCode } from '@/app/api/refactorCode/route';
 
 
 type AiAction = 'explain' | 'refactor' | 'debug';
@@ -91,7 +86,13 @@ const FrameGeneratorPanel = ({ onProjectGenerated }: { onProjectGenerated: (code
         
         setIsLoading(true);
         try {
-            const result = await runFlow(generateFrame, { prompt, photoDataUri: imageDataUri || undefined });
+            const response = await fetch('/api/generateFrame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, photoDataUri: imageDataUri || undefined }),
+            });
+            if (!response.ok) throw new Error((await response.json()).error || 'API error');
+            const result = await response.json();
             onProjectGenerated({ html: result.htmlCode, css: result.cssCode, js: result.jsCode || '' });
             toast({ title: "Maquette générée !", description: "Le projet a été chargé dans l'éditeur." });
             setPrompt('');
@@ -289,14 +290,18 @@ const FileBasedEditor = ({
     
     const handleAiAction = async (action: AiAction) => {
         setIsLoadingAi(true);
-
         try {
+            let result: any;
             if (action === 'explain') {
-                const result = await runFlow(explainCode, { code, language });
+                const response = await fetch('/api/explainCode', { method: 'POST', body: JSON.stringify({ code, language }) });
+                if (!response.ok) throw new Error((await response.json()).error);
+                result = await response.json();
                 setDialogTitle("Explication du code");
                 setExplanation(result.explanation);
             } else if (action === 'debug') {
-                const result = await runFlow(debugCode, { code, language });
+                const response = await fetch('/api/debugCode', { method: 'POST', body: JSON.stringify({ code, language }) });
+                if (!response.ok) throw new Error((await response.json()).error);
+                result = await response.json();
                 setCode(extractCodeFromMarkdown(result.fixedCode));
                 setIsDirty(true);
                 setDialogTitle("Rapport de débogage");
@@ -306,7 +311,9 @@ const FileBasedEditor = ({
                     toast({ variant: 'destructive', description: "Veuillez fournir une instruction pour améliorer le code." });
                     return;
                 }
-                const result = await runFlow(refactorCode, { code, language, prompt: refactorPrompt });
+                const response = await fetch('/api/refactorCode', { method: 'POST', body: JSON.stringify({ code, language, prompt: refactorPrompt }) });
+                if (!response.ok) throw new Error((await response.json()).error);
+                result = await response.json();
                 setCode(extractCodeFromMarkdown(result.code));
                 setIsDirty(true);
                 setDialogTitle("Code amélioré");
