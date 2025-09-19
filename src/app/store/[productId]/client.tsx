@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -70,6 +70,24 @@ const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
         </section>
     );
 };
+
+const oriaFeatures = [
+    {
+        icon: BrainCircuit,
+        title: "Orchestration Intelligente",
+        description: "Oria comprend votre objectif, sélectionne les bons outils (X)yzz et les fait travailler ensemble pour concrétiser votre vision."
+    },
+    {
+        icon: LinkIcon,
+        title: "Conscience Contextuelle",
+        description: "Oria sait sur quel projet vous travaillez et vous offre une assistance pertinente, sans que vous ayez à répéter."
+    },
+    {
+        icon: Zap,
+        title: "Catalyseur de Créativité",
+        description: "En panne d'inspiration ? Oria est votre partenaire de brainstorming pour générer des idées, des variations et de nouveaux concepts."
+    }
+];
 
 
 export default function ProductClient({ product: initialProduct }: { product: Product }) {
@@ -233,7 +251,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </div>
             </section>
             
-             <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
+            <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
                  <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
                     <div className="absolute inset-0 -z-10 h-full w-full">
                          <iframe
@@ -255,6 +273,29 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         </p>
                     </div>
                 </div>
+            </section>
+
+             <section className="container mx-auto px-4 md:px-6">
+                <Carousel className="w-full">
+                    <CarouselContent>
+                        {product.images.map((img, index) => (
+                            <CarouselItem key={index}>
+                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
+                                        <Image 
+                                        src={img} 
+                                        alt={`${product.name} - vue ${index + 1}`} 
+                                        fill 
+                                        className="object-contain p-4 md:p-8" 
+                                        sizes="(max-width: 768px) 100vw, 75vw"
+                                        priority={index === 0}
+                                    />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
             </section>
 
             <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
@@ -285,30 +326,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                      </AnimatedSection>
                 </div>
             </section>
-
-             <section className="container mx-auto px-4 md:px-6">
-                <Carousel className="w-full">
-                    <CarouselContent>
-                        {product.images.map((img, index) => (
-                            <CarouselItem key={index}>
-                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
-                                        <Image 
-                                        src={img} 
-                                        alt={`${product.name} - vue ${index + 1}`} 
-                                        fill 
-                                        className="object-contain p-4 md:p-8" 
-                                        sizes="(max-width: 768px) 100vw, 75vw"
-                                        priority={index === 0}
-                                    />
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
-            </section>
-
+            
             <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
                  <AnimatedSection className="text-center">
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
@@ -359,6 +377,30 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                     </AnimatedSection>
                 </section>
             )}
+
+            <section className="container mx-auto px-4 md:px-6">
+                <AnimatedSection className="text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
+                        Oria. Le chef d'orchestre de votre station.
+                    </h2>
+                    <p className="mt-4 max-w-3xl mx-auto text-lg text-muted-foreground">
+                        La (X)-fi n'est pas seulement puissante. Elle est intelligente. Oria est intégrée au cœur du système pour anticiper vos besoins et optimiser vos workflows.
+                    </p>
+                </AnimatedSection>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {oriaFeatures.map((feature, index) => (
+                        <AnimatedSection key={feature.title}>
+                            <Card className="glass-card h-full text-center p-8">
+                                <div className="inline-block bg-primary/10 p-4 rounded-2xl border border-primary/20 mb-6">
+                                    <feature.icon className="h-8 w-8 text-primary" />
+                                </div>
+                                <h3 className="text-2xl font-bold">{feature.title}</h3>
+                                <p className="text-muted-foreground mt-3">{feature.description}</p>
+                            </Card>
+                        </AnimatedSection>
+                    ))}
+                </div>
+            </section>
 
             <section className="container mx-auto px-4 md:px-6 py-12">
                 <div className="glass-card grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl">
