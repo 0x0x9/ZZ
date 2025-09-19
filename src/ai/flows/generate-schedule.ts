@@ -2,6 +2,7 @@
 'use server';
 
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import {
   GenerateScheduleInputSchema,
   ProjectPlanSchema,
@@ -16,7 +17,13 @@ export async function generateSchedule(
   return scheduleFlow(input);
 }
 
-const schedulePrompt = `Vous êtes Maestro, un chef de projet IA expert en stratégie et en organisation de projets créatifs.
+const schedulePrompt = ai.definePrompt({
+    name: 'schedulePrompt',
+    inputSchema: GenerateScheduleInputSchema.extend({
+        currentDate: z.string(),
+    }),
+    output: { schema: ProjectPlanSchema, format: 'json' },
+    prompt: `Vous êtes Maestro, un chef de projet IA expert en stratégie et en organisation de projets créatifs.
 Votre mission est de transformer une simple description de projet en un plan d'action complet, structuré et prêt à être exécuté.
 
 **L'intégralité de la réponse, à l'exception des 'imagePrompts', doit être rédigée en français.**
@@ -30,26 +37,9 @@ Chaque événement doit avoir un titre, une date (YYYY-MM-DD) et une heure (HH:m
 
 Description du projet de l'utilisateur : {{{prompt}}}
 
-Votre réponse DOIT être un objet JSON valide qui respecte le schéma suivant :
-{
-  "title": "Un titre créatif et engageant pour le projet.",
-  "creativeBrief": "Un paragraphe de 3-4 phrases qui définit la vision, le ton, le style et le public cible du projet.",
-  "tasks": [
-    {
-      "title": "Le titre de la tâche, court et commençant par un verbe d'action.",
-      "description": "Une description claire en 1 ou 2 phrases de ce que la tâche implique.",
-      "category": "Stratégie & Recherche | Pré-production | Création & Production | Post-production & Lancement",
-      "duration": "Une estimation de la durée (ex: '2 jours', '1 semaine').",
-      "checklist": [
-        { "text": "Sous-tâche 1", "completed": false },
-        { "text": "Sous-tâche 2", "completed": false }
-      ]
-    }
-  ],
-  "imagePrompts": ["Un prompt d'image en anglais pour le moodboard."],
-  "events": [{ "title": "...", "date": "...", "time": "..." }]
-}
-`;
+Votre réponse DOIT être un objet JSON valide qui respecte le schéma de sortie.`,
+});
+
 
 const scheduleFlow = ai.defineFlow(
   {
@@ -59,26 +49,10 @@ const scheduleFlow = ai.defineFlow(
   },
   async (input) => {
     
-    const finalPrompt = schedulePrompt
-      .replace('{{{prompt}}}', input.prompt)
-      .replace('{{{currentDate}}}', new Date().toISOString());
-      
-    const llmResponse = await ai.generate({
-      prompt: finalPrompt,
-      model: 'googleai/gemini-1.5-pro-latest',
-      config: {
-        response_mime_type: 'application/json',
-        safetySettings: [
-          {
-            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-            threshold: 'BLOCK_ONLY_HIGH',
-          },
-        ],
-      }
+    const { output } = await schedulePrompt({
+        ...input,
+        currentDate: new Date().toISOString(),
     });
-    
-    const parsed = JSON.parse(llmResponse.text);
-    const output = ProjectPlanSchema.parse(parsed);
 
     if (!output) {
       throw new Error("Maestro n'a pas pu générer de plan de projet.");

@@ -8,6 +8,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'zod';
 import {
   OriaChatInputSchema,
@@ -266,7 +267,7 @@ const oriaRouterFlow = ai.defineFlow(
       .replace('{{{context}}}', input.context || 'non spécifié');
 
     const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-pro-latest',
+        model: googleAI.model('gemini-1.5-pro-latest'),
         prompt: input.prompt,
         system: systemPrompt,
         history: validHistory,
@@ -307,5 +308,3 @@ const oriaRouterFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

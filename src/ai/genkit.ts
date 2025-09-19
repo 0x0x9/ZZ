@@ -1,4 +1,4 @@
-import { genkit } from 'genkit';
+import { genkit, type GenkitErrorCode, type GenkitError } from 'genkit';
 import { googleAI } from '@genkit-ai/googleai';
 
 // Vérifie la présence de la clé API.
@@ -11,6 +11,18 @@ if (!process.env.GOOGLE_API_KEY) {
   );
 }
 
+const handleError = (err: GenkitError) => {
+    const simplifiedError: Partial<GenkitError> = {
+        status: err.status,
+        message: err.message,
+    };
+    if (err.stack) {
+        simplifiedError.stack = err.stack.substring(0, 500); // Truncate stack
+    }
+    console.error('Simplified Genkit Error:', JSON.stringify(simplifiedError, null, 2));
+    throw simplifiedError;
+};
+
 // Initialise l'instance Genkit avec le plugin Google AI.
 // C'est le point d'entrée pour toutes les fonctionnalités d'IA.
 export const ai = genkit({
@@ -18,4 +30,5 @@ export const ai = genkit({
   logSinks: [],
   traceSinks: [],
   enableTracingAndMetrics: true,
+  errorHandler: handleError,
 });

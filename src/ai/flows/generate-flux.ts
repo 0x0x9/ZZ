@@ -9,6 +9,7 @@ import {
   type GenerateFluxOutput,
 } from '@/ai/types';
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/googleai';
 import { generateSchedule } from './generate-schedule';
 import { generatePalette } from './generate-palette';
 import { generateTone } from './generate-tone';
@@ -25,8 +26,14 @@ export async function generateFlux(input: GenerateFluxInput): Promise<GenerateFl
   return generateFluxFlow(input);
 }
 
-
-const analysisPrompt = `Vous êtes un chef de projet expert et un stratège créatif. Votre rôle est d'analyser la demande d'un utilisateur et de sélectionner la combinaison d'outils la plus pertinente pour réaliser son projet, en tenant compte de son métier.
+const analysisPrompt = ai.definePrompt({
+    name: 'fluxAnalysisPrompt',
+    inputSchema: z.object({
+        prompt: z.string(),
+        job: z.string().optional(),
+    }),
+    output: { schema: FluxAnalysisOutputSchema },
+    prompt: `Vous êtes un chef de projet expert et un stratège créatif. Votre rôle est d'analyser la demande d'un utilisateur et de sélectionner la combinaison d'outils la plus pertinente pour réaliser son projet, en tenant compte de son métier.
 
 Demande de l'utilisateur : {{{prompt}}}
 Métier de l'utilisateur : {{{job}}}
@@ -50,7 +57,9 @@ Adaptez votre sélection au métier. Exemples :
 - Si l'utilisateur est **Réalisateur** et veut "préparer un court-métrage de science-fiction", incluez 'projectPlan', 'motion', 'deck' (pour le pitch), 'ideas' et 'palette' (pour l'ambiance visuelle).
 - Si l'utilisateur est **Développeur** et veut "créer un portfolio en ligne", incluez 'projectPlan', 'frame', 'code', 'text', et 'palette'.
 
-Analysez la demande et le métier pour retourner la liste des ID d'outils les plus pertinents. La réponse DOIT être un objet JSON valide qui respecte le schéma : { "tools": ["tool1", "tool2", ...] }`;
+Analysez la demande et le métier pour retourner la liste des ID d'outils les plus pertinents. La réponse DOIT être un objet JSON valide qui respecte le schéma : { "tools": ["tool1", "tool2", ...] }`,
+});
+
 
 const generateFluxFlow = ai.defineFlow(
   {
@@ -60,25 +69,10 @@ const generateFluxFlow = ai.defineFlow(
   },
   async (input) => {
     // Phase 1: Analyse de la demande pour choisir les outils
-    const analysisResponse = await ai.generate({
-        prompt: analysisPrompt,
-        model: 'googleai/gemini-1.5-pro-latest',
-        input: {
-            prompt: input.prompt,
-            job: input.job || 'non spécifié',
-        },
-        output: { schema: FluxAnalysisOutputSchema },
-        config: {
-            safetySettings: [
-                {
-                    category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                    threshold: 'BLOCK_ONLY_HIGH',
-                },
-            ],
-        },
+    const { output: analysis } = await analysisPrompt({
+        prompt: input.prompt,
+        job: input.job || 'non spécifié',
     });
-
-    const analysis = analysisResponse.output;
 
     if (!analysis?.tools) {
       throw new Error(

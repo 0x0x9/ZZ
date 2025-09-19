@@ -20,7 +20,15 @@ const GenerateContentOutputSchema = z.object({
 });
 type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>;
 
-const contentGenerationPromptText = `Vous êtes un générateur de contenu expert. Votre tâche dépend du 'contentType' fourni.
+const contentGenerationPrompt = ai.definePrompt({
+    name: 'contentGenerationPrompt',
+    inputSchema: z.object({
+        contentType: z.enum(['text', 'image', 'ideas', 'reformat']),
+        prompt: z.string(),
+        style: z.string().optional(),
+        textToReformat: z.string().optional(),
+    }),
+    prompt: `Vous êtes un générateur de contenu expert. Votre tâche dépend du 'contentType' fourni.
 
 - Si 'contentType' est 'text': Générez du contenu textuel créatif basé sur le 'prompt'.
 - Si 'contentType' est 'image': Créez un prompt d'image très détaillé et descriptif en anglais, basé sur le 'prompt' et le 'style' de l'utilisateur.
@@ -33,7 +41,9 @@ Prompt/Instruction: {{{prompt}}}
 {{#if textToReformat}}Texte à reformater: {{{textToReformat}}}{{/if}}
 ---
 
-Répondez UNIQUEMENT avec le résultat demandé.`;
+Répondez UNIQUEMENT avec le résultat demandé.`,
+});
+
 
 const generateContentFlow = ai.defineFlow(
   {
@@ -48,7 +58,7 @@ const generateContentFlow = ai.defineFlow(
             finalPrompt = `${input.prompt}, style ${input.style}`;
         }
         const { media } = await ai.generate({
-            model: 'googleai/imagen-4.0-fast-generate-001',
+            model: googleAI.model('imagen-4.0-fast-generate-001'),
             prompt: finalPrompt,
         });
 
@@ -58,16 +68,7 @@ const generateContentFlow = ai.defineFlow(
         return { type: 'image', data: media.url };
     }
         
-    const llmResponse = await ai.generate({
-        model: 'googleai/gemini-1.5-pro-latest',
-        prompt: contentGenerationPromptText,
-        input: {
-            prompt: input.prompt,
-            style: input.style || '',
-            textToReformat: input.textToReformat || '',
-        },
-    });
-
+    const llmResponse = await contentGenerationPrompt(input);
     const resultText = llmResponse.text;
     
     if (input.contentType === 'ideas') {
