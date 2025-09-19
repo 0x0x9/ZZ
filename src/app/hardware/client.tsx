@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Cpu, Zap, Layers, MemoryStick, CircuitBoard, Check, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
