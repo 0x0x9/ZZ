@@ -1,7 +1,6 @@
 
 import PromptorClient from './client';
 import { Lightbulb, Palette, Film, Type } from 'lucide-react';
-import { Suspense } from 'react';
 
 const features = [
     {
@@ -24,7 +23,7 @@ const features = [
 const PromptorPage = () => {
     return (
         <div className="w-full space-y-24">
-            <section className="text-center mb-12">
+            <section className="text-center">
                 <div className="flex justify-center mb-6">
                     <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 p-3 rounded-full w-fit animate-gradient-x">
                         <Lightbulb className="h-8 w-8 text-white" />
@@ -38,9 +37,7 @@ const PromptorPage = () => {
                 </p>
             </section>
             
-            <Suspense>
-                <PromptorClient />
-            </Suspense>
+            <PromptorClient />
 
             <section className="container mx-auto px-4 md:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
