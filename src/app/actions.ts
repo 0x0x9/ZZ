@@ -12,12 +12,33 @@ import { renameDocument } from '@/ai/flows/rename-document';
 import { shareDocument } from '@/ai/flows/share-document';
 import { uploadDocument } from '@/ai/flows/upload-document';
 import { parseEvent } from '@/ai/flows/parse-event';
+import { generateFlux } from '@/ai/flows/generate-flux';
+import { generateSchedule } from '@/ai/flows/generate-schedule';
+import { generateCode } from '@/ai/flows/generate-code';
+import { generateMotion } from '@/ai/flows/generate-motion';
+import { generateContent } from '@/ai/flows/content-generator';
+import { generateDeck } from '@/ai/flows/generate-deck';
+import { generateLightMood } from '@/ai/flows/generate-light-mood';
+import { generateMoodboard } from '@/ai/flows/generate-moodboard';
+import { generateMuse } from '@/ai/flows/generate-muse';
+import { generateNexus } from '@/ai/flows/generate-nexus';
+import { generatePalette } from '@/ai/flows/generate-palette';
+import { generatePersona } from '@/ai/flows/generate-persona';
+import { generateSound } from '@/ai/flows/generate-sound';
+import { generateTone } from '@/ai/flows/generate-tone';
+import { generateVoice } from '@/ai/flows/generate-voice';
+import { copilotLyrics } from '@/ai/flows/copilot-lyrics';
+import { oria } from '@/ai/flows/oria';
 
-import type { ProjectPlan, GenerateFluxOutput } from '@/ai/types';
+import type { ProjectPlan, GenerateFluxOutput, OriaChatInput, OriaChatOutput } from '@/ai/types';
 import { ProjectPlanSchema } from '@/ai/types';
 import { z } from 'zod';
-import { generateFlux } from './api/generateFlux/route';
 
+
+// AI Actions
+export { generateCode, generateSchedule, generateMotion, generateContent, generateDeck, generateLightMood, generateMoodboard, generateMuse, generateNexus, generatePalette, generatePersona, generateSound, generateTone, generateVoice, copilotLyrics };
+
+// Cloud Storage Actions
 export { createFolder, deleteDocument, deleteFolder, getSignedUrl, listDocuments, renameDocument, shareDocument, uploadDocument };
 
 
@@ -77,6 +98,31 @@ export async function createManualProjectAction(prevState: any, formData: FormDa
     return { success: false, error: (error as Error).message };
   }
 }
+
+export async function oriaChatAction(prevState: any, formData: FormData): Promise<{ id: number, result: OriaChatOutput | null, error: string | null, message: 'success' | 'error' }> {
+  const prompt = formData.get('prompt') as string;
+  const context = formData.get('context') as OriaChatInput['context'];
+  const historyString = formData.get('history') as string;
+
+  let history: OriaChatInput['history'] = [];
+  try {
+    if (historyString) {
+      history = JSON.parse(historyString);
+    }
+  } catch (e) {
+    console.error("Failed to parse chat history", e);
+    return { id: prevState.id + 1, result: null, error: "L'historique de la conversation est invalide.", message: 'error' };
+  }
+  
+  try {
+    const result = await oria({ prompt, context, history });
+    return { id: prevState.id + 1, result, error: null, message: 'success' };
+  } catch (e: any) {
+    console.error("Oria chat action failed:", e);
+    return { id: prevState.id + 1, result: null, error: e.message || "Une erreur est survenue lors de l'appel à Oria.", message: 'error' };
+  }
+}
+
 
 // Re-exporting for client components that might still use them, but these should be migrated.
 export const listDocumentsAction = listDocuments;

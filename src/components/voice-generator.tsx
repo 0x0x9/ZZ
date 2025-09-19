@@ -14,9 +14,7 @@ import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { useNotifications } from '@/hooks/use-notifications';
 import type { GenerateVoiceOutput } from '@/ai/types';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateVoice } from '@/app/api/generateVoice/route';
-import { uploadDocument } from '@/app/actions';
+import { generateVoice, uploadDocument } from '@/app/actions';
 
 const voices = [
   { id: 'Algenib', name: 'Algenib', description: 'Voix masculine, calme et posée' },
@@ -167,7 +165,7 @@ export default function VoiceGenerator({ initialText, initialAudioDataUri, promp
     setResult(null);
 
     try {
-        const response = await runFlow(generateVoice, { text, voice });
+        const response = await generateVoice({ text, voice });
         setResult(response);
         addNotification({
             icon: AudioLines,

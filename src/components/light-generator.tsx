@@ -7,7 +7,7 @@ import { generateLightMood, generateMoodboard } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Sparkles, Sun, Droplets, Wind, Leaf } from 'lucide-react';
+import { Sparkles, Sun, Droplets, Wind, Leaf, RefreshCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateLightMoodOutput } from '@/ai/types';
 import { LoadingState } from './loading-state';
@@ -23,7 +23,7 @@ const moodThemes = [
     { id: 'focus', name: 'Concentration', icon: Wind, prompt: "Un bureau minimaliste avec une seule plante, baigné d'une lumière naturelle et douce." },
 ];
 
-function SubmitButton({ children }: { children: React.ReactNode }) {
+function SubmitButton() {
     const { pending } = useFormStatus();
     return (
         <Button type="submit" disabled={pending} size="lg" className="h-12">
@@ -31,14 +31,14 @@ function SubmitButton({ children }: { children: React.ReactNode }) {
             <LoadingState text="Recherche d'inspiration..." isCompact={true} />
         ) : (
             <>
-                {children}
+                <Sparkles className="mr-2 h-4 w-4" />Générer
             </>
         )}
         </Button>
     );
 }
 
-function ResultsDisplay({ result }: { result: GenerateLightMoodOutput & { images: string[], isLoadingImages: boolean } }) {
+function ResultsDisplay({ result, onReset }: { result: GenerateLightMoodOutput & { images: string[], isLoadingImages: boolean }, onReset: () => void }) {
     return (
         <motion.div 
             className="mt-12 space-y-8"
@@ -46,6 +46,12 @@ function ResultsDisplay({ result }: { result: GenerateLightMoodOutput & { images
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
+             <div className="text-center">
+                <Button onClick={onReset} variant="outline" size="lg">
+                    <RefreshCcw className="mr-2 h-4 w-4" />
+                    Nouvelle Ambiance
+                </Button>
+            </div>
             <div className="text-center">
                 <h2 className="text-3xl font-bold tracking-tight">{result.title}</h2>
                 <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{result.description}</p>
@@ -109,18 +115,24 @@ function ResultsDisplay({ result }: { result: GenerateLightMoodOutput & { images
 }
 
 export default function LightGenerator() {
-    const initialState = null;
+    const initialState: { result: GenerateLightMoodOutput | null, error: string | null } = { result: null, error: null };
     const [state, formAction] = useFormState(generateLightMood, initialState);
     const { toast } = useToast();
     const [resultWithImages, setResultWithImages] = useState<(GenerateLightMoodOutput & { images: string[], isLoadingImages: boolean }) | null>(null);
     const formRef = useRef<HTMLFormElement>(null);
+    const [showForm, setShowForm] = useState(true);
+    const [key, setKey] = useState(0);
+
+    const { pending } = useFormStatus();
 
     useEffect(() => {
         if (state?.error) {
+            setShowForm(true);
             toast({ variant: 'destructive', title: 'Erreur', description: state.error });
             setResultWithImages(null);
         }
         if (state?.result) {
+            setShowForm(false);
             const newResult = { ...state.result, images: [], isLoadingImages: true };
             setResultWithImages(newResult);
             generateMoodboard({ prompts: state.result.imagePrompts })
@@ -140,41 +152,47 @@ export default function LightGenerator() {
         formData.set('prompt', e.currentTarget.value);
         formAction(formData);
     }
+    
+    const handleReset = () => {
+        setKey(k => k + 1);
+        setShowForm(true);
+        setResultWithImages(null);
+    }
 
     return (
-        <div className="max-w-4xl mx-auto w-full">
-            <Card className="glass-card">
-                <CardHeader className="text-center">
-                    <CardTitle>Quelle est votre humeur créative ?</CardTitle>
-                    <CardDescription>Choisissez un thème ou décrivez votre propre ambiance.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form ref={formRef} action={formAction}>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            {moodThemes.map(theme => (
-                                <button
-                                    key={theme.id}
-                                    type="button"
-                                    onClick={handleThemeClick}
-                                    value={theme.prompt}
-                                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background/50 hover:border-primary transition-colors"
-                                >
-                                    <theme.icon className="h-6 w-6 text-primary"/>
-                                    <span className="text-sm font-medium">{theme.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <Input name="prompt" placeholder="Ou décrivez votre propre ambiance..." className="flex-1 h-12 text-base bg-background/50" />
-                            <SubmitButton>
-                                <Sparkles className="mr-2 h-4 w-4" />Générer
-                            </SubmitButton>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+        <div className="max-w-4xl mx-auto w-full" key={key}>
+            {showForm && (
+                <Card className="glass-card">
+                    <CardHeader className="text-center">
+                        <CardTitle>Quelle est votre humeur créative ?</CardTitle>
+                        <CardDescription>Choisissez un thème ou décrivez votre propre ambiance.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form ref={formRef} action={formAction}>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                {moodThemes.map(theme => (
+                                    <button
+                                        key={theme.id}
+                                        type="button"
+                                        onClick={handleThemeClick}
+                                        value={theme.prompt}
+                                        className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background/50 hover:border-primary transition-colors"
+                                    >
+                                        <theme.icon className="h-6 w-6 text-primary"/>
+                                        <span className="text-sm font-medium">{theme.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Input name="prompt" placeholder="Ou décrivez votre propre ambiance..." className="flex-1 h-12 text-base bg-background/50" />
+                                <SubmitButton />
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+            )}
 
-             {useFormStatus().pending && (
+            {pending && (
                 <div className="mt-12">
                     <Card className="glass-card min-h-[400px] relative overflow-hidden">
                         <div className="absolute inset-0 z-0"><AiLoadingAnimation isLoading={true} /></div>
@@ -185,7 +203,7 @@ export default function LightGenerator() {
                 </div>
             )}
             
-            {resultWithImages && <ResultsDisplay result={resultWithImages} />}
+            {resultWithImages && !showForm && <ResultsDisplay result={resultWithImages} onReset={handleReset}/>}
         </div>
     );
 }
