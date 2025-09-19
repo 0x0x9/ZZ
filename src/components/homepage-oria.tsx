@@ -2,8 +2,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -16,8 +14,8 @@ import { useFusionDock } from '@/hooks/use-fusion-dock';
 import type { OriaChatOutput, GenerateImageOutput, GeneratePaletteOutput, GenerateToneOutput, GenerateCodeOutput, GenerateTextOutput, GenerateVoiceOutput, GenerateDeckOutput, GenerateFrameOutput, GenerateSoundOutput, GenerateFluxOutput, GenerateMotionOutput, GenerateNexusOutput, GenerateIdeasOutput, GeneratePersonaOutput, OriaHistoryMessage } from '@/ai/types';
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogDescription } from './ui/alert-dialog';
 import OriaAnimation from './ui/oria-animation';
-import { runFlow } from '@genkit-ai/next/client';
-import { oria } from '@/app/api/oria/route';
+import { useAppLauncher } from '@/hooks/use-app-launcher';
+import { useRouter } from 'next/navigation';
 
 type Message = {
     id: number;
@@ -398,7 +396,18 @@ export default function HomepageOriaChat() {
             }))
             .filter(msg => msg.content && msg.content.trim() !== '');
 
-        const result = await runFlow(oria, { prompt, history, context: 'homepage' });
+        const response = await fetch('/api/oria', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, history, context: 'homepage' })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Network response was not ok');
+        }
+        
+        const result = await response.json();
 
         setMessages(prev => [...prev, { id: Date.now() + 1, type: 'oria', result }]);
       } catch (e: any) {

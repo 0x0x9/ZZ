@@ -3,8 +3,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
-import { generateCode } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,9 +13,9 @@ import { Sparkles, Code2, Copy, FileText, TerminalSquare, Save, X } from 'lucide
 import type { GenerateCodeOutput } from '@/ai/types';
 import Link from 'next/link';
 import { LoadingState } from './loading-state';
-import { uploadDocument } from '@/app/actions';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { useNotifications } from '@/hooks/use-notifications';
+import { uploadDocument } from '@/app/actions';
 
 const languages = [
     { id: 'typescript', name: 'TypeScript' },
@@ -40,11 +38,10 @@ const langToFileExtension: { [key: string]: string } = {
 };
 
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
-    <Button type="submit" disabled={pending} className="w-full">
-      {pending ? (
+    <Button type="submit" disabled={isLoading} className="w-full">
+      {isLoading ? (
         <>
           <LoadingState text="Génération du code..." isCompact={true} />
         </>
@@ -146,11 +143,10 @@ function ResultsDisplay({ result, language }: { result: GenerateCodeOutput, lang
     );
 }
 
-function CodeGeneratorFormBody({ state }: {
-    state: { result: GenerateCodeOutput | null, error: string | null, prompt?: string, language?: string },
+function CodeGeneratorFormBody({ prompt, setPrompt, language, setLanguage }: {
+    prompt: string; setPrompt: (s:string) => void;
+    language: string; setLanguage: (s:string) => void;
 }) {
-    const { pending } = useFormStatus();
-
     return (
         <div className="max-w-4xl mx-auto">
             <Card className="glass-card">
@@ -179,13 +175,13 @@ function CodeGeneratorFormBody({ state }: {
                                 required
                                 className="mt-2 bg-transparent text-base"
                                 minLength={10}
-                                defaultValue={state.prompt ?? ""}
-                                disabled={pending}
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
                             />
                         </div>
                         <div>
                             <Label htmlFor="language">Langage</Label>
-                            <Select name="language" defaultValue={state.language ?? 'typescript'} required disabled={pending}>
+                            <Select name="language" value={language} onValueChange={setLanguage} required>
                                 <SelectTrigger id="language" className="mt-2">
                                     <SelectValue placeholder="Sélectionnez un langage" />
                                 </SelectTrigger>
@@ -204,8 +200,67 @@ function CodeGeneratorFormBody({ state }: {
                     </div>
                 </CardContent>
             </Card>
+        </div>
+    );
+}
 
-            {pending && (
+export default function CodeGenerator({ initialResult, prompt: promptProp, language: langProp }: { initialResult?: GenerateCodeOutput; prompt?: string, language?: string }) {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const promptFromUrl = searchParams.get('prompt');
+    const langFromUrl = searchParams.get('language');
+
+    const [result, setResult] = useState<GenerateCodeOutput | null>(initialResult || null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [prompt, setPrompt] = useState(promptProp || promptFromUrl || '');
+    const [language, setLanguage] = useState(langProp || langFromUrl || 'typescript');
+
+    const { toast } = useToast();
+    const { addNotification } = useNotifications();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setResult(null);
+        try {
+            const response = await fetch('/api/generateCode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, language }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'API Error');
+            }
+
+            const data: GenerateCodeOutput = await response.json();
+            setResult(data);
+
+            const resultId = `code-result-${Math.random()}`;
+            localStorage.setItem(resultId, JSON.stringify({ result: data, prompt, language }));
+            addNotification({
+                icon: Code2,
+                title: "Code généré !",
+                description: `Votre snippet pour "${prompt.substring(0, 30)}..." est prêt.`,
+                onClick: () => router.push(`/code?resultId=${resultId}`),
+            });
+        } catch(e: any) {
+             toast({
+                variant: 'destructive',
+                title: 'Erreur (X)code',
+                description: e.message,
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <CodeGeneratorFormBody prompt={prompt} setPrompt={setPrompt} language={language} setLanguage={setLanguage} />
+
+            {isLoading && (
                 <div className="mt-8">
                     <Card className="glass-card min-h-[300px] relative overflow-hidden">
                          <div className="absolute inset-0 z-0">
@@ -218,55 +273,7 @@ function CodeGeneratorFormBody({ state }: {
                 </div>
             )}
 
-            {!pending && state.result && <ResultsDisplay result={state.result} language={state.language!} />}
-        </div>
-    );
-}
-
-export default function CodeGenerator({ initialResult, prompt, language }: { initialResult?: GenerateCodeOutput; prompt?: string, language?: string }) {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const promptFromUrl = searchParams.get('prompt');
-    const langFromUrl = searchParams.get('language');
-
-    const initialState: { result: GenerateCodeOutput | null, error: string | null, prompt?: string, language?: string } = {
-        result: initialResult || null,
-        error: null,
-        prompt: prompt || promptFromUrl || '',
-        language: language || langFromUrl || 'typescript'
-    };
-    
-    const [state, formAction] = useFormState(generateCode, initialState);
-    const { toast } = useToast();
-    const { addNotification } = useNotifications();
-
-    useEffect(() => {
-        if (state.error) {
-            toast({
-                variant: 'destructive',
-                title: 'Erreur (X)code',
-                description: state.error,
-            });
-        }
-        if (state.result) {
-            const resultId = `code-result-${Math.random()}`;
-            const handleClick = () => {
-                localStorage.setItem(resultId, JSON.stringify(state));
-                router.push(`/code?resultId=${resultId}`);
-            };
-
-            addNotification({
-                icon: Code2,
-                title: "Code généré !",
-                description: `Votre snippet pour "${state.prompt?.substring(0, 30)}..." est prêt.`,
-                onClick: handleClick
-            });
-        }
-    }, [state, toast, addNotification, router]);
-
-    return (
-        <form action={formAction}>
-            <CodeGeneratorFormBody state={state} />
+            {!isLoading && result && <ResultsDisplay result={result} language={language} />}
         </form>
     );
 }

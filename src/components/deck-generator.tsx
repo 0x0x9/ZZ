@@ -3,8 +3,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
-import { generateDeck, generateContent, uploadDocument } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,15 +14,15 @@ import AiLoadingAnimation from './ui/ai-loading-animation';
 import Image from 'next/image';
 import { useNotifications } from '@/hooks/use-notifications';
 import { Skeleton } from './ui/skeleton';
+import { generateDeck, uploadDocument } from '../app/actions';
 
 
 type SlideWithImage = DeckSlide & { imageUrl?: string; isLoadingImage: boolean };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
   return (
-    <Button type="submit" disabled={pending} size="lg">
-      {pending ? (
+    <Button type="submit" disabled={isLoading} size="lg">
+      {isLoading ? (
         <LoadingState text="Création du Deck..." isCompact={true} />
       ) : (
         <>
@@ -176,11 +174,10 @@ function ResultsDisplay({ result, slidesWithImages, onReset }: { result: Generat
     );
 }
 
-function DeckGeneratorForm({ state }: {
-    state: { result: GenerateDeckOutput | null, error: string | null, prompt: string },
+function DeckGeneratorForm({ prompt, onPromptChange }: {
+    prompt: string;
+    onPromptChange: (value: string) => void;
 }) {
-    const { pending } = useFormStatus();
-
     return (
         <Card className="glass-card">
             <CardHeader>
@@ -204,8 +201,8 @@ function DeckGeneratorForm({ state }: {
                     required
                     minLength={10}
                     className="bg-transparent text-base"
-                    disabled={pending}
-                    defaultValue={state.prompt ?? ''}
+                    value={prompt}
+                    onChange={(e) => onPromptChange(e.target.value)}
                 />
             </CardContent>
             <div className="flex justify-center p-6 pt-0">
@@ -215,74 +212,117 @@ function DeckGeneratorForm({ state }: {
     );
 }
 
-export default function DeckGenerator({ initialResult, prompt }: { initialResult?: GenerateDeckOutput, prompt?: string }) {
+export default function DeckGenerator({ initialResult, prompt: promptProp }: { initialResult?: GenerateDeckOutput, prompt?: string }) {
     const [key, setKey] = useState(0);
     const [showForm, setShowForm] = useState(!initialResult);
+    const [isLoading, setIsLoading] = useState(false);
+    const [result, setResult] = useState<GenerateDeckOutput | null>(initialResult || null);
+    const [prompt, setPrompt] = useState(promptProp || '');
 
-    const initialState = {
-        result: initialResult || null,
-        error: null,
-        prompt: prompt || ''
-    };
-    const [state, formAction] = useFormState(generateDeck, initialState);
     const [slidesWithImages, setSlidesWithImages] = useState<SlideWithImage[]>([]);
     const { toast } = useToast();
     const { addNotification } = useNotifications();
-    const { pending } = useFormStatus();
-    
-    useEffect(() => {
-        if (state.error) {
-            setShowForm(true);
-            toast({
-                variant: 'destructive',
-                title: 'Erreur (X)deck',
-                description: state.error,
+    const router = useRouter();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!prompt) return;
+
+        setIsLoading(true);
+        setResult(null);
+
+        try {
+            const response = await fetch('/api/generateDeck', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
             });
-        }
-        if (state.result?.slides) {
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'API Error');
+            }
+
+            const deckData: GenerateDeckOutput = await response.json();
+            setResult(deckData);
             setShowForm(false);
             
+            const resultId = `deck-result-${Date.now()}`;
             addNotification({
                 icon: Presentation,
                 title: 'Présentation générée !',
-                description: `Votre présentation sur "${state.result.title}" est prête.`,
+                description: `Votre présentation sur "${deckData.title}" est prête.`,
+                onClick: () => {
+                    localStorage.setItem(resultId, JSON.stringify({ result: deckData, prompt }));
+                    router.push(`/deck?resultId=${resultId}`);
+                }
             });
 
-            const initialSlides = state.result.slides.map(s => ({ ...s, isLoadingImage: true }));
+            const initialSlides = deckData.slides.map(s => ({ ...s, isLoadingImage: true }));
             setSlidesWithImages(initialSlides);
 
-            initialSlides.forEach((slide, index) => {
-                generateContent({ contentType: 'image', prompt: slide.imagePrompt })
-                    .then(imageResult => {
-                        if (imageResult.type === 'image' && imageResult.data) {
-                            setSlidesWithImages(prev => {
-                                const newSlides = [...prev];
-                                newSlides[index] = { ...newSlides[index], imageUrl: imageResult.data as string, isLoadingImage: false };
-                                return newSlides;
-                            });
-                        } else {
-                             setSlidesWithImages(prev => {
-                                const newSlides = [...prev];
-                                newSlides[index] = { ...newSlides[index], isLoadingImage: false };
-                                return newSlides;
-                            });
-                        }
+            initialSlides.forEach(async (slide, index) => {
+                try {
+                    const imgResponse = await fetch('/api/content-generator', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contentType: 'image', prompt: slide.imagePrompt })
                     });
+                    const imageResult = await imgResponse.json();
+
+                    if (imageResult.type === 'image' && imageResult.data) {
+                        setSlidesWithImages(prev => {
+                            const newSlides = [...prev];
+                            if (newSlides[index]) {
+                                newSlides[index] = { ...newSlides[index], imageUrl: imageResult.data as string, isLoadingImage: false };
+                            }
+                            return newSlides;
+                        });
+                    }
+                } catch (imgError) {
+                    console.error(`Failed to generate image for slide ${index}:`, imgError);
+                     setSlidesWithImages(prev => {
+                        const newSlides = [...prev];
+                        if (newSlides[index]) {
+                            newSlides[index] = { ...newSlides[index], isLoadingImage: false };
+                        }
+                        return newSlides;
+                    });
+                }
             });
+
+        } catch(error: any) {
+            toast({
+                variant: 'destructive',
+                title: 'Erreur (X)deck',
+                description: error.message,
+            });
+            setShowForm(true);
+        } finally {
+            setIsLoading(false);
         }
-    }, [state, toast, addNotification]);
+    };
+    
+    useEffect(() => {
+        if (initialResult) {
+            setResult(initialResult);
+            setShowForm(false);
+        }
+    }, [initialResult]);
 
     const handleReset = () => {
         setKey(k => k + 1);
         setShowForm(true);
+        setResult(null);
+        setPrompt('');
     };
 
     return (
-        <form action={formAction} key={key}>
+        <form onSubmit={handleSubmit} key={key}>
             <div className="max-w-4xl mx-auto">
-                {showForm && <DeckGeneratorForm state={initialState} />}
+                {showForm && <DeckForm prompt={prompt} onPromptChange={setPrompt} />}
                 
-                {pending && (
+                {isLoading && (
                     <div className="mt-6">
                         <Card className="glass-card min-h-[400px] relative overflow-hidden">
                             <div className="absolute inset-0 z-0"><AiLoadingAnimation isLoading={true} /></div>
@@ -293,10 +333,8 @@ export default function DeckGenerator({ initialResult, prompt }: { initialResult
                     </div>
                 )}
 
-                {!showForm && state.result && <ResultsDisplay result={state.result} slidesWithImages={slidesWithImages} onReset={handleReset} />}
+                {!showForm && result && <ResultsDisplay result={result} slidesWithImages={slidesWithImages} onReset={handleReset} />}
             </div>
         </form>
     );
 }
-
-    

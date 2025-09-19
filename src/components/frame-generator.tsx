@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,6 @@ import { Sparkles, LayoutTemplate, Upload, X } from 'lucide-react';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import Image from 'next/image';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateFrame } from '@/app/api/generateFrame/route';
-
 
 export default function FrameGenerator() {
     const router = useRouter();
@@ -33,7 +30,19 @@ export default function FrameGenerator() {
         
         setIsLoading(true);
         try {
-            const result = await runFlow(generateFrame, { prompt, photoDataUri: imageDataUri || undefined });
+            const response = await fetch('/api/generateFrame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, photoDataUri: imageDataUri || undefined })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'API Error');
+            }
+            
+            const result = await response.json();
+
             const params = new URLSearchParams();
             params.set('htmlCode', btoa(unescape(encodeURIComponent(result.htmlCode || ''))));
             params.set('cssCode', btoa(unescape(encodeURIComponent(result.cssCode || ''))));
