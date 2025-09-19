@@ -1,5 +1,7 @@
+
 import AgendaClient from './client';
 import { Calendar } from 'lucide-react';
+import { Suspense } from 'react';
 
 const AgendaPage = () => {
     return (
@@ -18,7 +20,9 @@ const AgendaPage = () => {
                 </p>
             </section>
             
-            <AgendaClient />
+            <Suspense>
+                <AgendaClient />
+            </Suspense>
         </>
     );
 }
