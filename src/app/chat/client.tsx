@@ -241,36 +241,30 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
 
 function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (project: ProjectPlan) => void, onCancel: () => void }) {
     const formRef = useRef<HTMLFormElement>(null);
-    const [isPending, setIsPending] = useState(false);
+    const { pending, formAction } = useFormStatus();
     
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsPending(true);
-        const formData = new FormData(e.currentTarget);
-        const result = await createManualProjectAction(null, formData);
-        if (result.success && result.project) {
-            onProjectCreated(result.project);
-        } else if (result.error) {
-            alert(`Erreur: ${result.error}`);
-        }
-        setIsPending(false);
-    };
-
     return (
-        <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
+        <form ref={formRef} action={async (formData) => {
+            const result = await createManualProjectAction(null, formData);
+            if (result.success && result.project) {
+                onProjectCreated(result.project);
+            } else if (result.error) {
+                alert(`Erreur: ${result.error}`);
+            }
+        }} className="w-full max-w-lg mt-8 space-y-4 text-left">
             <div className="space-y-2">
                 <Label htmlFor="title">Titre du projet</Label>
-                <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={isPending} />
+                <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={pending} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="creativeBrief">Description / Brief Créatif</Label>
-                <Textarea id="creativeBrief" name="creativeBrief" placeholder="Décrivez l'objectif principal et la vision de votre projet." rows={4} required disabled={isPending} />
+                <Textarea id="creativeBrief" name="creativeBrief" placeholder="Décrivez l'objectif principal et la vision de votre projet." rows={4} required disabled={pending} />
             </div>
             <div className="flex gap-4 pt-4">
-                <Button type="button" variant="ghost" onClick={onCancel} disabled={isPending}>Annuler</Button>
-                <Button type="submit" disabled={isPending} className="flex-1">
-                    {isPending ? <Loader className="animate-spin mr-2"/> : <FilePlus className="mr-2 h-4 w-4"/>}
-                    {isPending ? 'Création...' : 'Créer le projet'}
+                <Button type="button" variant="ghost" onClick={onCancel} disabled={pending}>Annuler</Button>
+                <Button type="submit" disabled={pending} className="flex-1">
+                    {pending ? <Loader className="animate-spin mr-2"/> : <FilePlus className="mr-2 h-4 w-4"/>}
+                    {pending ? 'Création...' : 'Créer le projet'}
                 </Button>
             </div>
         </form>
@@ -279,19 +273,19 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
 
 function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (result: any) => void, onCancel: () => void}) {
     const initialState = { id: 0, result: null, error: null, prompt: '', job: '' };
-    const [state, formAction] = useFormState(fluxAction, initialState);
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
-    const { pending } = useFormStatus();
+    
+    const handleFluxAction = async (formData: FormData) => {
+        const result = await fluxAction(null, formData);
+        if (result.result) {
+            onProjectCreated(result.result);
+        } else if (result.error) {
+            toast({variant: 'destructive', title: 'Erreur (X)flux', description: result.error});
+        }
+    }
 
-    useEffect(() => {
-        if(state.result) {
-            onProjectCreated(state.result);
-        }
-        if(state.error) {
-            toast({variant: 'destructive', title: 'Erreur (X)flux', description: state.error});
-        }
-    }, [state, onProjectCreated, toast]);
+    const { pending } = useFormStatus();
 
     return (
         <div className="h-full flex flex-col items-center justify-center text-center p-8">
@@ -309,7 +303,7 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
                             <Sparkles className="mx-auto h-20 w-20 text-muted-foreground/30" />
                             <h2 className="mt-6 text-xl font-semibold text-foreground">Créer un nouveau projet avec l'IA</h2>
                             <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez (X)flux générer tous les livrables de départ.</p>
-                            <form action={formAction} className="w-full max-w-lg mt-8 space-y-4">
+                            <form action={handleFluxAction} className="w-full max-w-lg mt-8 space-y-4">
                                 <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={pending} />
                                 <Input name="job" placeholder="Votre métier ? (ex: Développeur, Artiste...) - Optionnel" className="bg-background/50 text-base text-center" disabled={pending} />
                                 <Button type="submit" size="lg" disabled={pending} className="w-full">
