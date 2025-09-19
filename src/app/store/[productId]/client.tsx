@@ -20,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
+import HomepageOriaChat from "../homepage-oria";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -194,16 +195,17 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   // Default Hardware Layout
   return (
     <>
-        <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
-            <div className="text-center mb-16 space-y-4">
+        <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-16 text-center">
+            <div className="space-y-4">
                 <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
                     <ArrowLeft className="h-4 w-4" /> Voir tous les produits
                 </Link>
-                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">{product.name}</h1>
-                <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
-                <div className="!mt-8 flex items-center justify-center gap-4">
-                    <Button size="lg" className="rounded-full text-lg h-14 px-10" onClick={handleAddToCart}>
-                        Acheter (à partir de {product.price.toFixed(2)}€)
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">{product.name}</h1>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
+                 <div className="!mt-6 flex items-center justify-center gap-4">
+                    <span className="text-lg">À partir de {product.price.toFixed(2)}€</span>
+                    <Button size="lg" className="rounded-full text-lg" onClick={handleAddToCart}>
+                        Acheter
                     </Button>
                 </div>
             </div>
@@ -222,8 +224,8 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         />
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
-                         <div className="mt-6 p-6 glass-card">
-                            <div className="relative aspect-square mb-4">
+                         <div className="glass-card">
+                            <div className="relative aspect-square">
                                 <Image 
                                     src={product.images[0]} 
                                     alt={product.name} 
@@ -232,11 +234,13 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                                     data-ai-hint={product.hint}
                                 />
                             </div>
-                            <h3 className="text-xl font-bold">Total de votre configuration</h3>
-                            <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
-                            <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
-                                Ajouter au panier
-                            </Button>
+                             <div className="p-6 border-t border-border">
+                                <h3 className="text-xl font-bold">Total de votre configuration</h3>
+                                <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
+                                <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
+                                    Ajouter au panier
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
