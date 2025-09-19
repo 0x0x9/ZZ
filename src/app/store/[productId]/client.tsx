@@ -194,29 +194,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                     </Button>
                 </div>
             </div>
-            
-             <Card className="glass-card">
-                <Carousel>
-                    <CarouselContent>
-                        {product.images.map((img, index) => (
-                            <CarouselItem key={index}>
-                                <div className="aspect-video relative rounded-lg overflow-hidden">
-                                     <Image 
-                                        src={img} 
-                                        alt={`${product.name} - vue ${index + 1}`} 
-                                        fill 
-                                        className="object-contain p-4 md:p-8" 
-                                        sizes="(max-width: 768px) 100vw, 75vw"
-                                        priority={index === 0}
-                                    />
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
-            </Card>
         </section>
       
         <div className="space-y-24 md:space-y-36 my-24 md:my-36">
@@ -252,6 +229,32 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                     </div>
                 </div>
             </section>
+            
+             <section className="container mx-auto px-4 md:px-6">
+                <Card className="glass-card">
+                    <Carousel>
+                        <CarouselContent>
+                            {product.images.map((img, index) => (
+                                <CarouselItem key={index}>
+                                    <div className="aspect-video relative rounded-lg overflow-hidden">
+                                         <Image 
+                                            src={img} 
+                                            alt={`${product.name} - vue ${index + 1}`} 
+                                            fill 
+                                            className="object-contain p-4 md:p-8" 
+                                            sizes="(max-width: 768px) 100vw, 75vw"
+                                            priority={index === 0}
+                                        />
+                                    </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                    </Carousel>
+                </Card>
+            </section>
+
 
              <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
                  <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
