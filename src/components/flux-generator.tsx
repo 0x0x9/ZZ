@@ -170,7 +170,7 @@ function ResultsDisplay({ result, prompt, onReset, openApp }: { result: Generate
             </Card>
             
             <div className="pt-4 text-center space-y-4">
-                <Button onClick={handleOpenInXOS} size="lg" className="bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 animate-gradient-x font-semibold text-white hover:opacity-95 animate-pulse">
+                <Button onClick={handleOpenInXOS} size="lg">
                     Ouvrir le projet dans (X)OS
                     <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
