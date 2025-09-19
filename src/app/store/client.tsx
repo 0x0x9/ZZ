@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React from 'react';
@@ -50,7 +49,7 @@ export default function StoreClient() {
                 <div className="relative aspect-video w-full rounded-2xl overflow-hidden glass-card group">
                      <Image 
                         src={imageData.store.workstation.src}
-                        alt="(X)-φ (fi) Workstation"
+                        alt="(X)-fi Workstation"
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         data-ai-hint={imageData.store.workstation.hint}
@@ -59,7 +58,7 @@ export default function StoreClient() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-6 md:p-12 text-white">
-                        <h2 className="text-2xl md:text-4xl font-bold tracking-tight">(X)-φ (fi)</h2>
+                        <h2 className="text-2xl md:text-4xl font-bold tracking-tight">Workstations</h2>
                         <p className="mt-2 text-md md:text-lg text-white/80 max-w-lg">La puissance n'est que le début. Découvrez notre station de travail phare.</p>
                         <Button variant="outline" className="mt-6 rounded-full bg-white/10 border-white/20 backdrop-blur-md text-white hover:bg-white/20">
                             Explorer le modèle <ArrowRight className="ml-2 h-4 w-4" />

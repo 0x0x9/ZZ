@@ -32,6 +32,7 @@ export const products: Product[] = [
     isFeatured: true,
     configurable: true,
     hasPerformanceChart: true,
+    tagline: "La Station Ultime.",
     features: [
       "Puissance de calcul extrême pour la 3D, le dev et le montage 8K.",
       "Flexibilité totale avec la double compatibilité GPU (NVIDIA/AMD).",

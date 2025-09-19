@@ -71,11 +71,11 @@ function HeroScrollAnimation() {
     const targetRef = useRef<HTMLDivElement>(null);
     const isClient = useIsClient();
 
-    const { scrollYProgress } = useScroll({
+    // Use a default value for server-side rendering
+    const scrollYProgress = isClient ? useScroll({
       target: targetRef,
       offset: ["start start", "end start"],
-      enabled: isClient,
-    });
+    }).scrollYProgress : { get: () => 0 };
 
     const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1.8]);
     const imageOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
