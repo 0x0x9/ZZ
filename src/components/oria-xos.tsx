@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -28,6 +27,7 @@ type Message = {
 
 interface OriaXosProps {
     openApp: (appId: string, props?: Record<string, any>) => void;
+    context?: string;
 }
 
 const toolInfoMap = {
@@ -359,7 +359,7 @@ function OriaXosUI({ messages, handleReset, openApp, formRef }: { messages: Mess
     );
 }
 
-export default function OriaXOS({ openApp }: OriaXosProps) {
+export default function OriaXOS({ openApp, context: projectContext = 'xos' }: OriaXosProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const initialState = { id: 0, result: null, error: '', message: '' };
@@ -397,6 +397,7 @@ export default function OriaXOS({ openApp }: OriaXosProps) {
         .filter(msg => msg.content && msg.content.trim() !== '');
     
     formData.append('history', JSON.stringify(history));
+    formData.append('context', projectContext);
     
     setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: prompt }]);
     
@@ -405,8 +406,9 @@ export default function OriaXOS({ openApp }: OriaXosProps) {
 
   return (
     <form ref={formRef} action={wrappedAction} className="h-full">
-        <input type="hidden" name="context" value="xos" />
         <OriaXosUI messages={messages} handleReset={handleReset} openApp={openApp} formRef={formRef} />
     </form>
   );
 }
+
+    

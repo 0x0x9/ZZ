@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, Home, CheckSquare, MessageCircle, Folder as FolderIcon } from 'lucide-react';
+import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, Home, CheckSquare, MessageCircle, Folder as FolderIcon, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -29,6 +29,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import OriaXOS from '@/components/oria-xos';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
+
 
 type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
 
@@ -311,9 +313,22 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
     return (
         <ScrollArea className="h-full">
             <div className="p-4 md:p-6 space-y-8">
-                <blockquote className="border-l-4 border-primary pl-4 text-muted-foreground italic">
-                    {project.plan.creativeBrief}
-                </blockquote>
+                {project.plan.creativeBrief && (
+                     <Card className="glass-card">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <BookOpen className="h-5 w-5 text-primary" />
+                                Brief Créatif
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
+                                {project.plan.creativeBrief}
+                            </blockquote>
+                        </CardContent>
+                    </Card>
+                )}
+                
                 <div className="space-y-8">
                     {categories.map(category => (
                         <div key={category}>
@@ -322,24 +337,26 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
                                 {project.plan.tasks.filter(t => t.category === category).map((task, taskIndex) => {
                                     const realTaskIndex = project.plan.tasks.findIndex(t => t.title === task.title && t.description === task.description);
                                     return (
-                                        <div key={realTaskIndex} className="p-4 rounded-lg bg-background/50 border border-white/10">
-                                            <h4 className="font-semibold">{task.title}</h4>
-                                            <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
-                                            <div className="space-y-2">
+                                        <Card key={realTaskIndex} className="glass-card bg-background/30">
+                                            <CardHeader>
+                                                <CardTitle className="text-base">{task.title}</CardTitle>
+                                                <CardDescription>{task.description}</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-2">
                                                 {task.checklist.map((item, itemIndex) => (
-                                                    <div key={itemIndex} className="flex items-center gap-3">
+                                                    <div key={itemIndex} className="flex items-center gap-3 p-2 bg-background/50 rounded-md">
                                                         <Checkbox
                                                             id={`task-${realTaskIndex}-item-${itemIndex}`}
                                                             checked={item.completed}
                                                             onCheckedChange={(checked) => handleChecklistChange(realTaskIndex, itemIndex, !!checked)}
                                                         />
-                                                        <label htmlFor={`task-${realTaskIndex}-item-${itemIndex}`} className="text-sm text-foreground/90 has-[:checked]:line-through has-[:checked]:text-muted-foreground cursor-pointer">
+                                                        <label htmlFor={`task-${realTaskIndex}-item-${itemIndex}`} className="text-sm text-foreground/90 has-[:checked]:line-through has-[:checked]:text-muted-foreground cursor-pointer flex-1">
                                                             {item.text}
                                                         </label>
                                                     </div>
                                                 ))}
-                                            </div>
-                                        </div>
+                                            </CardContent>
+                                        </Card>
                                     )
                                 })}
                             </div>
@@ -430,22 +447,27 @@ export default function PulseClient() {
 
             const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
             
-            // This is a mock plan based on file name, as we can't read file content in the client.
-            // A real implementation would fetch and parse the JSON content.
             const parsedProjects: Project[] = maestroDocs.map(doc => {
-                const name = doc.name.replace('.json', '').replace(/-/g, ' ');
-                const mockPlan: ProjectPlan = {
-                    id: doc.id,
-                    title: name,
-                    creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}". Dans une application réelle, ce contenu serait chargé depuis le fichier JSON.`,
-                    tasks: [
-                        { title: 'Tâche simulée 1', description: 'Description de la première tâche simulée pour ce projet.', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}, {text: 'Point 2', completed: false}]},
-                        { title: 'Tâche simulée 2', description: 'Description pour la seconde tâche importante.', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
-                    ],
-                    imagePrompts: ['abstract'],
-                };
-                return { id: doc.id, name, plan: mockPlan, path: doc.path };
-            });
+                 try {
+                    // In a real app, you would fetch and parse the content.
+                    // Here, we simulate it based on file name for the prototype.
+                    const name = doc.name.replace('.json', '').replace(/-/g, ' ').replace(/_/g, ' ');
+                     const mockPlan: ProjectPlan = {
+                        id: doc.id,
+                        title: name,
+                        creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}". Dans une application réelle, ce contenu serait chargé depuis le fichier JSON.`,
+                        tasks: [
+                            { title: 'Tâche simulée 1', description: 'Description de la première tâche simulée pour ce projet.', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}, {text: 'Point 2', completed: false}]},
+                            { title: 'Tâche simulée 2', description: 'Description pour la seconde tâche importante.', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
+                        ],
+                        imagePrompts: ['abstract'],
+                    };
+                    return { id: doc.id, name, plan: mockPlan, path: doc.path };
+                } catch (e) {
+                    console.error("Failed to parse project from doc:", doc.name, e);
+                    return null;
+                }
+            }).filter((p): p is Project => p !== null);
             setProjects(parsedProjects);
 
         } catch (error: any) {
@@ -480,7 +502,14 @@ export default function PulseClient() {
 
     const handleSaveProject = async () => {
         if (!activeProject || !activeProject.plan) return;
-        toast({ title: 'Sauvegarde simulée', description: `Dans une vraie app, le projet "${activeProject.name}" serait mis à jour.` });
+        
+        try {
+            const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(activeProject.plan))))}`;
+            await uploadDocument({ name: activeProject.path, content: dataUri, mimeType: 'application/json' });
+            toast({ title: 'Projet sauvegardé !', description: `Les modifications de "${activeProject.name}" ont été enregistrées.` });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: "Erreur de sauvegarde", description: error.message });
+        }
     }
 
     const MainContent = () => {
@@ -513,11 +542,14 @@ export default function PulseClient() {
                 </TabsContent>
                 <TabsContent value="oria" className="flex-1 min-h-0 mt-0">
                     <div className="h-full p-4">
-                        <OriaXOS openApp={() => {}} />
+                        <OriaXOS 
+                          context={`Projet Actif: ${activeProject.name}\nBrief: ${activeProject.plan.creativeBrief}`}
+                          openApp={() => {}} 
+                        />
                     </div>
                 </TabsContent>
                 <TabsContent value="files" className="flex-1 min-h-0 mt-0">
-                    <DocManager initialPath={`maestro-projets/`} />
+                    <DocManager initialPath={`maestro-projets/${activeProject.name.replace(/\s+/g, '-')}/`} />
                 </TabsContent>
             </Tabs>
         )
@@ -577,3 +609,5 @@ export default function PulseClient() {
         </div>
     );
 }
+
+    
