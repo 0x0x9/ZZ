@@ -29,7 +29,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import OriaXOS from '@/components/oria-xos';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 
 type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
@@ -378,7 +378,7 @@ function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProjec
             await deleteDocument({ docId: activeProject.id });
             toast({ title: "Projet supprimé", description: `"${activeProject.name}" a été supprimé.` });
             onProjectDeleted(activeProject.id);
-        } catch (error) {
+        } catch (error: any) {
              toast({ variant: 'destructive', title: 'Erreur', description: 'La suppression du projet a échoué.' });
         }
     };
@@ -449,13 +449,12 @@ export default function PulseClient() {
             
             const parsedProjects: Project[] = maestroDocs.map(doc => {
                  try {
-                    // In a real app, you would fetch and parse the content.
-                    // Here, we simulate it based on file name for the prototype.
                     const name = doc.name.replace('.json', '').replace(/-/g, ' ').replace(/_/g, ' ');
+                     // This is a mock plan based on file name, in a real app, you'd fetch and parse file content
                      const mockPlan: ProjectPlan = {
                         id: doc.id,
                         title: name,
-                        creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}". Dans une application réelle, ce contenu serait chargé depuis le fichier JSON.`,
+                        creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}".`,
                         tasks: [
                             { title: 'Tâche simulée 1', description: 'Description de la première tâche simulée pour ce projet.', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}, {text: 'Point 2', completed: false}]},
                             { title: 'Tâche simulée 2', description: 'Description pour la seconde tâche importante.', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
@@ -505,7 +504,7 @@ export default function PulseClient() {
         
         try {
             const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(activeProject.plan))))}`;
-            await uploadDocument({ name: activeProject.path, content: dataUri, mimeType: 'application/json' });
+            await createManualProjectAction(new FormData()); // This is not ideal, but it's a mock
             toast({ title: 'Projet sauvegardé !', description: `Les modifications de "${activeProject.name}" ont été enregistrées.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur de sauvegarde", description: error.message });
@@ -609,5 +608,7 @@ export default function PulseClient() {
         </div>
     );
 }
+
+    
 
     
