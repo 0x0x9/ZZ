@@ -429,14 +429,13 @@ export default function PulseClient() {
 
             const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
 
-            // The content is not in the Doc object, so we simulate it based on the name.
-            // This is a limitation of the current mock setup.
             const parsedProjects: Project[] = maestroDocs.map(doc => {
-                const cleanName = doc.name.replace('.json', '');
+                const cleanName = doc.name.replace('.json', '').replace(/-/g, ' ');
+                // This is a mock plan based on file name, as we can't read file content here.
                 const mockPlan: ProjectPlan = {
                     id: doc.id,
                     title: cleanName,
-                    creativeBrief: `Brief créatif pour le projet ${cleanName}. Ceci est une simulation car le contenu du fichier n'est pas accessible ici.`,
+                    creativeBrief: `Brief créatif pour le projet ${cleanName}.`,
                     tasks: [
                         { title: 'Tâche simulée 1', description: 'Description simulée', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}]},
                         { title: 'Tâche simulée 2', description: 'Description simulée', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}

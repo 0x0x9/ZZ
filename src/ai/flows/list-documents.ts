@@ -1,3 +1,4 @@
+
 'use server';
 
 import { ai } from '@/genkit';
@@ -112,6 +113,39 @@ export const mockDocs: Doc[] = [
     size: 3145728,
     createdAt: '2024-07-23T11:15:00Z',
     updatedAt: '2024-07-25T14:00:00Z',
+    shareId: null,
+  },
+  // --- Maestro Projects Folder ---
+  {
+    id: 'folder-maestro',
+    name: 'maestro-projets',
+    path: 'maestro-projets/',
+    mimeType: 'application/x-directory',
+    size: 0,
+    createdAt: '2024-07-29T09:00:00Z',
+    updatedAt: '2024-07-29T09:00:00Z',
+    shareId: null,
+  },
+  // --- Maestro Project 1 ---
+  {
+    id: 'maestro-proj-1',
+    name: 'Lancement-de-marque-de-vêtements.json',
+    path: 'maestro-projets/Lancement-de-marque-de-vêtements.json',
+    mimeType: 'application/json',
+    size: 12345,
+    createdAt: '2024-07-29T09:01:00Z',
+    updatedAt: '2024-07-29T09:01:00Z',
+    shareId: null,
+  },
+    // --- Maestro Project 2 ---
+  {
+    id: 'maestro-proj-2',
+    name: 'Court-métrage-de-science-fiction.json',
+    path: 'maestro-projets/Court-métrage-de-science-fiction.json',
+    mimeType: 'application/json',
+    size: 23456,
+    createdAt: '2024-07-28T15:00:00Z',
+    updatedAt: '2024-07-29T10:30:00Z',
     shareId: null,
   },
 ];
