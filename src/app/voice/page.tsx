@@ -3,6 +3,11 @@ import VoiceClient from './client';
 import { AudioLines, Sparkles, SlidersHorizontal, Download } from 'lucide-react';
 import { Suspense } from 'react';
 
+export const metadata = {
+  title: '(X)voice - Votre Studio de Doublage IA',
+  description: "Donnez une voix professionnelle et naturelle à vos textes en choisissant parmi une sélection de voix de haute qualité.",
+};
+
 const features = [
     {
         icon: Sparkles,
