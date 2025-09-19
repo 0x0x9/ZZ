@@ -64,8 +64,7 @@ type Activity = {
 type Project = {
     id: string;
     name: string;
-    path: string;
-    plan: ProjectPlan | null;
+    plan: ProjectPlan;
 };
 
 const actionInfoMap = {
@@ -80,7 +79,7 @@ const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }
     const activities = useMemo((): Activity[] => {
         if (!docs) return [];
         return docs
-            .filter(doc => doc.updatedAt)
+            .filter(doc => doc.updatedAt && !doc.mimeType.includes('directory'))
             .map(doc => {
                 const generationInfo = getGenerationInfo(doc.name.split('/').pop() || '');
                 const isCreation = doc.createdAt && doc.updatedAt ? (new Date(doc.updatedAt).getTime() - new Date(doc.createdAt).getTime() < 2000) : false;
@@ -157,9 +156,8 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
         if (!projectToDelete || !projectToDelete.id) return;
         
         try {
-            // This is a mock action. In a real app, this would delete from a database.
-            // await deleteDocument({ docId: projectToDelete.id });
-             toast({ title: "Projet supprimé", description: `"${projectToDelete.name}" a été supprimé. (Simulation)` });
+            await deleteDocument({ docId: projectToDelete.id });
+            toast({ title: "Projet supprimé", description: `"${projectToDelete.name}" a été supprimé.` });
             const deletedId = projectToDelete.id;
             setProjectToDelete(null);
             onProjectDeleted(deletedId);
@@ -338,7 +336,6 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
 
 function OriaChatWindow({ partner, onBack, activeProject }: { partner: ChatPartner, onBack: () => void, activeProject: Project | null }) {
     const formRef = useRef<HTMLFormElement>(null);
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<OriaHistoryMessage[]>([]);
     
     const clientAction = async (prevState: any, formData: FormData) => {
@@ -386,6 +383,8 @@ function OriaChatWindow({ partner, onBack, activeProject }: { partner: ChatPartn
         Liste des tâches :
         ${tasksSummary}`;
     };
+
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
 
     return (
         <div className="glass-card h-full flex flex-col">
@@ -480,7 +479,7 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
 
     const handleChecklistChange = (taskIndex: number, itemIndex: number, checked: boolean) => {
         const updatedProject = JSON.parse(JSON.stringify(project));
-        if (updatedProject.plan) {
+        if (updatedProject.plan && updatedProject.plan.tasks[taskIndex] && updatedProject.plan.tasks[taskIndex].checklist[itemIndex]) {
             updatedProject.plan.tasks[taskIndex].checklist[itemIndex].completed = checked;
             setProject(updatedProject);
         }
@@ -498,7 +497,7 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
                         <div key={category}>
                             <h3 className="text-xl font-semibold mb-4">{category}</h3>
                             <div className="space-y-4">
-                                {project.plan!.tasks.filter(t => t.category === category).map((task, taskIndex) => (
+                                {project.plan.tasks.filter(t => t.category === category).map((task, taskIndex) => (
                                     <div key={taskIndex} className="p-4 rounded-lg bg-background/50 border border-white/10">
                                         <h4 className="font-semibold">{task.title}</h4>
                                         <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
@@ -508,7 +507,7 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
                                                     <Checkbox
                                                         id={`task-${taskIndex}-item-${itemIndex}`}
                                                         checked={item.completed}
-                                                        onCheckedChange={(checked) => handleChecklistChange(project.plan!.tasks.findIndex(t => t.title === task.title), itemIndex, !!checked)}
+                                                        onCheckedChange={(checked) => handleChecklistChange(project.plan.tasks.findIndex(t => t.title === task.title), itemIndex, !!checked)}
                                                     />
                                                     <label htmlFor={`task-${taskIndex}-item-${itemIndex}`} className="text-sm text-foreground/90 has-[:checked]:line-through has-[:checked]:text-muted-foreground cursor-pointer">
                                                         {item.text}
@@ -589,6 +588,7 @@ export default function PulseClient() {
     
     const [loading, setLoading] = useState(true);
     const [docs, setDocs] = useState<Doc[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
         
     const [activeProject, setActiveProject] = useState<Project | null>(null);
     const [showSidebar, setShowSidebar] = useState(true);
@@ -616,36 +616,44 @@ export default function PulseClient() {
         fetchDocs();
     }, [fetchDocs]);
 
-    const projects = useMemo(() => {
-        const projectFolders = docs.filter(doc => doc.mimeType === 'application/x-directory');
-        return projectFolders.map(folder => {
-            const planDoc = docs.find(d => d.path.startsWith(folder.path) && d.name.endsWith('.json') && d.name.includes('maestro'));
-            let plan = null;
-            // In a real app, you'd fetch and parse the content of planDoc.
-            // Here, we just simulate finding it.
-            if (planDoc) {
-                plan = {
-                    id: planDoc.id,
-                    title: folder.name.replace('/', ''),
-                    creativeBrief: 'Un brief créatif inspirant pour ce projet génial.',
-                    tasks: [
-                         { title: 'Définir la vision', description: 'Clarifier les objectifs', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Faire un brainstorming', completed: Math.random() > 0.5}, {text: 'Valider le concept', completed: Math.random() > 0.5}]},
-                         { title: 'Créer le contenu', description: 'Produire les livrables', category: 'Création & Production', duration: '5 jours', checklist: [{text: 'Rédiger les textes', completed: false}, {text: 'Créer les visuels', completed: false}]}
-                    ],
-                    events: [],
-                    imagePrompts: []
-                };
-            }
-            return { id: folder.id, name: folder.name.replace('/', ''), path: folder.path, plan };
+     useEffect(() => {
+        if (loading || docs.length === 0) return;
+
+        const maestroDocs = docs.filter(doc => doc.mimeType === 'application/json' && doc.name.startsWith('maestro-projets/'));
+
+        // Since we can't fetch content, we'll simulate parsing project data
+        const parsedProjects: Project[] = maestroDocs.map(doc => {
+            const cleanName = doc.name.replace('maestro-projets/', '').replace('.json', '');
+            
+            // This is a mock plan. In a real app, you'd fetch and parse the JSON content of the doc.
+            const mockPlan: ProjectPlan = {
+                id: doc.id,
+                title: cleanName,
+                creativeBrief: `Brief créatif pour le projet ${cleanName}.`,
+                tasks: [
+                    { title: 'Définir la vision', description: 'Clarifier les objectifs', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Faire un brainstorming', completed: Math.random() > 0.5}, {text: 'Valider le concept', completed: Math.random() > 0.5}]},
+                    { title: 'Créer le contenu', description: 'Produire les livrables', category: 'Création & Production', duration: '5 jours', checklist: [{text: 'Rédiger les textes', completed: false}, {text: 'Créer les visuels', completed: false}]}
+                ],
+                imagePrompts: [],
+                events: []
+            };
+
+            return {
+                id: doc.id,
+                name: cleanName,
+                plan: mockPlan,
+            };
         });
-    }, [docs]);
+
+        setProjects(parsedProjects);
+    }, [docs, loading]);
     
     const onProjectDeleted = (deletedId: string) => {
         if (activeProject && activeProject.id === deletedId) {
             setActiveProject(null);
             setView('welcome');
         }
-        setDocs(prev => prev.filter(p => p.id !== deletedId));
+        fetchDocs();
     };
 
     const handleProjectCreated = (result: GenerateFluxOutput | ProjectPlan) => {
@@ -657,7 +665,14 @@ export default function PulseClient() {
     
     const updateActiveProject = (updatedProject: Project) => {
         setActiveProject(updatedProject);
-        // This part is for local state update. A real app would persist this.
+        setProjects(prevProjects => prevProjects.map(p => p.id === updatedProject.id ? updatedProject : p));
+    }
+
+    const handleSaveProject = async () => {
+        if (!activeProject || !activeProject.plan) return;
+        // In a real app, this action would save the updated project plan to the backend.
+        // For now, we just show a toast.
+        toast({ title: 'Sauvegarde simulée', description: `Les modifications de "${activeProject.name}" ont été sauvegardées localement.` });
     }
 
     const MainContent = () => {
@@ -697,7 +712,8 @@ export default function PulseClient() {
                     <ProjectPlanView project={activeProject} setProject={updateActiveProject} />
                 </TabsContent>
                 <TabsContent value="files" className="flex-1 min-h-0 -mt-2 p-1">
-                    <DocManager onDataChange={fetchDocs} initialPath={activeProject.path} />
+                    {/* The initialPath for DocManager needs to be adapted since projects are now files, not folders */}
+                    <DocManager onDataChange={fetchDocs} initialPath={`maestro-projets/${activeProject.name}/`} />
                 </TabsContent>
                 <TabsContent value="chat" className="flex-1 min-h-0 -mt-2">
                     <OriaChatWindow partner={oriaPartner} onBack={() => {setActiveProject(null); setView('welcome')}} activeProject={activeProject} />
@@ -713,7 +729,7 @@ export default function PulseClient() {
                     activeProject={activeProject} 
                     onCreateNew={() => setView('newProject')}
                     onProjectDeleted={onProjectDeleted} 
-                    onSaveProject={() => toast({ title: "Simulation", description: "La sauvegarde des modifications n'est pas encore implémentée." })}
+                    onSaveProject={handleSaveProject}
                     toggleSidebar={() => setShowSidebar(!showSidebar)}
                     isSidebarVisible={showSidebar}
                 />
