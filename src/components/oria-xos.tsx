@@ -17,6 +17,7 @@ import type { OriaChatOutput, GenerateImageOutput, GeneratePaletteOutput, Genera
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, AlertDialogDescription } from './ui/alert-dialog';
 import OriaAnimation from './ui/oria-animation';
 import { useAppLauncher } from '@/hooks/use-app-launcher';
+import { useRouter } from 'next/navigation';
 
 type Message = {
     id: number;
@@ -47,6 +48,7 @@ const toolInfoMap = {
 
 // Component to render specific tool results
 const OriaResultDisplay = ({ result, openApp }: { result: OriaChatOutput, openApp: OriaXosProps['openApp'] }) => {
+    const router = useRouter();
     const { loadTools } = useFusionDock();
     const { launchFluxProject } = useAppLauncher(openApp);
     const { toast } = useToast();
@@ -91,7 +93,7 @@ const OriaResultDisplay = ({ result, openApp }: { result: OriaChatOutput, openAp
             toast({ 
                 title: `Ouverture de ${tool}...`
             });
-            openApp(tool, { prompt: promptForTool });
+            openApp(tool, { prompt: promptForTool, initialResult: data });
         }
     };
     

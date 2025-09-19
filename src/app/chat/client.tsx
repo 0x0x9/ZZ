@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, Home } from 'lucide-react';
+import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, Home, CheckSquare, MessageCircle, Folder as FolderIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -28,6 +28,7 @@ import { fr } from 'date-fns/locale';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
+import OriaXOS from '../oria-xos';
 
 type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
 
@@ -50,6 +51,7 @@ type Project = {
     id: string;
     name: string;
     plan: ProjectPlan;
+    path: string;
 };
 
 
@@ -211,7 +213,9 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
     const { toast } = useToast();
     const [pending, setPending] = useState(false);
     
-    const handleSubmit = async (formData: FormData) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         setPending(true);
         const result = await createManualProjectAction(null, formData);
         if (result.success && result.project) {
@@ -223,7 +227,7 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
     };
     
     return (
-        <form action={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
+        <form onSubmit={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
             <div className="space-y-2">
                 <Label htmlFor="title">Titre du projet</Label>
                 <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={pending} />
@@ -249,7 +253,9 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
     const { toast } = useToast();
     const [isFluxPending, setIsFluxPending] = useState(false);
     
-    const handleFluxAction = async (formData: FormData) => {
+    const handleFluxAction = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         setIsFluxPending(true);
         const result = await fluxAction(null, formData);
         if (result.result) {
@@ -276,7 +282,7 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
                             <Sparkles className="mx-auto h-20 w-20 text-muted-foreground/30" />
                             <h2 className="mt-6 text-xl font-semibold text-foreground">Créer un nouveau projet avec l'IA</h2>
                             <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez (X)flux générer tous les livrables de départ.</p>
-                            <form action={handleFluxAction} className="w-full max-w-lg mt-8 space-y-4">
+                            <form onSubmit={handleFluxAction} className="w-full max-w-lg mt-8 space-y-4">
                                 <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={isFluxPending} />
                                 <Input name="job" placeholder="Votre métier ? (ex: Développeur, Artiste...) - Optionnel" className="bg-background/50 text-base text-center" disabled={isFluxPending} />
                                 <Button type="submit" size="lg" disabled={isFluxPending} className="w-full">
@@ -313,7 +319,6 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
     return (
         <ScrollArea className="h-full">
             <div className="p-4 md:p-6 space-y-8">
-                <h2 className="text-2xl font-bold">{project.name}</h2>
                 <blockquote className="border-l-4 border-primary pl-4 text-muted-foreground italic">
                     {project.plan.creativeBrief}
                 </blockquote>
@@ -322,26 +327,29 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
                         <div key={category}>
                             <h3 className="text-xl font-semibold mb-4">{category}</h3>
                             <div className="space-y-4">
-                                {project.plan.tasks.filter(t => t.category === category).map((task, taskIndexGlobal) => (
-                                    <div key={taskIndexGlobal} className="p-4 rounded-lg bg-background/50 border border-white/10">
-                                        <h4 className="font-semibold">{task.title}</h4>
-                                        <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
-                                        <div className="space-y-2">
-                                            {task.checklist.map((item, itemIndex) => (
-                                                <div key={itemIndex} className="flex items-center gap-3">
-                                                    <Checkbox
-                                                        id={`task-${taskIndexGlobal}-item-${itemIndex}`}
-                                                        checked={item.completed}
-                                                        onCheckedChange={(checked) => handleChecklistChange(taskIndexGlobal, itemIndex, !!checked)}
-                                                    />
-                                                    <label htmlFor={`task-${taskIndexGlobal}-item-${itemIndex}`} className="text-sm text-foreground/90 has-[:checked]:line-through has-[:checked]:text-muted-foreground cursor-pointer">
-                                                        {item.text}
-                                                    </label>
-                                                </div>
-                                            ))}
+                                {project.plan.tasks.filter(t => t.category === category).map((task, taskIndex) => {
+                                    const realTaskIndex = project.plan.tasks.findIndex(t => t.title === task.title && t.description === task.description);
+                                    return (
+                                        <div key={realTaskIndex} className="p-4 rounded-lg bg-background/50 border border-white/10">
+                                            <h4 className="font-semibold">{task.title}</h4>
+                                            <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
+                                            <div className="space-y-2">
+                                                {task.checklist.map((item, itemIndex) => (
+                                                    <div key={itemIndex} className="flex items-center gap-3">
+                                                        <Checkbox
+                                                            id={`task-${realTaskIndex}-item-${itemIndex}`}
+                                                            checked={item.completed}
+                                                            onCheckedChange={(checked) => handleChecklistChange(realTaskIndex, itemIndex, !!checked)}
+                                                        />
+                                                        <label htmlFor={`task-${realTaskIndex}-item-${itemIndex}`} className="text-sm text-foreground/90 has-[:checked]:line-through has-[:checked]:text-muted-foreground cursor-pointer">
+                                                            {item.text}
+                                                        </label>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
                         </div>
                     ))}
@@ -420,6 +428,7 @@ export default function PulseClient() {
     const [activeProject, setActiveProject] = useState<Project | null>(null);
     const [showSidebar, setShowSidebar] = useState(true);
     const [view, setView] = useState<'welcome' | 'newProject'>('welcome');
+    const [activeTab, setActiveTab] = useState('plan');
     
     const fetchDocsAndProjects = useCallback(async () => {
         setLoading(true);
@@ -428,24 +437,22 @@ export default function PulseClient() {
             setDocs(allDocs || []);
 
             const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
-
+            
             const parsedProjects: Project[] = maestroDocs.map(doc => {
-                const cleanName = doc.name.replace('.json', '').replace(/-/g, ' ');
+                const name = doc.name.replace('.json', '').replace(/-/g, ' ');
                 // This is a mock plan based on file name, as we can't read file content here.
-                const mockPlan: ProjectPlan = {
+                 const mockPlan: ProjectPlan = {
                     id: doc.id,
-                    title: cleanName,
-                    creativeBrief: `Brief créatif pour le projet ${cleanName}.`,
+                    title: name,
+                    creativeBrief: `Brief créatif pour le projet ${name}.`,
                     tasks: [
                         { title: 'Tâche simulée 1', description: 'Description simulée', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}]},
                         { title: 'Tâche simulée 2', description: 'Description simulée', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
                     ],
                     imagePrompts: [],
-                    events: []
                 };
-                return { id: doc.id, name: cleanName, plan: mockPlan };
+                return { id: doc.id, name, plan: mockPlan, path: doc.path };
             });
-
             setProjects(parsedProjects);
 
         } catch (error: any) {
@@ -498,7 +505,29 @@ export default function PulseClient() {
             );
         }
 
-        return <ProjectPlanView project={activeProject} setProject={updateActiveProject} />;
+        return (
+             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+                <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-white/10">
+                    <h2 className="text-2xl font-bold truncate pr-4">{activeProject.name}</h2>
+                    <TabsList>
+                        <TabsTrigger value="plan"><CheckSquare className="mr-2 h-4 w-4" />Plan</TabsTrigger>
+                        <TabsTrigger value="oria"><MessageCircle className="mr-2 h-4 w-4" />Oria</TabsTrigger>
+                        <TabsTrigger value="files"><FolderIcon className="mr-2 h-4 w-4" />Fichiers</TabsTrigger>
+                    </TabsList>
+                </div>
+                 <TabsContent value="plan" className="flex-1 min-h-0 mt-0">
+                    <ProjectPlanView project={activeProject} setProject={updateActiveProject} />
+                </TabsContent>
+                <TabsContent value="oria" className="flex-1 min-h-0 mt-0">
+                    <div className="h-full p-4">
+                        <OriaXOS openApp={() => {}} />
+                    </div>
+                </TabsContent>
+                <TabsContent value="files" className="flex-1 min-h-0 mt-0">
+                    <DocManager initialPath={`maestro-projets/${activeProject.name.replace(/\s+/g, '-')}/`} />
+                </TabsContent>
+            </Tabs>
+        )
     };
 
     return (
@@ -534,7 +563,7 @@ export default function PulseClient() {
                                     </div>
                                     <ProjectTracker 
                                         activeProject={activeProject} 
-                                        setActiveProject={(p) => {setActiveProject(p); setView('welcome');}} 
+                                        setActiveProject={(p) => {setActiveProject(p); setView('welcome'); setActiveTab('plan');}} 
                                         onProjectDeleted={onProjectDeleted} 
                                         projects={projects} 
                                         loading={loading}
