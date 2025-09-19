@@ -60,8 +60,8 @@ const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
     gpu: [
         { name: 'NVIDIA RTX 5080 (16Go VRAM)', priceModifier: 0 },
         { name: 'NVIDIA RTX 5090 (24Go VRAM)', priceModifier: 700 },
-        { name: 'NVIDIA RTX 4090 (24Go VRAM)', priceModifier: 600 },
-        { name: 'Technologie (X)bridge (AMD) 48Go VRAM', priceModifier: 900 },
+        { name: 'Technologie (X)bridge (AMD) 24Go VRAM', priceModifier: 900 },
+        { name: 'Technologie (X)bridge (AMD) 32Go VRAM', priceModifier: 1200 },
     ],
     ram: [
         { name: '96GB DDR5', priceModifier: 0 },
