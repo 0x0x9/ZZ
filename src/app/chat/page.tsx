@@ -1,4 +1,5 @@
 
+
 import PulseClient from './client';
 import { Heart } from 'lucide-react';
 import { Suspense } from 'react';
@@ -19,7 +20,7 @@ const PulsePage = () => {
                 Le centre névralgique de vos projets. Suivez vos tâches, gérez vos fichiers et collaborez avec votre équipe et l'IA.
                 </p>
             </section>
-            <div className="w-full h-[70vh]">
+            <div className="w-full h-[70vh] max-w-7xl mx-auto">
                  <Suspense fallback={<div className="h-full w-full glass-card animate-pulse" />}>
                     <PulseClient />
                 </Suspense>

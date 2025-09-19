@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Send, ArrowLeft, MessageSquare, BrainCircuit, Trash2, Edit, PanelLeftOpen, FolderOpen, PanelRightClose, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, ChevronsRight, Home } from 'lucide-react';
+import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -29,36 +29,21 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 
-
-// Types
-type ChatPartner = {
-    uid: string;
-    displayName: string | null;
-    photoURL: string | null;
-};
-
-const generationPatterns: Record<string, { icon: React.ElementType, text: string }> = {
-    'maestro': { icon: BrainCircuit, text: 'a généré le plan' },
-    'deck-': { icon: Presentation, text: 'a créé la présentation' },
-};
-
-const getGenerationInfo = (docName: string): { icon: React.ElementType; text: string } | null => {
-    for (const key in generationPatterns) {
-        if (docName.startsWith(key)) {
-            return generationPatterns[key];
-        }
-    }
-    return null;
-};
-
 type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
+
+const actionInfoMap: Record<ActivityType, { text: string; icon: React.ElementType; color: string }> = {
+    GENERATED: { text: 'génération', icon: Sparkles, color: 'text-purple-400' },
+    CREATED: { text: 'création', icon: UploadCloud, color: 'text-green-400' },
+    UPDATED: { text: 'modification', icon: Pencil, color: 'text-blue-400' },
+    SHARED: { text: 'partage', icon: Share2, color: 'text-indigo-400' },
+    DELETED: { text: 'suppression', icon: Trash2, color: 'text-red-400' }
+};
 
 type Activity = {
     id: string;
     type: ActivityType;
     doc: Doc;
     timestamp: Date;
-    generationInfo?: { icon: React.ElementType; text: string } | null;
 };
 
 type Project = {
@@ -67,13 +52,6 @@ type Project = {
     plan: ProjectPlan;
 };
 
-const actionInfoMap = {
-    GENERATED: { text: 'génération', icon: Sparkles, color: 'text-purple-400' },
-    CREATED: { text: 'création', icon: UploadCloud, color: 'text-green-400' },
-    UPDATED: { text: 'modification', icon: Pencil, color: 'text-blue-400' },
-    SHARED: { text: 'partage', icon: Share2, color: 'text-indigo-400' },
-    DELETED: { text: 'suppression', icon: Trash2, color: 'text-red-400' }
-};
 
 const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }) => {
     const activities = useMemo((): Activity[] => {
@@ -81,20 +59,12 @@ const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }
         return docs
             .filter(doc => doc.updatedAt && !doc.mimeType.includes('directory'))
             .map(doc => {
-                const generationInfo = getGenerationInfo(doc.name.split('/').pop() || '');
                 const isCreation = doc.createdAt && doc.updatedAt ? (new Date(doc.updatedAt).getTime() - new Date(doc.createdAt).getTime() < 2000) : false;
-                
-                let type: ActivityType = 'UPDATED';
-                if (isCreation) {
-                    type = generationInfo ? 'GENERATED' : 'CREATED';
-                }
-                
-                return {
-                    id: doc.id, type, doc, timestamp: new Date(doc.updatedAt!), generationInfo,
-                };
+                const type: ActivityType = isCreation ? 'CREATED' : 'UPDATED';
+                return { id: doc.id, type, doc, timestamp: new Date(doc.updatedAt!) };
             })
             .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-            .slice(0, 5); // Limit to 5 recent activities
+            .slice(0, 5);
     }, [docs]);
 
     if (loading) {
@@ -107,7 +77,7 @@ const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }
                     </div>
                 ))}
             </div>
-        )
+        );
     }
 
     return (
@@ -115,7 +85,7 @@ const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }
             <h3 className="px-3 text-xs font-semibold uppercase text-muted-foreground mb-1">Activité Récente</h3>
             {activities.length > 0 ? (
                 activities.map(activity => {
-                    const action = actionInfoMap[activity.type] || actionInfoMap.UPDATED;
+                    const action = actionInfoMap[activity.type];
                     const Icon = action.icon;
                     return (
                         <div key={activity.id} className="p-3 rounded-xl flex items-start gap-3 text-sm">
@@ -138,8 +108,6 @@ const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }
     );
 };
 
-
-// Sub-components
 function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, projects, loading, onCreateNew }: { activeProject: Project | null, setActiveProject: (project: Project | null) => void, onProjectDeleted: (deletedId: string) => void, projects: Project[], loading: boolean, onCreateNew: () => void }) {
     const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
     const { toast } = useToast();
@@ -240,18 +208,22 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
 }
 
 function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (project: ProjectPlan) => void, onCancel: () => void }) {
-    const formRef = useRef<HTMLFormElement>(null);
-    const { pending, formAction } = useFormStatus();
+    const { toast } = useToast();
+    const [pending, setPending] = useState(false);
+    
+    const handleSubmit = async (formData: FormData) => {
+        setPending(true);
+        const result = await createManualProjectAction(null, formData);
+        if (result.success && result.project) {
+            onProjectCreated(result.project);
+        } else if (result.error) {
+            toast({ variant: 'destructive', title: "Erreur", description: result.error });
+        }
+        setPending(false);
+    };
     
     return (
-        <form ref={formRef} action={async (formData) => {
-            const result = await createManualProjectAction(null, formData);
-            if (result.success && result.project) {
-                onProjectCreated(result.project);
-            } else if (result.error) {
-                alert(`Erreur: ${result.error}`);
-            }
-        }} className="w-full max-w-lg mt-8 space-y-4 text-left">
+        <form action={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
             <div className="space-y-2">
                 <Label htmlFor="title">Titre du projet</Label>
                 <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={pending} />
@@ -271,22 +243,23 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
     );
 }
 
+
 function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (result: any) => void, onCancel: () => void}) {
-    const initialState = { id: 0, result: null, error: null, prompt: '', job: '' };
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
+    const [isFluxPending, setIsFluxPending] = useState(false);
     
     const handleFluxAction = async (formData: FormData) => {
+        setIsFluxPending(true);
         const result = await fluxAction(null, formData);
         if (result.result) {
             onProjectCreated(result.result);
         } else if (result.error) {
             toast({variant: 'destructive', title: 'Erreur (X)flux', description: result.error});
         }
+        setIsFluxPending(false);
     }
-
-    const { pending } = useFormStatus();
-
+    
     return (
         <div className="h-full flex flex-col items-center justify-center text-center p-8">
             <AnimatePresence mode="wait">
@@ -304,13 +277,13 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
                             <h2 className="mt-6 text-xl font-semibold text-foreground">Créer un nouveau projet avec l'IA</h2>
                             <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez (X)flux générer tous les livrables de départ.</p>
                             <form action={handleFluxAction} className="w-full max-w-lg mt-8 space-y-4">
-                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={pending} />
-                                <Input name="job" placeholder="Votre métier ? (ex: Développeur, Artiste...) - Optionnel" className="bg-background/50 text-base text-center" disabled={pending} />
-                                <Button type="submit" size="lg" disabled={pending} className="w-full">
-                                    {pending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
-                                    {pending ? 'Génération en cours...' : 'Lancer (X)flux'}
+                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={isFluxPending} />
+                                <Input name="job" placeholder="Votre métier ? (ex: Développeur, Artiste...) - Optionnel" className="bg-background/50 text-base text-center" disabled={isFluxPending} />
+                                <Button type="submit" size="lg" disabled={isFluxPending} className="w-full">
+                                    {isFluxPending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
+                                    {isFluxPending ? 'Génération en cours...' : 'Lancer (X)flux'}
                                 </Button>
-                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={pending}>Ou créer manuellement</Button>
+                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={isFluxPending}>Ou créer manuellement</Button>
                             </form>
                         </>
                     ) : (
@@ -323,162 +296,20 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (res
                     )}
                 </motion.div>
             </AnimatePresence>
-            <Button variant="ghost" onClick={onCancel} disabled={pending} className="mt-8">Retour</Button>
-        </div>
-    )
-}
-
-function OriaChatWindow({ partner, onBack, activeProject }: { partner: ChatPartner, onBack: () => void, activeProject: Project | null }) {
-    const formRef = useRef<HTMLFormElement>(null);
-    const [messages, setMessages] = useState<OriaHistoryMessage[]>([]);
-    
-    const clientAction = async (prevState: any, formData: FormData) => {
-        const prompt = formData.get('prompt') as string;
-        if (!prompt.trim()) return { ...prevState, error: "Le message ne peut être vide." };
-
-        const newHistory: OriaHistoryMessage[] = [
-            ...messages,
-            { role: 'user', content: prompt }
-        ];
-        setMessages(newHistory);
-        
-        const stringifiedHistory = JSON.stringify(newHistory.map(msg => ({ role: msg.role, content: msg.content })));
-        formData.set('history', stringifiedHistory);
-        
-        const result = await oriaChatAction(prevState, formData);
-        
-        if (result.message === 'success' && result.result) {
-            setMessages(prev => [...prev, { role: 'model', content: result.result as any }]);
-        } else {
-            setMessages(prev => [...prev, { role: 'model', content: { type: 'response', response: result.error || "Désolée, une erreur est survenue." } as any }]);
-        }
-        formRef.current?.reset();
-        return result;
-    }
-    
-    const [state, formAction] = useFormState(clientAction, { id: 0, result: null, error: null, message: '' });
-    const { pending } = useFormStatus();
-
-     useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-        }
-    }, [messages, pending]);
-    
-    const getProjectContext = () => {
-        if (!activeProject?.plan) return 'aucun';
-        
-        const tasksSummary = activeProject.plan.tasks.map(task => 
-            `- ${task.title} (${task.category}): ${task.checklist.filter(c => c.completed).length}/${task.checklist.length} complétées. Description: ${task.description}`
-        ).join('\n');
-
-        return `L'utilisateur travaille sur le projet "${activeProject.name}".
-        Brief créatif : "${activeProject.plan.creativeBrief}".
-        Liste des tâches :
-        ${tasksSummary}`;
-    };
-
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-    return (
-        <div className="glass-card h-full flex flex-col">
-            <header className="p-4 border-b border-white/10 flex items-center gap-4 flex-shrink-0">
-                <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8">
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
-                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center shrink-0">
-                    <Sparkles className="text-white h-5 w-5" />
-                </div>
-                <div>
-                    <h3 className="font-semibold">{partner.displayName}</h3>
-                    {activeProject && <p className="text-xs text-muted-foreground truncate max-w-xs">Contexte : {activeProject.name}</p>}
-                </div>
-            </header>
-            <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
-                 <div className="space-y-6">
-                    <AnimatePresence>
-                        {messages.map((msg, i) => (
-                            <motion.div
-                                key={i}
-                                layout
-                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                className={cn("flex items-end gap-2", msg.role === 'user' ? 'justify-end' : 'justify-start')}
-                            >
-                                {msg.role === 'model' && (
-                                    <div className="w-8 h-8 self-end rounded-full bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center shrink-0">
-                                        <Sparkles className="text-white h-4 w-4" />
-                                    </div>
-                                )}
-                                <div className={cn(
-                                    "max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl shadow-md text-sm whitespace-pre-wrap",
-                                    msg.role === 'user'
-                                        ? "bg-primary/80 text-primary-foreground rounded-br-none"
-                                        : "bg-background/50 rounded-bl-none"
-                                )}>
-                                    {typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)}
-                                </div>
-                            </motion.div>
-                        ))}
-                         {pending && (
-                            <motion.div
-                                layout
-                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                className="flex items-end gap-2 justify-start"
-                            >
-                                 <div className="w-8 h-8 self-end rounded-full bg-gradient-to-br from-cyan-400 to-fuchsia-500 flex items-center justify-center shrink-0">
-                                    <Sparkles className="text-white h-4 w-4 animate-pulse" />
-                                </div>
-                                <div className="max-w-xs p-3 rounded-2xl shadow-md bg-background/50 rounded-bl-none">
-                                    <Loader className="animate-spin h-5 w-5 text-muted-foreground" />
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </ScrollArea>
-             <div className="p-4 border-t border-white/10 shrink-0">
-                <form ref={formRef} action={formAction} className="flex gap-4">
-                    <input type="hidden" name="context" value={getProjectContext()} />
-                    <Input
-                        name="prompt"
-                        placeholder="Discutez avec Oria..."
-                        className="h-11 text-base bg-background/50 rounded-full"
-                        autoComplete="off"
-                        disabled={pending}
-                    />
-                    <Button type="submit" size="icon" disabled={pending} aria-label="Envoyer le message" className="rounded-full">
-                        {pending ? <Loader className="animate-spin h-5 w-5" /> : <Send className="h-5 w-5" />}
-                    </Button>
-                </form>
-            </div>
+            <Button variant="ghost" onClick={onCancel} disabled={isFluxPending} className="mt-8">Retour</Button>
         </div>
     )
 }
 
 function ProjectPlanView({ project, setProject }: { project: Project, setProject: (p: Project) => void }) {
-    if (!project.plan) {
-         return (
-            <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground p-8">
-                <BrainCircuit className="mx-auto h-20 w-20 text-muted-foreground/30" />
-                <p className="mt-6 text-xl font-semibold text-foreground">Aucun plan de projet (Maestro) trouvé.</p>
-                <p className="mt-2">Générez un plan pour ce projet en discutant avec Oria.</p>
-            </div>
-        );
-    }
     const categories = [...new Set(project.plan.tasks.map(task => task.category))];
 
     const handleChecklistChange = (taskIndex: number, itemIndex: number, checked: boolean) => {
-        const updatedProject = JSON.parse(JSON.stringify(project));
-        if (updatedProject.plan && updatedProject.plan.tasks[taskIndex] && updatedProject.plan.tasks[taskIndex].checklist[itemIndex]) {
-            updatedProject.plan.tasks[taskIndex].checklist[itemIndex].completed = checked;
-            setProject(updatedProject);
-        }
+        const updatedProject = JSON.parse(JSON.stringify(project)); // Deep copy
+        updatedProject.plan.tasks[taskIndex].checklist[itemIndex].completed = checked;
+        setProject(updatedProject);
     };
-
+    
     return (
         <ScrollArea className="h-full">
             <div className="p-4 md:p-6 space-y-8">
@@ -491,19 +322,19 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
                         <div key={category}>
                             <h3 className="text-xl font-semibold mb-4">{category}</h3>
                             <div className="space-y-4">
-                                {project.plan.tasks.filter(t => t.category === category).map((task, taskIndex) => (
-                                    <div key={taskIndex} className="p-4 rounded-lg bg-background/50 border border-white/10">
+                                {project.plan.tasks.filter(t => t.category === category).map((task, taskIndexGlobal) => (
+                                    <div key={taskIndexGlobal} className="p-4 rounded-lg bg-background/50 border border-white/10">
                                         <h4 className="font-semibold">{task.title}</h4>
                                         <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
                                         <div className="space-y-2">
                                             {task.checklist.map((item, itemIndex) => (
                                                 <div key={itemIndex} className="flex items-center gap-3">
                                                     <Checkbox
-                                                        id={`task-${taskIndex}-item-${itemIndex}`}
+                                                        id={`task-${taskIndexGlobal}-item-${itemIndex}`}
                                                         checked={item.completed}
-                                                        onCheckedChange={(checked) => handleChecklistChange(project.plan.tasks.findIndex(t => t.title === task.title), itemIndex, !!checked)}
+                                                        onCheckedChange={(checked) => handleChecklistChange(taskIndexGlobal, itemIndex, !!checked)}
                                                     />
-                                                    <label htmlFor={`task-${taskIndex}-item-${itemIndex}`} className="text-sm text-foreground/90 has-[:checked]:line-through has-[:checked]:text-muted-foreground cursor-pointer">
+                                                    <label htmlFor={`task-${taskIndexGlobal}-item-${itemIndex}`} className="text-sm text-foreground/90 has-[:checked]:line-through has-[:checked]:text-muted-foreground cursor-pointer">
                                                         {item.text}
                                                     </label>
                                                 </div>
@@ -522,10 +353,17 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
 
 function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProject, toggleSidebar, isSidebarVisible }: { activeProject: Project | null, onCreateNew: () => void, onProjectDeleted: (id: string) => void, onSaveProject: () => void, toggleSidebar: () => void, isSidebarVisible: boolean }) {
     const { theme, setTheme } = useTheme();
+    const { toast } = useToast();
 
     const handleDeleteProject = async () => {
         if (!activeProject || !activeProject.id) return;
-        onProjectDeleted(activeProject.id);
+        try {
+            await deleteDocument({ docId: activeProject.id });
+            toast({ title: "Projet supprimé", description: `"${activeProject.name}" a été supprimé.` });
+            onProjectDeleted(activeProject.id);
+        } catch (error) {
+             toast({ variant: 'destructive', title: 'Erreur', description: 'La suppression du projet a échoué.' });
+        }
     };
     
     return (
@@ -537,25 +375,21 @@ function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProjec
                     </Button>
                 </MenubarTrigger>
             </MenubarMenu>
-            <MenubarMenu>
+             <MenubarMenu>
                  <MenubarTrigger asChild>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                        <Home className="h-4 w-4" />
-                        Accueil
-                    </Button>
+                    <Link href="/" className="flex items-center">
+                        <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                            <Home className="h-4 w-4" />
+                            Accueil
+                        </Button>
+                    </Link>
                 </MenubarTrigger>
-                <MenubarContent className="glass-card">
-                    <MenubarItem asChild>
-                        <Link href="/">Retour au site (X)yzz</Link>
-                    </MenubarItem>
-                </MenubarContent>
             </MenubarMenu>
              <MenubarMenu>
                 <MenubarTrigger>Projet</MenubarTrigger>
                  <MenubarContent className="glass-card">
                     <MenubarItem onClick={onCreateNew}>Nouveau Projet <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
                     <MenubarSeparator />
-                    <MenubarItem disabled={!activeProject}>Renommer le projet...</MenubarItem>
                     <MenubarItem disabled={!activeProject} onClick={onSaveProject}>Sauvegarder les changements<MenubarShortcut>⌘S</MenubarShortcut></MenubarItem>
                     <MenubarSeparator />
                     <MenubarItem disabled={!activeProject} onClick={handleDeleteProject} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
@@ -575,7 +409,6 @@ function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProjec
     );
 }
 
-// Main Component
 export default function PulseClient() {
     const { toast } = useToast();
     const { user } = useAuth();
@@ -588,17 +421,34 @@ export default function PulseClient() {
     const [showSidebar, setShowSidebar] = useState(true);
     const [view, setView] = useState<'welcome' | 'newProject'>('welcome');
     
-    const oriaPartner: ChatPartner = {
-        uid: 'oria-chat-bot',
-        displayName: 'Oria (Assistante Projet)',
-        photoURL: null,
-    };
-
-    const fetchDocs = useCallback(async () => {
+    const fetchDocsAndProjects = useCallback(async () => {
         setLoading(true);
         try {
-            const result = await listDocuments();
-            setDocs(result || []);
+            const allDocs = await listDocuments();
+            setDocs(allDocs || []);
+
+            const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
+
+            // The content is not in the Doc object, so we simulate it based on the name.
+            // This is a limitation of the current mock setup.
+            const parsedProjects: Project[] = maestroDocs.map(doc => {
+                const cleanName = doc.name.replace('.json', '');
+                const mockPlan: ProjectPlan = {
+                    id: doc.id,
+                    title: cleanName,
+                    creativeBrief: `Brief créatif pour le projet ${cleanName}. Ceci est une simulation car le contenu du fichier n'est pas accessible ici.`,
+                    tasks: [
+                        { title: 'Tâche simulée 1', description: 'Description simulée', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}]},
+                        { title: 'Tâche simulée 2', description: 'Description simulée', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
+                    ],
+                    imagePrompts: [],
+                    events: []
+                };
+                return { id: doc.id, name: cleanName, plan: mockPlan };
+            });
+
+            setProjects(parsedProjects);
+
         } catch (error: any) {
             toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les projets.'});
         } finally {
@@ -607,54 +457,21 @@ export default function PulseClient() {
     }, [toast]);
     
     useEffect(() => {
-        fetchDocs();
-    }, [fetchDocs]);
+        fetchDocsAndProjects();
+    }, [fetchDocsAndProjects]);
 
-     useEffect(() => {
-        if (loading || docs.length === 0) return;
-
-        const maestroDocs = docs.filter(doc => doc.mimeType === 'application/json' && doc.name.startsWith('maestro-projets/'));
-
-        // Since we can't fetch content, we'll simulate parsing project data
-        const parsedProjects: Project[] = maestroDocs.map(doc => {
-            const cleanName = doc.name.replace('maestro-projets/', '').replace('.json', '');
-            
-            // This is a mock plan. In a real app, you'd fetch and parse the JSON content of the doc.
-            const mockPlan: ProjectPlan = {
-                id: doc.id,
-                title: cleanName,
-                creativeBrief: `Brief créatif pour le projet ${cleanName}.`,
-                tasks: [
-                    { title: 'Définir la vision', description: 'Clarifier les objectifs', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Faire un brainstorming', completed: Math.random() > 0.5}, {text: 'Valider le concept', completed: Math.random() > 0.5}]},
-                    { title: 'Créer le contenu', description: 'Produire les livrables', category: 'Création & Production', duration: '5 jours', checklist: [{text: 'Rédiger les textes', completed: false}, {text: 'Créer les visuels', completed: false}]}
-                ],
-                imagePrompts: [],
-                events: []
-            };
-
-            return {
-                id: doc.id,
-                name: cleanName,
-                plan: mockPlan,
-            };
-        });
-
-        setProjects(parsedProjects);
-    }, [docs, loading]);
-    
     const onProjectDeleted = (deletedId: string) => {
         if (activeProject && activeProject.id === deletedId) {
             setActiveProject(null);
             setView('welcome');
         }
-        fetchDocs();
+        fetchDocsAndProjects();
     };
 
-    const handleProjectCreated = (result: GenerateFluxOutput | ProjectPlan) => {
-        fetchDocs(); // Re-fetch all documents to include the new project
-        setActiveProject(null); // Deselect active project
-        setView('welcome'); // Go back to project view
-        toast({ title: "Projet créé !", description: `Le projet a bien été initialisé.`})
+    const handleProjectCreated = () => {
+        fetchDocsAndProjects();
+        setView('welcome');
+        toast({ title: "Projet créé !", description: `Le projet a bien été initialisé dans (X)cloud.`})
     };
     
     const updateActiveProject = (updatedProject: Project) => {
@@ -664,9 +481,7 @@ export default function PulseClient() {
 
     const handleSaveProject = async () => {
         if (!activeProject || !activeProject.plan) return;
-        // In a real app, this action would save the updated project plan to the backend.
-        // For now, we just show a toast.
-        toast({ title: 'Sauvegarde simulée', description: `Les modifications de "${activeProject.name}" ont été sauvegardées localement.` });
+        toast({ title: 'Sauvegarde simulée', description: `Dans une vraie app, le projet "${activeProject.name}" serait mis à jour.` });
     }
 
     const MainContent = () => {
@@ -684,36 +499,7 @@ export default function PulseClient() {
             );
         }
 
-        return (
-            <Tabs defaultValue="project" className="h-full flex flex-col">
-                <div className="p-2 border-b border-border">
-                    <TabsList className="mx-auto">
-                        <TabsTrigger value="project">
-                            <BrainCircuit className="h-4 w-4 mr-2"/>
-                            Plan du Projet
-                        </TabsTrigger>
-                        <TabsTrigger value="chat">
-                            <Sparkles className="h-4 w-4 mr-2"/>
-                            Discuter avec Oria
-                        </TabsTrigger>
-                        <TabsTrigger value="files">
-                            <FolderOpen className="h-4 w-4 mr-2"/>
-                            Fichiers du projet
-                        </TabsTrigger>
-                    </TabsList>
-                </div>
-                <TabsContent value="project" className="flex-1 min-h-0 -mt-2">
-                    <ProjectPlanView project={activeProject} setProject={updateActiveProject} />
-                </TabsContent>
-                <TabsContent value="files" className="flex-1 min-h-0 -mt-2 p-1">
-                    {/* The initialPath for DocManager needs to be adapted since projects are now files, not folders */}
-                    <DocManager onDataChange={fetchDocs} initialPath={`maestro-projets/${activeProject.name}/`} />
-                </TabsContent>
-                <TabsContent value="chat" className="flex-1 min-h-0 -mt-2">
-                    <OriaChatWindow partner={oriaPartner} onBack={() => {setActiveProject(null); setView('welcome')}} activeProject={activeProject} />
-                </TabsContent>
-            </Tabs>
-        );
+        return <ProjectPlanView project={activeProject} setProject={updateActiveProject} />;
     };
 
     return (
@@ -721,7 +507,7 @@ export default function PulseClient() {
             <div className="flex-1 flex flex-col glass-card p-0">
                 <TopMenuBar 
                     activeProject={activeProject} 
-                    onCreateNew={() => setView('newProject')}
+                    onCreateNew={() => {setActiveProject(null); setView('newProject');}}
                     onProjectDeleted={onProjectDeleted} 
                     onSaveProject={handleSaveProject}
                     toggleSidebar={() => setShowSidebar(!showSidebar)}
