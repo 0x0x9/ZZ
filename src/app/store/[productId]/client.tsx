@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -18,6 +18,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import OriaAnimation from "@/components/ui/oria-animation";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -36,6 +37,38 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
             {children}
         </motion.div>
     )
+};
+
+const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
+    return (
+        <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
+            <AnimatedSection>
+                <div className="text-center">
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Caractéristiques techniques</h2>
+                    <p className="text-muted-foreground mt-3 max-w-2xl mx-auto text-md md:text-lg">Pensée pour des charges extrêmes, optimisée pour le silence et la fluidité créative.</p>
+                </div>
+            </AnimatedSection>
+            <AnimatedSection className="mt-16 max-w-4xl mx-auto">
+                <Card className="glass-card">
+                    <CardContent className="p-2">
+                        <Table>
+                            <TableBody>
+                                {Object.entries(specs).map(([key, value]) => (
+                                    <TableRow key={key} className="border-b border-white/10">
+                                        <TableCell className="font-semibold text-foreground/90 w-1/3">{key}</TableCell>
+                                        <TableCell className="text-muted-foreground">{value}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+                <div className="text-center mt-4 text-xs text-muted-foreground space-y-1">
+                    <p>Compatibilité GPU AMD prioritaire. (X)bridge: multi-GPU unifié, mix AMD+NVIDIA possible sous Windows/Linux.</p>
+                </div>
+            </AnimatedSection>
+        </section>
+    );
 };
 
 
@@ -83,7 +116,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         return;
     }
     
-    setConfiguration(newConfig);
+    setConfig(newConfig);
     setPcConfiguratorKey(Date.now()); // Force re-render of PCConfigurator with new initial values
     const configuratorElement = document.getElementById('configurator');
     if (configuratorElement) {
@@ -118,7 +151,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   };
   
   const performanceData = [
-    { name: '(X)-φ (fi)', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
+    { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
     { name: 'Mac Pro (équivalent)', 'Rendu 3D': 75, 'Compilation de code': 80, 'Simulation IA': 70 },
     { name: 'PC Haut de Gamme', 'Rendu 3D': 85, 'Compilation de code': 88, 'Simulation IA': 78 },
 ];
@@ -170,17 +203,19 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   return (
     <>
         <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
-            <div className="flex justify-between items-start mb-8">
-                 <div className="flex-1">
-                    <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-2">
-                        <ArrowLeft className="h-4 w-4" /> Voir tous les produits
-                    </Link>
-                    <h1 className="text-4xl md:text-5xl font-bold">{product.name}</h1>
-                    <p className="text-muted-foreground text-lg">{product.tagline}</p>
-                </div>
-                <div className="text-right flex-shrink-0 pl-4">
-                    <p className="text-muted-foreground text-sm">À partir de</p>
-                    <p className="text-3xl font-bold">{product.price.toFixed(2)}€</p>
+            <div className="text-center mb-12">
+                <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4">
+                    <ArrowLeft className="h-4 w-4" /> Voir tous les produits
+                </Link>
+                <h1 className="text-4xl md:text-6xl font-bold">{product.name}</h1>
+                <p className="text-muted-foreground text-lg md:text-xl mt-4 max-w-2xl mx-auto">{product.tagline}</p>
+                 <div className="mt-8 flex items-center justify-center gap-4">
+                    <Button size="lg" className="rounded-full" asChild>
+                        <Link href="#configurator">Configurer</Link>
+                    </Button>
+                    <Button asChild variant="outline" size="lg" className="rounded-full">
+                        <Link href="#specs">Fiche technique</Link>
+                    </Button>
                 </div>
             </div>
             
@@ -263,6 +298,9 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                     </div>
                 </div>
             </section>
+            
+            {product.specs && <SpecsSection specs={product.specs} />}
+
 
              {product.hasPerformanceChart && (
                 <section className="container mx-auto px-4 md:px-6">

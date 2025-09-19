@@ -40,17 +40,17 @@ export const products: Product[] = [
       "Châssis premium en aluminium, silencieux et évolutif."
     ],
     specs: {
-      "Système": "(X) OS – Studio Edition, avec support natif Windows/macOS via partitions intelligentes (X) SYNC Bridge.",
-      "Processeur": "Intel® Core i9-14900K ou AMD Ryzen 9 7950X — 24 cœurs / 32 threads.",
-      "Carte graphique": "NVIDIA RTX 4080 Super ou AMD Radeon RX 7900 XTX (Autres GPU disponibles).",
-      "Mémoire vive": "96 Go DDR5 (extensible à 192Go).",
-      "Stockage": "8TB SSD + 12TB HDD",
-      "Refroidissement": "Système hybride silencieux (air/liquide) avec ventilation adaptative.",
-      "Boîtier": "Moyen-tour compact en alliage d’aluminium noir satiné, éclairage sobre configurable.",
-      "Connectique": "4×USB-C, 4×USB 3.2, 2×DisplayPort 2.1, HDMI 2.1, Ethernet 2.5 GbE, SD Express, Wi-Fi 6E.",
-      "Audio": "DAC intégré 32 bits haute fidélité, prises audio jack pro isolées.",
-      "Inclus": "1 an d'abonnement (X) SYNC et accès (X)OS Bêta",
-      "Garantie": "2 ans (extensible) + support prioritaire pour les créatifs pro."
+      "Processeur (CPU)": "Intel® Core i9-14900K (24 cœurs, jusqu'à 6.0 GHz) ou AMD Ryzen 9 7950X3D",
+      "Graphiques (GPU)": "Jusqu'à 2x NVIDIA RTX 5090 ou 2x AMD Radeon RX 7900 XTX via (X)bridge",
+      "Mémoire": "96 Go DDR5 (ext. 192 Go)",
+      "Stockage": "8 To NVMe Gen5 + 12 To HDD (RAID en option)",
+      "Réseau": "10 GbE, Wi-Fi 7, Bluetooth 5.4",
+      "Connectivité": "Avant: 2x USB-C (Thunderbolt 5), 2x USB-A, Lecteur SD | Arrière: Multiples ports USB-C, USB-A, DisplayPort 2.1, HDMI 2.1",
+      "Alimentation": "1600W 80+ Titanium",
+      "Thermique & acoustique": "Refroidissement liquide sur mesure, ~22 dB en charge",
+      "Châssis": "Boîtier sur mesure, flux d’air optimisé, halo LED discret",
+      "Dimensions & poids": "210mm × 450mm × 480mm, ~18 kg",
+      "Système": "xOS (Windows modifié) + Linux + macOS (via Mac Bridge), multi-boot xBoot"
     }
   },
   {
