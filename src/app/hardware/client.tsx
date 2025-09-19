@@ -2,22 +2,22 @@
 
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Cpu, Zap, Layers, MemoryStick, CircuitBoard, Check, CheckCircle } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import PerformanceChart from '@/components/ui/performance-chart';
-import { Card, CardContent } from '@/components/ui/card';
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import PerformanceChart from "@/components/ui/performance-chart";
+import { Card, CardContent } from "@/components/ui/card";
 import imageData from '@/lib/placeholder-images.json';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
-import { AiConfigurator } from '@/components/ai-configurator';
+import { useToast } from "@/hooks/use-toast";
+import { AiConfigurator } from "@/components/ai-configurator";
 import type { Configuration } from '@/components/ui/pc-configurator';
 import { products } from '@/lib/products';
-import { useIsClient } from '@/hooks/use-is-client';
+import { useIsClient } from "@/hooks/use-is-client";
 
 
 function Section({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -68,16 +68,19 @@ const hardwareProducts = products.filter(p => p.category === 'Matériel');
 
 
 function HeroScrollAnimation() {
-    const targetRef = useRef<HTMLDivElement | null>(null);
+    const targetRef = useRef<HTMLDivElement>(null);
+    const isClient = useIsClient();
 
     const { scrollYProgress } = useScroll({
-        target: targetRef,
-        offset: ["start start", "end start"],
+      target: targetRef,
+      offset: ["start start", "end start"],
+      enabled: isClient,
     });
 
     const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1.8]);
     const imageOpacity = useTransform(scrollYProgress, [0, 0.7, 1], [1, 1, 0]);
     const contentOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+    const contentY = useTransform(scrollYProgress, [0, 0.3], [0, -30]);
 
     return (
         <div ref={targetRef} className="h-[150vh] relative">
@@ -97,7 +100,7 @@ function HeroScrollAnimation() {
                 </motion.div>
                
                 <motion.div 
-                     style={{ opacity: contentOpacity }}
+                     style={{ opacity: contentOpacity, y: contentY }}
                      className="relative z-10 px-4 space-y-6"
                 >
                     <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white [text-shadow:0_4px_20px_rgba(0,0,0,0.5)]">
@@ -126,7 +129,6 @@ export default function HardwareClient() {
     const workstationProduct = products.find(p => p.name === '(X)-fi');
 
     if (!workstationProduct) {
-        // Fallback or error display if the main product is not found
         return <div>Produit principal non trouvé.</div>;
     }
     
@@ -152,23 +154,28 @@ export default function HardwareClient() {
                 <HeroScrollAnimation />
             </ClientOnly>
 
-            <Section className="text-center">
-                <AnimatedSection>
-                    <h2 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                        Un Studio. Tous les Mondes.
-                    </h2>
-                    <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                        Arrêtez de choisir. Nos workstations sont les seules machines capables d'exécuter Windows, macOS et Linux simultanément, en natif. Lancez un jeu AAA sur Windows pendant qu'un rendu 3D tourne sur Linux et que vous montez une vidéo sur macOS. Sans compromis. Sans redémarrage.
-                    </p>
-                </AnimatedSection>
-                <AnimatedSection className="mt-16">
-                   <div className="relative aspect-video max-w-5xl mx-auto glass-card p-4">
-                       <Image src={imageData.hardware.multi_os.src} alt="Multi-OS demonstration" fill className="object-cover rounded-lg" data-ai-hint={imageData.hardware.multi_os.hint} />
-                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                           <p className="text-white text-2xl font-bold [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">Votre studio. Unifié.</p>
-                       </div>
-                   </div>
-                </AnimatedSection>
+            <Section>
+                <div className="relative isolate">
+                    <div className="absolute inset-0 -z-10 h-full w-full">
+                         <iframe
+                            src="https://www.youtube.com/embed/YUEb23FQVhA?autoplay=1&mute=1&loop=1&playlist=YUEb23FQVhA&controls=0&showinfo=0&autohide=1&wmode=transparent"
+                            title="Hero Video"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full object-cover"
+                        ></iframe>
+                         <div className="absolute inset-0 bg-black/60"></div>
+                    </div>
+                    <div className="text-center py-20 md:py-32 px-6">
+                        <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white [text-shadow:0_2px_15px_rgba(0,0,0,0.4)]">
+                           Un Studio. Tous les Mondes.
+                        </h2>
+                        <p className="mt-6 text-lg md:text-xl text-white/80 max-w-3xl mx-auto [text-shadow:0_1px_10px_rgba(0,0,0,0.4)]">
+                            Arrêtez de choisir. Nos workstations sont les seules capables d'exécuter Windows, macOS et Linux simultanément, en natif. Lancez un jeu sur Windows pendant qu'un rendu tourne sur Linux. Sans compromis. Sans redémarrage.
+                        </p>
+                    </div>
+                </div>
             </Section>
             
             <Section>
