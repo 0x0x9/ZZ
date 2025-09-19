@@ -12,6 +12,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import PerformanceChart from "@/components/ui/performance-chart";
 import { PCConfigurator, type Configuration } from "@/components/ui/pc-configurator";
+import { AiConfigurator } from "@/components/ai-configurator";
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -99,6 +100,22 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
     setTotalPrice(newPrice);
   };
   
+    const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
+        const params = new URLSearchParams({
+            cpu: newConfig.cpu,
+            gpu: newConfig.gpu,
+            ram: newConfig.ram,
+            storage: newConfig.storage,
+        });
+        
+        toast({
+            title: `Redirection vers ${modelName}`,
+            description: "Nous vous redirigeons vers la page du produit recommandé avec votre configuration.",
+        });
+
+        router.push(`/store/${modelId}?${params.toString()}`);
+    };
+
   const handleAddToCart = () => {
     if (product.configurable && !configuration) {
         toast({
@@ -184,13 +201,10 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </Link>
                 <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">{product.name}</h1>
                 <p className="mt-4 text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
-                <p className="mt-6 text-2xl font-semibold">À partir de {product.price.toFixed(2)}€</p>
+                 <p className="mt-6 text-2xl font-semibold">À partir de {totalPrice.toFixed(2)}€</p>
                  <div className="mt-8 flex items-center justify-center gap-4">
                     <Button size="lg" className="rounded-full" asChild>
                         <Link href="#configurator">Configurer</Link>
-                    </Button>
-                    <Button asChild variant="outline" size="lg" className="rounded-full">
-                        <Link href="#specs">Fiche technique</Link>
                     </Button>
                 </div>
             </div>
@@ -208,17 +222,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         />
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
-                        <div className="glass-card p-4">
-                            <div className="relative aspect-square">
-                                <Image
-                                    src={product.images[0]}
-                                    alt={product.name}
-                                    fill
-                                    className="object-contain"
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                            </div>
-                        </div>
                          <div className="mt-6 p-6 glass-card">
                             <h3 className="text-xl font-bold">Total de votre configuration</h3>
                             <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
@@ -283,7 +286,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </div>
             </section>
 
-            <section className="container mx-auto px-4 md:px-6">
+             <section className="container mx-auto px-4 md:px-6">
                 <Carousel className="w-full">
                     <CarouselContent>
                         {product.images.map((img, index) => (
@@ -371,6 +374,10 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         </Button>
                     </div>
                 </div>
+            </section>
+
+             <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
+                <AiConfigurator product={product} onConfigSelect={handleAiConfigSelect} />
             </section>
         </div>
     </>
