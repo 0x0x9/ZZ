@@ -8,7 +8,7 @@
     "start": "next start --port 9002 --hostname 0.0.0.0",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "genkit:watch": "genkit start --port 4001"
+    "genkit:watch": "genkit start --port 4016"
   },
   "dependencies": {
     "@codemirror/lang-cpp": "^6.0.2",
