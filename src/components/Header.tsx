@@ -68,7 +68,7 @@ import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
 import { ThemeToggle } from "./theme-toggle";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Accordion,
   AccordionContent,
@@ -79,6 +79,7 @@ import { Separator } from "./ui/separator";
 import { useAuth } from './auth-component';
 import { useIsClient } from '@/hooks/use-is-client';
 import imageData from '@/lib/placeholder-images.json';
+import { useUIState } from '@/hooks/use-ui-state';
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
@@ -238,7 +239,18 @@ export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { user, handleSignOut } = useAuth();
   const isClient = useIsClient();
-  
+  const { productHeaderState } = useUIState();
+  const { product, price, onAddToCart } = productHeaderState;
+  const isProductHeaderVisible = !!product;
+
+  const handleAddToCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onAddToCart) {
+        onAddToCart();
+    }
+  }
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-4">
       <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between rounded-full glass-card relative">
@@ -251,63 +263,91 @@ export function Header() {
             <span>(X)yzz.</span>
           </Link>
         </div>
-        <nav className="hidden lg:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-1 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1">
-          
-           <DropdownMenuPrimitive.Root>
-            <DropdownMenuPrimitive.Trigger asChild>
-              <Button
-                variant="ghost"
-                className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-              >
-                Découvrir <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuPrimitive.Trigger>
-            <DropdownMenuPrimitive.Portal>
-              <DropdownMenuPrimitive.Content
-                align="center"
-                sideOffset={10}
-                className="w-80 glass-card p-2 z-50 outline-none"
-              >
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="flex flex-col gap-1"
-                >
-                  {discoverLinks.map((link) => (
-                     <DropdownMenuLinkItem key={link.href} {...link} />
-                  ))}
-                </motion.div>
-              </DropdownMenuPrimitive.Content>
-            </DropdownMenuPrimitive.Portal>
-          </DropdownMenuPrimitive.Root>
-          
-          <Button
-              variant="ghost"
-              className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-              asChild
-            >
-              <Link href="/store">Boutique</Link>
-          </Button>
-          
-          <Button
-              variant="ghost"
-              className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-              asChild
-            >
-              <Link href="/tools">Écosystème</Link>
-          </Button>
-          
-           <Button
-                variant="ghost"
-                className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-                asChild
-              >
-                <Link href="/community">Communauté</Link>
-          </Button>
 
-        </nav>
+        <AnimatePresence mode="wait">
+            {isProductHeaderVisible && product ? (
+                <motion.div
+                    key="product-header"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="hidden lg:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-6 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+                >
+                    <h1 className="text-lg font-semibold tracking-tight px-4">{product.name}</h1>
+                    <div className="flex items-center gap-4 bg-background/80 dark:bg-black/40 rounded-full p-1 pl-4">
+                        {price && <span className="font-medium">À partir de {price.toFixed(2)}€</span>}
+                        <Button size="default" className="rounded-full" onClick={handleAddToCartClick}>
+                            Ajouter au panier
+                        </Button>
+                    </div>
+                </motion.div>
+            ) : (
+                <motion.nav 
+                    key="main-nav"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="hidden lg:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-1 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+                >
+                    <DropdownMenuPrimitive.Root>
+                        <DropdownMenuPrimitive.Trigger asChild>
+                        <Button
+                            variant="ghost"
+                            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                        >
+                            Découvrir <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                        </DropdownMenuPrimitive.Trigger>
+                        <DropdownMenuPrimitive.Portal>
+                        <DropdownMenuPrimitive.Content
+                            align="center"
+                            sideOffset={10}
+                            className="w-80 glass-card p-2 z-50 outline-none"
+                        >
+                            <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="flex flex-col gap-1"
+                            >
+                            {discoverLinks.map((link) => (
+                                <DropdownMenuLinkItem key={link.href} {...link} />
+                            ))}
+                            </motion.div>
+                        </DropdownMenuPrimitive.Content>
+                        </DropdownMenuPrimitive.Portal>
+                    </DropdownMenuPrimitive.Root>
+                    
+                    <Button
+                        variant="ghost"
+                        className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                        asChild
+                        >
+                        <Link href="/store">Boutique</Link>
+                    </Button>
+                    
+                    <Button
+                        variant="ghost"
+                        className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                        asChild
+                        >
+                        <Link href="/tools">Écosystème</Link>
+                    </Button>
+                    
+                    <Button
+                            variant="ghost"
+                            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                            asChild
+                        >
+                            <Link href="/community">Communauté</Link>
+                    </Button>
+                </motion.nav>
+            )}
+        </AnimatePresence>
+
         <div className="flex items-center gap-2">
             {isClient && (
                 <div className="hidden lg:flex items-center gap-2">

@@ -20,7 +20,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
-import HomepageOriaChat from "../homepage-oria";
+import HomepageOriaChat from "@/components/homepage-oria";
+import { useUIState } from "@/hooks/use-ui-state";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -40,38 +41,6 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
         </motion.div>
     )
 };
-
-function StickyBuyBar({ product, onAddToCart }: { product: Product, onAddToCart: () => void }) {
-    const { scrollY } = useScroll();
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-        return scrollY.onChange((latest) => {
-            setIsVisible(latest > 50);
-        });
-    }, [scrollY]);
-
-    return (
-        <motion.div
-            initial={{ y: -100 }}
-            animate={{ y: isVisible ? 0 : -100 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-            className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50"
-        >
-            <div className="container mx-auto px-4 md:px-6 h-16 flex justify-between items-center">
-                <div>
-                    <h1 className="text-xl font-bold tracking-tight">{product.name}</h1>
-                </div>
-                <div className="flex items-center gap-4">
-                    <span className="text-lg font-medium">À partir de {product.price.toFixed(2)}€</span>
-                    <Button size="default" className="rounded-full" onClick={onAddToCart}>
-                        Acheter
-                    </Button>
-                </div>
-            </div>
-        </motion.div>
-    );
-}
 
 const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
     return (
@@ -111,6 +80,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   const [product, setProduct] = useState(initialProduct);
   const [totalPrice, setTotalPrice] = useState(product.price);
   const { toast } = useToast();
+  const { setProductHeaderState } = useUIState();
 
   const getInitialConfig = () => {
     const cpu = searchParams.get('cpu');
@@ -174,6 +144,18 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         description: `"${product.name}" a été ajouté à votre panier.`,
     });
   };
+
+    useEffect(() => {
+        setProductHeaderState({
+            product: product,
+            price: totalPrice,
+            onAddToCart: handleAddToCart,
+        });
+        // Cleanup on unmount
+        return () => {
+            setProductHeaderState(null);
+        };
+    }, [product, totalPrice, handleAddToCart, setProductHeaderState]);
   
   const performanceData = [
     { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
@@ -227,9 +209,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   // Default Hardware Layout
   return (
     <>
-        <StickyBuyBar product={product} onAddToCart={handleAddToCart} />
-      
-        <div className="space-y-24 md:space-y-36 my-16 md:my-24">
+        <div className="space-y-24 md:space-y-36 mt-16 md:mt-24">
             
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
@@ -251,13 +231,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                                     className="object-contain" 
                                     data-ai-hint={product.hint}
                                 />
-                            </div>
-                            <div className="mt-6 p-6 glass-card">
-                                <h3 className="text-xl font-bold">Total de votre configuration</h3>
-                                <p className="text-4xl font-extrabold my-2">{totalPrice.toFixed(2)}€</p>
-                                <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
-                                    Ajouter au panier
-                                </Button>
                             </div>
                         </div>
                     </div>
@@ -286,58 +259,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         </p>
                     </div>
                 </div>
-            </section>
-            
-             <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
-                 <AnimatedSection className="text-center">
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Pensée pour vos créations extrêmes.</h2>
-                </AnimatedSection>
-                <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-                     <AnimatedSection>
-                        <Card className="glass-card h-full text-center p-8">
-                            <Video className="h-10 w-10 mx-auto text-primary mb-4"/>
-                            <h3 className="text-xl font-bold">Post-production 8K</h3>
-                            <p className="text-muted-foreground mt-2">Montez, étalonnez et exportez vos projets les plus lourds sans la moindre latence.</p>
-                        </Card>
-                     </AnimatedSection>
-                     <AnimatedSection>
-                        <Card className="glass-card h-full text-center p-8">
-                            <Cpu className="h-10 w-10 mx-auto text-primary mb-4"/>
-                            <h3 className="text-xl font-bold">Rendu 3D & Animation</h3>
-                            <p className="text-muted-foreground mt-2">Plus de rendu, moins d’attente. Profitez de la puissance du multi-GPU pour des itérations quasi-instantanées.</p>
-                        </Card>
-                     </AnimatedSection>
-                     <AnimatedSection>
-                        <Card className="glass-card h-full text-center p-8">
-                            <BrainCircuit className="h-10 w-10 mx-auto text-primary mb-4"/>
-                            <h3 className="text-xl font-bold">IA & Data Science</h3>
-                            <p className="text-muted-foreground mt-2">Entraînez des modèles complexes et manipulez des datasets massifs avec une puissance de calcul phénoménale.</p>
-                        </Card>
-                     </AnimatedSection>
-                </div>
-            </section>
-
-            <section className="container mx-auto px-4 md:px-6">
-                <Carousel className="w-full">
-                    <CarouselContent>
-                        {product.images.map((img, index) => (
-                            <CarouselItem key={index}>
-                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
-                                        <Image 
-                                        src={img} 
-                                        alt={`${product.name} - vue ${index + 1}`} 
-                                        fill 
-                                        className="object-contain p-4 md:p-8" 
-                                        sizes="(max-width: 768px) 100vw, 75vw"
-                                        priority={index === 0}
-                                    />
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
             </section>
 
              <section className="container mx-auto px-4 md:px-6">
@@ -377,8 +298,30 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 </div>
             </section>
             
+            <section className="container mx-auto px-4 md:px-6">
+                <Carousel className="w-full">
+                    <CarouselContent>
+                        {product.images.map((img, index) => (
+                            <CarouselItem key={index}>
+                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
+                                        <Image 
+                                        src={img} 
+                                        alt={`${product.name} - vue ${index + 1}`} 
+                                        fill 
+                                        className="object-contain p-4 md:p-8" 
+                                        sizes="(max-width: 768px) 100vw, 75vw"
+                                        priority={index === 0}
+                                    />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                </Carousel>
+            </section>
+            
             {product.specs && <SpecsSection specs={product.specs} />}
-
 
              {product.hasPerformanceChart && (
                 <section className="container mx-auto px-4 md:px-6">
