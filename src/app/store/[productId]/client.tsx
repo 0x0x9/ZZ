@@ -195,23 +195,23 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   return (
     <>
         <section className="container mx-auto px-4 md:px-6 pt-28 md:pt-36 pb-12 md:pb-24">
-             <div className="text-center mb-16">
-                 <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4">
+            <div className="text-center mb-16 space-y-4">
+                <Link href="/store" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
                     <ArrowLeft className="h-4 w-4" /> Voir tous les produits
                 </Link>
                 <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">{product.name}</h1>
-                <p className="mt-4 text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
-                 <p className="mt-6 text-2xl font-semibold">À partir de {totalPrice.toFixed(2)}€</p>
-                 <div className="mt-8 flex items-center justify-center gap-4">
-                     <Button size="lg" className="rounded-full text-lg h-14 px-10" onClick={handleAddToCart}>
-                       Acheter
+                <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
+                <div className="!mt-8 flex items-center justify-center gap-4">
+                    <Button size="lg" className="rounded-full text-lg h-14 px-10" onClick={handleAddToCart}>
+                        Acheter (à partir de {product.price.toFixed(2)}€)
                     </Button>
                 </div>
             </div>
         </section>
       
         <div className="space-y-24 md:space-y-36 my-24 md:my-36">
-             <section id="configurator" className="container mx-auto px-4 md:px-6">
+            
+            <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
                         <PCConfigurator 
@@ -398,4 +398,3 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
     </>
   );
 }
-
