@@ -203,11 +203,8 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                 <p className="mt-4 text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">{product.tagline}</p>
                  <p className="mt-6 text-2xl font-semibold">À partir de {totalPrice.toFixed(2)}€</p>
                  <div className="mt-8 flex items-center justify-center gap-4">
-                    <Button size="lg" className="rounded-full" asChild>
-                        <Link href="#configurator">Configurer</Link>
-                    </Button>
-                    <Button asChild variant="outline" size="lg" className="rounded-full">
-                        <Link href="#specs">Fiche technique</Link>
+                     <Button size="lg" className="rounded-full h-14 px-10 text-lg" onClick={handleAddToCart}>
+                       Acheter
                     </Button>
                 </div>
             </div>
