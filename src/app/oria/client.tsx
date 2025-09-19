@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Sparkles, BrainCircuit, Zap, Link as LinkIcon, MessageSquare, ArrowRight, Palette, Film, Users, LayoutTemplate, BookOpen, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import OriaAnimation from '@/components/ui/oria-animation';
 import HomepageOriaChat from '@/components/homepage-oria';
 import { Card } from '@/components/ui/card';
 import { useInView } from 'react-intersection-observer';
@@ -48,15 +47,7 @@ export default function OriaClient() {
     <div className="py-28 md:py-36 space-y-24 md:space-y-36 overflow-hidden">
         
         <section className="container mx-auto px-4 md:px-6">
-            <div className="text-center mb-12">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-6"
-                >
-                    <OriaAnimation />
-                </motion.div>
+            <div className="text-center mb-16">
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
