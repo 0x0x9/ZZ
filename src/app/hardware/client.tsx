@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
@@ -90,7 +91,7 @@ export default function HardwareClient() {
                          className="relative z-10 px-4 space-y-6"
                     >
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white [text-shadow:0_4px_20px_rgba(0,0,0,0.5)]">
-                            (X)-φ (fi)
+                            Workstations
                         </h1>
                         <p className="text-xl md:text-2xl lg:text-3xl text-white/80 max-w-4xl mx-auto [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">
                             La puissance n'est que le début. C'est l'ordinateur ultime, où matériel, logiciel et IA ne font qu'un.
