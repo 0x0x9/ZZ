@@ -50,7 +50,7 @@ export const products: Product[] = [
       "Thermique & acoustique": "Refroidissement liquide sur mesure, ~22 dB en charge",
       "Châssis": "Boîtier sur mesure, flux d’air optimisé, halo LED discret",
       "Dimensions & poids": "210mm × 450mm × 480mm, ~18 kg",
-      "Système": "xOS (Windows modifié) + Linux + macOS (via Mac Bridge), multi-boot xBoot"
+      "Système": "(X)OS (Windows modifié) + Linux + macOS (via Mac Bridge), multi-boot xBoot"
     }
   },
   {
@@ -229,3 +229,5 @@ export const products: Product[] = [
     configurable: false,
   },
 ];
+
+    

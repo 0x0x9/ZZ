@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -244,28 +244,59 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         </section>
       
         <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
-             <div className="glass-card grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 rounded-3xl overflow-hidden">
-                <div className="relative w-full h-64 md:h-full flex items-center justify-center">
-                    <OriaAnimation className="w-64 h-64" />
+             <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
+                <div className="absolute inset-0 -z-10 h-full w-full">
+                     <iframe
+                        src="https://www.youtube.com/embed/YUEb23FQVhA?autoplay=1&mute=1&loop=1&playlist=YUEb23FQVhA&controls=0&showinfo=0&autohide=1&wmode=transparent"
+                        title="Hero Video"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full object-cover scale-150"
+                    ></iframe>
+                     <div className="absolute inset-0 bg-black/60"></div>
                 </div>
-                <div className="text-center md:text-left">
-                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Plus qu'une machine, un partenaire créatif.</h2>
-                    <p className="mt-4 text-lg text-muted-foreground max-w-xl md:mx-0 mx-auto">
-                        Chaque machine (X)yzz est livrée avec <strong>(X)OS</strong>, notre système d'exploitation unifié. Animé par l'IA <strong>Oria</strong>, il transforme votre ordinateur en un écosystème intelligent qui anticipe vos besoins et fluidifie votre processus créatif.
+                <div className="text-center py-20 md:py-32 px-6">
+                    <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white [text-shadow:0_2px_15px_rgba(0,0,0,0.4)]">
+                       Un Studio. Tous les Mondes.
+                    </h2>
+                    <p className="mt-6 text-lg md:text-xl text-white/80 max-w-3xl mx-auto [text-shadow:0_1px_10px_rgba(0,0,0,0.4)]">
+                        Arrêtez de choisir. (X)OS est le seul système capable d'exécuter Windows, macOS et Linux simultanément, en natif. Lancez un jeu sur Windows pendant qu'un rendu tourne sur Linux. Sans compromis. Sans redémarrage.
                     </p>
-                    <Button size="lg" asChild className="rounded-full text-lg mt-8">
-                        <Link href="/features">
-                            Découvrir l'écosystème <Sparkles className="ml-2 h-5 w-5" />
-                        </Link>
-                    </Button>
                 </div>
             </div>
         </section>
 
+         <section className="container mx-auto px-4 md:px-6 my-24 md:my-36">
+             <AnimatedSection className="text-center">
+                <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Pensée pour vos créations extrêmes.</h2>
+            </AnimatedSection>
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                 <AnimatedSection>
+                    <Card className="glass-card h-full text-center p-8">
+                        <Video className="h-10 w-10 mx-auto text-primary mb-4"/>
+                        <h3 className="text-xl font-bold">Post-production 8K</h3>
+                        <p className="text-muted-foreground mt-2">Montez, étalonnez et exportez vos projets les plus lourds sans la moindre latence.</p>
+                    </Card>
+                 </AnimatedSection>
+                 <AnimatedSection>
+                    <Card className="glass-card h-full text-center p-8">
+                        <Cpu className="h-10 w-10 mx-auto text-primary mb-4"/>
+                        <h3 className="text-xl font-bold">Rendu 3D & Animation</h3>
+                        <p className="text-muted-foreground mt-2">Plus de rendu, moins d’attente. Profitez de la puissance du multi-GPU pour des itérations quasi-instantanées.</p>
+                    </Card>
+                 </AnimatedSection>
+                 <AnimatedSection>
+                    <Card className="glass-card h-full text-center p-8">
+                        <BrainCircuit className="h-10 w-10 mx-auto text-primary mb-4"/>
+                        <h3 className="text-xl font-bold">IA & Data Science</h3>
+                        <p className="text-muted-foreground mt-2">Entraînez des modèles complexes et manipulez des datasets massifs avec une puissance de calcul phénoménale.</p>
+                    </Card>
+                 </AnimatedSection>
+            </div>
+        </section>
+
         <div className="space-y-24 md:space-y-36 my-24 md:my-36">
-            <section className="container mx-auto px-4 md:px-6">
-                 <AiConfigurator product={product} onConfigSelect={handleAiConfigSelect} />
-            </section>
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
@@ -372,3 +403,5 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
     </>
   );
 }
+
+    
