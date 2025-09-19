@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -186,6 +185,7 @@ export default function VoiceGenerator({ initialText, initialAudioDataUri, promp
             icon: AudioLines,
             title: "Voix générée !",
             description: `Votre audio pour "${state.text.substring(0, 30)}..." est prêt.`,
+            onClick: handleClick,
         });
     }
   }, [state, toast, addNotification, router]);

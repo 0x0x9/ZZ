@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -88,15 +87,13 @@ function SoundForm({ state }: {
     return (
         <Card className="glass-card">
             <CardHeader>
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Music className="h-7 w-7 text-primary" />
-                        <div>
-                            <CardTitle>Quel son souhaitez-vous créer ?</CardTitle>
-                            <CardDescription>
-                                Décrivez une musique, un bruitage ou une ambiance sonore.
-                            </CardDescription>
-                        </div>
+                <div className="flex items-center gap-3">
+                    <Music className="h-7 w-7 text-primary" />
+                    <div>
+                        <CardTitle>Quel son souhaitez-vous créer ?</CardTitle>
+                        <CardDescription>
+                            Décrivez une musique, un bruitage ou une ambiance sonore.
+                        </CardDescription>
                     </div>
                 </div>
             </CardHeader>

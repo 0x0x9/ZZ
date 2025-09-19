@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
 import { generateTone } from '@/app/actions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Mic, BadgeCheck, BadgeX, Quote, PencilRuler, RefreshCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -91,15 +90,13 @@ function ToneForm({ state }: {
     return (
         <Card className="glass-card">
             <CardHeader>
-                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Mic className="h-7 w-7 text-primary" />
-                        <div>
-                            <CardTitle>Comment sonne votre projet ?</CardTitle>
-                            <CardDescription>
-                                Décrivez sa personnalité, ses valeurs, son public...
-                            </CardDescription>
-                        </div>
+                 <div className="flex items-center gap-3">
+                    <Mic className="h-7 w-7 text-primary" />
+                    <div>
+                        <CardTitle>Comment sonne votre projet ?</CardTitle>
+                        <CardDescription>
+                            Décrivez sa personnalité, ses valeurs, son public...
+                        </CardDescription>
                     </div>
                 </div>
             </CardHeader>
@@ -115,9 +112,9 @@ function ToneForm({ state }: {
                 defaultValue={state.prompt ?? ''}
             />
             </CardContent>
-            <div className="flex justify-center p-6 pt-0">
+            <CardFooter className="justify-center">
                 <SubmitButton />
-            </div>
+            </CardFooter>
         </Card>
     );
 }

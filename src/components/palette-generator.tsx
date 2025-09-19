@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -69,7 +68,7 @@ function ResultsDisplay({ result, onReset }: { result: GeneratePaletteOutput, on
                     <CardTitle className="text-2xl">{result.paletteName}</CardTitle>
                     <CardDescription>Votre palette de couleurs générée par l'IA.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
                     {result.palette.map((color, index) => (
                          <div key={index} className="space-y-2">
                              <div className="aspect-square rounded-lg w-full shadow-inner" style={{ backgroundColor: color.hex }}></div>
@@ -96,15 +95,13 @@ function PaletteForm({ state }: {
     return (
         <Card className="glass-card">
             <CardHeader>
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Palette className="h-7 w-7 text-primary" />
-                        <div>
-                            <CardTitle>Quelle est votre inspiration ?</CardTitle>
-                            <CardDescription>
-                                Décrivez un thème, une émotion, un paysage...
-                            </CardDescription>
-                        </div>
+                <div className="flex items-center gap-3">
+                    <Palette className="h-7 w-7 text-primary" />
+                    <div>
+                        <CardTitle>Quelle est votre inspiration ?</CardTitle>
+                        <CardDescription>
+                            Décrivez un thème, une émotion, un paysage...
+                        </CardDescription>
                     </div>
                 </div>
             </CardHeader>
@@ -120,9 +117,9 @@ function PaletteForm({ state }: {
                 defaultValue={state.prompt ?? ''}
             />
             </CardContent>
-            <div className="flex justify-center p-6 pt-0">
+            <CardFooter className="justify-center">
                 <SubmitButton />
-            </div>
+            </CardFooter>
         </Card>
     );
 }

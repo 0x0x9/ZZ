@@ -1,17 +1,16 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useFormState, useFormStatus } from 'react-dom';
-import { generateTextAction } from '@/app/actions';
+import { generateContent } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Copy, Send, Save, FileText as FileTextIcon } from 'lucide-react';
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
-import { uploadDocumentAction } from '@/app/actions';
+import { uploadDocument } from '@/app/actions';
 import { useNotifications } from '@/hooks/use-notifications';
 import type { GenerateTextOutput } from '@/ai/types';
 
@@ -61,7 +60,7 @@ function TextGeneratorFormBody({ state }: {
             const fileName = `texte-${state.prompt.substring(0, 25).replace(/[^\w\s]/gi, '').replace(/\s+/g, '_') || 'ia'}-${Date.now()}.txt`;
             const dataUri = `data:text/plain;base64,${btoa(unescape(encodeURIComponent(state.result.text)))}`;
             
-            await uploadDocumentAction({ name: fileName, content: dataUri, mimeType: 'text/plain' });
+            await uploadDocument({ name: fileName, content: dataUri, mimeType: 'text/plain' });
             toast({ title: 'Succès', description: `"${fileName}" a été enregistré sur (X)cloud.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur d'enregistrement", description: error.message });
@@ -82,7 +81,7 @@ function TextGeneratorFormBody({ state }: {
                         <LoadingState text="Rédaction en cours..." />
                     </div>
                 ) : state.result?.text ? (
-                    <div className="w-full">
+                    <div className="w-full pt-6">
                         <div className="w-fit max-w-[85%] mr-auto">
                             <div className="group relative p-4 rounded-2xl leading-relaxed break-words bg-muted text-foreground rounded-bl-none">
                                 <p className="whitespace-pre-wrap">{state.result.text}</p>
@@ -138,6 +137,7 @@ function TextGeneratorFormBody({ state }: {
                         textarea.style.height = `${textarea.scrollHeight}px`;
                     }}
                 />
+                <input type="hidden" name="contentType" value="text" />
                 <SubmitButton />
             </div>
         </div>
@@ -150,7 +150,7 @@ export default function TextGenerator({ initialResult, prompt }: { initialResult
   const router = useRouter();
   const promptFromUrl = searchParams.get('prompt');
   
-  const initialState = {
+  const initialState: { message: string; result: GenerateTextOutput | null; error: string | null; id: number, prompt: string } = {
       message: initialResult ? 'success' : '',
       result: initialResult || null,
       error: null,
@@ -158,7 +158,7 @@ export default function TextGenerator({ initialResult, prompt }: { initialResult
       prompt: prompt || promptFromUrl || ''
   };
   
-  const [state, formAction] = useFormState(generateTextAction, initialState);
+  const [state, formAction] = useFormState(generateContent, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const { addNotification } = useNotifications();
@@ -193,5 +193,3 @@ export default function TextGenerator({ initialResult, prompt }: { initialResult
       </form>
   );
 }
-
-    
