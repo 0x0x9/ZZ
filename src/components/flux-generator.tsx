@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -15,8 +16,6 @@ import { Wand2, Sparkles, Loader, BrainCircuit, Palette, Mic, Users, Lightbulb, 
 import { LoadingState } from './loading-state';
 import AiLoadingAnimation from './ui/ai-loading-animation';
 import { useAppLauncher } from '@/hooks/use-app-launcher';
-import { runFlow } from '@genkit-ai/next/client';
-import { generateFlux } from '@/ai/flows/generate-flux';
 
 interface FluxGeneratorProps {
     prompt?: string;
@@ -199,7 +198,17 @@ export default function FluxGenerator({ prompt: promptProp, job: jobProp, initia
         e.preventDefault();
         setIsPending(true);
         try {
-            const data = await runFlow(generateFlux, { prompt, job });
+            const response = await fetch('/api/generateFlux', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, job })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Une erreur est survenue.');
+            }
+            const data = await response.json();
             setResult(data);
         } catch (err: any) {
              toast({
