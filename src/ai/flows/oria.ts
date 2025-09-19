@@ -246,16 +246,21 @@ const oriaRouterFlow = ai.defineFlow(
   },
   async (input) => {
     
-    // Robust history validation
+    // Robust history validation to prevent errors
     const validHistory = (input.history || [])
-        .map(h => {
-            if (!h || typeof h.content !== 'string' || !h.content.trim()) {
-                return null;
-            }
-            return { role: h.role, content: h.content };
-        })
-        .filter(h => h !== null) as { role: 'user' | 'model', content: string }[];
-    
+      .map(h => {
+        // Ensure content is a non-empty string for model roles
+        if (h.role === 'model' && (typeof h.content !== 'string' || !h.content.trim())) {
+          return null;
+        }
+        // Ensure content is valid for user roles
+        if (h.role === 'user' && (typeof h.content !== 'string' || !h.content.trim())) {
+            return null;
+        }
+        return h;
+      })
+      .filter((h): h is { role: 'user' | 'model', content: string } => h !== null && typeof h.content === 'string');
+
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)
       .replace('{{{context}}}', input.context || 'non spécifié');
