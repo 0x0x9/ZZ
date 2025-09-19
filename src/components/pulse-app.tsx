@@ -1,7 +1,7 @@
 
 'use client';
 
-import PulseClient from "@/app/pulse/client";
+import PulseClient from "@/app/chat/client";
 
 export default function PulseApp() {
     return (
