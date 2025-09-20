@@ -237,13 +237,11 @@ const DropdownMenuLinkItem = ({ href, label, description, icon: Icon }: { href: 
     </DropdownMenuPrimitive.Item>
 );
 
-const ProductHeader = ({ product }: { product: Product | undefined }) => {
+const ProductHeader = ({ product }: { product: Product }) => {
     const { addItem } = useCart();
     const { toast } = useToast();
 
     const handleAddToCart = useCallback(() => {
-        if (!product) return;
-
         let itemToAdd;
         if (product.configurable) {
             itemToAdd = {
@@ -273,16 +271,98 @@ const ProductHeader = ({ product }: { product: Product | undefined }) => {
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="hidden lg:flex items-center gap-4 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
         >
-            <h1 className="text-base font-semibold tracking-tight px-3">{product.name}</h1>
-            <div className="flex items-center gap-2 bg-background/80 dark:bg-black/40 rounded-full p-1 pl-3">
-                <span className="text-sm font-medium">À partir de {product.price.toFixed(2)}€</span>
-                <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
-                    Acheter
-                </Button>
+             <div className="flex items-center gap-2 pl-3">
+                 <span className="text-sm font-medium">À partir de {product.price.toFixed(2)}€</span>
             </div>
+             <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
+                Acheter
+            </Button>
         </motion.div>
     );
 };
+
+const MainNav = () => (
+     <motion.nav 
+        key="main-nav"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="hidden lg:flex items-center gap-1 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+    >
+        <DropdownMenuPrimitive.Root>
+            <DropdownMenuPrimitive.Trigger asChild>
+            <Button
+                variant="ghost"
+                className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+            >
+                Découvrir <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+            </DropdownMenuPrimitive.Trigger>
+            <DropdownMenuPrimitive.Portal>
+            <DropdownMenuPrimitive.Content
+                align="center"
+                sideOffset={10}
+                className="w-80 glass-card p-2 z-50 outline-none"
+            >
+                <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="flex flex-col gap-1"
+                >
+                {discoverLinks.map((link) => (
+                    <DropdownMenuLinkItem key={link.href} {...link} />
+                ))}
+                </motion.div>
+            </DropdownMenuPrimitive.Content>
+            </DropdownMenuPrimitive.Portal>
+        </DropdownMenuPrimitive.Root>
+        
+        <Button
+            variant="ghost"
+            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+            asChild
+            >
+            <Link href="/store">Boutique</Link>
+        </Button>
+        
+        <Button
+            variant="ghost"
+            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+            asChild
+            >
+            <Link href="/tools">Écosystème</Link>
+        </Button>
+        
+        <Button
+                variant="ghost"
+                className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                asChild
+            >
+                <Link href="/community">Communauté</Link>
+        </Button>
+    </motion.nav>
+)
+
+const ProductBreadcrumb = ({ product }: { product: Product }) => (
+    <motion.div
+        key="breadcrumb"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="flex items-center gap-2 text-sm text-muted-foreground"
+    >
+        <Link href="/store" className="hover:text-foreground">Boutique</Link>
+        <ChevronRight className="h-4 w-4" />
+        <Link href="/hardware" className="hover:text-foreground">{product.category}</Link>
+        <ChevronRight className="h-4 w-4" />
+        <span className="font-semibold text-foreground">{product.name}</span>
+    </motion.div>
+);
+
 
 export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -297,87 +377,25 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-4">
       <div className="container mx-auto px-4 md:px-6 h-16 grid grid-cols-3 items-center rounded-full glass-card">
-        <div className="flex items-center gap-3 justify-self-start">
+        <div className="flex items-center gap-4 justify-self-start">
           <Link
             href="/"
             className="flex items-center gap-3 font-bold text-xl text-foreground"
           >
             <HeaderLogo />
-            <span>(X)yzz.</span>
+            <span className="hidden sm:inline">(X)yzz.</span>
           </Link>
+           {isProductPage && product && <ProductBreadcrumb product={product} />}
         </div>
 
         <div className="justify-self-center">
             <AnimatePresence mode="wait">
-                {isProductPage ? <ProductHeader product={product} /> : (
-                    <motion.nav 
-                        key="main-nav"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
-                        className="hidden lg:flex items-center gap-1 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
-                    >
-                        <DropdownMenuPrimitive.Root>
-                            <DropdownMenuPrimitive.Trigger asChild>
-                            <Button
-                                variant="ghost"
-                                className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-                            >
-                                Découvrir <ChevronDown className="ml-2 h-4 w-4" />
-                            </Button>
-                            </DropdownMenuPrimitive.Trigger>
-                            <DropdownMenuPrimitive.Portal>
-                            <DropdownMenuPrimitive.Content
-                                align="center"
-                                sideOffset={10}
-                                className="w-80 glass-card p-2 z-50 outline-none"
-                            >
-                                <motion.div
-                                initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                className="flex flex-col gap-1"
-                                >
-                                {discoverLinks.map((link) => (
-                                    <DropdownMenuLinkItem key={link.href} {...link} />
-                                ))}
-                                </motion.div>
-                            </DropdownMenuPrimitive.Content>
-                            </DropdownMenuPrimitive.Portal>
-                        </DropdownMenuPrimitive.Root>
-                        
-                        <Button
-                            variant="ghost"
-                            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-                            asChild
-                            >
-                            <Link href="/store">Boutique</Link>
-                        </Button>
-                        
-                        <Button
-                            variant="ghost"
-                            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-                            asChild
-                            >
-                            <Link href="/tools">Écosystème</Link>
-                        </Button>
-                        
-                        <Button
-                                variant="ghost"
-                                className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-                                asChild
-                            >
-                                <Link href="/community">Communauté</Link>
-                        </Button>
-                    </motion.nav>
-                )}
+                {isProductPage && product ? null : <MainNav />}
             </AnimatePresence>
         </div>
 
         <div className="flex items-center gap-2 justify-self-end">
-            {isClient && (
+            {isProductPage && product ? <ProductHeader product={product} /> : (isClient && (
                 <div className="hidden lg:flex items-center gap-2">
                     <ThemeToggle />
                     <CartSheet />
@@ -415,7 +433,7 @@ export function Header() {
                         </Button>
                     )}
                 </div>
-            )}
+            ))}
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button
