@@ -74,7 +74,6 @@ const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
 export default function ProductClient({ product }: { product: Product }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [totalPrice, setTotalPrice] = useState(product.price);
   const { toast } = useToast();
 
   const getInitialConfig = useCallback(() => {
@@ -90,9 +89,11 @@ export default function ProductClient({ product }: { product: Product }) {
   }, [searchParams]);
   
   const [configuration, setConfiguration] = useState<Configuration | null>(getInitialConfig());
-  const [pcConfiguratorKey, setPcConfiguratorKey] = useState(Date.now());
+  
   const { addItem } = useCart();
-
+  
+  const [totalPrice, setTotalPrice] = useState(product.price);
+  
   const handleConfigChange = (newConfig: Configuration, newPrice: number) => {
     setConfiguration(newConfig);
     setTotalPrice(newPrice);
@@ -115,24 +116,24 @@ export default function ProductClient({ product }: { product: Product }) {
     };
 
     const handleAddToCart = useCallback(() => {
-    let configToAdd = configuration;
+        let configToAdd = configuration;
 
-    if (product.configurable && !configToAdd) {
-        configToAdd = getDefaultConfig(product);
-    }
-    
-    const itemToAdd = {
-        ...product,
-        price: totalPrice,
-        configuration: configToAdd,
-        image: product.images[0],
-    };
-    addItem(itemToAdd);
-    toast({
-        title: "Ajouté au panier !",
-        description: `"${product.name}" a été ajouté à votre panier.`,
-    });
-  }, [product, configuration, totalPrice, addItem, toast]);
+        if (product.configurable && !configToAdd) {
+            configToAdd = getDefaultConfig(product);
+        }
+        
+        const itemToAdd = {
+            ...product,
+            price: totalPrice,
+            configuration: configToAdd,
+            image: product.images[0],
+        };
+        addItem(itemToAdd);
+        toast({
+            title: "Ajouté au panier !",
+            description: `"${product.name}" a été ajouté à votre panier.`,
+        });
+    }, [product, configuration, totalPrice, addItem, toast]);
   
   const performanceData = [
     { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
@@ -188,6 +189,11 @@ export default function ProductClient({ product }: { product: Product }) {
     <>
         <div className="space-y-24 md:space-y-36 pt-24 md:pt-32">
             <section className="container mx-auto px-4 md:px-6 text-center">
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+                    <Link href="/store" className="hover:text-foreground">Boutique</Link>
+                    <ChevronRight className="h-4 w-4" />
+                    <Link href="/hardware" className="hover:text-foreground">{product.category}</Link>
+                </div>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight">{product.name}</h1>
               <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">{product.tagline || product.description}</p>
             </section>
@@ -196,7 +202,7 @@ export default function ProductClient({ product }: { product: Product }) {
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
                         <PCConfigurator 
-                            key={pcConfiguratorKey}
+                            key={product.id}
                             product={product} 
                             onConfigChange={handleConfigChange}
                             initialConfig={configuration}

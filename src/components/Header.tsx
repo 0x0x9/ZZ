@@ -84,7 +84,6 @@ import { products, type Product } from "@/lib/products";
 import { useToast } from "@/hooks/use-toast";
 import { getDefaultConfig } from "./ui/pc-configurator";
 import { usePageTransition } from "@/hooks/use-page-transition";
-import { useUIState } from "@/hooks/use-ui-state";
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
@@ -335,16 +334,6 @@ export function Header() {
             <HeaderLogo />
             <span className="hidden sm:inline">(X)yzz.</span>
           </Link>
-          {isProductPage && product && (
-            <div className="hidden lg:flex items-center gap-1 text-sm text-muted-foreground">
-                <ChevronRight className="h-4 w-4" />
-                <Link href="/store" className="hover:text-foreground">Boutique</Link>
-                <ChevronRight className="h-4 w-4" />
-                <Link href="/hardware" className="hover:text-foreground">{product.category}</Link>
-                <ChevronRight className="h-4 w-4" />
-                <span className="font-semibold text-foreground">{product.name}</span>
-            </div>
-          )}
         </div>
 
         <div className="justify-self-center">
