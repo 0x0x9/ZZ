@@ -37,19 +37,19 @@ export const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
   },
   'omega': {
      cpu: [
-        { name: 'Intel Core i7-14700K', priceModifier: 0 },
-        { name: 'AMD Ryzen 7 7800X3D', priceModifier: 50 },
+        { name: 'Intel Core i7-12400KF', priceModifier: 0 },
+        { name: 'AMD Ryzen 7 7800X3D', priceModifier: 200 },
     ],
     gpu: [
-        { name: 'NVIDIA RTX 5070 (12Go VRAM)', priceModifier: 0 },
-        { name: 'Technologie (X)bridge (AMD) 24Go VRAM', priceModifier: 250 },
+        { name: 'Technologie (X)bridge (AMD) 8Go VRAM', priceModifier: 0 },
+        { name: 'NVIDIA RTX 5070 (12Go VRAM)', priceModifier: 150 },
     ],
     ram: [
         { name: '32GB DDR5', priceModifier: 0 },
         { name: '64GB DDR5', priceModifier: 200 },
     ],
     storage: [
-        { name: '2TB SSD + 8TB HDD', priceModifier: 0 },
+        { name: '2TB SSD NVMe + 2TB HDD', priceModifier: 0 },
         { name: '4TB SSD + 12TB HDD', priceModifier: 250 },
     ],
   },
@@ -91,9 +91,9 @@ export type Configuration = {
 };
 
 export const getDefaultConfig = (product: Product): Configuration | null => {
-    const productKey = product.name.includes('fi') ? 'fi' 
-                     : product.name.includes('alpha') ? 'alpha' 
-                     : product.name.includes('omega') ? 'omega' 
+    const productKey = product.name.toLowerCase().includes('fi') ? 'fi' 
+                     : product.name.toLowerCase().includes('alpha') ? 'alpha' 
+                     : product.name.toLowerCase().includes('omega') ? 'omega' 
                      : null;
 
     if (!productKey) return null;
@@ -168,9 +168,9 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
 };
 
 export function PCConfigurator({ product, onConfigChange, initialConfig }: PCConfiguratorProps) {
-    const productKey = product.name.includes('fi') ? 'fi' 
-                     : product.name.includes('alpha') ? 'alpha' 
-                     : product.name.includes('omega') ? 'omega' 
+    const productKey = product.name.toLowerCase().includes('fi') ? 'fi' 
+                     : product.name.toLowerCase().includes('alpha') ? 'alpha' 
+                     : product.name.toLowerCase().includes('omega') ? 'omega' 
                      : null;
 
     if (!productKey) {
