@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
@@ -39,6 +38,67 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
             {children}
         </motion.div>
     )
+};
+
+const ImageGallery = ({ product }: { product: Product }) => {
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+
+    return (
+        <>
+            <div className="grid grid-cols-2 gap-3">
+                {product.images.slice(0, 4).map((img, index) => (
+                    <motion.div
+                        key={index}
+                        className="relative aspect-square w-full rounded-lg overflow-hidden glass-card group cursor-pointer"
+                        onClick={() => setSelectedImageIndex(index)}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                        <Image
+                            src={img}
+                            alt={`${product.name} - vue ${index + 1}`}
+                            fill
+                            className="object-contain p-2"
+                            sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <ZoomIn className="h-8 w-8 text-white" />
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+            
+            <Dialog open={selectedImageIndex !== null} onOpenChange={(isOpen) => !isOpen && setSelectedImageIndex(null)}>
+                <DialogContent className="max-w-4xl w-[90vw] p-2 glass-card">
+                    <Carousel
+                        opts={{
+                            loop: true,
+                            startIndex: selectedImageIndex ?? 0,
+                        }}
+                        className="w-full"
+                    >
+                        <CarouselContent>
+                            {product.images.map((img, index) => (
+                                <CarouselItem key={index}>
+                                    <div className="aspect-video relative">
+                                        <Image
+                                            src={img}
+                                            alt={`${product.name} - vue ${index + 1}`}
+                                            fill
+                                            className="object-contain"
+                                            sizes="90vw"
+                                        />
+                                    </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <CarouselPrevious className="left-4" />
+                        <CarouselNext className="right-4" />
+                    </Carousel>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
 };
 
 const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
@@ -212,7 +272,10 @@ const benefits = [
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
-                        {product.configurable ? (
+                        <ImageGallery product={product} />
+                    </div>
+                    <div className="md:col-span-1 md:sticky top-28">
+                         {product.configurable ? (
                             <PCConfigurator 
                                 key={product.id}
                                 product={product} 
@@ -225,28 +288,6 @@ const benefits = [
                                 <p className="text-muted-foreground mt-2">Cette version du {product.name} est livrée avec une configuration standard optimisée.</p>
                             </div>
                         )}
-                    </div>
-                    <div className="md:col-span-1 md:sticky top-28">
-                         <div className="glass-card p-4 space-y-4">
-                            <div className="aspect-video w-full rounded-lg overflow-hidden">
-                                <iframe
-                                    src="https://www.youtube.com/embed/SqJGQ25sc8Q?autoplay=1&mute=1&loop=1&playlist=SqJGQ25sc8Q&controls=0&showinfo=0&autohide=1"
-                                    title="XOS"
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    className="w-full h-full"
-                                ></iframe>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                {benefits.map((benefit, index) => (
-                                    <div key={index} className="bg-background/30 p-3 rounded-lg text-center">
-                                        <benefit.icon className="h-6 w-6 mx-auto text-primary mb-2" />
-                                        <p className="text-xs font-semibold">{benefit.title}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
 
                         <div className="mt-6 p-6 glass-card">
                             <h3 className="text-lg font-medium">Total de votre configuration</h3>
@@ -329,32 +370,27 @@ const benefits = [
                 </div>
             </section>
             
-            <section className="container mx-auto px-4 md:px-6">
-                 <Carousel
-                    opts={{
-                        loop: true,
-                    }}
-                    className="w-full"
-                >
-                    <CarouselContent>
-                        {product.images.map((img, index) => (
-                            <CarouselItem key={index}>
-                                <div className="aspect-video relative rounded-lg overflow-hidden glass-card">
-                                        <Image 
-                                        src={img} 
-                                        alt={`${product.name} - vue ${index + 1}`} 
-                                        fill 
-                                        className="object-contain p-4 md:p-8" 
-                                        sizes="(max-width: 768px) 100vw, 75vw"
-                                        priority={index === 0}
-                                    />
-                                </div>
-                            </CarouselItem>
+             <section className="container mx-auto px-4 md:px-6">
+                <div className="glass-card p-4 space-y-4">
+                    <div className="aspect-video w-full rounded-lg overflow-hidden">
+                        <iframe
+                            src="https://www.youtube.com/embed/SqJGQ25sc8Q?autoplay=1&mute=1&loop=1&playlist=SqJGQ25sc8Q&controls=0&showinfo=0&autohide=1"
+                            title="XOS"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full"
+                        ></iframe>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        {benefits.map((benefit, index) => (
+                            <div key={index} className="bg-background/30 p-3 rounded-lg text-center">
+                                <benefit.icon className="h-6 w-6 mx-auto text-primary mb-2" />
+                                <p className="text-xs font-semibold">{benefit.title}</p>
+                            </div>
                         ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                </Carousel>
+                    </div>
+                </div>
             </section>
             
             {product.specs && <SpecsSection specs={product.specs} />}
