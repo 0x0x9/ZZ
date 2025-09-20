@@ -7,7 +7,7 @@
  * - configurePc - Une fonction qui prend les besoins d'un utilisateur et recommande une configuration PC.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '@/ai/genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { ConfigurePcInputSchema, ConfigurePcOutputSchema, type ConfigurePcInput, type ConfigurePcOutput } from '@/ai/types';
 
@@ -52,8 +52,13 @@ Voici les besoins de l'utilisateur :
 Voici les options de composants disponibles pour chaque modèle :
 ${componentOptions}
 
+Logique de sélection du modèle :
+- **(X)-Ω (oméga)** : C'est le point d'entrée. Idéal pour les créatifs ambitieux qui font du design graphique, de la photo, du développement web standard ou du montage vidéo 1080p/4K léger.
+- **(X)-α (alpha)** : C'est le modèle professionnel polyvalent. Choisissez-le pour les métiers qui touchent à tout : motion design, développement d'applications, 3D modérée, montage vidéo 4K avancé. C'est le choix par défaut pour un usage professionnel.
+- **(X)-φ (fi)** : C'est la station ultime pour les visionnaires. Recommandez ce modèle uniquement pour les besoins les plus extrêmes : rendu 3D de scènes très complexes, simulation IA, montage vidéo 8K+, ou si l'utilisateur a explicitement besoin du multi-GPU pour des logiciels comme DaVinci Resolve ou Octane Render.
+
 Votre tâche est de :
-1.  Choisir le **meilleur modèle de base** (fi, alpha, oméga) pour l'utilisateur. Le nom du modèle DOIT inclure son caractère grec, ex: (X)-φ (fi).
+1.  En vous basant sur la logique ci-dessus, choisir le **meilleur modèle de base** (fi, alpha, oméga). Le nom du modèle DOIT inclure son caractère grec, ex: (X)-φ (fi).
 2.  Pour ce modèle, choisir la meilleure option pour chaque catégorie de composant (CPU, GPU, RAM, Stockage). Si l'utilisateur a des besoins très élevés en rendu 3D ou en IA qui peuvent bénéficier du multi-GPU, recommandez la technologie (X)bridge.
 3.  Justifier vos choix en expliquant pourquoi le modèle et les composants sont adaptés (métier, logiciels, priorité). Par exemple, "Pour le montage vidéo 8K, une RTX 5090 est recommandée pour sa puissance de calcul CUDA." ou "La technologie (X)bridge est idéale car vos logiciels tirent parti du multi-GPU, doublant ainsi les performances de rendu."
 4.  Retourner le modèle et la configuration complète avec la justification au format JSON. Le nom du modèle retourné doit être celui que vous avez choisi.
