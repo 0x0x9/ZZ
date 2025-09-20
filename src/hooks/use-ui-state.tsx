@@ -29,6 +29,12 @@ const setToLocalStorage = (key: string, value: any) => {
     }
 };
 
+interface ProductHeaderState {
+    isVisible: boolean;
+    product: Product | null;
+    price: number;
+}
+
 interface UIStateContextType {
     isBannerVisible: boolean;
     setBannerVisible: (isVisible: boolean) => void;
@@ -36,6 +42,8 @@ interface UIStateContextType {
     setAnimatedBg: (isAnimated: boolean) => void;
     accentColor: string;
     setAccentColor: (color: string) => void;
+    productHeaderState: ProductHeaderState;
+    setProductHeaderState: (state: Partial<ProductHeaderState>) => void;
 }
 
 const UIStateContext = createContext<UIStateContextType | undefined>(undefined);
@@ -50,6 +58,15 @@ export function UIStateProvider({ children }: { children: ReactNode }) {
      const [accentColor, setAccentColor] = useState(
         () => getFromLocalStorage('accentColor', '217 91% 60%')
     );
+    const [productHeaderState, setProductHeaderStateInternal] = useState<ProductHeaderState>({
+        isVisible: false,
+        product: null,
+        price: 0,
+    });
+
+    const setProductHeaderState = (state: Partial<ProductHeaderState>) => {
+        setProductHeaderStateInternal(prevState => ({ ...prevState, ...state }));
+    };
     
 
     useEffect(() => {
@@ -66,7 +83,7 @@ export function UIStateProvider({ children }: { children: ReactNode }) {
 
 
     return (
-        <UIStateContext.Provider value={{ isBannerVisible, setBannerVisible, isAnimatedBg, setAnimatedBg, accentColor, setAccentColor }}>
+        <UIStateContext.Provider value={{ isBannerVisible, setBannerVisible, isAnimatedBg, setAnimatedBg, accentColor, setAccentColor, productHeaderState, setProductHeaderState }}>
             {children}
         </UIStateContext.Provider>
     );

@@ -84,6 +84,7 @@ import { products, type Product } from "@/lib/products";
 import { useToast } from "@/hooks/use-toast";
 import { getDefaultConfig } from "./ui/pc-configurator";
 import { usePageTransition } from "@/hooks/use-page-transition";
+import { useUIState } from "@/hooks/use-ui-state";
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
@@ -312,48 +313,28 @@ const MainNav = () => {
     );
 };
 
-const ProductBreadcrumb = ({ product }: { product: Product }) => {
-    const { performTransition } = usePageTransition();
-    
-    return (
-        <motion.div
-            key="breadcrumb"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground"
-        >
-            <button onClick={() => performTransition('/store')} className="hover:text-foreground">Boutique</button>
-            <ChevronRight className="h-4 w-4" />
-            <button onClick={() => performTransition('/hardware')} className="hover:text-foreground">{product.category}</button>
-            <ChevronRight className="h-4 w-4" />
-            <span className="font-semibold text-foreground">{product.name}</span>
-        </motion.div>
-    );
-}
-
 export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { user, handleSignOut } = useAuth();
   const isClient = useIsClient();
   const pathname = usePathname();
-  
+  const { toast } = useToast();
+  const { addItem } = useCart();
   const { performTransition } = usePageTransition();
+  const { productHeaderState } = useUIState();
 
   const isProductPage = pathname.startsWith('/store/');
-  const productId = isProductPage ? pathname.split('/store/')[1] : null;
-  const product = productId ? products.find(p => p.id.toString() === productId) : undefined;
+  const product = isProductPage ? productHeaderState.product : null;
+  const productPrice = isProductPage ? productHeaderState.price : 0;
   
-  const { addItem } = useCart();
-  const { toast } = useToast();
-
   const handleAddToCart = useCallback(() => {
     if (!product) return;
     let itemToAdd;
     if (product.configurable) {
+        // When adding from header, we assume default config
         itemToAdd = {
             ...product,
+            price: product.price, // Use base price
             configuration: getDefaultConfig(product),
             image: product.images[0],
         };
@@ -379,29 +360,35 @@ export function Header() {
             <HeaderLogo />
             <span className="hidden sm:inline">(X)yzz.</span>
           </Link>
-           {isProductPage && product && <ProductBreadcrumb product={product} />}
+          {productHeaderState.isVisible && product && (
+             <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground">
+                <ChevronRight className="h-4 w-4" />
+                <button onClick={() => performTransition('/store')} className="hover:text-foreground">Boutique</button>
+                <ChevronRight className="h-4 w-4" />
+                <span className="font-semibold text-foreground">{product.name}</span>
+            </div>
+          )}
         </div>
 
         <div className="justify-self-center">
             <AnimatePresence mode="wait">
-                {isProductPage && product ? null : <MainNav />}
+                {productHeaderState.isVisible && product ? null : <MainNav />}
             </AnimatePresence>
         </div>
 
         <div className="flex items-center gap-2 justify-self-end">
              <AnimatePresence mode="wait">
-                {isProductPage && product && (
+                {productHeaderState.isVisible && product && (
                     <motion.div
                         key="product-header-cta"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3, ease: 'easeOut' }}
-                        className="hidden lg:flex items-center gap-2 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+                        className="hidden lg:flex items-center gap-2 glass-card border-none bg-background/50 dark:bg-black/20 p-1 rounded-full"
                     >
                          <div className="pl-3 pr-2 text-right">
-                            <span className="text-sm font-semibold">{product.price.toFixed(2)}€</span>
-                            <p className="text-xs text-muted-foreground -mt-1">Prix de base</p>
+                            <span className="text-sm font-semibold">{productPrice.toFixed(2)}€</span>
                         </div>
                          <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
                            Acheter
