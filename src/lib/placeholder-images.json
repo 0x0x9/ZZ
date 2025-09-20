@@ -1,216 +1,216 @@
 {
     "about": {
         "mission": {
-            "src": "https://picsum.photos/seed/mission/800/800",
+            "src": "/images/about/mission.webp",
             "hint": "abstract technology"
         },
         "vision": {
-            "src": "https://picsum.photos/seed/vision/800/800",
+            "src": "/images/about/vision.webp",
             "hint": "glowing futuristic"
         },
         "team": {
             "francois_ceo": {
-                "src": "https://picsum.photos/seed/francois/400/400",
+                "src": "/images/about/team-francois.webp",
                 "hint": "male ceo"
             },
             "sisley_cto": {
-                "src": "https://picsum.photos/seed/sisley/400/400",
+                "src": "/images/about/team-sisley.webp",
                 "hint": "tech person"
             },
             "kamal_cdo": {
-                "src": "https://picsum.photos/seed/kamal/400/400",
+                "src": "/images/about/team-kamal.webp",
                 "hint": "male designer"
             },
             "chloe_com": {
-                "src": "https://picsum.photos/seed/chloe/400/400",
+                "src": "/images/about/team-chloe.webp",
                 "hint": "female portrait"
             }
         }
     },
     "account": {
         "project_nebula": {
-            "src": "https://picsum.photos/seed/nebula_project/300/200",
+            "src": "/images/account/project-nebula.webp",
             "hint": "nebula space"
         },
         "clothing_brand": {
-            "src": "https://picsum.photos/seed/clothing_brand/300/200",
+            "src": "/images/account/clothing-brand.webp",
             "hint": "fashion design"
         },
         "nova_design": {
-            "src": "https://picsum.photos/seed/nova_design/300/200",
+            "src": "/images/account/nova-design.webp",
             "hint": "abstract gradient"
         }
     },
     "auth": {
         "mock_user": {
-            "src": "https://picsum.photos/seed/mockuser/100/100",
+            "src": "/images/auth/mock-user.webp",
             "hint": "person portrait"
         }
     },
     "blog": {
         "author_francois": {
-            "src": "https://picsum.photos/seed/francois_author/100/100",
+            "src": "/images/blog/authors/francois.webp",
             "hint": "male author"
         },
         "author_sisley": {
-            "src": "https://picsum.photos/seed/sisley_author/100/100",
+            "src": "/images/blog/authors/sisley.webp",
             "hint": "tech person"
         },
         "author_chloe": {
-            "src": "https://picsum.photos/seed/chloe_author/100/100",
+            "src": "/images/blog/authors/chloe.webp",
             "hint": "female author"
         },
         "author_ziari": {
-            "src": "https://picsum.photos/seed/ziari_author/100/100",
+            "src": "/images/blog/authors/ziari.webp",
             "hint": "designer portrait"
         },
         "author_chloe2": {
-            "src": "https://picsum.photos/seed/chloe_author2/100/100",
+            "src": "/images/blog/authors/chloe2.webp",
             "hint": "woman portrait"
         },
         "author_sisley2": {
-            "src": "https://picsum.photos/seed/sisley_author2/100/100",
+            "src": "/images/blog/authors/sisley2.webp",
             "hint": "man technology"
         },
         "author_francois2": {
-            "src": "https://picsum.photos/seed/francois_author2/100/100",
+            "src": "/images/blog/authors/francois2.webp",
             "hint": "ceo portrait"
         },
         "author_ziari2": {
-            "src": "https://picsum.photos/seed/ziari_author2/100/100",
+            "src": "/images/blog/authors/ziari2.webp",
             "hint": "male designer"
         },
         "post_innovation": {
-            "src": "https://picsum.photos/seed/innovation_post/1280/720",
+            "src": "/images/blog/posts/innovation.webp",
             "hint": "abstract code"
         },
         "post_workflow": {
-            "src": "https://picsum.photos/seed/workflow_post/1280/720",
+            "src": "/images/blog/posts/workflow.webp",
             "hint": "flow chart"
         },
         "post_prompt": {
-            "src": "https://picsum.photos/seed/prompt_post/1280/720",
+            "src": "/images/blog/posts/prompt.webp",
             "hint": "glowing brain"
         },
         "post_maquette": {
-            "src": "https://picsum.photos/seed/maquette_post/1280/720",
+            "src": "/images/blog/posts/maquette.webp",
             "hint": "abstract design"
         },
         "post_music": {
-            "src": "https://picsum.photos/seed/music_post/1280/720",
+            "src": "/images/blog/posts/music.webp",
             "hint": "sound waves"
         },
         "post_coffee": {
-            "src": "https://picsum.photos/seed/coffee_post/1280/720",
+            "src": "/images/blog/posts/coffee.webp",
             "hint": "coffee flatlay"
         },
         "post_vision": {
-            "src": "https://picsum.photos/seed/vision_post/1280/720",
+            "src": "/images/blog/posts/vision.webp",
             "hint": "glowing network"
         },
         "post_code": {
-            "src": "https://picsum.photos/seed/code_post/1280/720",
+            "src": "/images/blog/posts/code.webp",
             "hint": "code screen"
         },
         "post_gallery": {
-            "src": "https://picsum.photos/seed/gallery_post/1280/720",
+            "src": "/images/blog/posts/gallery.webp",
             "hint": "art gallery"
         },
         "post_openai_video": {
-            "src": "https://picsum.photos/seed/openai_video/1280/720",
+            "src": "https://videos.openai.com/vg-assets/assets%2Ftask_01k5kr59vwfqma4zqv8gxb1p3m%2F1758378313_img_1.webp?st=2025-09-20T12%3A48%3A27Z&se=2025-09-26T13%3A48%3A27Z&sks=b&skt=2025-09-20T12%3A48%3A27Z&ske=2025-09-26T13%3A48%3A27Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=5e5fc900-07cf-43e7-ab5b-314c0d877bb0&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=fjQw7Enz1Ig0DxQ%2FNHJWqb%2BA82KgpsiFvr5c1g4Htj4%3D&az=oaivgprodscus",
             "hint": "futuristic animation"
         }
     },
     "collaborations": {
         "alice": {
-            "src": "https://picsum.photos/seed/alice/100/100",
+            "src": "/images/collaborations/alice.webp",
             "hint": "woman developer"
         },
         "bob": {
-            "src": "https://picsum.photos/seed/bob/100/100",
+            "src": "/images/collaborations/bob.webp",
             "hint": "male musician"
         },
         "nebula_logo": {
-            "src": "https://picsum.photos/seed/nebulalogo/100/100",
+            "src": "/images/collaborations/nebula-logo.webp",
             "hint": "abstract logo"
         },
         "clara": {
-            "src": "https://picsum.photos/seed/clara/100/100",
+            "src": "/images/collaborations/clara.webp",
             "hint": "female designer"
         },
         "david": {
-            "src": "https://picsum.photos/seed/david/100/100",
+            "src": "/images/collaborations/david.webp",
             "hint": "ai expert"
         },
         "ecom_logo": {
-            "src": "https://picsum.photos/seed/ecomlogo/100/100",
+            "src": "/images/collaborations/ecom-logo.webp",
             "hint": "minimalist logo"
         }
     },
     "features": {
         "artist_creative": {
-            "src": "https://picsum.photos/seed/artist/800/1000",
+            "src": "/images/features/artist-creative.webp",
             "hint": "artist painting"
         },
         "tech_setup": {
-            "src": "https://picsum.photos/seed/techsetup/800/1000",
+            "src": "/images/features/tech-setup.webp",
             "hint": "computer setup"
         },
         "team_office": {
-            "src": "https://picsum.photos/seed/teamoffice/800/1000",
+            "src": "/images/features/team-office.webp",
             "hint": "team collaboration"
         },
         "cooling_system": {
-            "src": "https://picsum.photos/seed/cooling/800/800",
+            "src": "/images/features/cooling-system.webp",
             "hint": "liquid cooling"
         },
         "chassis_open": {
-            "src": "https://picsum.photos/seed/chassis/800/800",
+            "src": "/images/features/chassis-open.webp",
             "hint": "computer case"
         }
     },
     "forum": {},
     "gallery": {
         "crystal_city": {
-            "src": "https://picsum.photos/seed/crystal_city/500/700",
+            "src": "/images/gallery/crystal-city.webp",
             "hint": "crystal city"
         },
         "enchanted_forest": {
-            "src": "https://picsum.photos/seed/enchanted_forest/500/500",
+            "src": "/images/gallery/enchanted-forest.webp",
             "hint": "enchanted forest"
         },
         "weather_app": {
-            "src": "https://picsum.photos/seed/weather_app/500/600",
+            "src": "/images/gallery/weather-app.webp",
             "hint": "ui design"
         },
         "time_keeper": {
-            "src": "https://picsum.photos/seed/time_keeper/500/800",
+            "src": "/images/gallery/time-keeper.webp",
             "hint": "steampunk clock"
         },
         "robot_gardener": {
-            "src": "https://picsum.photos/seed/robot_gardener/500/500",
+            "src": "/images/gallery/robot-gardener.webp",
             "hint": "robot future"
         },
         "pop_art": {
-            "src": "https://picsum.photos/seed/pop_art/500/650",
+            "src": "/images/gallery/pop-art.webp",
             "hint": "pop art"
         }
     },
     "hardware": {
         "multi_os": {
-            "src": "https://picsum.photos/seed/multi_os/1280/720",
+            "src": "/images/hardware/multi-os.webp",
             "hint": "futuristic interface"
         }
     },
     "store": {
         "workstation": {
-            "src": "https://picsum.photos/seed/workstation/1280/720",
+            "src": "/images/store/workstation.webp",
             "hint": "futuristic workstation"
         }
     },
     "general": {
         "user_avatar": {
-            "src": "https://picsum.photos/seed/default_avatar/100/100",
+            "src": "/images/general/user-avatar.webp",
             "hint": "person portrait"
         }
     }
