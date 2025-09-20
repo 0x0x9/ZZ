@@ -44,16 +44,16 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
 const ImageGallery = ({ product }: { product: Product }) => {
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
     const [api, setApi] = React.useState<CarouselApi>()
+    const [carouselApi, setCarouselApi] = React.useState<CarouselApi>()
 
     const openModal = (index: number) => {
         setSelectedImageIndex(index);
-        api?.scrollTo(index, true);
     }
 
     useEffect(() => {
-        if (!api || selectedImageIndex === null) return;
-        api.scrollTo(selectedImageIndex, true);
-    }, [api, selectedImageIndex]);
+        if (!carouselApi || selectedImageIndex === null) return;
+        carouselApi.scrollTo(selectedImageIndex, true);
+    }, [carouselApi, selectedImageIndex]);
 
 
     return (
@@ -81,14 +81,18 @@ const ImageGallery = ({ product }: { product: Product }) => {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
+                 {product.images.length > 1 && (
+                    <>
+                        <CarouselPrevious className="left-4" />
+                        <CarouselNext className="right-4" />
+                    </>
+                )}
             </Carousel>
 
             <Dialog open={selectedImageIndex !== null} onOpenChange={(isOpen) => !isOpen && setSelectedImageIndex(null)}>
                 <DialogContent className="max-w-4xl w-[90vw] h-auto p-0 glass-card">
                      {selectedImageIndex !== null && (
-                         <Carousel setApi={setApi} opts={{ startIndex: selectedImageIndex }}>
+                         <Carousel setApi={setCarouselApi} opts={{ startIndex: selectedImageIndex, loop: true }}>
                              <CarouselContent>
                                 {product.images.map((img, index) => (
                                     <CarouselItem key={index}>
@@ -183,7 +187,7 @@ export default function ProductClient({ product }: { product: Product }) {
         });
 
         if (product.id === modelId) {
-             setConfig(newConfig);
+             setConfiguration(newConfig);
              toast({ title: `Configuration appliquée`, description: `La configuration pour le ${modelName} a été mise à jour.` });
              const element = document.getElementById('configurator');
              if (element) {
@@ -314,14 +318,14 @@ const benefits = [
                             <h3 className="text-lg font-medium">Total de votre configuration</h3>
                             <p className="text-3xl font-bold mt-2">{totalPrice.toFixed(2)}€</p>
                             
-                            {product.name.includes('oméga') && configuration && (
+                            {product.name.includes('oméga') && configuration && product.specs && (
                                 <div className="text-xs text-muted-foreground mt-4 space-y-1">
                                     <p>Config de base :</p>
                                     <ul className="list-disc pl-5">
-                                        <li>{configuration.cpu}</li>
-                                        <li>{configuration.gpu}</li>
-                                        <li>{configuration.ram}</li>
-                                        <li>{configuration.storage}</li>
+                                        <li>{product.specs['Processeur']}</li>
+                                        <li>{product.specs['Carte graphique']}</li>
+                                        <li>{product.specs['Mémoire']}</li>
+                                        <li>{product.specs['Stockage']}</li>
                                     </ul>
                                 </div>
                             )}
