@@ -60,7 +60,7 @@ import {
   Cloud,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import HeaderLogo from "./layout/header-logo";
 import { useCart } from "@/hooks/use-cart-store";
 import Image from "next/image";
@@ -81,6 +81,7 @@ import imageData from '@/lib/placeholder-images.json';
 import { usePathname } from "next/navigation";
 import { products, type Product } from "@/lib/products";
 import { useToast } from "@/hooks/use-toast";
+import { getDefaultConfig } from "./ui/pc-configurator";
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
@@ -239,26 +240,27 @@ const DropdownMenuLinkItem = ({ href, label, description, icon: Icon }: { href: 
 const ProductHeader = ({ product }: { product: Product | undefined }) => {
     const { addItem } = useCart();
     const { toast } = useToast();
-    
-    const handleAddToCart = () => {
+
+    const handleAddToCart = useCallback(() => {
         if (!product) return;
-        
+
+        let itemToAdd;
         if (product.configurable) {
-             toast({
-                variant: "destructive",
-                title: "Configuration requise",
-                description: "Veuillez configurer votre station depuis la page produit avant de l'ajouter au panier.",
-            });
-            return;
+            itemToAdd = {
+                ...product,
+                configuration: getDefaultConfig(product),
+                image: product.images[0],
+            };
+        } else {
+            itemToAdd = { ...product, image: product.images[0] };
         }
         
-        const itemToAdd = { ...product, image: product.images[0] };
         addItem(itemToAdd);
         toast({
             title: "Ajouté au panier !",
-            description: `"${product.name}" est maintenant dans votre panier.`,
+            description: `"${product.name}" (configuration de base) est maintenant dans votre panier.`,
         });
-    };
+    }, [product, addItem, toast]);
 
     if (!product) return null;
 
@@ -269,12 +271,12 @@ const ProductHeader = ({ product }: { product: Product | undefined }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="hidden lg:flex items-center gap-6 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+            className="hidden lg:flex items-center gap-4 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
         >
-            <h1 className="text-lg font-semibold tracking-tight px-4">{product.name}</h1>
-            <div className="flex items-center gap-4 bg-background/80 dark:bg-black/40 rounded-full p-1 pl-4">
-                <span className="font-medium">À partir de {product.price.toFixed(2)}€</span>
-                <Button size="default" className="rounded-full" onClick={handleAddToCart}>
+            <h1 className="text-base font-semibold tracking-tight px-3">{product.name}</h1>
+            <div className="flex items-center gap-2 bg-background/80 dark:bg-black/40 rounded-full p-1 pl-3">
+                <span className="text-sm font-medium">À partir de {product.price.toFixed(2)}€</span>
+                <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
                     Acheter
                 </Button>
             </div>
