@@ -230,6 +230,14 @@ export default function ProductClient({ product }: { product: Product }) {
                         <div className="mt-6 p-6 glass-card">
                             <h3 className="text-lg font-medium">Total de votre configuration</h3>
                             <p className="text-3xl font-bold mt-2">{totalPrice.toFixed(2)}€</p>
+                            <div className="mt-4 text-xs text-muted-foreground space-y-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                                <p className="flex items-center gap-2 text-green-300 font-semibold"><CheckCircle className="h-4 w-4"/> Inclus avec votre achat :</p>
+                                <ul className="list-disc pl-5">
+                                    <li>Licence (X)OS Pro à vie</li>
+                                    <li>1 an d'abonnement aux outils IA</li>
+                                    <li>1 To de stockage (X)cloud (1 an)</li>
+                                </ul>
+                            </div>
                             <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
                                 <ShoppingCart className="mr-2 h-5 w-5" />
                                 Ajouter au panier
