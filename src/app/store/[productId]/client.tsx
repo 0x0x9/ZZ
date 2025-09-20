@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
@@ -41,30 +42,50 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
 };
 
 const ImageGallery = ({ product }: { product: Product }) => {
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     return (
-        <Carousel className="w-full">
-            <CarouselContent>
-                {product.images.map((img, index) => (
-                    <CarouselItem key={index}>
-                        <div className="p-1">
-                            <Card className="glass-card">
-                                <CardContent className="relative aspect-square flex items-center justify-center p-6">
-                                    <Image
-                                        src={img}
-                                        alt={`${product.name} - vue ${index + 1}`}
-                                        fill
-                                        className="object-contain p-4"
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                    />
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
-        </Carousel>
+        <>
+            <Carousel className="w-full">
+                <CarouselContent>
+                    {product.images.map((img, index) => (
+                        <CarouselItem key={index} onClick={() => setSelectedImage(img)} className="cursor-pointer">
+                            <div className="p-1">
+                                <Card className="glass-card group overflow-hidden">
+                                    <CardContent className="relative aspect-square flex items-center justify-center p-6">
+                                        <Image
+                                            src={img}
+                                            alt={`${product.name} - vue ${index + 1}`}
+                                            fill
+                                            className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+                                            sizes="(max-width: 768px) 100vw, 50vw"
+                                        />
+                                         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <ZoomIn className="h-10 w-10 text-white/70" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4" />
+            </Carousel>
+            <Dialog open={!!selectedImage} onOpenChange={(isOpen) => !isOpen && setSelectedImage(null)}>
+                <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 glass-card">
+                    {selectedImage && (
+                         <Image
+                            src={selectedImage}
+                            alt="Vue agrandie du produit"
+                            fill
+                            className="object-contain p-4"
+                            sizes="90vw"
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+        </>
     );
 };
 
