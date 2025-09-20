@@ -122,20 +122,20 @@ export const products: Product[] = [
     configurable: true,
     hasPerformanceChart: true,
     features: [
-        "Processeur Intel Core i7 ou AMD Ryzen 7", 
-        "(X)OS préinstallé avec compatibilité Windows/macOS", 
-        "32 Go de RAM DDR5 (extensible)", 
-        "Stockage SSD NVMe Gen4 ultra-rapide", 
-        "Carte graphique NVIDIA RTX série 40"
+        "Processeur Intel Core i7-12400KF",
+        "(X)OS préinstallé avec compatibilité Windows/macOS",
+        "32 Go de RAM DDR5 (extensible)",
+        "Stockage SSD NVMe et HDD rapide",
+        "Technologie GPU (X)bridge AMD"
     ],
     specs: {
-        "Processeur": "Intel Core i7-14700K ou AMD Ryzen 7 7800X3D",
-        "Carte graphique": "NVIDIA GeForce RTX 4070 Ti Super",
+        "Processeur": "Intel Core i7-12400KF",
+        "Carte graphique": "(X)bridge (AMD) 8Go VRAM",
         "Mémoire": "32 Go DDR5",
-        "Stockage": "2 To SSD NVMe Gen4 + 8To HDD",
+        "Stockage": "2To SSD NVMe + 2To HDD",
         "Connectique": "USB-C 10 Gbps, HDMI 2.1, DisplayPort 1.4, Ethernet 2.5 GbE",
         "Boîtier": "Moyen-tour compact, aluminium brossé",
-        "Refroidissement": "Ventirad haute performance silencieux"
+        "Refroidissement": "Watercooling"
     }
   },
   {
