@@ -255,10 +255,63 @@ function SuggestionDialog({ open, title, suggestions, onSelect, onOpenChange }: 
     )
 }
 
+function MuseForm({ formAction }: { formAction: (payload: FormData) => void; }) {
+    const { pending } = useFormStatus();
+    return (
+        <form action={formAction}>
+            <Accordion type="single" collapsible defaultValue="inspiration-engine">
+                <AccordionItem value="inspiration-engine" className="border-none">
+                    <Card className="glass-card">
+                        <AccordionTrigger className="p-6 hover:no-underline">
+                            <div className="flex items-center gap-3">
+                                <Guitar className="h-7 w-7 text-primary" />
+                                <div>
+                                    <CardTitle>Moteur d'Inspiration</CardTitle>
+                                    <CardDescription>Décrivez votre vision artistique.</CardDescription>
+                                </div>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-0">
+                            <div className="space-y-4 pt-4 border-t border-border">
+                                <div>
+                                    <Label htmlFor="theme">Thème principal</Label>
+                                    <Textarea id="theme" name="theme" placeholder="Ex: La solitude dans une grande ville..." rows={2} required className="mt-2 bg-transparent" minLength={5} disabled={pending} />
+                                </div>
+                                <div>
+                                    <Label>Ambiance souhaitée</Label>
+                                    <RadioGroup name="mood" defaultValue="Mélancolique" className="mt-2 grid grid-cols-2 gap-2">
+                                        {moods.map(mood => (
+                                            <div key={mood} className="flex items-center space-x-2"><RadioGroupItem value={mood} id={`mood-${mood}`} /><Label htmlFor={`mood-${mood}`} className="font-normal text-sm">{mood}</Label></div>
+                                        ))}
+                                    </RadioGroup>
+                                </div>
+                                <div>
+                                    <Label>Tempo</Label>
+                                    <RadioGroup name="tempo" defaultValue="Modéré" className="mt-2 flex gap-4">
+                                        {tempos.map(tempo => (
+                                            <div key={tempo} className="flex items-center space-x-2"><RadioGroupItem value={tempo} id={`tempo-${tempo}`} /><Label htmlFor={`tempo-${tempo}`} className="font-normal text-sm">{tempo}</Label></div>
+                                        ))}
+                                    </RadioGroup>
+                                </div>
+                                <div>
+                                    <Label htmlFor="references">Références (Facultatif)</Label>
+                                    <Input id="references" name="references" placeholder="Ex: L'univers de Blade Runner..." className="mt-2 bg-transparent" disabled={pending} />
+                                </div>
+                            </div>
+                                <CardFooter className="px-0 pt-6">
+                                <SubmitButton />
+                            </CardFooter>
+                        </AccordionContent>
+                    </Card>
+                </AccordionItem>
+            </Accordion>
+        </form>
+    );
+}
+
 export default function MuseGenerator() {
-    const initialState = { result: null, error: null, theme: '', mood: 'Mélancolique', tempo: 'Modéré', references: '' };
-    const [museState, setMuseState] = useState(initialState);
-    const [isMuseLoading, setIsMuseLoading] = useState(false);
+    const initialState = { result: null, error: null };
+    const [state, formAction] = useFormState(generateMuse, initialState);
 
     const [copilotSuggestions, setCopilotSuggestions] = useState<string[]>([]);
     const [copilotAction, setCopilotAction] = useState<'ENHANCE' | 'RHYMES' | undefined>();
@@ -269,17 +322,19 @@ export default function MuseGenerator() {
     const [writerTitle, setWriterTitle] = useState('Nouveau Texte');
     const [writerContent, setWriterContent] = useState('');
 
-    const formRef = useRef<HTMLFormElement>(null);
-
     const { toast } = useToast();
+    const { pending } = useFormStatus();
 
     useEffect(() => {
-        if (museState.result?.initialLyrics) {
-            setWriterContent(museState.result.initialLyrics);
-            const newTitle = museState.result.mainStyle ? `Texte - ${museState.result.mainStyle}` : 'Nouveau Texte Inspiré';
+        if (state.result?.initialLyrics) {
+            setWriterContent(state.result.initialLyrics);
+            const newTitle = state.result.mainStyle ? `Texte - ${state.result.mainStyle}` : 'Nouveau Texte Inspiré';
             setWriterTitle(newTitle);
         }
-    }, [museState.result]);
+        if (state.error) {
+            toast({ variant: 'destructive', title: 'Erreur (X)muse', description: state.error });
+        }
+    }, [state, toast]);
 
     useEffect(() => {
         if (copilotSuggestions.length > 0) {
@@ -291,33 +346,6 @@ export default function MuseGenerator() {
         }
     }, [copilotSuggestions, copilotAction]);
     
-    const handleMuseSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsMuseLoading(true);
-        const formData = new FormData(e.currentTarget);
-        try {
-            const response = await fetch('/api/generateMuse', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    theme: formData.get('theme') as string,
-                    mood: formData.get('mood') as string,
-                    tempo: formData.get('tempo') as string,
-                    references: formData.get('references') as string,
-                })
-            });
-             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Une erreur est survenue.');
-            }
-            const result = await response.json();
-            setMuseState({ ...initialState, result });
-        } catch(e: any) {
-            toast({ variant: 'destructive', title: 'Erreur (X)muse', description: e.message });
-        } finally {
-            setIsMuseLoading(false);
-        }
-    };
 
     const handleCopilotRequest = async (action: 'ENHANCE' | 'RHYMES') => {
         if (!selection) {
@@ -327,7 +355,6 @@ export default function MuseGenerator() {
         
         setIsCopilotLoading(true);
         setCopilotAction(action);
-        const mood = formRef.current ? (new FormData(formRef.current).get('mood') as string || 'neutre') : 'neutre';
         try {
             const response = await fetch('/api/copilotLyrics', {
                 method: 'POST',
@@ -335,7 +362,7 @@ export default function MuseGenerator() {
                 body: JSON.stringify({
                     textToEdit: selection.text,
                     fullText: writerContent,
-                    mood: mood,
+                    mood: state.result?.mainStyle || 'neutre',
                     action: action,
                 })
             });
@@ -363,58 +390,9 @@ export default function MuseGenerator() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
             <div className="lg:col-span-2 space-y-6">
-                <form ref={formRef} onSubmit={handleMuseSubmit}>
-                     <Accordion type="single" collapsible defaultValue="inspiration-engine">
-                        <AccordionItem value="inspiration-engine" className="border-none">
-                            <Card className="glass-card">
-                                <AccordionTrigger className="p-6 hover:no-underline">
-                                    <div className="flex items-center gap-3">
-                                        <Guitar className="h-7 w-7 text-primary" />
-                                        <div>
-                                            <CardTitle>Moteur d'Inspiration</CardTitle>
-                                            <CardDescription>Décrivez votre vision artistique.</CardDescription>
-                                        </div>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="px-6 pb-0">
-                                    <div className="space-y-4 pt-4 border-t border-border">
-                                        <div>
-                                            <Label htmlFor="theme">Thème principal</Label>
-                                            <Textarea id="theme" name="theme" placeholder="Ex: La solitude dans une grande ville..." rows={2} required className="mt-2 bg-transparent" minLength={5} disabled={isMuseLoading} defaultValue={museState.theme ?? ''} />
-                                        </div>
-                                        <div>
-                                            <Label>Ambiance souhaitée</Label>
-                                            <RadioGroup name="mood" defaultValue={museState.mood ?? "Mélancolique"} className="mt-2 grid grid-cols-2 gap-2">
-                                                {moods.map(mood => (
-                                                    <div key={mood} className="flex items-center space-x-2"><RadioGroupItem value={mood} id={`mood-${mood}`} /><Label htmlFor={`mood-${mood}`} className="font-normal text-sm">{mood}</Label></div>
-                                                ))}
-                                            </RadioGroup>
-                                        </div>
-                                        <div>
-                                            <Label>Tempo</Label>
-                                            <RadioGroup name="tempo" defaultValue={museState.tempo ?? "Modéré"} className="mt-2 flex gap-4">
-                                                {tempos.map(tempo => (
-                                                    <div key={tempo} className="flex items-center space-x-2"><RadioGroupItem value={tempo} id={`tempo-${tempo}`} /><Label htmlFor={`tempo-${tempo}`} className="font-normal text-sm">{tempo}</Label></div>
-                                                ))}
-                                            </RadioGroup>
-                                        </div>
-                                        <div>
-                                            <Label htmlFor="references">Références (Facultatif)</Label>
-                                            <Input id="references" name="references" placeholder="Ex: L'univers de Blade Runner..." className="mt-2 bg-transparent" disabled={isMuseLoading} defaultValue={museState.references ?? ''}/>
-                                        </div>
-                                    </div>
-                                     <CardFooter className="px-0 pt-6">
-                                        <Button type="submit" disabled={isMuseLoading} size="lg" className="w-full">
-                                            {isMuseLoading ? ( <LoadingState text="Analyse en cours..." isCompact={true} /> ) : ( <>Trouver l'inspiration<Sparkles className="ml-2 h-5 w-5" /></> )}
-                                        </Button>
-                                    </CardFooter>
-                                </AccordionContent>
-                            </Card>
-                        </AccordionItem>
-                    </Accordion>
-                </form>
+                <MuseForm formAction={formAction} />
 
-                {isMuseLoading && (
+                {pending && (
                      <Card className="glass-card min-h-[300px] relative overflow-hidden">
                         <div className="absolute inset-0 z-0"><AiLoadingAnimation isLoading={true} /></div>
                         <div className="relative z-10 h-full flex items-center justify-center">
@@ -423,7 +401,7 @@ export default function MuseGenerator() {
                     </Card>
                 )}
 
-                {!isMuseLoading && museState.result && <InspirationPanel result={museState.result} />}
+                {!pending && state.result && <InspirationPanel result={state.result} />}
             </div>
 
             <div className="lg:col-span-3 h-[85vh] sticky top-24">
