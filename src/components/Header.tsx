@@ -314,6 +314,7 @@ const MainNav = () => {
 
 const ProductBreadcrumb = ({ product }: { product: Product }) => {
     const { performTransition } = usePageTransition();
+    
     return (
         <motion.div
             key="breadcrumb"
@@ -396,10 +397,11 @@ export function Header() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3, ease: 'easeOut' }}
-                        className="hidden lg:flex items-center gap-4 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+                        className="hidden lg:flex items-center gap-2 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
                     >
-                         <div className="flex items-center gap-2 pl-3">
-                            <span className="text-sm font-medium">À partir de {product.price.toFixed(2)}€</span>
+                         <div className="pl-3 pr-2 text-right">
+                            <span className="text-sm font-semibold">{product.price.toFixed(2)}€</span>
+                            <p className="text-xs text-muted-foreground -mt-1">Prix de base</p>
                         </div>
                          <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
                            Acheter
