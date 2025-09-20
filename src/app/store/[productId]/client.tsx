@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap, ZoomIn, X } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
 import HomepageOriaChat from "@/components/homepage-oria";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
     const ref = React.useRef(null);
@@ -75,6 +77,15 @@ export default function ProductClient({ product }: { product: Product }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const [activeImage, setActiveImage] = useState(product.images[0]);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImageForModal, setSelectedImageForModal] = useState('');
+
+  const handleOpenImageModal = (image: string) => {
+    setSelectedImageForModal(image);
+    setIsImageModalOpen(true);
+  };
+
 
   const getInitialConfig = useCallback(() => {
     const cpu = searchParams.get('cpu');
@@ -216,17 +227,43 @@ export default function ProductClient({ product }: { product: Product }) {
                         )}
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
-                         <div className="glass-card p-6">
-                             <div className="relative aspect-square">
-                                <Image 
-                                    src={product.images[0]} 
-                                    alt={product.name} 
-                                    fill 
-                                    className="object-contain" 
+                         <div className="glass-card p-4">
+                            <div className="relative aspect-square mb-2 overflow-hidden rounded-lg cursor-pointer" onClick={() => handleOpenImageModal(activeImage)}>
+                                <Image
+                                    src={activeImage}
+                                    alt={product.name}
+                                    fill
+                                    className="object-contain"
                                     data-ai-hint={product.hint}
+                                    priority
                                 />
+                                <div className="absolute inset-0 bg-black/10 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <ZoomIn className="w-12 h-12 text-white" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-4 gap-2">
+                                {product.images.slice(0, 4).map((img, index) => (
+                                    <button key={index} onMouseEnter={() => setActiveImage(img)} onClick={() => setActiveImage(img)} className={cn("relative aspect-square rounded-md overflow-hidden border-2 transition-colors", activeImage === img ? 'border-primary' : 'border-transparent hover:border-primary/50')}>
+                                        <Image src={img} alt={`${product.name} thumbnail ${index + 1}`} fill className="object-contain p-1" />
+                                    </button>
+                                ))}
                             </div>
                         </div>
+
+                        <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+                            <DialogContent className="max-w-4xl w-full p-2 glass-card">
+                                <div className="relative aspect-video">
+                                     <Image 
+                                        src={selectedImageForModal} 
+                                        alt="Aperçu du produit" 
+                                        fill 
+                                        className="object-contain"
+                                    />
+                                </div>
+                                 <button onClick={() => setIsImageModalOpen(false)} className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-1"><X className="w-5 h-5"/></button>
+                            </DialogContent>
+                        </Dialog>
+
                         <div className="mt-6 p-6 glass-card">
                             <h3 className="text-lg font-medium">Total de votre configuration</h3>
                             <p className="text-3xl font-bold mt-2">{totalPrice.toFixed(2)}€</p>
