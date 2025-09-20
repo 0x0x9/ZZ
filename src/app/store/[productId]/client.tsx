@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
@@ -118,8 +117,6 @@ export default function ProductClient({ product }: { product: Product }) {
     const handleAddToCart = useCallback(() => {
     let configToAdd = configuration;
 
-    // If the product is configurable but no configuration has been actively made,
-    // we generate the default one to add to the cart.
     if (product.configurable && !configToAdd) {
         configToAdd = getDefaultConfig(product);
     }
@@ -127,7 +124,7 @@ export default function ProductClient({ product }: { product: Product }) {
     const itemToAdd = {
         ...product,
         price: totalPrice,
-        configuration: configToAdd, // Can be null for non-configurable items
+        configuration: configToAdd,
         image: product.images[0],
     };
     addItem(itemToAdd);
@@ -189,7 +186,12 @@ export default function ProductClient({ product }: { product: Product }) {
   // Default Hardware Layout
   return (
     <>
-        <div className="space-y-24 md:space-y-36 pt-16 md:pt-24">
+        <div className="space-y-24 md:space-y-36 pt-24 md:pt-32">
+            <section className="container mx-auto px-4 md:px-6 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">{product.name}</h1>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">{product.tagline || product.description}</p>
+            </section>
+            
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
@@ -347,3 +349,5 @@ export default function ProductClient({ product }: { product: Product }) {
     </>
   );
 }
+
+    
