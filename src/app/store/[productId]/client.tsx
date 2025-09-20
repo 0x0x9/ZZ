@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap, ZoomIn, X, Users, Cloud } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap, ZoomIn, X, Users, Cloud, Heart } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -41,63 +41,30 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
 };
 
 const ImageGallery = ({ product }: { product: Product }) => {
-    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-
     return (
-        <>
-            <div className="grid grid-cols-2 gap-3">
-                {product.images.slice(0, 4).map((img, index) => (
-                    <motion.div
-                        key={index}
-                        className="relative aspect-square w-full rounded-lg overflow-hidden glass-card group cursor-pointer"
-                        onClick={() => setSelectedImageIndex(index)}
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                        <Image
-                            src={img}
-                            alt={`${product.name} - vue ${index + 1}`}
-                            fill
-                            className="object-contain p-2"
-                            sizes="(max-width: 768px) 50vw, 33vw"
-                        />
-                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <ZoomIn className="h-8 w-8 text-white" />
+        <Carousel className="w-full">
+            <CarouselContent>
+                {product.images.map((img, index) => (
+                    <CarouselItem key={index}>
+                        <div className="p-1">
+                            <Card className="glass-card">
+                                <CardContent className="relative aspect-square flex items-center justify-center p-6">
+                                    <Image
+                                        src={img}
+                                        alt={`${product.name} - vue ${index + 1}`}
+                                        fill
+                                        className="object-contain p-4"
+                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                    />
+                                </CardContent>
+                            </Card>
                         </div>
-                    </motion.div>
+                    </CarouselItem>
                 ))}
-            </div>
-            
-            <Dialog open={selectedImageIndex !== null} onOpenChange={(isOpen) => !isOpen && setSelectedImageIndex(null)}>
-                <DialogContent className="max-w-4xl w-[90vw] p-2 glass-card">
-                    <Carousel
-                        opts={{
-                            loop: true,
-                            startIndex: selectedImageIndex ?? 0,
-                        }}
-                        className="w-full"
-                    >
-                        <CarouselContent>
-                            {product.images.map((img, index) => (
-                                <CarouselItem key={index}>
-                                    <div className="aspect-video relative">
-                                        <Image
-                                            src={img}
-                                            alt={`${product.name} - vue ${index + 1}`}
-                                            fill
-                                            className="object-contain"
-                                            sizes="90vw"
-                                        />
-                                    </div>
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-                        <CarouselPrevious className="left-4" />
-                        <CarouselNext className="right-4" />
-                    </Carousel>
-                </DialogContent>
-            </Dialog>
-        </>
+            </CarouselContent>
+            <CarouselPrevious className="left-4" />
+            <CarouselNext className="right-4" />
+        </Carousel>
     );
 };
 
@@ -198,7 +165,7 @@ export default function ProductClient({ product }: { product: Product }) {
     }, [product, configuration, totalPrice, addItem, toast]);
   
   const performanceData = [
-    { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
+    { name: '(X)-φ (fi)', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
     { name: 'Mac Pro (équivalent)', 'Rendu 3D': 75, 'Compilation de code': 80, 'Simulation IA': 70 },
     { name: 'PC Haut de Gamme', 'Rendu 3D': 85, 'Compilation de code': 88, 'Simulation IA': 78 },
 ];
@@ -257,13 +224,15 @@ const benefits = [
   return (
     <>
         <div className="space-y-24 md:space-y-36 pt-24 md:pt-32">
-            <section className="container mx-auto px-4 md:px-6">
+             <section className="container mx-auto px-4 md:px-6">
                 <div className="mb-8">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Link href="/store" className="hover:text-primary transition-colors">Boutique</Link>
-                      <ChevronRight className="h-4 w-4" />
-                      <Link href="/hardware" className="hover:text-primary transition-colors">{product.category}</Link>
-                  </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Link href="/store" className="hover:text-primary transition-colors">Boutique</Link>
+                        <ChevronRight className="h-4 w-4" />
+                        <Link href="/hardware" className="hover:text-primary transition-colors">{product.category}</Link>
+                        <ChevronRight className="h-4 w-4" />
+                        <span className="font-medium text-foreground">{product.name}</span>
+                    </div>
                 </div>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight">{product.name}</h1>
               <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{product.tagline || product.description}</p>
@@ -271,10 +240,10 @@ const benefits = [
             
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
-                    <div className="md:col-span-1">
+                    <div className="md:col-span-1 md:sticky top-28">
                         <ImageGallery product={product} />
                     </div>
-                    <div className="md:col-span-1 md:sticky top-28">
+                    <div className="md:col-span-1">
                          {product.configurable ? (
                             <PCConfigurator 
                                 key={product.id}
@@ -310,25 +279,24 @@ const benefits = [
             </section>
             
             <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
-                 <div className="relative isolate overflow-hidden rounded-3xl h-[80vh] flex items-center justify-center text-center">
-                    <div className="absolute inset-0 -z-10 h-full w-full">
-                         <iframe
-                            src="https://www.youtube.com/embed/YUEb23FQVhA?autoplay=1&mute=1&loop=1&playlist=YUEb23FQVhA&controls=0&showinfo=0&autohide=1&wmode=transparent"
-                            title="Hero Video"
+                <div className="glass-card p-4 space-y-4">
+                    <div className="aspect-video w-full rounded-lg overflow-hidden">
+                        <iframe
+                            src="https://www.youtube.com/embed/SqJGQ25sc8Q?autoplay=1&mute=1&loop=1&playlist=SqJGQ25sc8Q&controls=0&showinfo=0&autohide=1"
+                            title="XOS"
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
-                            className="w-full h-full object-cover scale-150"
+                            className="w-full h-full"
                         ></iframe>
-                         <div className="absolute inset-0 bg-black/60"></div>
                     </div>
-                    <div className="text-center py-20 md:py-32 px-6">
-                        <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white [text-shadow:0_2px_15px_rgba(0,0,0,0.4)]">
-                           Un Studio. Tous les Mondes.
-                        </h2>
-                        <p className="mt-6 text-lg md:text-xl text-white/80 max-w-3xl mx-auto [text-shadow:0_1px_10px_rgba(0,0,0,0.4)]">
-                            Arrêtez de choisir. (X)OS est le seul système capable d'exécuter Windows, macOS et Linux simultanément, en natif. Lancez un jeu sur Windows pendant qu'un rendu tourne sur Linux. Sans compromis. Sans redémarrage.
-                        </p>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        {benefits.map((benefit, index) => (
+                            <div key={index} className="bg-background/30 p-3 rounded-lg text-center">
+                                <benefit.icon className="h-6 w-6 mx-auto text-primary mb-2" />
+                                <p className="text-xs font-semibold">{benefit.title}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -367,29 +335,6 @@ const benefits = [
                             <p className="text-muted-foreground text-sm flex-grow">Ajout de GPU, stockage modulable. Une machine qui grandit avec vos projets.</p>
                         </Card>
                     </AnimatedSection>
-                </div>
-            </section>
-            
-             <section className="container mx-auto px-4 md:px-6">
-                <div className="glass-card p-4 space-y-4">
-                    <div className="aspect-video w-full rounded-lg overflow-hidden">
-                        <iframe
-                            src="https://www.youtube.com/embed/SqJGQ25sc8Q?autoplay=1&mute=1&loop=1&playlist=SqJGQ25sc8Q&controls=0&showinfo=0&autohide=1"
-                            title="XOS"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="w-full h-full"
-                        ></iframe>
-                    </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                        {benefits.map((benefit, index) => (
-                            <div key={index} className="bg-background/30 p-3 rounded-lg text-center">
-                                <benefit.icon className="h-6 w-6 mx-auto text-primary mb-2" />
-                                <p className="text-xs font-semibold">{benefit.title}</p>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </section>
             
