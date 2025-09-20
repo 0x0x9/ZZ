@@ -117,8 +117,8 @@
             "hint": "art gallery"
         },
         "post_openai_video": {
-            "src": "https://videos.openai.com/vg-assets/assets%2Ftask_01k5kr59vwfqma4zqv8gxb1p3m%2F1758378313_img_1.webp?st=2025-09-20T12%3A48%3A27Z&se=2025-09-26T13%3A48%3A27Z&sks=b&skt=2025-09-20T12%3A48%3A27Z&ske=2025-09-26T13%3A48%3A27Z&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skoid=5e5fc900-07cf-43e7-ab5b-314c0d877bb0&skv=2019-02-02&sv=2018-11-09&sr=b&sp=r&spr=https%2Chttp&sig=fjQw7Enz1Ig0DxQ%2FNHJWqb%2BA82KgpsiFvr5c1g4Htj4%3D&az=oaivgprodscus",
-            "hint": "futuristic animation"
+            "src": "/images/blog/posts/innovation.webp",
+            "hint": "abstract innovation"
         }
     },
     "collaborations": {
