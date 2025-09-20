@@ -15,7 +15,7 @@ import { PCConfigurator, type Configuration, getDefaultConfig } from "@/componen
 import { AiConfigurator } from "@/components/ai-configurator";
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -42,14 +42,21 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
 };
 
 const ImageGallery = ({ product }: { product: Product }) => {
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+    const [api, setApi] = React.useState<CarouselApi>()
+
+    useEffect(() => {
+        if (!api || selectedImageIndex === null) return;
+        api.scrollTo(selectedImageIndex, true);
+    }, [api, selectedImageIndex]);
+
 
     return (
         <>
             <Carousel className="w-full">
                 <CarouselContent>
                     {product.images.map((img, index) => (
-                        <CarouselItem key={index} onClick={() => setSelectedImage(img)} className="cursor-pointer">
+                        <CarouselItem key={index} onClick={() => setSelectedImageIndex(index)} className="cursor-pointer">
                             <div className="p-1">
                                 <Card className="glass-card group overflow-hidden">
                                     <CardContent className="relative aspect-square flex items-center justify-center p-6">
@@ -72,16 +79,29 @@ const ImageGallery = ({ product }: { product: Product }) => {
                 <CarouselPrevious className="left-4" />
                 <CarouselNext className="right-4" />
             </Carousel>
-            <Dialog open={!!selectedImage} onOpenChange={(isOpen) => !isOpen && setSelectedImage(null)}>
-                <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 glass-card">
-                    {selectedImage && (
-                         <Image
-                            src={selectedImage}
-                            alt="Vue agrandie du produit"
-                            fill
-                            className="object-contain p-4"
-                            sizes="90vw"
-                        />
+
+            <Dialog open={selectedImageIndex !== null} onOpenChange={(isOpen) => !isOpen && setSelectedImageIndex(null)}>
+                <DialogContent className="max-w-4xl w-[90vw] h-auto p-0 glass-card">
+                     {selectedImageIndex !== null && (
+                         <Carousel setApi={setApi} opts={{ startIndex: selectedImageIndex }}>
+                             <CarouselContent>
+                                {product.images.map((img, index) => (
+                                    <CarouselItem key={index}>
+                                        <div className="relative aspect-video">
+                                            <Image
+                                                src={img}
+                                                alt={`Vue agrandie de ${product.name} - ${index + 1}`}
+                                                fill
+                                                className="object-contain"
+                                                sizes="90vw"
+                                            />
+                                        </div>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <CarouselPrevious />
+                            <CarouselNext />
+                         </Carousel>
                     )}
                 </DialogContent>
             </Dialog>
