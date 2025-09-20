@@ -83,6 +83,7 @@ import { usePathname } from "next/navigation";
 import { products, type Product } from "@/lib/products";
 import { useToast } from "@/hooks/use-toast";
 import { getDefaultConfig } from "./ui/pc-configurator";
+import { usePageTransition } from "@/hooks/use-page-transition";
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
@@ -221,105 +222,115 @@ function CartSheet() {
   );
 }
 
-const DropdownMenuLinkItem = ({ href, label, description, icon: Icon }: { href: string; label: string; description?: string; icon: React.ElementType }) => (
-    <DropdownMenuPrimitive.Item asChild>
-        <Link
-        href={href}
-        className="group flex items-center gap-3 p-2 rounded-lg hover:bg-foreground/10 transition-all duration-200 focus:bg-foreground/10 focus:outline-none cursor-pointer"
-        >
-        <div className="p-1.5 rounded-md border bg-accent/10 border-accent/20">
-            <Icon className="h-5 w-5 text-accent" />
-        </div>
-        <div>
-            <p className="font-semibold text-foreground text-sm">{label}</p>
-            {description && <p className="text-xs text-muted-foreground">{description}</p>}
-        </div>
-        </Link>
-    </DropdownMenuPrimitive.Item>
-);
+const DropdownMenuLinkItem = ({ href, label, description, icon: Icon }: { href: string; label: string; description?: string; icon: React.ElementType }) => {
+    const { performTransition } = usePageTransition();
 
-const MainNav = () => (
-     <motion.nav 
-        key="main-nav"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="hidden lg:flex items-center gap-1 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
-    >
-        <DropdownMenuPrimitive.Root>
-            <DropdownMenuPrimitive.Trigger asChild>
+    return (
+        <DropdownMenuPrimitive.Item asChild onSelect={(e) => { e.preventDefault(); performTransition(href); }}>
+            <Link
+                href={href}
+                className="group flex items-center gap-3 p-2 rounded-lg hover:bg-foreground/10 transition-all duration-200 focus:bg-foreground/10 focus:outline-none cursor-pointer"
+            >
+                <div className="p-1.5 rounded-md border bg-accent/10 border-accent/20">
+                    <Icon className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                    <p className="font-semibold text-foreground text-sm">{label}</p>
+                    {description && <p className="text-xs text-muted-foreground">{description}</p>}
+                </div>
+            </Link>
+        </DropdownMenuPrimitive.Item>
+    );
+}
+
+const MainNav = () => {
+    const { performTransition } = usePageTransition();
+
+    return (
+        <motion.nav
+            key="main-nav"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="hidden lg:flex items-center gap-1 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+        >
+            <DropdownMenuPrimitive.Root>
+                <DropdownMenuPrimitive.Trigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                    >
+                        Découvrir <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                </DropdownMenuPrimitive.Trigger>
+                <DropdownMenuPrimitive.Portal>
+                    <DropdownMenuPrimitive.Content
+                        align="center"
+                        sideOffset={10}
+                        className="w-80 glass-card p-2 z-50 outline-none"
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="flex flex-col gap-1"
+                        >
+                            {discoverLinks.map((link) => (
+                                <DropdownMenuLinkItem key={link.href} {...link} />
+                            ))}
+                        </motion.div>
+                    </DropdownMenuPrimitive.Content>
+                </DropdownMenuPrimitive.Portal>
+            </DropdownMenuPrimitive.Root>
+
             <Button
                 variant="ghost"
                 className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                onClick={() => performTransition('/store')}
             >
-                Découvrir <ChevronDown className="ml-2 h-4 w-4" />
+                Boutique
             </Button>
-            </DropdownMenuPrimitive.Trigger>
-            <DropdownMenuPrimitive.Portal>
-            <DropdownMenuPrimitive.Content
-                align="center"
-                sideOffset={10}
-                className="w-80 glass-card p-2 z-50 outline-none"
-            >
-                <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="flex flex-col gap-1"
-                >
-                {discoverLinks.map((link) => (
-                    <DropdownMenuLinkItem key={link.href} {...link} />
-                ))}
-                </motion.div>
-            </DropdownMenuPrimitive.Content>
-            </DropdownMenuPrimitive.Portal>
-        </DropdownMenuPrimitive.Root>
-        
-        <Button
-            variant="ghost"
-            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-            asChild
-            >
-            <Link href="/store">Boutique</Link>
-        </Button>
-        
-        <Button
-            variant="ghost"
-            className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-            asChild
-            >
-            <Link href="/tools">Écosystème</Link>
-        </Button>
-        
-        <Button
+            
+            <Button
                 variant="ghost"
                 className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
-                asChild
+                onClick={() => performTransition('/tools')}
             >
-                <Link href="/community">Communauté</Link>
-        </Button>
-    </motion.nav>
-)
+                Écosystème
+            </Button>
+            
+            <Button
+                variant="ghost"
+                className="text-foreground/80 hover:text-foreground hover:bg-foreground/10 rounded-full h-9 px-4"
+                onClick={() => performTransition('/community')}
+            >
+                Communauté
+            </Button>
+        </motion.nav>
+    );
+};
 
-const ProductBreadcrumb = ({ product }: { product: Product }) => (
-    <motion.div
-        key="breadcrumb"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground"
-    >
-        <Link href="/store" className="hover:text-foreground">Boutique</Link>
-        <ChevronRight className="h-4 w-4" />
-        <Link href="/hardware" className="hover:text-foreground">{product.category}</Link>
-        <ChevronRight className="h-4 w-4" />
-        <span className="font-semibold text-foreground">{product.name}</span>
-    </motion.div>
-);
-
+const ProductBreadcrumb = ({ product }: { product: Product }) => {
+    const { performTransition } = usePageTransition();
+    return (
+        <motion.div
+            key="breadcrumb"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground"
+        >
+            <button onClick={() => performTransition('/store')} className="hover:text-foreground">Boutique</button>
+            <ChevronRight className="h-4 w-4" />
+            <button onClick={() => performTransition('/hardware')} className="hover:text-foreground">{product.category}</button>
+            <ChevronRight className="h-4 w-4" />
+            <span className="font-semibold text-foreground">{product.name}</span>
+        </motion.div>
+    );
+}
 
 export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -327,6 +338,8 @@ export function Header() {
   const isClient = useIsClient();
   const pathname = usePathname();
   
+  const { performTransition } = usePageTransition();
+
   const isProductPage = pathname.startsWith('/store/');
   const productId = isProductPage ? pathname.split('/store/')[1] : null;
   const product = productId ? products.find(p => p.id.toString() === productId) : undefined;
@@ -375,20 +388,20 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2 justify-self-end">
-            <AnimatePresence mode="wait">
+             <AnimatePresence mode="wait">
                 {isProductPage && product && (
                     <motion.div
-                        key="product-header"
+                        key="product-header-cta"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.3, ease: 'easeOut' }}
                         className="hidden lg:flex items-center gap-4 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
                     >
-                        <div className="flex items-center gap-2 pl-3">
+                         <div className="flex items-center gap-2 pl-3">
                             <span className="text-sm font-medium">À partir de {product.price.toFixed(2)}€</span>
                         </div>
-                        <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
+                         <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
                            Acheter
                         </Button>
                     </motion.div>
