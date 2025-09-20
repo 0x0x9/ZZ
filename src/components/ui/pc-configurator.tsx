@@ -15,7 +15,7 @@ type Option = {
 
 type ComponentType = 'cpu' | 'gpu' | 'ram' | 'storage';
 
-const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
+export const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
   'x-alpha': {
     cpu: [
         { name: 'AMD Ryzen 9 7950X3D', priceModifier: 0 },
@@ -89,6 +89,19 @@ export type Configuration = {
     storage: string;
 };
 
+export const getDefaultConfig = (product: Product): Configuration | null => {
+    const productKey = product.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ','fi');
+    const options = optionsMap[productKey];
+    if (!options) return null;
+    
+    return {
+        cpu: options.cpu[0].name,
+        gpu: options.gpu[0].name,
+        ram: options.ram[0].name,
+        storage: options.storage[0].name,
+    };
+};
+
 interface PCConfiguratorProps {
     product: Product;
     onConfigChange: (config: Configuration, newPrice: number) => void;
@@ -154,12 +167,7 @@ export function PCConfigurator({ product, onConfigChange, initialConfig }: PCCon
         return null;
     }
 
-    const [config, setConfig] = useState<Configuration>(initialConfig || {
-        cpu: options.cpu[0].name,
-        gpu: options.gpu[0].name,
-        ram: options.ram[0].name,
-        storage: options.storage[0].name,
-    });
+    const [config, setConfig] = useState<Configuration>(initialConfig || getDefaultConfig(product)!);
     
     useEffect(() => {
         if(initialConfig) {

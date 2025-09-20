@@ -11,7 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import PerformanceChart from "@/components/ui/performance-chart";
-import { PCConfigurator, type Configuration } from "@/components/ui/pc-configurator";
+import { PCConfigurator, type Configuration, getDefaultConfig } from "@/components/ui/pc-configurator";
 import { AiConfigurator } from "@/components/ai-configurator";
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
 import HomepageOriaChat from "@/components/homepage-oria";
+import { useUIState } from "@/hooks/use-ui-state";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -79,8 +80,9 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   const [product, setProduct] = useState(initialProduct);
   const [totalPrice, setTotalPrice] = useState(product.price);
   const { toast } = useToast();
+  const { setProductHeaderState } = useUIState();
 
-  const getInitialConfig = () => {
+  const getInitialConfig = useCallback(() => {
     const cpu = searchParams.get('cpu');
     const gpu = searchParams.get('gpu');
     const ram = searchParams.get('ram');
@@ -90,7 +92,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
       return { cpu, gpu, ram, storage };
     }
     return null;
-  };
+  }, [searchParams]);
   
   const [configuration, setConfiguration] = useState<Configuration | null>(getInitialConfig());
   const [pcConfiguratorKey, setPcConfiguratorKey] = useState(Date.now());
@@ -117,23 +119,19 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         router.push(`/store/${modelId}?${params.toString()}`);
     };
 
-  const handleAddToCart = useCallback(() => {
-    if (product.configurable && !configuration) {
-        toast({
-            variant: "destructive",
-            title: "Configuration requise",
-            description: "Veuillez configurer votre station avant de l'ajouter au panier.",
-        });
-        const configuratorElement = document.getElementById('configurator');
-        if (configuratorElement) {
-            configuratorElement.scrollIntoView({ behavior: 'smooth' });
-        }
-        return;
+    const handleAddToCart = useCallback(() => {
+    let configToAdd = configuration;
+
+    // If the product is configurable but no configuration has been actively made,
+    // we generate the default one to add to the cart.
+    if (product.configurable && !configToAdd) {
+        configToAdd = getDefaultConfig(product);
     }
+    
     const itemToAdd = {
         ...product,
         price: totalPrice,
-        configuration,
+        configuration: configToAdd, // Can be null for non-configurable items
         image: product.images[0],
     };
     addItem(itemToAdd);
@@ -142,6 +140,19 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         description: `"${product.name}" a été ajouté à votre panier.`,
     });
   }, [product, configuration, totalPrice, addItem, toast]);
+  
+   useEffect(() => {
+    setProductHeaderState({
+      isVisible: true,
+      product: product,
+      price: totalPrice,
+      onAddToCart: handleAddToCart
+    });
+
+    return () => {
+      setProductHeaderState({ isVisible: false, product: null, price: 0, onAddToCart: () => {} });
+    };
+  }, [product, totalPrice, handleAddToCart, setProductHeaderState]);
   
   const performanceData = [
     { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
