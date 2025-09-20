@@ -50,7 +50,7 @@ function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutpu
     const { toast } = useToast();
     const { addItem } = useCart();
     
-    const recommendedProduct = products.find(p => result.modelName.toLowerCase().includes(p.name.toLowerCase().replace(/\(x\)\-/, '')));
+    const recommendedProduct = products.find(p => result.modelName.toLowerCase().includes(p.name.toLowerCase().replace(/\(x\)\-/, '').replace(' (fi)', '').replace(' (alpha)', '').replace(' (omega)', '')));
     
     const handleAddToCart = () => {
         if (!recommendedProduct) {
@@ -130,7 +130,7 @@ function ResultsDisplay({ result, onApply, onReset }: { result: ConfigurePcOutpu
                     Recommencer
                 </Button>
                 {recommendedProduct?.configurable ? (
-                    <Button onClick={() => onApply(result.configuration, result.modelName, recommendedProduct.id)} size="lg" className="flex-1">
+                    <Button onClick={() => recommendedProduct && onApply(result.configuration, result.modelName, recommendedProduct.id)} size="lg" className="flex-1">
                         Personnaliser <ArrowRight className="ml-2 h-4 w-4"/>
                     </Button>
                 ) : (

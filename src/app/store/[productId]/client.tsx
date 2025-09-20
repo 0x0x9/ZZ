@@ -155,8 +155,8 @@ export default function ProductClient({ product }: { product: Product }) {
     if (cpu && gpu && ram && storage) {
       return { cpu, gpu, ram, storage };
     }
-    return null;
-  }, [searchParams]);
+    return getDefaultConfig(product);
+  }, [searchParams, product]);
   
   const [configuration, setConfiguration] = useState<Configuration | null>(getInitialConfig());
   
@@ -170,19 +170,28 @@ export default function ProductClient({ product }: { product: Product }) {
   };
   
     const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
-        const params = new URLSearchParams({
-            cpu: newConfig.cpu,
-            gpu: newConfig.gpu,
-            ram: newConfig.ram,
-            storage: newConfig.storage,
-        });
-        
-        toast({
-            title: `Redirection vers ${modelName}`,
-            description: "Nous vous redirigeons vers la page du produit recommandé avec votre configuration.",
-        });
+        if (product.id === modelId) {
+             setConfiguration(newConfig);
+             toast({ title: `Configuration appliquée`, description: `La configuration pour le ${modelName} a été mise à jour.` });
+             const element = document.getElementById('configurator');
+             if (element) {
+                 element.scrollIntoView({ behavior: 'smooth' });
+             }
+        } else {
+            const params = new URLSearchParams({
+                cpu: newConfig.cpu,
+                gpu: newConfig.gpu,
+                ram: newConfig.ram,
+                storage: newConfig.storage,
+            });
+            
+            toast({
+                title: `Redirection vers ${modelName}`,
+                description: "Nous vous redirigeons vers la page du produit recommandé avec votre configuration.",
+            });
 
-        router.push(`/store/${modelId}?${params.toString()}`);
+            router.push(`/store/${modelId}?${params.toString()}`);
+        }
     };
 
     const handleAddToCart = useCallback(() => {
@@ -320,7 +329,7 @@ const benefits = [
             </section>
             
             <section className="container mx-auto px-4 md:px-6 my-12 md:my-24">
-                <div className="glass-card p-4 space-y-4">
+                 <div className="glass-card p-4 space-y-4">
                     <div className="aspect-video w-full rounded-lg overflow-hidden">
                         <iframe
                             src="https://www.youtube.com/embed/SqJGQ25sc8Q?autoplay=1&mute=1&loop=1&playlist=SqJGQ25sc8Q&controls=0&showinfo=0&autohide=1"
