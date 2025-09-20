@@ -17,7 +17,7 @@ type Option = {
 type ComponentType = 'cpu' | 'gpu' | 'ram' | 'storage';
 
 export const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
-  'x-alpha': {
+  'alpha': {
     cpu: [
         { name: 'AMD Ryzen 9 7950X3D', priceModifier: 0 },
         { name: 'Intel Core i9-14900K', priceModifier: -100 },
@@ -35,7 +35,7 @@ export const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: '20TB Stockage Ultra', detail: '4TB SSD + 16TB HDD', priceModifier: 450 },
     ],
   },
-  'x-omega': {
+  'omega': {
      cpu: [
         { name: 'Intel Core i7-14700K', priceModifier: 0 },
         { name: 'AMD Ryzen 7 7800X3D', priceModifier: 50 },
@@ -53,7 +53,7 @@ export const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: '4TB SSD + 12TB HDD', priceModifier: 250 },
     ],
   },
-   'x-fi': {
+   'fi': {
     cpu: [
         { name: 'Intel Core i9-14900K', priceModifier: 0 },
         { name: 'AMD Ryzen 9 7950X3D', priceModifier: 150 },
@@ -91,7 +91,7 @@ export type Configuration = {
 };
 
 export const getDefaultConfig = (product: Product): Configuration | null => {
-    const productKey = product.name.split(' ')[0].toLowerCase().replace(/\(x\)-/, 'x-').replace('oméga', 'omega').replace('φ','fi').replace('α','alpha');
+    const productKey = product.name.split('(')[1].split(')')[0].toLowerCase().replace('φ', 'fi').replace('α', 'alpha').replace('ω', 'omega').replace('π', 'pi');
     const options = optionsMap[productKey];
     if (!options) return null;
     
@@ -162,7 +162,7 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
 };
 
 export function PCConfigurator({ product, onConfigChange, initialConfig }: PCConfiguratorProps) {
-    const productKey = product.name.split('(')[1].split(')')[0].toLowerCase().replace('φ', 'fi').replace('α', 'alpha').replace('ω', 'omega');
+    const productKey = product.name.split('(')[1].split(')')[0].toLowerCase().replace('φ', 'fi').replace('α', 'alpha').replace('ω', 'omega').replace('π', 'pi');
     const options = optionsMap[productKey];
     
     if (!options) {
