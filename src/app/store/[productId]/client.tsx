@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap, ZoomIn, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Layers, Check, ShoppingCart, ChevronRight, Sparkles, Cpu, HardDrive, MemoryStick, CircuitBoard, MonitorPlay, Video, BrainCircuit, ArrowRight, Fan, Box, Scaling, Link as LinkIcon, Zap, ZoomIn, X, Users, Cloud } from 'lucide-react';
 import type { Product } from '@/lib/products';
 import Link from "next/link";
 import Image from "next/image";
@@ -77,15 +77,6 @@ export default function ProductClient({ product }: { product: Product }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [activeImage, setActiveImage] = useState(product.images[0]);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
-  const handleOpenImageModal = (index: number) => {
-    setSelectedImageIndex(index);
-    setIsImageModalOpen(true);
-  };
-
 
   const getInitialConfig = useCallback(() => {
     const cpu = searchParams.get('cpu');
@@ -150,6 +141,13 @@ export default function ProductClient({ product }: { product: Product }) {
     { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
     { name: 'Mac Pro (équivalent)', 'Rendu 3D': 75, 'Compilation de code': 80, 'Simulation IA': 70 },
     { name: 'PC Haut de Gamme', 'Rendu 3D': 85, 'Compilation de code': 88, 'Simulation IA': 78 },
+];
+
+const benefits = [
+    { icon: Sparkles, title: "Suite d'outils IA", description: "Accès complet à (X)flux, (X)muse, et plus." },
+    { icon: Layers, title: "Écosystème (X)OS", description: "Expérience unifiée Windows, macOS & Linux." },
+    { icon: Users, title: "Communauté & Partage", description: "Rejoignez le forum, la galerie et collaborez." },
+    { icon: Cloud, title: "Stockage (X)cloud", description: "1 To de stockage inclus la première année." },
 ];
 
     if (product.category === 'Logiciel') {
@@ -229,55 +227,26 @@ export default function ProductClient({ product }: { product: Product }) {
                         )}
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
-                         <div className="glass-card p-4">
-                            <Carousel opts={{ loop: true }} className="w-full">
-                                <CarouselContent>
-                                    {product.images.map((img, index) => (
-                                        <CarouselItem key={index}>
-                                            <div className="relative aspect-square mb-2 overflow-hidden rounded-lg cursor-pointer" onClick={() => handleOpenImageModal(index)}>
-                                                <Image
-                                                    src={img}
-                                                    alt={product.name}
-                                                    fill
-                                                    className="object-contain"
-                                                    data-ai-hint={product.hint}
-                                                    priority={index === 0}
-                                                />
-                                                <div className="absolute inset-0 bg-black/10 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <ZoomIn className="w-12 h-12 text-white" />
-                                                </div>
-                                            </div>
-                                        </CarouselItem>
-                                    ))}
-                                </CarouselContent>
-                                <CarouselPrevious className="left-4" />
-                                <CarouselNext className="right-4" />
-                            </Carousel>
+                         <div className="glass-card p-4 space-y-4">
+                            <div className="aspect-video w-full rounded-lg overflow-hidden">
+                                <iframe
+                                    src="https://www.youtube.com/embed/SqJGQ25sc8Q?autoplay=1&mute=1&loop=1&playlist=SqJGQ25sc8Q&controls=0&showinfo=0&autohide=1"
+                                    title="XOS"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="w-full h-full"
+                                ></iframe>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {benefits.map((benefit, index) => (
+                                    <div key={index} className="bg-background/30 p-3 rounded-lg text-center">
+                                        <benefit.icon className="h-6 w-6 mx-auto text-primary mb-2" />
+                                        <p className="text-xs font-semibold">{benefit.title}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-
-                        <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-                            <DialogContent className="max-w-4xl w-full p-2 glass-card">
-                                <Carousel opts={{ loop: true, startIndex: selectedImageIndex }}>
-                                    <CarouselContent>
-                                        {product.images.map((img, index) => (
-                                            <CarouselItem key={index}>
-                                                 <div className="relative aspect-video">
-                                                    <Image 
-                                                        src={img} 
-                                                        alt="Aperçu du produit" 
-                                                        fill 
-                                                        className="object-contain"
-                                                    />
-                                                </div>
-                                            </CarouselItem>
-                                        ))}
-                                    </CarouselContent>
-                                    <CarouselPrevious className="left-2" />
-                                    <CarouselNext className="right-2" />
-                                </Carousel>
-                                 <button onClick={() => setIsImageModalOpen(false)} className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-1"><X className="w-5 h-5"/></button>
-                            </DialogContent>
-                        </Dialog>
 
                         <div className="mt-6 p-6 glass-card">
                             <h3 className="text-lg font-medium">Total de votre configuration</h3>
@@ -361,7 +330,12 @@ export default function ProductClient({ product }: { product: Product }) {
             </section>
             
             <section className="container mx-auto px-4 md:px-6">
-                <Carousel className="w-full">
+                 <Carousel
+                    opts={{
+                        loop: true,
+                    }}
+                    className="w-full"
+                >
                     <CarouselContent>
                         {product.images.map((img, index) => (
                             <CarouselItem key={index}>
