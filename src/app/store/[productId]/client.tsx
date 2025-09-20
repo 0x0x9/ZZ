@@ -45,6 +45,10 @@ const ImageGallery = ({ product }: { product: Product }) => {
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
     const [api, setApi] = React.useState<CarouselApi>()
 
+    const openModal = (index: number) => {
+        setSelectedImageIndex(index);
+    }
+
     useEffect(() => {
         if (!api || selectedImageIndex === null) return;
         api.scrollTo(selectedImageIndex, true);
@@ -56,7 +60,7 @@ const ImageGallery = ({ product }: { product: Product }) => {
             <Carousel className="w-full">
                 <CarouselContent>
                     {product.images.map((img, index) => (
-                        <CarouselItem key={index} onClick={() => setSelectedImageIndex(index)} className="cursor-pointer">
+                        <CarouselItem key={index} onClick={() => openModal(index)} className="cursor-pointer">
                             <div className="p-1">
                                 <Card className="glass-card group overflow-hidden">
                                     <CardContent className="relative aspect-square flex items-center justify-center p-6">
@@ -278,8 +282,6 @@ const benefits = [
                 <div className="mb-8">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Link href="/store" className="hover:text-primary transition-colors">Boutique</Link>
-                        <ChevronRight className="h-4 w-4" />
-                        <Link href="/hardware" className="hover:text-primary transition-colors">{product.category}</Link>
                         <ChevronRight className="h-4 w-4" />
                         <span className="font-medium text-foreground">{product.name}</span>
                     </div>
