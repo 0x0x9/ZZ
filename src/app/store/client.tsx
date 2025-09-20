@@ -4,7 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Cpu, Sparkles } from "lucide-react";
+import { ArrowRight, Cpu, Sparkles, CheckCircle } from "lucide-react";
 import { products } from '@/lib/products';
 import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/product-card';
@@ -23,6 +23,7 @@ export default function StoreClient() {
     const router = useRouter();
     const { toast } = useToast();
     
+    const xPhiProduct = products.find(p => p.name === '(X)-φ (fi)');
     const workstationProduct = products.find(p => p.name === '(X)-fi');
 
     const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
@@ -70,27 +71,38 @@ export default function StoreClient() {
              animate={{ opacity: 1, y: 0 }}
              transition={{ duration: 0.5, delay: 0.2 }}
         >
-            <Link href="/hardware">
-                <div className="relative aspect-video w-full rounded-2xl overflow-hidden glass-card group">
-                     <Image 
-                        src={imageData.store.workstation.src}
-                        alt="Workstations (X)yzz"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        data-ai-hint={imageData.store.workstation.hint}
-                        sizes="100vw"
-                        priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-0 left-0 p-6 md:p-12 text-white">
-                        <h2 className="text-2xl md:text-4xl font-bold tracking-tight">Workstations</h2>
-                        <p className="mt-2 text-md md:text-lg text-white/80 max-w-lg">La puissance n'est que le début. Découvrez notre gamme de stations de travail.</p>
-                        <Button variant="outline" className="mt-6 rounded-full bg-white/10 border-white/20 backdrop-blur-md text-white hover:bg-white/20">
-                            Explorer le matériel <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
-            </Link>
+            {xPhiProduct && (
+              <Link href={`/store/${xPhiProduct.id}`}>
+                  <div className="glass-card grid md:grid-cols-2 items-center rounded-2xl overflow-hidden group">
+                      <div className="relative aspect-square p-8 md:h-[500px] h-96">
+                          <Image
+                              src={xPhiProduct.images[0]}
+                              alt={xPhiProduct.name}
+                              fill
+                              className="object-contain group-hover:scale-105 transition-transform duration-500"
+                              data-ai-hint={xPhiProduct.hint}
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              priority
+                          />
+                      </div>
+                      <div className="p-8">
+                          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">{xPhiProduct.name}</h2>
+                          <p className="mt-4 text-lg text-muted-foreground">{xPhiProduct.tagline}</p>
+                          <div className="mt-6 space-y-2">
+                            {(xPhiProduct.features ?? []).slice(0,3).map(feature => (
+                                <div key={feature} className="flex items-center gap-3">
+                                    <CheckCircle className="h-5 w-5 text-primary shrink-0"/>
+                                    <span>{feature}</span>
+                                </div>
+                            ))}
+                          </div>
+                          <Button variant="outline" className="mt-8 rounded-full">
+                              Découvrir la station <ArrowRight className="ml-2 h-4 w-4"/>
+                          </Button>
+                      </div>
+                  </div>
+              </Link>
+            )}
         </motion.div>
       </section>
       
