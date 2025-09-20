@@ -30,7 +30,7 @@ export const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
         { name: '128GB DDR5', priceModifier: 350 },
     ],
     storage: [
-        { name: '2TB NVMe SSD', priceModifier: 0 },
+        { name: '2TB SSD + 8TB HDD', priceModifier: 0 },
         { name: '4TB NVMe SSD', priceModifier: 200 },
     ],
   },
@@ -160,7 +160,7 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
 };
 
 export function PCConfigurator({ product, onConfigChange, initialConfig }: PCConfiguratorProps) {
-    const productKey = product.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ', 'fi').replace('α', 'alpha');
+    const productKey = product.name.split('(')[1].split(')')[0].replace('φ', 'fi').replace('α', 'alpha').replace('Ω', 'omega');
     const options = optionsMap[productKey];
     
     if (!options) {
