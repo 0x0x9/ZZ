@@ -16,7 +16,7 @@ import { AiConfigurator } from "@/components/ai-configurator";
 import { useCart } from "@/hooks/use-cart-store";
 import { useToast } from "@/hooks/use-toast";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
@@ -179,15 +179,14 @@ export default function ProductClient({ product }: { product: Product }) {
   };
   
     const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
-        const params = new URLSearchParams({
-            cpu: newConfig.cpu,
-            gpu: newConfig.gpu,
-            ram: newConfig.ram,
-            storage: newConfig.storage,
-        });
+        const params = new URLSearchParams();
+        if (newConfig.cpu) params.set('cpu', newConfig.cpu);
+        if (newConfig.gpu) params.set('gpu', newConfig.gpu);
+        if (newConfig.ram) params.set('ram', newConfig.ram);
+        if (newConfig.storage) params.set('storage', newConfig.storage);
 
         if (product.id === modelId) {
-             setConfiguration(newConfig);
+             setConfig(newConfig);
              toast({ title: `Configuration appliquée`, description: `La configuration pour le ${modelName} a été mise à jour.` });
              const element = document.getElementById('configurator');
              if (element) {
@@ -314,22 +313,25 @@ const benefits = [
                             </div>
                         )}
 
-                        <div className="mt-6 p-6 glass-card">
-                            <h3 className="text-lg font-medium">Total de votre configuration</h3>
-                            <p className="text-3xl font-bold mt-2">{totalPrice.toFixed(2)}€</p>
-                            
-                            {product.name.includes('oméga') && configuration && product.specs && (
-                                <div className="text-xs text-muted-foreground mt-4 space-y-1">
-                                    <p>Config de base :</p>
+                        {product.name.includes('oméga') && product.specs && (
+                             <Card className="glass-card mt-6">
+                                <CardHeader>
+                                    <CardTitle className="text-base">Configuration de base incluse</CardTitle>
+                                </CardHeader>
+                                <CardContent className="text-xs text-muted-foreground space-y-1">
                                     <ul className="list-disc pl-5">
                                         <li>{product.specs['Processeur']}</li>
                                         <li>{product.specs['Carte graphique']}</li>
                                         <li>{product.specs['Mémoire']}</li>
                                         <li>{product.specs['Stockage']}</li>
                                     </ul>
-                                </div>
-                            )}
-
+                                </CardContent>
+                            </Card>
+                        )}
+                        
+                        <div className="mt-6 p-6 glass-card">
+                            <h3 className="text-lg font-medium">Total de votre configuration</h3>
+                            <p className="text-3xl font-bold mt-2">{totalPrice.toFixed(2)}€</p>
                             <div className="mt-4 text-xs text-muted-foreground space-y-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                                 <p className="flex items-center gap-2 text-green-300 font-semibold"><CheckCircle className="h-4 w-4"/> Inclus avec votre achat :</p>
                                 <ul className="list-disc pl-5">
