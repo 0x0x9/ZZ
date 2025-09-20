@@ -7,7 +7,7 @@
  * - configurePc - Une fonction qui prend les besoins d'un utilisateur et recommande une configuration PC.
  */
 
-import { ai } from '@/ai/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { ConfigurePcInputSchema, ConfigurePcOutputSchema, type ConfigurePcInput, type ConfigurePcOutput } from '@/ai/types';
 
@@ -92,3 +92,5 @@ const configurePcFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

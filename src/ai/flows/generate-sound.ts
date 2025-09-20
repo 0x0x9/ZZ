@@ -8,7 +8,7 @@
  * l'IA décrit le son demandé et cette description est convertie en parole.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import wav from 'wav';
 import {
@@ -105,3 +105,5 @@ const soundFlow = ai.defineFlow(
     };
   }
 );
+
+    

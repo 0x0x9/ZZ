@@ -9,7 +9,7 @@
 
 import type { GenerateMoodboardInput, GenerateMoodboardOutput } from '@/ai/types';
 import { generateContent } from './content-generator';
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'zod';
 
 export const generateMoodboard = ai.defineFlow(
@@ -29,3 +29,5 @@ export const generateMoodboard = ai.defineFlow(
     return { imageDataUris };
   }
 );
+
+    

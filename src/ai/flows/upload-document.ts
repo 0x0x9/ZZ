@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'genkit';
 import { mockDocs } from '@/lib/mock-db';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,3 +55,5 @@ const uploadDocumentFlow = ai.defineFlow(
 export async function uploadDocument(input: z.infer<typeof UploadDocumentInputSchema>) {
     return uploadDocumentFlow(input);
 }
+
+    

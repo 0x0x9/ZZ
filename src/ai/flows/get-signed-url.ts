@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'genkit';
 
 const InputSchema = z.object({
@@ -25,3 +25,5 @@ const getSignedUrlFlow = ai.defineFlow(
 export async function getSignedUrl(input: z.infer<typeof InputSchema>) {
     return getSignedUrlFlow(input);
 }
+
+    

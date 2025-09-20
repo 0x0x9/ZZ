@@ -7,7 +7,7 @@
  * - generateLightMood - Une fonction qui prend un prompt et génère une ambiance complète.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateLightMoodInputSchema, GenerateLightMoodOutputSchema, type GenerateLightMoodInput, type GenerateLightMoodOutput } from '@/ai/types';
 
@@ -46,3 +46,5 @@ const generateLightMoodFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

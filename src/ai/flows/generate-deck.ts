@@ -6,7 +6,7 @@
  * - generateDeck - Une fonction qui prend un sujet et génère une présentation complète.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateDeckInputSchema, GenerateDeckOutputSchema, type GenerateDeckInput, type GenerateDeckOutput } from '@/ai/types';
 
@@ -48,3 +48,5 @@ const generateDeckFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

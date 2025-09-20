@@ -6,7 +6,7 @@
  *
  * - generateMotion - Une fonction qui prend un prompt et génère un script, des images et une voix off.
  */
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateMotionInputSchema, GenerateMotionOutputSchema, type GenerateMotionInput, type GenerateMotionOutput } from '@/ai/types';
 
@@ -51,4 +51,4 @@ const generateMotionFlow = ai.defineFlow(
   }
 );
 
-  
+    

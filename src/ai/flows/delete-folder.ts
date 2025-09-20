@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'genkit';
 import { mockDocs } from '@/lib/mock-db';
 
@@ -30,3 +30,5 @@ const deleteFolderFlow = ai.defineFlow(
 export async function deleteFolder(input: z.infer<typeof InputSchema>) {
     return deleteFolderFlow(input);
 }
+
+    

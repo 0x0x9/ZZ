@@ -7,7 +7,7 @@
  * - copilotLyrics - Une fonction qui analyse une sélection de texte et suggère des améliorations ou des rimes.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   CopilotLyricsInputSchema,
@@ -58,3 +58,5 @@ const copilotLyricsFlow = ai.defineFlow(
     return output;
   },
 );
+
+    

@@ -1,7 +1,7 @@
 
 'use server';
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'zod';
 import { DocSchema } from '@/ai/types';
 import { mockDocs } from '@/lib/mock-db';
@@ -23,3 +23,5 @@ const listDocumentsFlow = ai.defineFlow(
 export async function listDocuments() {
     return listDocumentsFlow();
 }
+
+    

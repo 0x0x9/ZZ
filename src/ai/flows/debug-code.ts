@@ -7,7 +7,7 @@
  * - debugCode - Une fonction qui prend un code et son langage, puis retourne le code corrigé et une explication.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   DebugCodeInputSchema,
@@ -55,3 +55,5 @@ const debugFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

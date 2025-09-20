@@ -7,7 +7,7 @@
  * - generatePalette - Une fonction qui prend une description et génère une palette de couleurs.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   GeneratePaletteInputSchema,
@@ -54,3 +54,5 @@ const paletteFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

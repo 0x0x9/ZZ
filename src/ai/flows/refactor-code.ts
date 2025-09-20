@@ -7,7 +7,7 @@
  * - refactorCode - Une fonction qui prend un code et des instructions, puis retourne le code amélioré.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   RefactorCodeInputSchema,
@@ -55,3 +55,5 @@ const refactorFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

@@ -7,7 +7,7 @@
  * - generateMuse - Une fonction qui analyse les inspirations d'un utilisateur et suggère des directions artistiques.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   GenerateMuseInputSchema,
@@ -60,3 +60,5 @@ const museFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

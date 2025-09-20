@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'genkit';
 import { mockDocs } from '@/lib/mock-db';
 import { v4 as uuidv4 } from 'uuid';
@@ -46,3 +46,5 @@ const createFolderFlow = ai.defineFlow(
 export async function createFolder(input: z.infer<typeof InputSchema>) {
     return createFolderFlow(input);
 }
+
+    

@@ -7,7 +7,7 @@
  * - parseEvent - Une fonction qui prend une chaîne de caractères et la transforme en données d'événement structurées.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import {
@@ -53,3 +53,5 @@ const parseEventFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

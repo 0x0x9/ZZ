@@ -7,7 +7,7 @@
  * - generateTone - Une fonction qui prend une description de projet et génère un guide de ton.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   GenerateToneInputSchema,
@@ -51,3 +51,5 @@ const toneFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

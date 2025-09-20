@@ -8,7 +8,7 @@
  * - GenerateVideoOutput - The return type for the generateVideo function.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { z } from 'zod';
 import * as fs from 'fs';
@@ -98,3 +98,5 @@ const generateVideoFlow = ai.defineFlow(
 export async function generateVideo(input: GenerateVideoInput): Promise<GenerateVideoOutput> {
   return generateVideoFlow(input);
 }
+
+    

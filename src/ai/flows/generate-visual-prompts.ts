@@ -14,7 +14,7 @@
  * @function generateVisualPrompts - The function that generates visual prompts based on the input.
  */
 
-import {ai} from '@/genkit';
+import {ai} from '../genkit';
 import {z} from 'genkit';
 
 const GenerateVisualPromptsInputSchema = z.object({
@@ -72,3 +72,5 @@ const generateVisualPromptsFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

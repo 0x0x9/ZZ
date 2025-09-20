@@ -7,7 +7,7 @@
  * - generatePersona - Une fonction qui prend une description de projet et génère des personas d'utilisateurs.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   GeneratePersonaInputSchema,
@@ -52,3 +52,5 @@ const personaFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

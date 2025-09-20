@@ -1,6 +1,6 @@
 'use server';
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'genkit';
 import { v4 as uuidv4 } from 'uuid';
 import { mockDocs } from '@/lib/mock-db';
@@ -38,3 +38,5 @@ const shareDocumentFlow = ai.defineFlow(
 export async function shareDocument(input: z.infer<typeof InputSchema>) {
   return shareDocumentFlow(input);
 }
+
+    

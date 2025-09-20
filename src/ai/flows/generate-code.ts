@@ -7,7 +7,7 @@
  * - generateCode - Une fonction qui prend une requête et génère du code et une explication.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   GenerateCodeInputSchema,
@@ -50,3 +50,5 @@ const generateCodeFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

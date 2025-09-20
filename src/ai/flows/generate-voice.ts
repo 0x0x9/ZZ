@@ -6,7 +6,7 @@
  * - generateVoice - Une fonction qui prend du texte et retourne des données audio.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import wav from 'wav';
 import {
@@ -81,3 +81,5 @@ const voiceFlow = ai.defineFlow(
     return { audioDataUri };
   }
 );
+
+    

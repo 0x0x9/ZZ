@@ -6,7 +6,7 @@
  * - generateFrame - Une fonction qui prend une description d'UI et génère du code React pour un composant.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateFrameInputSchema, GenerateFrameOutputSchema, type GenerateFrameInput, type GenerateFrameOutput } from '@/ai/types';
 
@@ -62,3 +62,5 @@ const generateFrameFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

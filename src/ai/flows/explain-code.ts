@@ -7,7 +7,7 @@
  * - explainCode - Une fonction qui prend un code et son langage, puis retourne une explication claire.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import {
   ExplainCodeInputSchema,
@@ -56,3 +56,5 @@ const explainFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

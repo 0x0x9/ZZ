@@ -8,7 +8,7 @@
  * - generateNexus - Une fonction qui prend une idée centrale et génère une structure de carte mentale hiérarchique.
  */
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateNexusInputSchema, GenerateNexusOutputSchema, type GenerateNexusInput, type GenerateNexusOutput } from '@/ai/types';
 
@@ -49,3 +49,5 @@ const generateNexusFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

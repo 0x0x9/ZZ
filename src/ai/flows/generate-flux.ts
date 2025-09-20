@@ -8,7 +8,7 @@ import {
   GenerateFluxOutputSchema,
   type GenerateFluxOutput,
 } from '@/ai/types';
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { generateSchedule } from './generate-schedule';
 import { generatePalette } from './generate-palette';
@@ -172,3 +172,5 @@ const generateFluxFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

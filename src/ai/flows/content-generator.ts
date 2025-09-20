@@ -1,7 +1,7 @@
 
 'use server';
 
-import { ai } from '@/genkit';
+import { ai } from '../genkit';
 import { z } from 'zod';
 import { GenerateIdeasOutputSchema, ReformatTextWithPromptOutputSchema } from '@/ai/types';
 import { googleAI } from '@genkit-ai/google-genai';
@@ -87,3 +87,5 @@ export const generateContent = ai.defineFlow(
     return { type: 'text', data: resultText };
   }
 );
+
+    
