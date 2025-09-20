@@ -115,6 +115,10 @@
         "post_gallery": {
             "src": "https://picsum.photos/seed/gallery_post/1280/720",
             "hint": "art gallery"
+        },
+        "post_openai_video": {
+            "src": "https://picsum.photos/seed/openai_video/1280/720",
+            "hint": "futuristic animation"
         }
     },
     "collaborations": {

@@ -26,7 +26,7 @@ export const blogPosts: Post[] = [
     category: "Annonce",
     date: "2024-08-01",
     readingTime: 4,
-    image: imageData.blog.post_innovation.src,
+    image: imageData.blog.post_openai_video.src,
     excerpt: "Vous utilisez nos outils et vous voyez les mentions 'Alpha' ou 'Bêta'. Qu'est-ce que cela signifie ? Plongez avec nous dans les coulisses de la création de (X)yzz.ai.",
     content: `
       <h2>Participer à la Révolution</h2>
