@@ -91,7 +91,13 @@ export type Configuration = {
 };
 
 export const getDefaultConfig = (product: Product): Configuration | null => {
-    const productKey = product.name.split('(')[1].split(')')[0].toLowerCase().replace('φ', 'fi').replace('α', 'alpha').replace('ω', 'omega').replace('π', 'pi');
+    const productKey = product.name.includes('fi') ? 'fi' 
+                     : product.name.includes('alpha') ? 'alpha' 
+                     : product.name.includes('omega') ? 'omega' 
+                     : null;
+
+    if (!productKey) return null;
+    
     const options = optionsMap[productKey];
     if (!options) return null;
     
@@ -162,12 +168,15 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
 };
 
 export function PCConfigurator({ product, onConfigChange, initialConfig }: PCConfiguratorProps) {
-    const productKey = product.name.split('(')[1].split(')')[0].toLowerCase().replace('φ', 'fi').replace('α', 'alpha').replace('ω', 'omega').replace('π', 'pi');
-    const options = optionsMap[productKey];
-    
-    if (!options) {
+    const productKey = product.name.includes('fi') ? 'fi' 
+                     : product.name.includes('alpha') ? 'alpha' 
+                     : product.name.includes('omega') ? 'omega' 
+                     : null;
+
+    if (!productKey) {
         return null;
     }
+    const options = optionsMap[productKey];
 
     const [config, setConfig] = useState<Configuration>(initialConfig || getDefaultConfig(product)!);
     
