@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import Link from "next/link";
@@ -79,7 +78,8 @@ import { Separator } from "./ui/separator";
 import { useAuth } from './auth-component';
 import { useIsClient } from '@/hooks/use-is-client';
 import imageData from '@/lib/placeholder-images.json';
-import { useUIState } from '@/hooks/use-ui-state';
+import { usePathname } from "next/navigation";
+import { products } from "@/lib/products";
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
@@ -235,21 +235,62 @@ const DropdownMenuLinkItem = ({ href, label, description, icon: Icon }: { href: 
     </DropdownMenuPrimitive.Item>
 );
 
+const ProductHeader = () => {
+    const pathname = usePathname();
+    const { addItem } = useCart();
+    const { toast } = useToast();
+    
+    const productId = pathname.split('/store/')[1];
+    const product = products.find(p => p.id.toString() === productId);
+
+    const handleAddToCart = () => {
+        if (!product) return;
+        
+        if (product.configurable) {
+             toast({
+                variant: "destructive",
+                title: "Configuration requise",
+                description: "Veuillez configurer votre station depuis la page produit avant de l'ajouter au panier.",
+            });
+            return;
+        }
+        
+        const itemToAdd = { ...product, image: product.images[0] };
+        addItem(itemToAdd);
+        toast({
+            title: "Ajouté au panier !",
+            description: `"${product.name}" est maintenant dans votre panier.`,
+        });
+    };
+
+    if (!product) return null;
+
+    return (
+        <motion.div
+            key="product-header"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="hidden lg:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-6 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+        >
+            <h1 className="text-lg font-semibold tracking-tight px-4">{product.name}</h1>
+            <div className="flex items-center gap-4 bg-background/80 dark:bg-black/40 rounded-full p-1 pl-4">
+                <span className="font-medium">À partir de {product.price.toFixed(2)}€</span>
+                <Button size="default" className="rounded-full" onClick={handleAddToCart}>
+                    Acheter
+                </Button>
+            </div>
+        </motion.div>
+    );
+};
+
 export function Header() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { user, handleSignOut } = useAuth();
   const isClient = useIsClient();
-  const { productHeaderState } = useUIState();
-  const { product, price, onAddToCart } = productHeaderState;
-  const isProductHeaderVisible = !!product;
-
-  const handleAddToCartClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onAddToCart) {
-        onAddToCart();
-    }
-  }
+  const pathname = usePathname();
+  const isProductPage = pathname.startsWith('/store/');
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-4">
@@ -265,24 +306,7 @@ export function Header() {
         </div>
 
         <AnimatePresence mode="wait">
-            {isProductHeaderVisible && product ? (
-                <motion.div
-                    key="product-header"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="hidden lg:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-6 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
-                >
-                    <h1 className="text-lg font-semibold tracking-tight px-4">{product.name}</h1>
-                    <div className="flex items-center gap-4 bg-background/80 dark:bg-black/40 rounded-full p-1 pl-4">
-                        {price && <span className="font-medium">À partir de {price.toFixed(2)}€</span>}
-                        <Button size="default" className="rounded-full" onClick={handleAddToCartClick}>
-                            Ajouter au panier
-                        </Button>
-                    </div>
-                </motion.div>
-            ) : (
+            {isProductPage ? <ProductHeader /> : (
                 <motion.nav 
                     key="main-nav"
                     initial={{ opacity: 0, y: -10 }}

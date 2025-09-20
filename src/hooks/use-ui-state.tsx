@@ -29,12 +29,6 @@ const setToLocalStorage = (key: string, value: any) => {
     }
 };
 
-type ProductHeaderState = {
-    product: Product | null;
-    price: number | null;
-    onAddToCart: (() => void) | null;
-}
-
 interface UIStateContextType {
     isBannerVisible: boolean;
     setBannerVisible: (isVisible: boolean) => void;
@@ -42,8 +36,6 @@ interface UIStateContextType {
     setAnimatedBg: (isAnimated: boolean) => void;
     accentColor: string;
     setAccentColor: (color: string) => void;
-    productHeaderState: ProductHeaderState;
-    setProductHeaderState: (state: Partial<ProductHeaderState> | null) => void;
 }
 
 const UIStateContext = createContext<UIStateContextType | undefined>(undefined);
@@ -58,20 +50,7 @@ export function UIStateProvider({ children }: { children: ReactNode }) {
      const [accentColor, setAccentColor] = useState(
         () => getFromLocalStorage('accentColor', '217 91% 60%')
     );
-    const [productHeaderState, setProductHeaderStateInternal] = useState<ProductHeaderState>({
-        product: null,
-        price: null,
-        onAddToCart: null,
-    });
-
-    const setProductHeaderState = (newState: Partial<ProductHeaderState> | null) => {
-        if (newState === null) {
-             setProductHeaderStateInternal({ product: null, price: null, onAddToCart: null });
-        } else {
-            setProductHeaderStateInternal(prevState => ({...prevState, ...newState}));
-        }
-    }
-
+    
 
     useEffect(() => {
         setToLocalStorage('isBannerVisible', isBannerVisible);
@@ -87,7 +66,7 @@ export function UIStateProvider({ children }: { children: ReactNode }) {
 
 
     return (
-        <UIStateContext.Provider value={{ isBannerVisible, setBannerVisible, isAnimatedBg, setAnimatedBg, accentColor, setAccentColor, productHeaderState, setProductHeaderState }}>
+        <UIStateContext.Provider value={{ isBannerVisible, setBannerVisible, isAnimatedBg, setAnimatedBg, accentColor, setAccentColor }}>
             {children}
         </UIStateContext.Provider>
     );

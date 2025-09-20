@@ -21,7 +21,6 @@ import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
 import HomepageOriaChat from "@/components/homepage-oria";
-import { useUIState } from "@/hooks/use-ui-state";
 
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
@@ -80,7 +79,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   const [product, setProduct] = useState(initialProduct);
   const [totalPrice, setTotalPrice] = useState(product.price);
   const { toast } = useToast();
-  const { setProductHeaderState } = useUIState();
 
   const getInitialConfig = () => {
     const cpu = searchParams.get('cpu');
@@ -144,18 +142,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         description: `"${product.name}" a été ajouté à votre panier.`,
     });
   }, [product, configuration, totalPrice, addItem, toast]);
-
-    useEffect(() => {
-        setProductHeaderState({
-            product: product,
-            price: totalPrice,
-            onAddToCart: handleAddToCart,
-        });
-        // Cleanup on unmount
-        return () => {
-            setProductHeaderState(null);
-        };
-    }, [product, totalPrice, handleAddToCart, setProductHeaderState]);
   
   const performanceData = [
     { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
@@ -209,15 +195,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
   // Default Hardware Layout
   return (
     <>
-        <div className="space-y-24 md:space-y-36 mt-16 md:mt-24">
-            <section className="container mx-auto px-4 md:px-6">
-                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
-                  <Link href="/store" className="hover:text-primary transition-colors">Boutique</Link>
-                  <ChevronRight className="h-4 w-4" />
-                  <span className="font-medium text-foreground">{product.name}</span>
-                </div>
-            </section>
-            
+        <div className="space-y-24 md:space-y-36 pt-16 md:pt-24">
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
@@ -229,8 +207,8 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                         />
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
-                         <div className="glass-card">
-                            <div className="relative aspect-square">
+                         <div className="glass-card p-6">
+                             <div className="relative aspect-square">
                                 <Image 
                                     src={product.images[0]} 
                                     alt={product.name} 
@@ -239,6 +217,14 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
                                     data-ai-hint={product.hint}
                                 />
                             </div>
+                        </div>
+                        <div className="mt-6 p-6 glass-card">
+                            <h3 className="text-lg font-medium">Total de votre configuration</h3>
+                            <p className="text-3xl font-bold mt-2">{totalPrice.toFixed(2)}€</p>
+                            <Button size="lg" className="w-full mt-4" onClick={handleAddToCart}>
+                                <ShoppingCart className="mr-2 h-5 w-5" />
+                                Ajouter au panier
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -339,7 +325,7 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
             )}
 
             <section className="container mx-auto px-4 md:px-6">
-                <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
+                 <div className="relative glass-card rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden">
                     <div className="absolute -inset-20 z-0">
                         <OriaAnimation className="w-full h-full opacity-30" />
                     </div>
