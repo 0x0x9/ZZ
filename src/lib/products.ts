@@ -18,7 +18,7 @@ export type Product = {
 export const products: Product[] = [
   {
     id: 1,
-    name: "(X)-fi",
+    name: "(X)-φ (fi)",
     description: "Le summum de la puissance créative. Pour celles et ceux qui repoussent les limites de ce qu’une machine peut faire… et de ce qu’un esprit peut créer. Ce n'est pas qu'un ordinateur. C’est un studio, une galerie, une scène, un lab.",
     price: 4499.00,
     images: [
@@ -55,7 +55,7 @@ export const products: Product[] = [
   },
   {
     id: 10,
-    name: "(X)-alpha",
+    name: "(X)-α (alpha)",
     tagline: "Un petit format pour les grands projets.",
     description: "α (alpha), c’est la réponse à celles et ceux qui veulent tout : performance, design et la  mobilité d’un studio transportable.",
     price: 2499.00,
@@ -88,7 +88,7 @@ export const products: Product[] = [
   },
    {
     id: 8,
-    name: "(X)-pi",
+    name: "(X)-π (pi)",
     tagline: "La puissance d'une station de travail, l'élégance en plus.",
     description: "La puissance d'une station de travail dans un format portable et élégant, pour créer n'importe où.",
     price: 2899.00,
@@ -109,7 +109,7 @@ export const products: Product[] = [
   },
   {
     id: 9,
-    name: "(X)-oméga",
+    name: "(X)-Ω (oméga)",
     tagline: "Le choix logique pour créer sans se ruiner.",
     description: "Le choix logique des créatifs qui veulent créer vite, bien, et sans se ruiner. Un prix contenu, une vision ambitieuse, des performances solides.",
     price: 1999.00,

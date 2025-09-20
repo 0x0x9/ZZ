@@ -45,19 +45,19 @@ const whoIsItFor = [
 const productRange = [
     {
         greek: "Ω",
-        name: "(X)-oméga",
+        name: "(X)-Ω (oméga)",
         price: "1 999 €",
         features: ["(X)OS complet", "Dual-OS Windows/macOS", "32 Go RAM", "1 To SSD", "(X)Cloud inclus"]
     },
      {
         greek: "α",
-        name: "(X)-alpha",
+        name: "(X)-α (alpha)",
         price: "2 999 €",
         features: ["(X)OS Pro", "Triple-OS + Linux", "64 Go RAM", "2 To SSD", "(X)AI intégré"]
     },
     {
         greek: "φ",
-        name: "(X)-fi",
+        name: "(X)-φ (fi)",
         price: "4 499 €",
         features: ["(X)OS Studio", "Multi-GPU dédié", "128 Go RAM", "4 To SSD", "Support prioritaire"]
     },

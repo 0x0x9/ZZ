@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useRef, useState, useEffect } from "react";
@@ -48,7 +47,7 @@ function AnimatedSection({ children, className }: { children: React.ReactNode, c
 };
 
 const performanceData = [
-    { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
+    { name: '(X)-φ (fi)', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
     { name: 'Mac Pro (équivalent)', 'Rendu 3D': 75, 'Compilation de code': 80, 'Simulation IA': 70 },
     { name: 'PC Haut de Gamme', 'Rendu 3D': 85, 'Compilation de code': 88, 'Simulation IA': 78 },
 ];
@@ -105,7 +104,7 @@ function HeroScrollAnimation() {
                      <div className="pt-4 flex flex-wrap justify-center gap-4">
                         <Button size="lg" asChild className="rounded-full text-lg">
                             <Link href="/store/1">
-                                Découvrir la (X)-fi <ArrowRight className="ml-2 h-5 w-5" />
+                                Découvrir la (X)-φ (fi) <ArrowRight className="ml-2 h-5 w-5" />
                             </Link>
                         </Button>
                     </div>

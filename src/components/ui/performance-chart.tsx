@@ -38,7 +38,7 @@ export default function PerformanceChart({ data }: PerformanceChartProps) {
                     <BarChart3 className="h-6 w-6 text-primary" />
                     Comparatif de Performance
                 </CardTitle>
-                <CardDescription>Indice de performance (plus c'est élevé, mieux c'est). Base 100 = Mac Pro (M4 Ultra).</CardDescription>
+                <CardDescription>Indice de performance (plus c'est élevé, mieux c'est). Base 100 = Mac Pro.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="space-y-8">
