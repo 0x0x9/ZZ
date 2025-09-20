@@ -263,7 +263,7 @@ const ecosystemLinks = [
     },
 ];
 
-const hardwareProducts = products.filter(p => p.category === 'Matériel' && ['(X)-φ (fi)', '(X)-alpha', '(X)-book'].includes(p.name));
+const hardwareProducts = products.filter(p => p.category === 'Matériel' && ['(X)-fi', '(X)-alpha', '(X)-pi'].includes(p.name));
 
 
 const HomePageClient = () => {

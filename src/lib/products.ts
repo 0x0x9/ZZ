@@ -88,7 +88,7 @@ export const products: Product[] = [
   },
    {
     id: 8,
-    name: "(X)-book",
+    name: "(X)-pi",
     tagline: "La puissance d'une station de travail, l'élégance en plus.",
     description: "La puissance d'une station de travail dans un format portable et élégant, pour créer n'importe où.",
     price: 2899.00,

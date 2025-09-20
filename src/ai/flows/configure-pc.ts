@@ -67,16 +67,16 @@ const configurePcFlow = ai.defineFlow(
     outputSchema: ConfigurePcOutputSchema,
   },
   async (input) => {
-    if (input.product.toLowerCase().includes('book')) {
+    if (input.product.toLowerCase().includes('pi')) {
         return {
-            modelName: '(X)-book',
+            modelName: '(X)-pi',
             configuration: {
                 cpu: 'Puce (X)OS Fusion A1',
                 gpu: 'GPU intégré 32 cœurs',
                 ram: '32 Go de mémoire unifiée',
                 storage: '1 To SSD',
             },
-            justification: "Le (X)-book est une machine portable avec une configuration unifiée et optimisée. Pour le moment, il n'est pas personnalisable. Cette configuration est parfaitement équilibrée pour la création en mobilité."
+            justification: "Le (X)-pi est une machine portable avec une configuration unifiée et optimisée. Pour le moment, il n'est pas personnalisable. Cette configuration est parfaitement équilibrée pour la création en mobilité."
         }
     }
 
