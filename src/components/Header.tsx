@@ -58,6 +58,7 @@ import {
   ShoppingBag,
   Info,
   Cloud,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import React, { useState, useEffect, useCallback } from "react";
