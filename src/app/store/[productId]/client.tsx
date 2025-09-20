@@ -201,12 +201,19 @@ export default function ProductClient({ product }: { product: Product }) {
             <section id="configurator" className="container mx-auto px-4 md:px-6">
                  <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
                     <div className="md:col-span-1">
-                        <PCConfigurator 
-                            key={product.id}
-                            product={product} 
-                            onConfigChange={handleConfigChange}
-                            initialConfig={configuration}
-                        />
+                        {product.configurable ? (
+                            <PCConfigurator 
+                                key={product.id}
+                                product={product} 
+                                onConfigChange={handleConfigChange}
+                                initialConfig={configuration}
+                            />
+                        ) : (
+                            <div className="text-center p-8 glass-card">
+                                <h3 className="text-xl font-semibold">Produit non configurable</h3>
+                                <p className="text-muted-foreground mt-2">Cette version du {product.name} est livrée avec une configuration standard optimisée.</p>
+                            </div>
+                        )}
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
                          <div className="glass-card p-6">
