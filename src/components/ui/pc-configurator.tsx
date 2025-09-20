@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 type Option = {
     name: string;
+    detail?: string;
     priceModifier: number;
 };
 
@@ -31,7 +32,7 @@ export const optionsMap: Record<string, Record<ComponentType, Option[]>> = {
     ],
     storage: [
         { name: '2TB SSD + 8TB HDD', priceModifier: 0 },
-        { name: '4TB NVMe SSD', priceModifier: 200 },
+        { name: '20TB Stockage Ultra', detail: '4TB SSD + 16TB HDD', priceModifier: 450 },
     ],
   },
   'x-omega': {
@@ -90,7 +91,7 @@ export type Configuration = {
 };
 
 export const getDefaultConfig = (product: Product): Configuration | null => {
-    const productKey = product.name.split(' ')[0].toLowerCase().replace(/\(x\)\-/, 'x-').replace('oméga', 'omega').replace('φ','fi').replace('α','alpha');
+    const productKey = product.name.split(' ')[0].toLowerCase().replace(/\(x\)-/, 'x-').replace('oméga', 'omega').replace('φ','fi').replace('α','alpha');
     const options = optionsMap[productKey];
     if (!options) return null;
     
@@ -147,7 +148,8 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
                                     <CheckCircle className="h-5 w-5 text-primary absolute top-2 right-2" />
                                 )}
                                 <p className="font-medium text-sm">{option.name}</p>
-                                <p className="text-xs text-muted-foreground">
+                                {option.detail && <p className="text-xs text-muted-foreground">{option.detail}</p>}
+                                <p className="text-xs text-muted-foreground mt-1">
                                     {option.priceModifier > 0 ? `+${option.priceModifier.toFixed(2)}€` : option.priceModifier < 0 ? `${option.priceModifier.toFixed(2)}€` : 'Inclus'}
                                 </p>
                             </button>
@@ -160,7 +162,7 @@ const ConfiguratorSection = ({ type, title, icon: Icon, options, selected, onSel
 };
 
 export function PCConfigurator({ product, onConfigChange, initialConfig }: PCConfiguratorProps) {
-    const productKey = product.name.split('(')[1].split(')')[0].replace('φ', 'fi').replace('α', 'alpha').replace('Ω', 'omega');
+    const productKey = product.name.split('(')[1].split(')')[0].toLowerCase().replace('φ', 'fi').replace('α', 'alpha').replace('ω', 'omega');
     const options = optionsMap[productKey];
     
     if (!options) {
