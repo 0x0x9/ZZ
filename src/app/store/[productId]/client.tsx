@@ -21,8 +21,6 @@ import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
 import HomepageOriaChat from "@/components/homepage-oria";
-import { useUIState } from "@/hooks/use-ui-state";
-
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
     const ref = React.useRef(null);
@@ -74,13 +72,11 @@ const SpecsSection = ({ specs }: { specs: Record<string, string> }) => {
     );
 };
 
-export default function ProductClient({ product: initialProduct }: { product: Product }) {
+export default function ProductClient({ product }: { product: Product }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [product, setProduct] = useState(initialProduct);
   const [totalPrice, setTotalPrice] = useState(product.price);
   const { toast } = useToast();
-  const { setProductHeaderState } = useUIState();
 
   const getInitialConfig = useCallback(() => {
     const cpu = searchParams.get('cpu');
@@ -140,19 +136,6 @@ export default function ProductClient({ product: initialProduct }: { product: Pr
         description: `"${product.name}" a été ajouté à votre panier.`,
     });
   }, [product, configuration, totalPrice, addItem, toast]);
-  
-   useEffect(() => {
-    setProductHeaderState({
-      isVisible: true,
-      product: product,
-      price: totalPrice,
-      onAddToCart: handleAddToCart
-    });
-
-    return () => {
-      setProductHeaderState({ isVisible: false, product: null, price: 0, onAddToCart: () => {} });
-    };
-  }, [product, totalPrice, handleAddToCart, setProductHeaderState]);
   
   const performanceData = [
     { name: '(X)-fi', 'Rendu 3D': 95, 'Compilation de code': 98, 'Simulation IA': 92 },
