@@ -79,10 +79,10 @@ export default function ProductClient({ product }: { product: Product }) {
   const { toast } = useToast();
   const [activeImage, setActiveImage] = useState(product.images[0]);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [selectedImageForModal, setSelectedImageForModal] = useState('');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const handleOpenImageModal = (image: string) => {
-    setSelectedImageForModal(image);
+  const handleOpenImageModal = (index: number) => {
+    setSelectedImageIndex(index);
     setIsImageModalOpen(true);
   };
 
@@ -199,14 +199,16 @@ export default function ProductClient({ product }: { product: Product }) {
   return (
     <>
         <div className="space-y-24 md:space-y-36 pt-24 md:pt-32">
-            <section className="container mx-auto px-4 md:px-6 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
-                    <Link href="/store" className="hover:text-foreground">Boutique</Link>
-                    <ChevronRight className="h-4 w-4" />
-                    <Link href="/hardware" className="hover:text-foreground">{product.category}</Link>
+            <section className="container mx-auto px-4 md:px-6">
+                <div className="mb-8">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Link href="/store" className="hover:text-primary transition-colors">Boutique</Link>
+                      <ChevronRight className="h-4 w-4" />
+                      <Link href="/hardware" className="hover:text-primary transition-colors">{product.category}</Link>
+                  </div>
                 </div>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight">{product.name}</h1>
-              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">{product.tagline || product.description}</p>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{product.tagline || product.description}</p>
             </section>
             
             <section id="configurator" className="container mx-auto px-4 md:px-6">
@@ -228,38 +230,51 @@ export default function ProductClient({ product }: { product: Product }) {
                     </div>
                     <div className="md:col-span-1 md:sticky top-28">
                          <div className="glass-card p-4">
-                            <div className="relative aspect-square mb-2 overflow-hidden rounded-lg cursor-pointer" onClick={() => handleOpenImageModal(activeImage)}>
-                                <Image
-                                    src={activeImage}
-                                    alt={product.name}
-                                    fill
-                                    className="object-contain"
-                                    data-ai-hint={product.hint}
-                                    priority
-                                />
-                                <div className="absolute inset-0 bg-black/10 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <ZoomIn className="w-12 h-12 text-white" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-4 gap-2">
-                                {product.images.slice(0, 4).map((img, index) => (
-                                    <button key={index} onMouseEnter={() => setActiveImage(img)} onClick={() => setActiveImage(img)} className={cn("relative aspect-square rounded-md overflow-hidden border-2 transition-colors", activeImage === img ? 'border-primary' : 'border-transparent hover:border-primary/50')}>
-                                        <Image src={img} alt={`${product.name} thumbnail ${index + 1}`} fill className="object-contain p-1" />
-                                    </button>
-                                ))}
-                            </div>
+                            <Carousel opts={{ loop: true }} className="w-full">
+                                <CarouselContent>
+                                    {product.images.map((img, index) => (
+                                        <CarouselItem key={index}>
+                                            <div className="relative aspect-square mb-2 overflow-hidden rounded-lg cursor-pointer" onClick={() => handleOpenImageModal(index)}>
+                                                <Image
+                                                    src={img}
+                                                    alt={product.name}
+                                                    fill
+                                                    className="object-contain"
+                                                    data-ai-hint={product.hint}
+                                                    priority={index === 0}
+                                                />
+                                                <div className="absolute inset-0 bg-black/10 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <ZoomIn className="w-12 h-12 text-white" />
+                                                </div>
+                                            </div>
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                <CarouselPrevious className="left-4" />
+                                <CarouselNext className="right-4" />
+                            </Carousel>
                         </div>
 
                         <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
                             <DialogContent className="max-w-4xl w-full p-2 glass-card">
-                                <div className="relative aspect-video">
-                                     <Image 
-                                        src={selectedImageForModal} 
-                                        alt="Aperçu du produit" 
-                                        fill 
-                                        className="object-contain"
-                                    />
-                                </div>
+                                <Carousel opts={{ loop: true, startIndex: selectedImageIndex }}>
+                                    <CarouselContent>
+                                        {product.images.map((img, index) => (
+                                            <CarouselItem key={index}>
+                                                 <div className="relative aspect-video">
+                                                    <Image 
+                                                        src={img} 
+                                                        alt="Aperçu du produit" 
+                                                        fill 
+                                                        className="object-contain"
+                                                    />
+                                                </div>
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="left-2" />
+                                    <CarouselNext className="right-2" />
+                                </Carousel>
                                  <button onClick={() => setIsImageModalOpen(false)} className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-1"><X className="w-5 h-5"/></button>
                             </DialogContent>
                         </Dialog>
