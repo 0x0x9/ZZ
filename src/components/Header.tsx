@@ -238,50 +238,6 @@ const DropdownMenuLinkItem = ({ href, label, description, icon: Icon }: { href: 
     </DropdownMenuPrimitive.Item>
 );
 
-const ProductHeader = ({ product }: { product: Product }) => {
-    const { addItem } = useCart();
-    const { toast } = useToast();
-
-    const handleAddToCart = useCallback(() => {
-        let itemToAdd;
-        if (product.configurable) {
-            itemToAdd = {
-                ...product,
-                configuration: getDefaultConfig(product),
-                image: product.images[0],
-            };
-        } else {
-            itemToAdd = { ...product, image: product.images[0] };
-        }
-        
-        addItem(itemToAdd);
-        toast({
-            title: "Ajouté au panier !",
-            description: `"${product.name}" (configuration de base) est maintenant dans votre panier.`,
-        });
-    }, [product, addItem, toast]);
-
-    if (!product) return null;
-
-    return (
-        <motion.div
-            key="product-header"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="hidden lg:flex items-center gap-4 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
-        >
-             <div className="flex items-center gap-2 pl-3">
-                 <span className="text-sm font-medium">À partir de {product.price.toFixed(2)}€</span>
-            </div>
-             <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
-                Acheter
-            </Button>
-        </motion.div>
-    );
-};
-
 const MainNav = () => (
      <motion.nav 
         key="main-nav"
@@ -354,7 +310,7 @@ const ProductBreadcrumb = ({ product }: { product: Product }) => (
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="flex items-center gap-2 text-sm text-muted-foreground"
+        className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground"
     >
         <Link href="/store" className="hover:text-foreground">Boutique</Link>
         <ChevronRight className="h-4 w-4" />
@@ -374,6 +330,29 @@ export function Header() {
   const isProductPage = pathname.startsWith('/store/');
   const productId = isProductPage ? pathname.split('/store/')[1] : null;
   const product = productId ? products.find(p => p.id.toString() === productId) : undefined;
+  
+  const { addItem } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = useCallback(() => {
+    if (!product) return;
+    let itemToAdd;
+    if (product.configurable) {
+        itemToAdd = {
+            ...product,
+            configuration: getDefaultConfig(product),
+            image: product.images[0],
+        };
+    } else {
+        itemToAdd = { ...product, image: product.images[0] };
+    }
+    
+    addItem(itemToAdd);
+    toast({
+        title: "Ajouté au panier !",
+        description: `"${product.name}" a été ajouté à votre panier.`,
+    });
+  }, [product, addItem, toast]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-4">
@@ -396,7 +375,27 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2 justify-self-end">
-            {isProductPage && product ? <ProductHeader product={product} /> : (isClient && (
+            <AnimatePresence mode="wait">
+                {isProductPage && product && (
+                    <motion.div
+                        key="product-header"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                        className="hidden lg:flex items-center gap-4 bg-background/50 dark:bg-black/20 border border-border rounded-full p-1"
+                    >
+                        <div className="flex items-center gap-2 pl-3">
+                            <span className="text-sm font-medium">À partir de {product.price.toFixed(2)}€</span>
+                        </div>
+                        <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
+                           Acheter
+                        </Button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            
+            {isClient && (
                 <div className="hidden lg:flex items-center gap-2">
                     <ThemeToggle />
                     <CartSheet />
@@ -434,7 +433,7 @@ export function Header() {
                         </Button>
                     )}
                 </div>
-            ))}
+            )}
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <Button
