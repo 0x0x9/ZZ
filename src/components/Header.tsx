@@ -318,41 +318,16 @@ export function Header() {
   const { user, handleSignOut } = useAuth();
   const isClient = useIsClient();
   const pathname = usePathname();
-  const { toast } = useToast();
-  const { addItem } = useCart();
   const { performTransition } = usePageTransition();
-  const { productHeaderState } = useUIState();
 
   const isProductPage = pathname.startsWith('/store/');
-  const product = isProductPage ? productHeaderState.product : null;
-  const productPrice = isProductPage ? productHeaderState.price : 0;
+  const productId = isProductPage ? pathname.split('/store/')[1] : null;
+  const product = productId ? products.find(p => p.id.toString() === productId) : null;
   
-  const handleAddToCart = useCallback(() => {
-    if (!product) return;
-    let itemToAdd;
-    if (product.configurable) {
-        // When adding from header, we assume default config
-        itemToAdd = {
-            ...product,
-            price: product.price, // Use base price
-            configuration: getDefaultConfig(product),
-            image: product.images[0],
-        };
-    } else {
-        itemToAdd = { ...product, image: product.images[0] };
-    }
-    
-    addItem(itemToAdd);
-    toast({
-        title: "Ajouté au panier !",
-        description: `"${product.name}" a été ajouté à votre panier.`,
-    });
-  }, [product, addItem, toast]);
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-4">
       <div className="container mx-auto px-4 md:px-6 h-16 grid grid-cols-3 items-center rounded-full glass-card">
-        <div className="flex items-center gap-4 justify-self-start">
+        <div className="flex items-center gap-2 justify-self-start">
           <Link
             href="/"
             className="flex items-center gap-3 font-bold text-xl text-foreground"
@@ -360,10 +335,12 @@ export function Header() {
             <HeaderLogo />
             <span className="hidden sm:inline">(X)yzz.</span>
           </Link>
-          {productHeaderState.isVisible && product && (
-             <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground">
+          {isProductPage && product && (
+            <div className="hidden lg:flex items-center gap-1 text-sm text-muted-foreground">
                 <ChevronRight className="h-4 w-4" />
-                <button onClick={() => performTransition('/store')} className="hover:text-foreground">Boutique</button>
+                <Link href="/store" className="hover:text-foreground">Boutique</Link>
+                <ChevronRight className="h-4 w-4" />
+                <Link href="/hardware" className="hover:text-foreground">{product.category}</Link>
                 <ChevronRight className="h-4 w-4" />
                 <span className="font-semibold text-foreground">{product.name}</span>
             </div>
@@ -372,31 +349,11 @@ export function Header() {
 
         <div className="justify-self-center">
             <AnimatePresence mode="wait">
-                {productHeaderState.isVisible && product ? null : <MainNav />}
+                <MainNav />
             </AnimatePresence>
         </div>
 
         <div className="flex items-center gap-2 justify-self-end">
-             <AnimatePresence mode="wait">
-                {productHeaderState.isVisible && product && (
-                    <motion.div
-                        key="product-header-cta"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
-                        className="hidden lg:flex items-center gap-2 glass-card border-none bg-background/50 dark:bg-black/20 p-1 rounded-full"
-                    >
-                         <div className="pl-3 pr-2 text-right">
-                            <span className="text-sm font-semibold">{productPrice.toFixed(2)}€</span>
-                        </div>
-                         <Button size="sm" className="rounded-full" onClick={handleAddToCart}>
-                           Acheter
-                        </Button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-            
             {isClient && (
                 <div className="hidden lg:flex items-center gap-2">
                     <ThemeToggle />

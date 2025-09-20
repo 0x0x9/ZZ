@@ -20,7 +20,6 @@ import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import OriaAnimation from "@/components/ui/oria-animation";
 import HomepageOriaChat from "@/components/homepage-oria";
-import { useUIState } from "@/hooks/use-ui-state";
 
 function AnimatedSection({ children, className }: { children: React.ReactNode, className?: string }) {
     const ref = React.useRef(null);
@@ -77,7 +76,6 @@ export default function ProductClient({ product }: { product: Product }) {
   const searchParams = useSearchParams();
   const [totalPrice, setTotalPrice] = useState(product.price);
   const { toast } = useToast();
-  const { setProductHeaderState } = useUIState();
 
   const getInitialConfig = useCallback(() => {
     const cpu = searchParams.get('cpu');
@@ -94,21 +92,6 @@ export default function ProductClient({ product }: { product: Product }) {
   const [configuration, setConfiguration] = useState<Configuration | null>(getInitialConfig());
   const [pcConfiguratorKey, setPcConfiguratorKey] = useState(Date.now());
   const { addItem } = useCart();
-  
-  // Set header state on mount and clean up on unmount
-  useEffect(() => {
-    setProductHeaderState({ isVisible: true, product, price: totalPrice });
-    return () => {
-      setProductHeaderState({ isVisible: false, product: null, price: 0 });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once
-
-  // Update header price when totalPrice changes
-  useEffect(() => {
-    setProductHeaderState({ price: totalPrice });
-  }, [totalPrice, setProductHeaderState]);
-
 
   const handleConfigChange = (newConfig: Configuration, newPrice: number) => {
     setConfiguration(newConfig);
