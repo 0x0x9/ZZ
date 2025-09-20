@@ -47,6 +47,7 @@ const ImageGallery = ({ product }: { product: Product }) => {
 
     const openModal = (index: number) => {
         setSelectedImageIndex(index);
+        api?.scrollTo(index, true);
     }
 
     useEffect(() => {
@@ -57,7 +58,7 @@ const ImageGallery = ({ product }: { product: Product }) => {
 
     return (
         <>
-            <Carousel className="w-full">
+            <Carousel setApi={setApi}>
                 <CarouselContent>
                     {product.images.map((img, index) => (
                         <CarouselItem key={index} onClick={() => openModal(index)} className="cursor-pointer">
@@ -174,26 +175,25 @@ export default function ProductClient({ product }: { product: Product }) {
   };
   
     const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
+        const params = new URLSearchParams({
+            cpu: newConfig.cpu,
+            gpu: newConfig.gpu,
+            ram: newConfig.ram,
+            storage: newConfig.storage,
+        });
+
         if (product.id === modelId) {
-             setConfiguration(newConfig);
+             setConfig(newConfig);
              toast({ title: `Configuration appliquée`, description: `La configuration pour le ${modelName} a été mise à jour.` });
              const element = document.getElementById('configurator');
              if (element) {
                  element.scrollIntoView({ behavior: 'smooth' });
              }
         } else {
-            const params = new URLSearchParams({
-                cpu: newConfig.cpu,
-                gpu: newConfig.gpu,
-                ram: newConfig.ram,
-                storage: newConfig.storage,
-            });
-            
             toast({
                 title: `Redirection vers ${modelName}`,
                 description: "Nous vous redirigeons vers la page du produit recommandé avec votre configuration.",
             });
-
             router.push(`/store/${modelId}?${params.toString()}`);
         }
     };
@@ -313,6 +313,19 @@ const benefits = [
                         <div className="mt-6 p-6 glass-card">
                             <h3 className="text-lg font-medium">Total de votre configuration</h3>
                             <p className="text-3xl font-bold mt-2">{totalPrice.toFixed(2)}€</p>
+                            
+                            {product.name.includes('oméga') && configuration && (
+                                <div className="text-xs text-muted-foreground mt-4 space-y-1">
+                                    <p>Config de base :</p>
+                                    <ul className="list-disc pl-5">
+                                        <li>{configuration.cpu}</li>
+                                        <li>{configuration.gpu}</li>
+                                        <li>{configuration.ram}</li>
+                                        <li>{configuration.storage}</li>
+                                    </ul>
+                                </div>
+                            )}
+
                             <div className="mt-4 text-xs text-muted-foreground space-y-2 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                                 <p className="flex items-center gap-2 text-green-300 font-semibold"><CheckCircle className="h-4 w-4"/> Inclus avec votre achat :</p>
                                 <ul className="list-disc pl-5">
