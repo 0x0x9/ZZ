@@ -434,28 +434,53 @@ export default function XInspireEnvironment() {
   const [isMuted, setIsMuted] = useState(true);
   const playerRef = useRef<any>(null);
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
+  const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
-  const handleFirstInteraction = useCallback(() => {
+   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
+    // Débloque l’audio si première interaction
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
-      // Explicitly try to play the video if the player is ready
-      if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
-        playerRef.current.unMute();
-        playerRef.current.playVideo();
-      }
     }
+
+    setAmbience(newAmbienceId);
+    const targetId = AMBIENCES.find(a => a.id === newAmbienceId)!.videoId;
+
+    // Player prêt → on change vraiment la vidéo
+    const p = playerRef.current;
+    try {
+      if (p?.loadPlaylist) {
+        // boucle fiable via playlist d’un seul ID
+        p.loadPlaylist({ playlist: [targetId], index: 0 });
+        if (!isMuted) p.unMute();
+        p.playVideo?.();
+      } else if (p?.loadVideoById) {
+        // fallback
+        p.loadVideoById({ videoId: targetId, startSeconds: 0, suggestedQuality: 'hd1080' });
+        if (!isMuted) p.unMute();
+        p.playVideo?.();
+      }
+    } catch {
+      // Si le player n’est pas prêt, l’effet useEffect recréera avec le bon ID
+    }
+  }, [hasInteracted, isMuted]);
+
+  const toggleMute = useCallback(() => {
+    if (!hasInteracted) {
+        setHasInteracted(true);
+    };
+    setIsMuted(m => {
+        const newMuted = !m;
+        if (playerRef.current) {
+            if (newMuted) playerRef.current.mute();
+            else playerRef.current.unMute();
+        }
+        return newMuted;
+    });
   }, [hasInteracted]);
   
-   const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
-        handleFirstInteraction();
-        if (playerRef.current && typeof playerRef.current.loadVideoById === 'function') {
-            playerRef.current.loadVideoById(AMBIENCES.find(a => a.id === newAmbienceId)!.videoId);
-        }
-        setAmbience(newAmbienceId);
-    };
 
   useEffect(() => {
     if (!mounted) return;
@@ -466,7 +491,6 @@ export default function XInspireEnvironment() {
             event.target.playVideo();
         } else {
             event.target.mute();
-            // Still try to play, but it will be muted. Browsers are more lenient with muted autoplay.
             event.target.playVideo();
         }
     };
@@ -505,23 +529,7 @@ export default function XInspireEnvironment() {
     } else {
         createPlayer(cur.videoId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cur.videoId, mounted]);
-
-  const toggleMute = () => {
-    if (!hasInteracted) {
-        handleFirstInteraction();
-        return;
-    };
-    setIsMuted(m => {
-        const newMuted = !m;
-        if (playerRef.current) {
-            if (newMuted) playerRef.current.mute();
-            else playerRef.current.unMute();
-        }
-        return newMuted;
-    });
-};
+  }, [cur.videoId, mounted, isMuted]);
 
   useEffect(() => {
     try {
@@ -555,56 +563,67 @@ export default function XInspireEnvironment() {
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
-
+      
       {/* Ambience Controller (en haut à gauche) */}
       <div className="fixed left-6 top-6 z-30">
-        <Popover>
+        <Popover open={ambPopoverOpen} onOpenChange={setAmbPopoverOpen}>
           <PopoverTrigger asChild>
-            <Glass className="px-4 py-2 cursor-pointer transition-all hover:border-white/40">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg cursor-pointer transition-all hover:border-white/40"
+              aria-haspopup="dialog"
+              aria-expanded={ambPopoverOpen}
+            >
               <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
               <div className="text-base font-semibold flex items-center gap-2">
                 <Sparkles className="h-4 w-4" /> {cur.label}
               </div>
-            </Glass>
+            </button>
           </PopoverTrigger>
 
-          <PopoverContent align="start" className="w-52 p-2 glass-card">
-            <div className="space-y-1">
+          <PopoverContent
+            align="start"
+            className="w-60 p-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl"
+            onClick={(e) => e.stopPropagation()} // ✅ évite une fermeture involontaire
+          >
+            <div className="space-y-2">
               {/* Toggle son */}
-              <Pill
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleMute();
-                }}
-                icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                className="w-full justify-start"
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+                className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm border border-white/20 bg-white/10 hover:bg-white/15"
               >
-                {isMuted ? "Son coupé" : "Son actif"}
-              </Pill>
+                {isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                {isMuted ? 'Son coupé' : 'Son actif'}
+              </button>
+
+              <div className="h-px bg-white/10 my-1" />
 
               {/* Liste des ambiances */}
-              {AMBIENCES.map((a) => (
-                <button
-                  key={a.id}
-                  onClick={(e) => {
-                    e.stopPropagation(); // 🔑 évite la fermeture avant l’action
-                    handleAmbienceChange(a.id); // 🔑 applique le changement
-                  }}
-                  className={cn(
-                    "w-full text-left rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    a.id === ambience
-                      ? "bg-white/15 border border-white/30 text-white"
-                      : "hover:bg-white/10"
-                  )}
-                >
-                  {a.label}
-                </button>
-              ))}
+              <div className="grid grid-cols-1 gap-1">
+                {AMBIENCES.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAmbienceChange(a.id);
+                      setAmbPopoverOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
+                      a.id === ambience
+                        ? "bg-white/15 border border-white/30"
+                        : "border border-transparent hover:bg-white/10"
+                    )}
+                  >
+                    <div className="font-medium">{a.label}</div>
+                    <div className="text-xs text-white/70">{a.desc}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           </PopoverContent>
         </Popover>
       </div>
-
 
       {/* Overlay d’activation */}
       <AnimatePresence>
@@ -616,7 +635,7 @@ export default function XInspireEnvironment() {
             exit={{ opacity: 0 }}
           >
              <motion.button
-                onClick={handleFirstInteraction}
+                onClick={toggleMute}
                 className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-white/40"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.2)" }}
                 animate={{
