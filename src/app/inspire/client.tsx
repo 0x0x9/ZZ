@@ -163,25 +163,25 @@ export default function XInspireEnvironment() {
       {/* Background gradient glow */}
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
-      {/* Fullscreen background YouTube video inside a glass window */}
-      <div className="absolute inset-0 -z-10 flex items-center justify-center p-0">
-        <motion.div
-          key={cur.bgVideoId}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, ease: 'easeInOut' }}
-          className="relative h-full w-full overflow-hidden"
-        >
-          <iframe
-            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2"
-            src={ytEmbedSrc(cur.bgVideoId)}
-            title="XInspire background"
-            allow="autoplay; encrypted-media; picture-in-picture"
-          />
-          {/* Light vignette + gloss */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5" />
-        </motion.div>
-      </div>
+      {/* Fullscreen background YouTube video */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+            <motion.div
+                key={cur.bgVideoId}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.5, ease: 'easeInOut' }}
+                className="w-full h-full"
+            >
+                <iframe
+                    className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
+                    src={ytEmbedSrc(cur.bgVideoId)}
+                    title="XInspire background"
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                />
+            </motion.div>
+             {/* Light vignette + glass effect overlay */}
+            <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        </div>
 
       {/* Audio player: YouTube audio-only iframe (1x1 off-screen but accessible) */}
       <div className="sr-only" aria-hidden={!audioEnabled}>
@@ -190,7 +190,7 @@ export default function XInspireEnvironment() {
             key={cur.audioVideoId + String(!muted)}
             width="1"
             height="1"
-            src={ytEmbedSrc(cur.audioVideoId, { mute: muted ? 1 : 0 })}
+            src={ytEmbedSrc(cur.audioVideoId, { autoplay: 1, mute: muted ? 1 : 0, loop: 1, controls: 0, playsinline: 1 })}
             title="XInspire audio"
             allow="autoplay; encrypted-media"
           />
