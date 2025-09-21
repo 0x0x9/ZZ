@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -129,9 +128,6 @@ export default function XInspireEnvironment() {
             events: {
                 onReady: (e: any) => {
                     e.target.playVideo();
-                    if (!isMuted && hasInteracted) {
-                        e.target.unMute();
-                    }
                 },
             },
         });
@@ -148,14 +144,19 @@ export default function XInspireEnvironment() {
             bgPlayerRef.current.destroy();
         }
     };
-  }, [cur.videoId, isMuted, hasInteracted]);
+  }, [cur.videoId]);
   
   
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
-      try { bgPlayerRef.current?.unMute(); } catch {}
+      try {
+        bgPlayerRef.current?.unMute();
+        bgPlayerRef.current?.playVideo();
+      } catch (err) {
+          console.error("Erreur activation audio:", err);
+      }
     }
   };
   
@@ -237,10 +238,8 @@ export default function XInspireEnvironment() {
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
       {/* Fullscreen background YouTube video */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div id="player-bg" className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]" />
-        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
-      </div>
+      <div id="player-bg" className="absolute inset-0 -z-10" />
+      <div className="pointer-events-none absolute inset-0 bg-black/30 backdrop-blur-sm -z-0" />
 
 
       {/* Minimal top hint */}
