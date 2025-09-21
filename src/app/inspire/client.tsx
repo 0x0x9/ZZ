@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
@@ -66,7 +66,7 @@ export default function XInspireEnvironment() {
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
   const videoSrc = useMemo(() => {
-    const muteState = isMuted || !hasInteracted ? 1 : 0;
+    const muteState = !hasInteracted || isMuted ? 1 : 0;
     return `https://www.youtube.com/embed/${cur.videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${cur.videoId}&modestbranding=1&showinfo=0&rel=0`;
   }, [cur, isMuted, hasInteracted]);
 
@@ -115,24 +115,17 @@ export default function XInspireEnvironment() {
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
       {/* Fullscreen YouTube */}
-      <AnimatePresence>
-        <motion.div
-          key={videoSrc}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
-          className="absolute inset-0 -z-10 overflow-hidden"
-        >
-          <iframe
-            src={videoSrc}
-            className="absolute top-0 left-0 w-full h-full"
-            style={{ pointerEvents: "none" }}
-            allow="autoplay; fullscreen"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
-        </motion.div>
-      </AnimatePresence>
-      
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <iframe
+          key={videoSrc} // Force re-render on src change
+          src={videoSrc}
+          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2"
+          allow="autoplay; fullscreen"
+          style={{ pointerEvents: 'none' }}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+      </div>
+
        {/* Ambience badge */}
        <div className="pointer-events-none fixed left-6 top-6 z-30 select-none">
         <Glass className="px-4 py-2">
