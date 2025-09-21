@@ -12,7 +12,7 @@ import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, S
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { oriaChatAction, deleteDocument, listDocuments, createManualProjectAction, pulseProjectAction, getSignedUrlAction, uploadDocumentAction } from '@/app/actions';
+import { oriaChatAction, createPulseProject } from '@/app/actions';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import DocManager from '@/components/doc-manager';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -32,47 +32,86 @@ import OriaXOS from '@/components/oria-xos';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { ProjectPlanSchema } from '@/ai/types';
 import { ALL_APPS_CONFIG } from '@/lib/apps-config';
-import { mockDocs } from '@/lib/mock-db';
+import { v4 as uuidv4 } from 'uuid';
 
+type Project = {
+    id: string;
+    name: string;
+    plan: ProjectPlan;
+    path: string; // Will be a virtual path now
+};
 
-type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
+const STORAGE_KEY = 'pulse-projects';
+const ACTIVITY_KEY = 'pulse-activities';
+
+type ActivityType = 'CREATED' | 'UPDATED' | 'DELETED' | 'GENERATED';
 
 const actionInfoMap: Record<ActivityType, { text: string; icon: React.ElementType; color: string }> = {
     GENERATED: { text: 'génération', icon: Sparkles, color: 'text-purple-400' },
     CREATED: { text: 'création', icon: UploadCloud, color: 'text-green-400' },
     UPDATED: { text: 'modification', icon: Pencil, color: 'text-blue-400' },
-    SHARED: { text: 'partage', icon: Share2, color: 'text-indigo-400' },
     DELETED: { text: 'suppression', icon: Trash2, color: 'text-red-400' }
 };
 
 type Activity = {
     id: string;
     type: ActivityType;
-    doc: Doc;
+    projectName: string;
     timestamp: Date;
 };
 
-type Project = {
-    id: string;
-    name: string;
-    plan: ProjectPlan;
-    path: string;
-};
+
+// --- Local Storage API for Projects ---
+const projectApi = {
+    list: (): Project[] => {
+        if (typeof window === 'undefined') return [];
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    },
+    save: (projects: Project[]) => {
+        if (typeof window === 'undefined') return;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+    },
+    create: (project: Project, type: 'CREATED' | 'GENERATED' = 'CREATED') => {
+        const projects = projectApi.list();
+        const updatedProjects = [...projects, project];
+        projectApi.save(updatedProjects);
+        activityApi.add({ type, projectName: project.name, timestamp: new Date(), id: uuidv4() });
+    },
+    update: (updatedProject: Project) => {
+        const projects = projectApi.list();
+        const updatedProjects = projects.map(p => p.id === updatedProject.id ? updatedProject : p);
+        projectApi.save(updatedProjects);
+        activityApi.add({ type: 'UPDATED', projectName: updatedProject.name, timestamp: new Date(), id: uuidv4() });
+    },
+    delete: (projectId: string) => {
+        const projects = projectApi.list();
+        const projectToDelete = projects.find(p => p.id === projectId);
+        if (projectToDelete) {
+             const updatedProjects = projects.filter(p => p.id !== projectId);
+            projectApi.save(updatedProjects);
+            activityApi.add({ type: 'DELETED', projectName: projectToDelete.name, timestamp: new Date(), id: uuidv4() });
+        }
+    }
+}
+
+const activityApi = {
+    list: (): Activity[] => {
+        if (typeof window === 'undefined') return [];
+        const data = localStorage.getItem(ACTIVITY_KEY);
+        const activities = data ? JSON.parse(data) : [];
+        return activities.map((a: any) => ({ ...a, timestamp: new Date(a.timestamp) }));
+    },
+    add: (activity: Activity) => {
+        if (typeof window === 'undefined') return;
+        const activities = activityApi.list();
+        const updatedActivities = [activity, ...activities].slice(0, 10); // Keep last 10 activities
+        localStorage.setItem(ACTIVITY_KEY, JSON.stringify(updatedActivities));
+    }
+}
 
 
-const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }) => {
-    const activities = useMemo((): Activity[] => {
-        if (!docs) return [];
-        return docs
-            .filter(doc => doc.updatedAt && !doc.mimeType.includes('directory'))
-            .map(doc => {
-                const isCreation = doc.createdAt && doc.updatedAt ? (new Date(doc.updatedAt).getTime() - new Date(doc.createdAt).getTime() < 2000) : false;
-                const type: ActivityType = isCreation ? 'CREATED' : 'UPDATED';
-                return { id: doc.id, type, doc, timestamp: new Date(doc.updatedAt!) };
-            })
-            .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-            .slice(0, 5);
-    }, [docs]);
+const RecentActivityFeed = ({ activities, loading }: { activities: Activity[], loading: boolean }) => {
 
     if (loading) {
         return (
@@ -99,7 +138,7 @@ const RecentActivityFeed = ({ docs, loading }: { docs: Doc[], loading: boolean }
                             <Icon className={cn("w-4 h-4 mt-0.5 shrink-0", action.color)} />
                             <div>
                                 <p className="text-foreground/90 leading-tight">
-                                    <span className="font-semibold">{activity.doc.name.split('/').pop()}</span>
+                                    <span className="font-semibold">{activity.projectName}</span>
                                 </p>
                                 <p className="text-xs text-muted-foreground">
                                     {action.text} • {formatDistanceToNow(activity.timestamp, { addSuffix: true, locale: fr })}
@@ -129,16 +168,11 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
 
     const handleDeleteProject = async () => {
         if (!projectToDelete || !projectToDelete.id) return;
-        
-        try {
-            await deleteDocument({ docId: projectToDelete.id });
-            toast({ title: "Projet supprimé", description: `"${projectToDelete.name}" a été supprimé.` });
-            const deletedId = projectToDelete.id;
-            setProjectToDelete(null);
-            onProjectDeleted(deletedId);
-        } catch (error) {
-            toast({ variant: 'destructive', title: "Erreur", description: "La suppression du projet a échoué."})
-        }
+        projectApi.delete(projectToDelete.id);
+        toast({ title: "Projet supprimé", description: `"${projectToDelete.name}" a été supprimé.` });
+        const deletedId = projectToDelete.id;
+        setProjectToDelete(null);
+        onProjectDeleted(deletedId);
     };
 
     return (
@@ -191,7 +225,7 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
                     </div>
                 ))
             ) : (
-                <p className="text-center text-xs text-muted-foreground p-4">Aucun projet Maestro trouvé.</p>
+                <p className="text-center text-xs text-muted-foreground p-4">Aucun projet Pulse trouvé.</p>
             )}
 
             <AlertDialog open={!!projectToDelete} onOpenChange={(open) => !open && setProjectToDelete(null)}>
@@ -214,22 +248,40 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
     );
 }
 
-function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: () => void, onCancel: () => void }) {
+function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (project: Project) => void, onCancel: () => void }) {
     const { toast } = useToast();
     const [pending, setPending] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setPending(true);
         const formData = new FormData(e.currentTarget);
-        const response = await createManualProjectAction({ success: false }, formData);
-
-        if (response.success && response.project) {
-            onProjectCreated();
-        } else if (response.error) {
-            toast({ variant: 'destructive', title: "Erreur", description: response.error });
+        const title = formData.get('title') as string;
+        const creativeBrief = formData.get('creativeBrief') as string;
+        
+        if (!title || !creativeBrief) {
+            toast({ variant: 'destructive', title: "Erreur", description: "Le titre et le brief sont requis." });
+            setPending(false);
+            return;
         }
+
+        const newProject: Project = {
+            id: uuidv4(),
+            name: title,
+            path: `pulse-projects/${title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-')}/`,
+            plan: {
+                id: uuidv4(),
+                title: title,
+                creativeBrief: creativeBrief,
+                tasks: [],
+                imagePrompts: [],
+                events: []
+            }
+        };
+
+        projectApi.create(newProject, 'CREATED');
+        onProjectCreated(newProject);
         setPending(false);
     };
     
@@ -254,20 +306,34 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
     );
 }
 
-
-function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: () => void, onCancel: () => void}) {
+function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (project: Project) => void, onCancel: () => void}) {
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
-    const [state, formAction] = useFormState(pulseProjectAction, { success: false, result: null, error: null, prompt: '' });
-    const { pending } = useFormStatus();
-    
-    useEffect(() => {
-        if (state.success) {
-            onProjectCreated();
-        } else if (state.error) {
-            toast({variant: 'destructive', title: 'Erreur (X)flux', description: state.error});
+    const [isPending, setIsPending] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
+
+    const handleAiSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsPending(true);
+        const formData = new FormData(e.currentTarget);
+        const prompt = formData.get('prompt') as string;
+
+        try {
+            const plan = await createPulseProject({ prompt });
+            const newProject: Project = {
+                id: uuidv4(),
+                name: plan.title || 'Nouveau Projet IA',
+                path: `pulse-projects/${(plan.title || 'new-ai-project').replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-')}/`,
+                plan: plan,
+            };
+            projectApi.create(newProject, 'GENERATED');
+            onProjectCreated(newProject);
+        } catch (error: any) {
+             toast({variant: 'destructive', title: 'Erreur (X)flux', description: error.message});
+        } finally {
+            setIsPending(false);
         }
-    }, [state, onProjectCreated, toast]);
+    };
     
     return (
         <div className="h-full flex flex-col items-center justify-center text-center p-8">
@@ -285,13 +351,13 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: () =
                             <Sparkles className="mx-auto h-20 w-20 text-muted-foreground/30" />
                             <h2 className="mt-6 text-xl font-semibold text-foreground">Créer un nouveau projet avec l'IA</h2>
                             <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez Pulse générer un plan d'action.</p>
-                            <form action={formAction} className="w-full max-w-lg mt-8 space-y-4">
-                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={pending} />
-                                <Button type="submit" size="lg" disabled={pending} className="w-full">
-                                    {pending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
-                                    {pending ? 'Génération en cours...' : 'Lancer Pulse'}
+                            <form ref={formRef} onSubmit={handleAiSubmit} className="w-full max-w-lg mt-8 space-y-4">
+                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={isPending} />
+                                <Button type="submit" size="lg" disabled={isPending} className="w-full">
+                                    {isPending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
+                                    {isPending ? 'Génération en cours...' : 'Lancer Pulse'}
                                 </Button>
-                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={pending}>Ou créer manuellement</Button>
+                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={isPending}>Ou créer manuellement</Button>
                             </form>
                         </>
                     ) : (
@@ -304,7 +370,7 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: () =
                     )}
                 </motion.div>
             </AnimatePresence>
-            <Button variant="ghost" onClick={onCancel} disabled={pending} className="mt-8">Retour</Button>
+            <Button variant="ghost" onClick={onCancel} disabled={isPending} className="mt-8">Retour</Button>
         </div>
     )
 }
@@ -400,18 +466,13 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
 }
 
 function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProject, toggleSidebar, isSidebarVisible }: { activeProject: Project | null, onCreateNew: () => void, onProjectDeleted: (id: string) => void, onSaveProject: () => void, toggleSidebar: () => void, isSidebarVisible: boolean }) {
-    const { theme, setTheme } = useTheme();
     const { toast } = useToast();
-
-    const handleDeleteProject = async () => {
+    
+    const handleDeleteProject = () => {
         if (!activeProject || !activeProject.id) return;
-        try {
-            await deleteDocument({ docId: activeProject.id });
-            toast({ title: "Projet supprimé", description: `"${activeProject.name}" a été supprimé.` });
-            onProjectDeleted(activeProject.id);
-        } catch (error: any) {
-             toast({ variant: 'destructive', title: 'Erreur', description: 'La suppression du projet a échoué.' });
-        }
+        projectApi.delete(activeProject.id);
+        toast({ title: "Projet supprimé", description: `"${activeProject.name}" a été supprimé.` });
+        onProjectDeleted(activeProject.id);
     };
     
     return (
@@ -445,14 +506,6 @@ function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProjec
                     </MenubarItem>
                 </MenubarContent>
             </MenubarMenu>
-            <MenubarMenu>
-                <MenubarTrigger>Affichage</MenubarTrigger>
-                <MenubarContent className="glass-card">
-                    <MenubarItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                        Changer le thème
-                    </MenubarItem>
-                </MenubarContent>
-            </MenubarMenu>
         </Menubar>
     );
 }
@@ -462,74 +515,38 @@ export default function PulseClient() {
     const { user } = useAuth();
     
     const [loading, setLoading] = useState(true);
-    const [docs, setDocs] = useState<Doc[]>([]);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [activities, setActivities] = useState<Activity[]>([]);
         
     const [activeProject, setActiveProject] = useState<Project | null>(null);
     const [showSidebar, setShowSidebar] = useState(true);
     const [view, setView] = useState<'welcome' | 'newProject'>('welcome');
     const [activeTab, setActiveTab] = useState('plan');
     
-    const fetchDocsAndProjects = useCallback(async () => {
+    const fetchAllData = useCallback(() => {
         setLoading(true);
-        try {
-            // Using mock data for now to ensure functionality
-            const allDocs = mockDocs;
-            setDocs(allDocs || []);
-
-            const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
-            
-            const parsedProjects: Project[] = [];
-            for (const doc of maestroDocs) {
-                try {
-                    // This is a mock implementation. A real one would fetch the file content.
-                    const mockPlan: ProjectPlan = {
-                        id: doc.id,
-                        title: doc.name.replace('.json', '').replace(/-/g, ' '),
-                        creativeBrief: 'Ceci est un brief créatif simulé pour le projet ' + doc.name,
-                        tasks: [],
-                        imagePrompts: []
-                    };
-                    const validation = ProjectPlanSchema.safeParse(mockPlan);
-
-                    if (validation.success) {
-                       parsedProjects.push({
-                           id: doc.id,
-                           name: validation.data.title || doc.name.replace('.json', '').replace(/-/g, ' '),
-                           plan: validation.data,
-                           path: doc.path,
-                       });
-                    }
-                } catch (e) {
-                    console.error("Failed to parse project file:", doc.path, e);
-                }
-            }
-
-            setProjects(parsedProjects);
-
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les projets.'});
-        } finally {
-            setLoading(false);
-        }
-    }, [toast]);
+        setProjects(projectApi.list());
+        setActivities(activityApi.list());
+        setLoading(false);
+    }, []);
     
     useEffect(() => {
-        fetchDocsAndProjects();
-    }, [fetchDocsAndProjects]);
+        fetchAllData();
+    }, [fetchAllData]);
 
     const onProjectDeleted = (deletedId: string) => {
         if (activeProject && activeProject.id === deletedId) {
             setActiveProject(null);
             setView('welcome');
         }
-        fetchDocsAndProjects();
+        fetchAllData();
     };
 
-    const handleProjectCreated = () => {
-        fetchDocsAndProjects();
+    const handleProjectCreated = (newProject: Project) => {
+        fetchAllData();
+        setActiveProject(newProject);
         setView('welcome');
-        toast({ title: "Projet créé !", description: `Le projet a bien été initialisé dans (X)cloud.`})
+        toast({ title: "Projet créé !", description: `Le projet "${newProject.name}" a bien été initialisé.`})
     };
     
     const updateActiveProject = (updatedProject: Project) => {
@@ -537,16 +554,11 @@ export default function PulseClient() {
         setProjects(prevProjects => prevProjects.map(p => p.id === updatedProject.id ? updatedProject : p));
     }
 
-    const handleSaveProject = async () => {
-        if (!activeProject || !activeProject.plan) return;
-        
-        try {
-            const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(activeProject.plan))))}`;
-            await uploadDocumentAction({ name: activeProject.path, content: dataUri, mimeType: 'application/json' });
-            toast({ title: 'Projet sauvegardé !', description: `Les modifications de "${activeProject.name}" ont été enregistrées.` });
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: "Erreur de sauvegarde", description: error.message });
-        }
+    const handleSaveProject = () => {
+        if (!activeProject) return;
+        projectApi.update(activeProject);
+        toast({ title: 'Projet sauvegardé !', description: `Les modifications de "${activeProject.name}" ont été enregistrées.` });
+        fetchAllData();
     }
 
     const MainContent = () => {
@@ -586,7 +598,7 @@ export default function PulseClient() {
                     </div>
                 </TabsContent>
                 <TabsContent value="files" className="flex-1 min-h-0 mt-0">
-                    <DocManager onDataChange={fetchDocsAndProjects} initialPath={`maestro-projets/${activeProject.name.replace(/\s+/g, '-')}/`} />
+                    <DocManager onDataChange={fetchAllData} initialPath={`pulse-projects/${activeProject.name.replace(/\s+/g, '-')}/`} />
                 </TabsContent>
             </Tabs>
         )
@@ -632,7 +644,7 @@ export default function PulseClient() {
                                         onCreateNew={() => {setActiveProject(null); setView('newProject');}}
                                      />
                                     <div className="my-2 h-px bg-border"/>
-                                    <RecentActivityFeed docs={docs} loading={loading} />
+                                    <RecentActivityFeed activities={activities} loading={loading} />
                                 </ScrollArea>
                             </motion.div>
                         )}
@@ -646,5 +658,3 @@ export default function PulseClient() {
         </div>
     );
 }
-
-    
