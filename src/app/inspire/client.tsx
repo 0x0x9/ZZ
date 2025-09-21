@@ -77,7 +77,7 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
   );
 }
 
-function XLightChatbot() {
+function OriaChatbot() {
     const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -133,7 +133,7 @@ function XLightChatbot() {
                             handleSend();
                         }
                     }}
-                    placeholder="Demandez une idée..." 
+                    placeholder="Discuter avec Oria..." 
                     rows={1} 
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none" 
                 />
@@ -297,7 +297,7 @@ export default function XInspireEnvironment() {
                 <Tabs defaultValue="ambience" className="w-full mt-4">
                   <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
-                    <TabsTrigger value="ideas" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
+                    <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Oria</TabsTrigger>
                     <TabsTrigger value="notes" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><NotebookPen className="mr-2 h-4 w-4"/>Notes</TabsTrigger>
                   </TabsList>
                   <TabsContent value="ambience" className="mt-4">
@@ -322,8 +322,8 @@ export default function XInspireEnvironment() {
                       ))}
                     </div>
                   </TabsContent>
-                  <TabsContent value="ideas" className="mt-4 min-h-[300px] md:h-80">
-                    <XLightChatbot />
+                  <TabsContent value="oria" className="mt-4 min-h-[300px] md:h-80">
+                    <OriaChatbot />
                   </TabsContent>
                   <TabsContent value="notes" className="mt-4">
                      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

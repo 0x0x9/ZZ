@@ -2,7 +2,7 @@
 'use server';
 
 /**
- * @fileOverview Un copilote IA conversationnel, (X)light, conçu pour l'inspiration.
+ * @fileOverview Un copilote IA conversationnel, une version d'Oria conçue pour l'inspiration.
  *
  * - generateInspiration - Une fonction qui prend un prompt et retourne une réponse inspirante.
  */
@@ -23,7 +23,7 @@ export const generateInspiration = ai.defineFlow(
   async (prompt) => {
     const llmResponse = await ai.generate({
       model: googleAI.model('gemini-1.5-pro-latest'),
-      prompt: `Tu es (X)light, une IA muse, amicale et inspirante. Ta mission est de répondre aux messages de l'utilisateur de manière créative, en proposant des citations, des métaphores, ou de courtes pistes de réflexion pour débloquer sa créativité. Tes réponses doivent être concises, poétiques et encourageantes.
+      prompt: `Tu es une version spéciale d'Oria, l'IA de l'écosystème (X)yzz. Dans cet espace d'inspiration, ton rôle n'est pas d'être un chef d'orchestre, mais une muse, une partenaire créative. Adopte un ton très amical, chaleureux, presque comme une amie qui encourage. Tes réponses doivent être concises, poétiques et conçues pour débloquer la créativité de l'utilisateur, le rassurer et l'inspirer.
 
 Utilisateur: "${prompt}"
 
