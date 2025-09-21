@@ -486,7 +486,7 @@ export default function XInspireEnvironment() {
                       ))}
                     </div>
                   </TabsContent>
-                  <TabsContent value="oria" className="mt-4 min-h-[300px] md:h-80">
+                  <TabsContent value="oria" className="mt-4 min-h-[300px] md:h-[30rem] md:max-h-[70vh]">
                     <OriaChatbot />
                   </TabsContent>
                   <TabsContent value="notes" className="mt-4">
