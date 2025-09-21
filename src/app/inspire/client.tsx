@@ -1,8 +1,7 @@
-
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls, useCycle } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIcon } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -12,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dynamic from "next/dynamic";
 
 const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
+
 
 /**
  * OriaSiriOrbPro — Orbe VisionOS “future Siri”
@@ -40,14 +40,20 @@ export function OriaSiriOrbPro({
   const ring = useAnimationControls();
   const core = useAnimationControls();
   const wave = useAnimationControls();
+  const [haloCycle, cycleHalo] = useCycle(
+    { rotate: 0, scale: 1 },
+    { rotate: 360, scale: 1.1 }
+  );
 
   // Respecte prefers-reduced-motion
   useEffect(() => {
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mql.matches) {
       ring.stop(); core.stop(); wave.stop();
+    } else {
+        cycleHalo();
     }
-  }, [ring, core, wave]);
+  }, [ring, core, wave, cycleHalo]);
 
   // Animations selon l’état
   useEffect(() => {
@@ -75,8 +81,7 @@ export function OriaSiriOrbPro({
   }, [state, ring, core, wave]);
 
   // Couleurs/halo adaptatifs
-  const glowCyan = subtle ? "rgba(56,189,248,0.25)" : "rgba(56,189,248,0.45)";
-  const glowMagenta = subtle ? "rgba(244,114,182,0.25)" : "rgba(244,114,182,0.45)";
+  const glowPink = subtle ? "rgba(244,114,182,0.25)" : "rgba(244,114,182,0.45)";
   const glowIndigo = subtle ? "rgba(129,140,248,0.2)" : "rgba(129,140,248,0.35)";
 
   return (
@@ -87,14 +92,16 @@ export function OriaSiriOrbPro({
     >
       {/* Aura externe multi-tons */}
       <motion.div
-        animate={ring}
+        animate={haloCycle}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         className="absolute inset-0 rounded-full"
         style={{
           filter: "blur(22px)",
           background:
-            `radial-gradient(closest-side, ${glowCyan}, transparent 60%),
-             radial-gradient(closest-side, ${glowMagenta}, transparent 65%),
-             radial-gradient(closest-side, ${glowIndigo}, transparent 70%)`
+            `radial-gradient(closest-side, hsl(var(--primary)), transparent 80%),
+             radial-gradient(closest-side, hsl(var(--accent)), transparent 85%),
+             radial-gradient(closest-side, ${glowPink}, transparent 90%),
+             radial-gradient(closest-side, ${glowIndigo}, transparent 100%)`
         }}
       />
 
@@ -469,6 +476,7 @@ export default function XInspireEnvironment() {
 
   useEffect(() => {
     function createPlayer() {
+      if (!(window as any).YT) return;
       playerRef.current = new (window as any).YT.Player('youtube-player', {
         width: '100%',
         height: '100%',
@@ -492,28 +500,28 @@ export default function XInspireEnvironment() {
         }
       });
     }
-
+  
     if (!(window as any).YT || !(window as any).YT.Player) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
       (window as any).onYouTubeIframeAPIReady = () => {
         if (!playerRef.current) createPlayer();
       };
-      return;
-    }
-
-    if (!playerRef.current) {
-      createPlayer();
     } else {
-      try {
-        playerRef.current.loadVideoById({videoId: cur.videoId});
-        if (hasInteracted && !isMuted) playerRef.current.unMute();
-        else playerRef.current.mute();
-      } catch (e) {
-        try { playerRef.current.destroy?.(); } catch {}
-        createPlayer();
-      }
+        if (!playerRef.current) {
+            createPlayer();
+        } else {
+            try {
+                playerRef.current.loadPlaylist({ listType: 'playlist', list: [cur.videoId], index: 0 });
+                if (hasInteracted && !isMuted) playerRef.current.unMute();
+                else playerRef.current.mute();
+            } catch (e) {
+                try { playerRef.current.destroy?.(); } catch {}
+                createPlayer();
+            }
+        }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cur.videoId]);
@@ -579,7 +587,7 @@ export default function XInspireEnvironment() {
           panelOpen ? "blur-sm" : ""
         )}
       >
-        <div id="youtube-player" className="absolute w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
+        <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
 
@@ -715,12 +723,12 @@ export default function XInspireEnvironment() {
                         </div>
                     </div>
                   </TabsContent>
-                   <TabsContent value="work" className="mt-4">
-                    <div className="grid gap-4 md:grid-cols-2">
+                  <TabsContent value="work" className="mt-4">
+                      <div className="grid gap-4 md:grid-cols-2">
                         <WorkTasks onStartTimer={(m)=>setActiveTimer(m)} />
                         <WorkBrief />
-                    </div>
-                    </TabsContent>
+                      </div>
+                  </TabsContent>
                 </Tabs>
               </Glass>
             </div>
