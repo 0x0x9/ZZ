@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import OriaAnimation from "@/components/ui/oria-animation";
 
 
 // ---- Config ----
@@ -109,6 +110,13 @@ function OriaChatbot() {
     return (
         <div className="flex flex-col h-full space-y-4">
              <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
+                {messages.length === 0 && !isLoading && (
+                    <div className="flex flex-col items-center justify-center h-full text-center">
+                        <OriaAnimation className="w-20 h-20 mb-4" />
+                        <p className="text-white/80">Je suis Oria, votre muse.
+                            <br />Que puis-je faire pour vous inspirer ?</p>
+                    </div>
+                )}
                 {messages.map((msg, i) => (
                     <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
                         <motion.div
@@ -201,14 +209,14 @@ export default function XInspireEnvironment() {
   return (
     <div className="relative min-h-screen w-full text-white">
       {/* Background gradient glow */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10" />
+      <div className="pointer-events-none absolute inset-0 -z-20" />
 
       {/* Fullscreen YouTube */}
       <motion.div
         key={videoSrc}
         className={cn(
           "absolute inset-0 -z-10 overflow-hidden transition-all duration-500",
-          panelOpen ? "blur-md" : "blur-sm"
+          panelOpen ? "blur-sm" : ""
         )}
       >
         <iframe
@@ -297,7 +305,7 @@ export default function XInspireEnvironment() {
                 <Tabs defaultValue="ambience" className="w-full mt-4">
                   <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
-                    <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Oria</TabsTrigger>
+                    <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
                     <TabsTrigger value="notes" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><NotebookPen className="mr-2 h-4 w-4"/>Notes</TabsTrigger>
                   </TabsList>
                   <TabsContent value="ambience" className="mt-4">
