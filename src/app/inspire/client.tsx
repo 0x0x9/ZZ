@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
@@ -64,78 +64,72 @@ export default function XInspireEnvironment() {
   const [notes, setNotes] = useState<string[]>([]);
 
   const bgPlayerRef = useRef<any>(null);
-  const isApiReady = useRef(false);
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
-
-  const createPlayer = useCallback(() => {
-    if (!isApiReady.current || bgPlayerRef.current) return;
-
-    bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
-      videoId: cur.videoId,
-      playerVars: {
-        autoplay: 1,
-        controls: 0,
-        loop: 1,
-        playlist: cur.videoId,
-        modestbranding: 1,
-        rel: 0,
-        fs: 0,
-        playsinline: 1,
-        mute: 1, // démarrage muet
-      },
-      events: {
-        onReady: (e: any) => {
-          e.target.playVideo();
-        },
-      },
-    });
-  }, [cur.videoId]);
 
   // Load YT API
   useEffect(() => {
-    if (!window.YT) {
+    if (!(window as any).YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode!.insertBefore(tag, firstScriptTag);
-      
-      (window as any).onYouTubeIframeAPIReady = () => {
-        isApiReady.current = true;
-        createPlayer();
-      };
+      document.head.appendChild(tag);
+    }
+  }, []);
+
+  // Create player
+  useEffect(() => {
+    function createPlayer() {
+      if (bgPlayerRef.current) {
+        bgPlayerRef.current.destroy();
+      }
+      bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
+        videoId: cur.videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          loop: 1,
+          playlist: cur.videoId,
+          modestbranding: 1,
+          rel: 0,
+          fs: 0,
+          playsinline: 1,
+          mute: 1, // démarrage muet
+        },
+        events: {
+          onReady: (e: any) => {
+            e.target.playVideo();
+          },
+        },
+      });
+    }
+
+    if (typeof (window as any).YT === "undefined" || typeof (window as any).YT.Player === "undefined") {
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
     } else {
-        isApiReady.current = true;
-        createPlayer();
+      createPlayer();
     }
 
     return () => {
       if (bgPlayerRef.current?.destroy) {
         bgPlayerRef.current.destroy();
-        bgPlayerRef.current = null;
       }
     };
-  }, [createPlayer]);
-  
-  useEffect(() => {
-    if (bgPlayerRef.current && bgPlayerRef.current.loadVideoById) {
-      bgPlayerRef.current.loadVideoById(cur.videoId);
-    }
   }, [cur.videoId]);
 
-
+  // Clic d’activation
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
       try {
         bgPlayerRef.current?.unMute();
-        bgPlayerRef.current?.playVideo();
+        bgPlayerRef.current?.playVideo(); // <- essentiel
       } catch (err) {
         console.error("Erreur activation audio:", err);
       }
     }
   };
 
+  // Toggle mute
   const toggleMute = () => {
     if (!hasInteracted) return handleFirstInteraction();
     setIsMuted((m) => {
@@ -188,7 +182,7 @@ export default function XInspireEnvironment() {
       {/* Overlay d’activation */}
       <AnimatePresence>
         {!hasInteracted && (
-          <motion.div
+           <motion.div
             className="fixed inset-0 z-20 flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
