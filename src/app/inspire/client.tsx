@@ -184,7 +184,7 @@ export default function XInspireEnvironment() {
           autoplay: 1,
           controls: 0,
           loop: 1,
-          playlist: cur.videoId,      // nécessaire pour boucler une seule vidéo
+          playlist: cur.videoId,
           modestbranding: 1,
           rel: 0,
           iv_load_policy: 3,
@@ -220,11 +220,12 @@ export default function XInspireEnvironment() {
         playerRef.current.playVideo();
       } catch {
         try { playerRef.current.destroy?.(); } catch {}
+        playerRef.current = null;
         createPlayer();
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cur.videoId, hasInteracted, isMuted]);
+  }, [cur.videoId]);
 
 
   const handleFirstInteraction = () => {
@@ -236,8 +237,15 @@ export default function XInspireEnvironment() {
 
   const toggleMute = () => {
     if (!hasInteracted) return handleFirstInteraction();
-    setIsMuted(m => !m);
-  };
+    setIsMuted(m => {
+        const newMuted = !m;
+        if (playerRef.current) {
+            if (newMuted) playerRef.current.mute();
+            else playerRef.current.unMute();
+        }
+        return newMuted;
+    });
+};
 
   // Notes localStorage
   useEffect(() => {
@@ -280,7 +288,7 @@ export default function XInspireEnvironment() {
           panelOpen ? "blur-sm" : ""
         )}
       >
-        <div id="youtube-player" className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }} />
+        <div id="youtube-player" className="absolute w-full h-full scale-[1.8] object-cover" style={{ pointerEvents: 'none' }} />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
 
