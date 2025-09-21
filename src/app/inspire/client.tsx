@@ -75,54 +75,61 @@ export default function XInspireEnvironment() {
     }
   }, []);
 
-  // Create or update player
+  // Create player
   useEffect(() => {
-    const createPlayer = () => {
+    function createPlayer() {
       if (bgPlayerRef.current) {
-        bgPlayerRef.current.loadVideoById(cur.videoId);
-      } else {
-        bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
-          videoId: cur.videoId,
-          playerVars: {
-            autoplay: 1,
-            controls: 0,
-            loop: 1,
-            playlist: cur.videoId,
-            modestbranding: 1,
-            rel: 0,
-            fs: 0,
-            playsinline: 1,
-            mute: 1, // Always start muted
-          },
-          events: {
-            onReady: (e: any) => e.target.playVideo(),
-          },
-        });
+        bgPlayerRef.current.destroy();
       }
-    };
+      bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
+        videoId: cur.videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          loop: 1,
+          playlist: cur.videoId,
+          modestbranding: 1,
+          rel: 0,
+          fs: 0,
+          playsinline: 1,
+          mute: 1, // démarrage muet
+        },
+        events: {
+          onReady: (e: any) => {
+            e.target.playVideo();
+          },
+        },
+      });
+    }
 
     if (typeof (window as any).YT === "undefined" || typeof (window as any).YT.Player === "undefined") {
       (window as any).onYouTubeIframeAPIReady = createPlayer;
     } else {
       createPlayer();
     }
+
+    return () => {
+      if (bgPlayerRef.current?.destroy) {
+        bgPlayerRef.current.destroy();
+      }
+    };
   }, [cur.videoId]);
 
-  // Handle first user interaction to enable audio
+  // Clic d’activation
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
       try {
         bgPlayerRef.current?.unMute();
-        bgPlayerRef.current?.playVideo();
+        bgPlayerRef.current?.playVideo(); // <- essentiel
       } catch (err) {
         console.error("Erreur activation audio:", err);
       }
     }
   };
 
-  // Toggle mute state
+  // Toggle mute
   const toggleMute = () => {
     if (!hasInteracted) return handleFirstInteraction();
     setIsMuted((m) => {
@@ -134,7 +141,7 @@ export default function XInspireEnvironment() {
     });
   };
 
-  // Persist notes and ambience to localStorage
+  // Notes localStorage
   useEffect(() => {
     try {
       const raw = localStorage.getItem("xinspire.notes");
@@ -144,10 +151,14 @@ export default function XInspireEnvironment() {
     } catch {}
   }, []);
   useEffect(() => {
-    try { localStorage.setItem("xinspire.notes", JSON.stringify(notes)); } catch {}
+    try {
+      localStorage.setItem("xinspire.notes", JSON.stringify(notes));
+    } catch {}
   }, [notes]);
   useEffect(() => {
-    try { localStorage.setItem("xinspire.ambience", ambience); } catch {}
+    try {
+      localStorage.setItem("xinspire.ambience", ambience);
+    } catch {}
   }, [ambience]);
 
   const addNote = () => {
@@ -164,7 +175,7 @@ export default function XInspireEnvironment() {
 
       {/* Fullscreen YouTube */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div id="player-bg" className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]" />
+        <div id="player-bg" className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
         <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
       </div>
 
@@ -201,7 +212,7 @@ export default function XInspireEnvironment() {
         )}
       </AnimatePresence>
       
-      {/* Ambience badge */}
+       {/* Ambience badge */}
        <div className="pointer-events-none fixed left-6 top-6 z-30 select-none">
         <Glass className="px-4 py-2">
           <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
