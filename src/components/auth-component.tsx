@@ -43,6 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     // Check if a mock session exists in localStorage
     const savedUser = localStorage.getItem('mockUserSession');
@@ -102,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   };
 
-  if (loading && typeof window !== 'undefined' && !localStorage.getItem('mockUserSession')) {
+  if (!mounted) {
     return (
         <div className="w-screen h-screen flex items-center justify-center bg-background">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

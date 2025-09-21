@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -9,7 +10,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import OriaAnimation from "@/components/ui/oria-animation";
+import dynamic from "next/dynamic";
+
+const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
 
 
 // ---- Config ----
@@ -43,11 +46,11 @@ const AMBIENCES = [
 type AmbienceId = typeof AMBIENCES[number]["id"];
 
 // Real AI Chatbot function
-const getInspirationalMessage = async (prompt: string) => {
+const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
     const response = await fetch('/api/generateInspiration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, history }),
     });
 
     if (!response.ok) {
@@ -84,6 +87,9 @@ function OriaChatbot() {
     const [isLoading, setIsLoading] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
+
     useEffect(() => {
         if (scrollAreaRef.current) {
             scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -92,20 +98,22 @@ function OriaChatbot() {
 
     const handleSend = async () => {
         if (!input.trim()) return;
-        const newMessages = [...messages, { type: 'user' as 'user', text: input }];
+        const newMessages: {type: 'user' | 'ai', text: string}[] = [...messages, { type: 'user', text: input }];
         setMessages(newMessages);
         const currentInput = input;
         setInput('');
         setIsLoading(true);
         try {
-            const aiResponse = await getInspirationalMessage(currentInput);
-            setMessages(prev => [...prev, { type: 'ai' as 'ai', text: aiResponse }]);
+            const aiResponse = await getInspirationalMessage(currentInput, newMessages);
+            setMessages(prev => [...prev, { type: 'ai', text: aiResponse }]);
         } catch (error) {
-            setMessages(prev => [...prev, { type: 'ai' as 'ai', text: "Désolé, je suis un peu à court d'inspiration pour le moment." }]);
+            setMessages(prev => [...prev, { type: 'ai', text: "Désolé, je suis un peu à court d'inspiration pour le moment." }]);
         } finally {
             setIsLoading(false);
         }
     };
+    
+    if (!mounted) return null;
 
     return (
         <div className="flex flex-col h-full space-y-4">
@@ -152,19 +160,71 @@ function OriaChatbot() {
 }
 
 export default function XInspireEnvironment() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  
   const [ambience, setAmbience] = useState<AmbienceId>("forest");
   const [panelOpen, setPanelOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
+  const playerRef = useRef<any>(null);
+
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
-  const videoSrc = useMemo(() => {
-    const muteState = !hasInteracted || isMuted ? 1 : 0;
-    return `https://www.youtube.com/embed/${cur.videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${cur.videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&vq=hd1080`;
-  }, [cur, isMuted, hasInteracted]);
+  useEffect(() => {
+    function createPlayer() {
+      playerRef.current = new (window as any).YT.Player('youtube-player', {
+        width: '100%',
+        height: '100%',
+        videoId: cur.videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          loop: 1,
+          playlist: cur.videoId,      // nécessaire pour boucler une seule vidéo
+          modestbranding: 1,
+          rel: 0,
+          iv_load_policy: 3,
+          playsinline: 1
+        },
+        events: {
+          onReady: (e: any) => {
+            if (hasInteracted && !isMuted) e.target.unMute();
+            else e.target.mute();
+            e.target.playVideo();
+          }
+        }
+      });
+    }
+
+    if (!(window as any).YT || !(window as any).YT.Player) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+      (window as any).onYouTubeIframeAPIReady = () => {
+        if (!playerRef.current) createPlayer();
+      };
+      return;
+    }
+
+    if (!playerRef.current) {
+      createPlayer();
+    } else {
+      try {
+        playerRef.current.loadPlaylist({ listType: 'playlist', playlist: [cur.videoId], index: 0 });
+        if (hasInteracted && !isMuted) playerRef.current.unMute();
+        else playerRef.current.mute();
+        playerRef.current.playVideo();
+      } catch {
+        try { playerRef.current.destroy?.(); } catch {}
+        createPlayer();
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cur.videoId, hasInteracted, isMuted]);
 
 
   const handleFirstInteraction = () => {
@@ -206,6 +266,8 @@ export default function XInspireEnvironment() {
     setNote("");
   };
 
+  if (!mounted) return null;
+
   return (
     <div className="relative min-h-screen w-full text-white">
       {/* Background gradient glow */}
@@ -213,18 +275,12 @@ export default function XInspireEnvironment() {
 
       {/* Fullscreen YouTube */}
       <motion.div
-        key={videoSrc}
         className={cn(
           "absolute inset-0 -z-10 overflow-hidden transition-all duration-500",
           panelOpen ? "blur-sm" : ""
         )}
       >
-        <iframe
-            src={videoSrc}
-            className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[100vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.1]"
-            allow="autoplay; fullscreen"
-            style={{ pointerEvents: 'none' }}
-        />
+        <div id="youtube-player" className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }} />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
 
