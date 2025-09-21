@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -40,16 +41,20 @@ const AMBIENCES = [
 
 type AmbienceId = typeof AMBIENCES[number]["id"];
 
-// Mockup pour le chatbot (X)light
+// Real AI Chatbot function
 const getInspirationalMessage = async (prompt: string) => {
-    await new Promise(res => setTimeout(res, 800));
-    const responses = [
-        `"La créativité, c'est l'intelligence qui s'amuse." - Albert Einstein. Que diriez-vous d'explorer une palette de couleurs basée sur 'ciel étoilé' ?`,
-        `"Le seul moyen de faire du bon travail est d'aimer ce que vous faites." - Steve Jobs. Visualisez une image : un artiste peignant une aurore boréale.`,
-        `"L'inspiration existe, mais elle doit vous trouver au travail." - Pablo Picasso. Essayons de développer l'idée de 'mémoire liquide'.`,
-        `"N'ayez pas peur de la perfection, vous ne l'atteindrez jamais." - Salvador Dalí. Et si on imaginait une chaise qui défie la gravité ?`,
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
+    const response = await fetch('/api/generateInspiration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "L'IA n'a pas pu répondre.");
+    }
+    const result = await response.json();
+    return result.inspiration;
 }
 
 function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
@@ -76,32 +81,62 @@ function XLightChatbot() {
     const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+        }
+    }, [messages, isLoading]);
 
     const handleSend = async () => {
         if (!input.trim()) return;
         const newMessages = [...messages, { type: 'user' as 'user', text: input }];
         setMessages(newMessages);
+        const currentInput = input;
         setInput('');
         setIsLoading(true);
-        const aiResponse = await getInspirationalMessage(input);
-        setMessages(prev => [...prev, { type: 'ai' as 'ai', text: aiResponse }]);
-        setIsLoading(false);
+        try {
+            const aiResponse = await getInspirationalMessage(currentInput);
+            setMessages(prev => [...prev, { type: 'ai' as 'ai', text: aiResponse }]);
+        } catch (error) {
+            setMessages(prev => [...prev, { type: 'ai' as 'ai', text: "Désolé, je suis un peu à court d'inspiration pour le moment." }]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="flex flex-col h-full space-y-4">
-             <div className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2">
+             <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
                 {messages.map((msg, i) => (
                     <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
-                        <div className={cn("max-w-[80%] rounded-xl px-4 py-2", msg.type === 'user' ? "bg-primary/80 text-white" : "bg-white/15")}>
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3 }} 
+                            className={cn("max-w-[90%] rounded-xl px-4 py-2", msg.type === 'user' ? "bg-primary/80 text-white" : "bg-white/15")}
+                        >
                             {msg.text}
-                        </div>
+                        </motion.div>
                     </div>
                 ))}
                  {isLoading && <div className="text-center text-white/70">...</div>}
             </div>
             <div className="flex gap-2">
-                <Textarea value={input} onChange={e => setInput(e.target.value)} placeholder="Demandez une idée..." rows={1} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
+                <Textarea 
+                    value={input} 
+                    onChange={e => setInput(e.target.value)} 
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
+                    placeholder="Demandez une idée..." 
+                    rows={1} 
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none" 
+                />
                 <Button onClick={handleSend} disabled={isLoading} variant="secondary">Envoyer</Button>
             </div>
         </div>
@@ -177,10 +212,10 @@ export default function XInspireEnvironment() {
         )}
       >
         <iframe
-          src={videoSrc}
-          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[100vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2"
-          allow="autoplay; fullscreen"
-          style={{ pointerEvents: 'none' }}
+            src={videoSrc}
+            className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[100vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
+            allow="autoplay; fullscreen"
+            style={{ pointerEvents: 'none' }}
         />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
@@ -262,7 +297,7 @@ export default function XInspireEnvironment() {
                 <Tabs defaultValue="ambience" className="w-full mt-4">
                   <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
-                    <TabsTrigger value="ideas" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Idées</TabsTrigger>
+                    <TabsTrigger value="ideas" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
                     <TabsTrigger value="notes" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><NotebookPen className="mr-2 h-4 w-4"/>Notes</TabsTrigger>
                   </TabsList>
                   <TabsContent value="ambience" className="mt-4">
@@ -287,7 +322,7 @@ export default function XInspireEnvironment() {
                       ))}
                     </div>
                   </TabsContent>
-                  <TabsContent value="ideas" className="mt-4 h-64">
+                  <TabsContent value="ideas" className="mt-4 min-h-[300px] md:h-80">
                     <XLightChatbot />
                   </TabsContent>
                   <TabsContent value="notes" className="mt-4">
@@ -306,7 +341,7 @@ export default function XInspireEnvironment() {
                         </div>
                         <div>
                             <div className="text-sm text-white/80 mb-2">Dernières idées</div>
-                            <div className="space-y-2 max-h-40 overflow-auto pr-1">
+                            <div className="space-y-2 max-h-40 overflow-auto pr-1 no-scrollbar">
                             {notes.length === 0 && <div className="text-white/60 text-sm">Aucune note.</div>}
                             {notes.map((n, i) => (
                                 <div key={i} className="rounded-xl border border-white/15 bg-white/5 p-2 text-sm">{n}</div>
