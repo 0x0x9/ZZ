@@ -249,25 +249,43 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
 
 function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (project: Project) => void, onCancel: () => void }) {
     const { toast } = useToast();
-    const initialState = { success: false, error: undefined, project: undefined };
-    const [state, formAction] = useFormState(createManualProjectAction, initialState);
-    const { pending } = useFormStatus();
+    const [pending, setPending] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
 
-    useEffect(() => {
-        if (state.success && state.project) {
-            const newProject: Project = {
-                id: state.project.id || uuidv4(),
-                name: state.project.title || 'Nouveau Projet Manuel',
-                plan: state.project,
-            };
-            onProjectCreated(newProject);
-        } else if (state.error) {
-            toast({ variant: "destructive", title: "Erreur", description: state.error });
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setPending(true);
+        const formData = new FormData(event.currentTarget);
+        const title = formData.get('title') as string;
+        const creativeBrief = formData.get('creativeBrief') as string;
+        
+        if (!title || !creativeBrief) {
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Titre et brief sont requis.' });
+            setPending(false);
+            return;
         }
-    }, [state, onProjectCreated, toast]);
+        
+        const newProjectPlan: ProjectPlan = {
+            id: `manual-${Date.now()}`,
+            title,
+            creativeBrief,
+            tasks: [],
+            imagePrompts: [],
+        };
+        
+        const newProject: Project = {
+            id: newProjectPlan.id!,
+            name: title,
+            plan: newProjectPlan
+        };
+        
+        projectApi.create(newProject, 'CREATED');
+        onProjectCreated(newProject);
+        setPending(false);
+    };
 
     return (
-        <form action={formAction} className="w-full max-w-lg mt-8 space-y-4 text-left">
+        <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
             <div className="space-y-2">
                 <Label htmlFor="title">Titre du projet</Label>
                 <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={pending} />
@@ -304,7 +322,7 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (pro
             onProjectCreated(newProject);
         }
         if (state.error) {
-            toast({ variant: 'destructive', title: 'Erreur (X)flux', description: state.error });
+            toast({ variant: 'destructive', title: 'Erreur Pulse', description: state.error });
         }
     }, [state, onProjectCreated, toast]);
     
@@ -564,9 +582,9 @@ export default function PulseClient() {
                 </TabsContent>
                 <TabsContent value="oria" className="flex-1 min-h-0 mt-0">
                     <div className="h-full p-4">
-                        <OriaXOS 
-                          projectContext={`Projet Actif: ${activeProject.name}\nBrief: ${activeProject.plan.creativeBrief}`}
-                          openApp={() => {}} 
+                        <OriaXOS
+                          projectContext={`Nom du Projet: ${activeProject.name}\nBrief du Projet: ${activeProject.plan.creativeBrief}`}
+                          openApp={() => {}}
                           context="xos"
                         />
                     </div>
@@ -632,3 +650,5 @@ export default function PulseClient() {
         </div>
     );
 }
+
+    

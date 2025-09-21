@@ -203,7 +203,9 @@ const fluxTool = ai.defineTool(
 // The main prompt that guides Oria
 const oriaRouterSystemPrompt = `Vous êtes Oria, l'IA chef d'orchestre de la plateforme (X)yzz. Votre mission est de comprendre le besoin de l'utilisateur et de mobiliser les outils nécessaires pour y répondre. Votre réponse doit être **exclusivement** un objet JSON valide.
 
-{{#if context}}**CONTEXTE ACTUEL : {{{context}}}**{{/if}}
+{{#if projectContext}}**IMPORTANT: Vous êtes dans le contexte d'un projet spécifique. Utilisez les informations suivantes comme source de vérité principale pour répondre aux questions de l'utilisateur sur le projet :**
+{{{projectContext}}}
+{{/if}}
 
 Vous avez 3 options principales :
 
@@ -221,7 +223,7 @@ Vous avez 3 options principales :
         *   Utilisez le champ 'promptForTool' pour passer la demande de l'utilisateur à l'application.
 
 3.  **RÉPONDRE (pour une conversation)** :
-    *   **Quand l'utiliser ?** Pour les salutations, les questions générales sur vos capacités, ou toute interaction qui n'est ni une création, ni une redirection.
+    *   **Quand l'utiliser ?** Pour les salutations, les questions générales sur vos capacités, ou toute interaction qui n'est ni une création, ni une redirection. Si vous avez le contexte d'un projet, utilisez-le pour répondre aux questions sur ce projet.
     *   **Action** : Votre réponse doit être de type 'response'.
 
 **RÈGLES IMPORTANTES**:
@@ -258,7 +260,7 @@ export const oria = ai.defineFlow(
 
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)
-      .replace('{{{context}}}', input.projectContext || 'non spécifié');
+      .replace('{{{projectContext}}}', input.projectContext || '');
 
     const model = input.context === 'homepage'
         ? googleAI.model('gemini-1.5-flash-latest')
@@ -306,3 +308,5 @@ export const oria = ai.defineFlow(
     return output;
   }
 );
+
+    
