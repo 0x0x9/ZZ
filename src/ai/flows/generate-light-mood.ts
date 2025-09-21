@@ -18,7 +18,7 @@ export async function generateLightMood(input: GenerateLightMoodInput): Promise<
 
 const moodPrompt = ai.definePrompt({
     name: 'generateLightMoodPrompt',
-    input: { schema: GenerateLightMoodInputSchema },
+    inputSchema: GenerateLightMoodInputSchema,
     output: { schema: GenerateLightMoodOutputSchema, format: 'json' },
     model: googleAI.model('gemini-1.5-pro-latest'),
     prompt: `Vous êtes (X)light, une IA conçue pour inspirer la créativité. Votre rôle est de transformer une idée ou une ambiance en un concept créatif complet.
@@ -40,6 +40,9 @@ const generateLightMoodFlow = ai.defineFlow(
     outputSchema: GenerateLightMoodOutputSchema,
   },
   async (input) => {
+    if (!input.prompt) {
+      throw new Error("Le prompt est manquant pour générer une ambiance.");
+    }
     const { output } = await moodPrompt(input);
     if (!output) {
       throw new Error("(X)light n'a pas pu générer d'ambiance. Veuillez réessayer.");
@@ -47,5 +50,3 @@ const generateLightMoodFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

@@ -2,8 +2,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
-import { generateLightMood, generateMoodboard } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,11 +21,10 @@ const moodThemes = [
     { id: 'focus', name: 'Concentration', icon: Wind, prompt: "Un bureau minimaliste avec une seule plante, baigné d'une lumière naturelle et douce." },
 ];
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
     return (
-        <Button type="submit" disabled={pending} size="lg" className="h-12">
-        {pending ? (
+        <Button type="submit" disabled={isLoading} size="lg" className="h-12">
+        {isLoading ? (
             <LoadingState text="Recherche d'inspiration..." isCompact={true} />
         ) : (
             <>
@@ -115,49 +112,77 @@ function ResultsDisplay({ result, onReset }: { result: GenerateLightMoodOutput &
 }
 
 export default function LightGenerator() {
-    const initialState: { result: GenerateLightMoodOutput | null, error: string | null } = { result: null, error: null };
-    const [state, formAction] = useFormState(generateLightMood, initialState);
     const { toast } = useToast();
+    const [prompt, setPrompt] = useState('');
     const [resultWithImages, setResultWithImages] = useState<(GenerateLightMoodOutput & { images: string[], isLoadingImages: boolean }) | null>(null);
-    const formRef = useRef<HTMLFormElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [showForm, setShowForm] = useState(true);
     const [key, setKey] = useState(0);
 
-    const { pending } = useFormStatus();
+    const handleGenerate = async (currentPrompt: string) => {
+        setIsLoading(true);
+        setResultWithImages(null);
+        setShowForm(false);
+        try {
+            const moodResponse = await fetch('/api/light-mood', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: currentPrompt })
+            });
 
-    useEffect(() => {
-        if (state?.error) {
+            if (!moodResponse.ok) {
+                const errorData = await moodResponse.json();
+                throw new Error(errorData.error || 'Erreur lors de la génération de l\'ambiance.');
+            }
+
+            const moodResult: GenerateLightMoodOutput = await moodResponse.json();
+            setResultWithImages({ ...moodResult, images: [], isLoadingImages: true });
+
+            // Fetch moodboard images
+            const moodboardResponse = await fetch('/api/generateMoodboard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompts: moodResult.imagePrompts })
+            });
+
+            if (!moodboardResponse.ok) {
+                throw new Error("Erreur lors de la génération du moodboard.");
+            }
+
+            const imageResult = await moodboardResponse.json();
+            if (imageResult.imageDataUris) {
+                setResultWithImages(prev => prev ? ({ ...prev, images: imageResult.imageDataUris, isLoadingImages: false }) : null);
+            }
+
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Erreur', description: error.message });
             setShowForm(true);
-            toast({ variant: 'destructive', title: 'Erreur', description: state.error });
-            setResultWithImages(null);
+        } finally {
+            setIsLoading(false);
         }
-        if (state?.result) {
-            setShowForm(false);
-            const newResult = { ...state.result, images: [], isLoadingImages: true };
-            setResultWithImages(newResult);
-            generateMoodboard({ prompts: state.result.imagePrompts })
-                .then(imageResult => {
-                    if (imageResult.imageDataUris) {
-                        setResultWithImages(prev => prev ? ({ ...prev, images: imageResult.imageDataUris, isLoadingImages: false }) : null);
-                    } else {
-                        setResultWithImages(prev => prev ? ({ ...prev, isLoadingImages: false }) : null);
-                    }
-                });
-        }
-    }, [state, toast]);
-    
-    const handleThemeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(formRef.current!);
-        formData.set('prompt', e.currentTarget.value);
-        formAction(formData);
-    }
+        const safePrompt = prompt.trim();
+        if (!safePrompt) {
+            toast({ variant: 'destructive', description: "Veuillez décrire une ambiance."});
+            return;
+        }
+        handleGenerate(safePrompt);
+    };
+
+    const handleThemeClick = (themePrompt: string) => {
+        setPrompt(themePrompt);
+        handleGenerate(themePrompt);
+    };
     
     const handleReset = () => {
         setKey(k => k + 1);
         setShowForm(true);
         setResultWithImages(null);
-    }
+        setPrompt('');
+    };
 
     return (
         <div className="max-w-4xl mx-auto w-full" key={key}>
@@ -168,15 +193,15 @@ export default function LightGenerator() {
                         <CardDescription>Choisissez un thème ou décrivez votre propre ambiance.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form ref={formRef} action={formAction}>
+                        <form onSubmit={handleSubmit}>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                 {moodThemes.map(theme => (
                                     <button
                                         key={theme.id}
                                         type="button"
-                                        onClick={handleThemeClick}
-                                        value={theme.prompt}
-                                        className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background/50 hover:border-primary transition-colors"
+                                        onClick={() => handleThemeClick(theme.prompt)}
+                                        disabled={isLoading}
+                                        className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-transparent bg-background/50 hover:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <theme.icon className="h-6 w-6 text-primary"/>
                                         <span className="text-sm font-medium">{theme.name}</span>
@@ -184,15 +209,30 @@ export default function LightGenerator() {
                                 ))}
                             </div>
                             <div className="flex items-center gap-4">
-                                <Input name="prompt" placeholder="Ou décrivez votre propre ambiance..." className="flex-1 h-12 text-base bg-background/50" />
-                                <SubmitButton />
+                                <Input 
+                                    name="prompt" 
+                                    placeholder="Ou décrivez votre propre ambiance..." 
+                                    className="flex-1 h-12 text-base bg-background/50" 
+                                    value={prompt}
+                                    onChange={(e) => setPrompt(e.target.value)}
+                                    disabled={isLoading}
+                                />
+                                <Button type="submit" disabled={isLoading} size="lg" className="h-12">
+                                    {isLoading ? (
+                                        <LoadingState text="Génération..." isCompact={true} />
+                                    ) : (
+                                        <>
+                                            <Sparkles className="mr-2 h-4 w-4" />Générer
+                                        </>
+                                    )}
+                                </Button>
                             </div>
                         </form>
                     </CardContent>
                 </Card>
             )}
 
-            {pending && (
+            {isLoading && (
                 <div className="mt-12">
                     <Card className="glass-card min-h-[400px] relative overflow-hidden">
                         <div className="absolute inset-0 z-0"><AiLoadingAnimation isLoading={true} /></div>
@@ -203,9 +243,7 @@ export default function LightGenerator() {
                 </div>
             )}
             
-            {resultWithImages && !showForm && <ResultsDisplay result={resultWithImages} onReset={handleReset}/>}
+            {resultWithImages && !showForm && !isLoading && <ResultsDisplay result={resultWithImages} onReset={handleReset}/>}
         </div>
     );
 }
-
-
