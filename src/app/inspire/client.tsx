@@ -9,44 +9,37 @@ import Link from 'next/link';
 /**
  * XInspire — Fullscreen Oasis Environment
  * --------------------------------------
- * VisionOS-like fullscreen ambience: background YouTube video + optional background audio,
+ * VisionOS-like fullscreen ambience: background YouTube video with its own audio,
  * minimal chrome, hidden glass panel (notes + controls) revealed via hotspot or keyboard.
  *
- * Drop this component in `app/xinspire/page.tsx` (Next.js App Router) or any route.
- * Requires TailwindCSS + Framer Motion + lucide-react.
- *
  * Autoplay note: browsers block audio until user interaction. We start muted.
- * After the first click ("Activer l'expérience"), we allow audio.
+ * After the first click ("Activer l'expérience"), we unmute the video.
  */
 
 // ---- Config ----
 const AMBIENCES = [
   {
     id: "forest" as const,
-    label: "Forêt zen",
-    bgVideoId: "29XymHesxa0",
-    audioVideoId: "f77SKdyn-1Y",
+    label: "Forêt Zen",
+    videoId: "29XymHesxa0",
     desc: "Lumière douce, brume légère, respiration longue.",
   },
   {
     id: "neon" as const,
-    label: "Néon nocturne",
-    bgVideoId: "-Xh4BNbxpI8",
-    audioVideoId: "DWcJFNfaw9c",
+    label: "Néon Nocturne",
+    videoId: "-Xh4BNbxpI8",
     desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
   },
   {
     id: "loft" as const,
-    label: "Loft urbain",
-    bgVideoId: "7NOSDKb0HlU",
-    audioVideoId: "kgx4WGK0oNU",
+    label: "Loft Urbain",
+    videoId: "ys50VgfL-u8",
     desc: "Verre & métal, contre-jour, minimalisme élégant.",
   },
   {
     id: "beach" as const,
     label: "Plage futuriste",
-    bgVideoId: "1ZYbU82GVz4",
-    audioVideoId: "lFcSrYw-ARY",
+    videoId: "1ZYbU82GVz4",
     desc: "Horizon laiteux, brise légère, sons d'océan.",
   },
 ];
@@ -95,12 +88,86 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
 export default function XInspireEnvironment() {
   const [ambience, setAmbience] = useState<AmbienceId>("forest");
   const [panelOpen, setPanelOpen] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false); // gated by user action
-  const [muted, setMuted] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
+  
+  const bgPlayerRef = useRef<any>(null);
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
+
+  // Load YouTube IFrame API
+  useEffect(() => {
+    const tag = document.createElement('script');
+    if (!window.YT) {
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+    }
+  }, []);
+
+  // Player creation and management
+  useEffect(() => {
+    function createPlayer() {
+        if (bgPlayerRef.current) {
+            bgPlayerRef.current.destroy();
+        }
+        bgPlayerRef.current = new (window as any).YT.Player('player-bg', {
+            videoId: cur.videoId,
+            playerVars: {
+                autoplay: 1,
+                controls: 0,
+                loop: 1,
+                playlist: cur.videoId,
+                modestbranding: 1,
+                rel: 0,
+                fs: 0,
+                playsinline: 1,
+                mute: 1, // Always start muted
+            },
+            events: {
+                onReady: (e: any) => {
+                    e.target.playVideo();
+                    if (!isMuted && hasInteracted) {
+                        e.target.unMute();
+                    }
+                },
+            },
+        });
+    }
+
+    if (typeof (window as any).YT === 'undefined' || typeof (window as any).YT.Player === 'undefined') {
+        (window as any).onYouTubeIframeAPIReady = createPlayer;
+    } else {
+        createPlayer();
+    }
+    
+    return () => {
+        if (bgPlayerRef.current?.destroy) {
+            bgPlayerRef.current.destroy();
+        }
+    };
+  }, [cur.videoId, isMuted, hasInteracted]);
+  
+  
+  const handleFirstInteraction = () => {
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setIsMuted(false);
+      try { bgPlayerRef.current?.unMute(); } catch {}
+    }
+  };
+  
+  const toggleMute = () => {
+      if (!hasInteracted) return handleFirstInteraction();
+      setIsMuted((m) => {
+          const next = !m;
+          try {
+              next ? bgPlayerRef.current?.mute() : bgPlayerRef.current?.unMute();
+          } catch {}
+          return next;
+      });
+  };
 
   // Keyboard shortcut to toggle panel (Cmd/Ctrl+K)
   useEffect(() => {
@@ -170,37 +237,10 @@ export default function XInspireEnvironment() {
 
       {/* Fullscreen background YouTube video */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-          <motion.div
-              key={cur.bgVideoId}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-              className="w-full h-full"
-          >
-              <iframe
-                  className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
-                  src={ytEmbedSrc(cur.bgVideoId)}
-                  title="XInspire background"
-                  allow="autoplay; encrypted-media; picture-in-picture"
-              />
-          </motion.div>
-           {/* Light vignette + glass effect overlay */}
-          <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        <div id="player-bg" className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]" />
+        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
       </div>
 
-      {/* Audio player: YouTube audio-only iframe (1x1 off-screen but accessible) */}
-      <div className="sr-only" aria-hidden={!audioEnabled}>
-        {audioEnabled && (
-          <iframe
-            key={cur.audioVideoId + String(!muted)}
-            width="1"
-            height="1"
-            src={ytEmbedSrc(cur.audioVideoId, { autoplay: 1, mute: muted ? 1 : 0, loop: 1, controls: 0, playsinline: 1 })}
-            title="XInspire audio"
-            allow="autoplay; encrypted-media"
-          />
-        )}
-      </div>
 
       {/* Minimal top hint */}
       <div className="fixed top-4 right-4 z-30 text-sm text-white/70">Appuie sur ⌘/Ctrl+K pour le panneau</div>
@@ -210,7 +250,7 @@ export default function XInspireEnvironment() {
 
       {/* Center CTA overlay to unlock audio */}
       <AnimatePresence>
-        {!audioEnabled && (
+        {!hasInteracted && (
           <motion.div
             className="fixed inset-0 z-20 flex items-center justify-center"
             initial={{ opacity: 0 }}
@@ -218,7 +258,7 @@ export default function XInspireEnvironment() {
             exit={{ opacity: 0 }}
           >
             <button
-              onClick={() => { setAudioEnabled(true); setMuted(false); }}
+              onClick={handleFirstInteraction}
               className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl hover:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/40"
             >
               Activer l'expérience
@@ -250,7 +290,7 @@ export default function XInspireEnvironment() {
                     <div className="text-lg font-semibold">Panneau de contrôle</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Pill onClick={() => setMuted(m => !m)} icon={muted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}>{muted ? "Son coupé" : "Son actif"}</Pill>
+                    <Pill onClick={toggleMute} icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}>{isMuted ? "Son coupé" : "Son actif"}</Pill>
                     <Pill onClick={() => setPanelOpen(false)} icon={<X className="h-4 w-4" />}>Fermer</Pill>
                   </div>
                 </div>
@@ -306,4 +346,3 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
-
