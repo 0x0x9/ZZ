@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -212,14 +211,14 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
     );
 }
 
-function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (project: ProjectPlan) => void, onCancel: () => void }) {
+function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: () => void, onCancel: () => void }) {
     const { toast } = useToast();
     const [state, formAction] = useFormState(createManualProjectAction, { success: false });
     const { pending } = useFormStatus();
 
     useEffect(() => {
         if (state.success && state.project) {
-            onProjectCreated(state.project);
+            onProjectCreated();
         } else if (state.error) {
             toast({ variant: 'destructive', title: "Erreur", description: state.error });
         }
@@ -455,19 +454,17 @@ export default function PulseClient() {
                     const { url } = await getSignedUrlAction({ docId: doc.id });
                     const response = await fetch(url);
                     if (!response.ok) {
-                        // For this prototype, if fetch fails, we generate a mock plan
-                        console.warn(`Failed to fetch project plan for ${doc.name}. Falling back to mock.`);
+                        console.warn(`Failed to fetch project plan for ${doc.name}. Status: ${response.status}`);
                         const mockPlan: ProjectPlan = { id: doc.id, title: name, creativeBrief: `Brief créatif simulé pour "${name}". Le chargement a échoué.`, tasks: [], imagePrompts: [] };
                         return { id: doc.id, name, plan: mockPlan, path: doc.path };
                     }
                     
                     const planData = await response.json();
                     
-                    // Validate data with Zod schema
                     const parsedPlan = ProjectPlanSchema.safeParse(planData);
                     if (!parsedPlan.success) {
-                        console.error("Zod validation failed for project:", doc.name, parsedPlan.error);
-                         const mockPlan: ProjectPlan = { id: doc.id, title: name, creativeBrief: `Le plan pour "${name}" est corrompu.`, tasks: [], imagePrompts: [] };
+                        console.error("Zod validation failed for project:", doc.name, parsedPlan.error.flatten());
+                         const mockPlan: ProjectPlan = { id: doc.id, title: name, creativeBrief: `Le plan pour "${name}" est corrompu ou invalide.`, tasks: [], imagePrompts: [] };
                         return { id: doc.id, name, plan: mockPlan, path: doc.path };
                     }
 
@@ -560,7 +557,7 @@ export default function PulseClient() {
                     </div>
                 </TabsContent>
                 <TabsContent value="files" className="flex-1 min-h-0 mt-0">
-                    <DocManager initialPath={`maestro-projets/${activeProject.name.replace(/\s+/g, '-')}/`} />
+                    <DocManager onDataChange={fetchDocsAndProjects} initialPath={`maestro-projets/${activeProject.name.replace(/\s+/g, '-')}/`} />
                 </TabsContent>
             </Tabs>
         )
@@ -622,6 +619,3 @@ export default function PulseClient() {
 }
 
     
-
-    
-
