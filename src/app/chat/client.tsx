@@ -8,11 +8,11 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, Home, CheckSquare, MessageCircle, Folder as FolderIcon, BookOpen } from 'lucide-react';
+import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, Sparkles, Loader, GitBranch, Share2, UploadCloud, Pencil, Plus, Presentation, FilePlus, Save, Home, CheckSquare, MessageCircle, Folder as FolderIcon, BookOpen, Layers, Lightbulb, Film, AudioLines, FileText, Music, LayoutTemplate, Code2, Network, Calendar, Guitar, Users, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { oriaChatAction, deleteDocument, listDocuments, createManualProjectAction, fluxAction, getSignedUrlAction, uploadDocumentAction } from '@/app/actions';
+import { oriaChatAction, deleteDocument, listDocuments, createManualProjectAction, createPulseProject as pulseProjectAction, getSignedUrlAction, uploadDocumentAction } from '@/app/actions';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import DocManager from '@/components/doc-manager';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -31,6 +31,7 @@ import Link from 'next/link';
 import OriaXOS from '@/components/oria-xos';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { ProjectPlanSchema } from '@/ai/types';
+import { ALL_APPS_CONFIG } from '@/lib/apps-config';
 
 
 type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
@@ -214,19 +215,24 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
 
 function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: () => void, onCancel: () => void }) {
     const { toast } = useToast();
-    const [state, formAction] = useFormState(createManualProjectAction, { success: false });
-    const { pending } = useFormStatus();
+    const [pending, setPending] = useState(false);
 
-    useEffect(() => {
-        if (state.success && state.project) {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setPending(true);
+        const formData = new FormData(e.currentTarget);
+        const response = await createManualProjectAction({ success: false }, formData);
+
+        if (response.success && response.project) {
             onProjectCreated();
-        } else if (state.error) {
-            toast({ variant: 'destructive', title: "Erreur", description: state.error });
+        } else if (response.error) {
+            toast({ variant: 'destructive', title: "Erreur", description: response.error });
         }
-    }, [state, onProjectCreated, toast]);
+        setPending(false);
+    };
     
     return (
-        <form action={formAction} className="w-full max-w-lg mt-8 space-y-4 text-left">
+        <form onSubmit={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
             <div className="space-y-2">
                 <Label htmlFor="title">Titre du projet</Label>
                 <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={pending} />
@@ -250,7 +256,7 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
 function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: () => void, onCancel: () => void}) {
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
-    const [state, formAction] = useFormState(fluxAction, { success: false, result: null, error: null, prompt: '', job: '' });
+    const [state, formAction] = useFormState(pulseProjectAction, { success: false, result: null, error: null, prompt: '' });
     const { pending } = useFormStatus();
     
     useEffect(() => {
@@ -276,13 +282,12 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: () =
                         <>
                             <Sparkles className="mx-auto h-20 w-20 text-muted-foreground/30" />
                             <h2 className="mt-6 text-xl font-semibold text-foreground">Créer un nouveau projet avec l'IA</h2>
-                            <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez (X)flux générer tous les livrables de départ.</p>
+                            <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez Pulse générer un plan d'action.</p>
                             <form action={formAction} className="w-full max-w-lg mt-8 space-y-4">
                                 <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={pending} />
-                                <Input name="job" placeholder="Votre métier ? (ex: Développeur, Artiste...) - Optionnel" className="bg-background/50 text-base text-center" disabled={pending} />
                                 <Button type="submit" size="lg" disabled={pending} className="w-full">
                                     {pending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
-                                    {pending ? 'Génération en cours...' : 'Lancer (X)flux'}
+                                    {pending ? 'Génération en cours...' : 'Lancer Pulse'}
                                 </Button>
                                 <Button type="button" variant="link" onClick={() => setView('manual')} disabled={pending}>Ou créer manuellement</Button>
                             </form>
@@ -311,6 +316,12 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
         setProject(updatedProject);
     };
     
+    const getToolIcon = (toolId?: string) => {
+        if (!toolId) return Layers;
+        const app = ALL_APPS_CONFIG.find(a => a.id === toolId);
+        return app ? app.icon : Layers;
+    };
+    
     return (
         <ScrollArea className="h-full">
             <div className="p-4 md:p-6 space-y-8">
@@ -337,11 +348,28 @@ function ProjectPlanView({ project, setProject }: { project: Project, setProject
                             <div className="space-y-4">
                                 {project.plan.tasks.filter(t => t.category === category).map((task, taskIndex) => {
                                     const realTaskIndex = project.plan.tasks.findIndex(t => t.title === task.title && t.description === task.description);
+                                    const ToolIcon = getToolIcon(task.toolId);
                                     return (
                                         <Card key={realTaskIndex} className="glass-card bg-background/30">
-                                            <CardHeader>
-                                                <CardTitle className="text-base">{task.title}</CardTitle>
-                                                <CardDescription>{task.description}</CardDescription>
+                                            <CardHeader className="flex flex-row items-start justify-between">
+                                                <div>
+                                                    <CardTitle className="text-base">{task.title}</CardTitle>
+                                                    <CardDescription>{task.description}</CardDescription>
+                                                </div>
+                                                 {task.toolId && (
+                                                     <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button variant="ghost" size="icon" className="h-9 w-9">
+                                                                    <ToolIcon className="h-5 w-5 text-accent" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Lancer {task.toolId}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                 )}
                                             </CardHeader>
                                             <CardContent className="space-y-2">
                                                 {task.checklist.map((item, itemIndex) => (
@@ -446,24 +474,31 @@ export default function PulseClient() {
             const allDocs = await listDocuments();
             setDocs(allDocs || []);
 
-            // This is a simplified mock. A real implementation would fetch and parse JSON from storage.
             const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
             
-            const parsedProjects: Project[] = maestroDocs.map(doc => {
-                const name = doc.name.replace('.json', '').replace(/[-_]/g, ' ');
-                 // MOCKUP of project plan content
-                const mockPlan: ProjectPlan = {
-                    id: doc.id,
-                    title: name,
-                    creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}". Le contenu réel du fichier n'est pas chargé dans cette version de démonstration.`,
-                    tasks: [
-                        { title: "Définir la stratégie", description: "Recherche initiale et brainstorming.", category: "Stratégie & Recherche", duration: "3 jours", checklist: [{text: "Analyser la concurrence", completed: true}, {text: "Définir la cible", completed: false}]},
-                        { title: "Créer les visuels", description: "Design du logo et de la charte graphique.", category: "Création & Production", duration: "5 jours", checklist: [{text: "Moodboard", completed: true}, {text: "Propositions de logo", completed: true}, {text: "Valider la palette", completed: false}]}
-                    ],
-                    imagePrompts: ["abstract digital art, minimal, soft gradients, calm, serene"],
-                };
-                return { id: doc.id, name, plan: mockPlan, path: doc.path };
-            });
+            const parsedProjects: Project[] = [];
+            for (const doc of maestroDocs) {
+                try {
+                    const urlResult = await getSignedUrlAction({ docId: doc.id });
+                    const response = await fetch(urlResult.url);
+                    if (!response.ok) continue;
+                    
+                    const textContent = await response.text();
+                    const jsonContent = JSON.parse(textContent);
+                    const validation = ProjectPlanSchema.safeParse(jsonContent);
+
+                    if (validation.success) {
+                       parsedProjects.push({
+                           id: doc.id,
+                           name: doc.name.replace('.json', '').replace(/-/g, ' '),
+                           plan: validation.data,
+                           path: doc.path,
+                       });
+                    }
+                } catch (e) {
+                    console.error("Failed to parse project file:", doc.path, e);
+                }
+            }
 
             setProjects(parsedProjects);
 
@@ -606,3 +641,4 @@ export default function PulseClient() {
         </div>
     );
 }
+
