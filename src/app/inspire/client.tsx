@@ -44,6 +44,8 @@ const AMBIENCES = [
     desc: "Pluie contre la vitre, ambiance cosy et introspective.",
   },
 ];
+type AmbienceId = typeof AMBIENCES[number]['id'];
+
 
 const inspirationalQuotes = [
     "La créativité, c'est l'intelligence qui s'amuse. - Albert Einstein",
@@ -317,7 +319,7 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
 }
 
 function OriaChatbot() {
-    const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
+    const [messages, setMessages] = useLocalState<{type: 'user' | 'ai', text: string}[]>("xinspire.messages", []);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
