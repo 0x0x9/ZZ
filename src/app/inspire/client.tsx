@@ -80,21 +80,17 @@ export function OriaSiriOrbPro({
     }
   }, [state, ring, core, wave]);
 
-  // Couleurs/halo adaptatifs
-  const glowPink = subtle ? "rgba(244,114,182,0.25)" : "rgba(244,114,182,0.45)";
-  const glowIndigo = subtle ? "rgba(129,140,248,0.2)" : "rgba(129,140,248,0.35)";
-
   return (
     <div
       className={cn("relative select-none", className)}
       style={{ width: size, height: size }}
       aria-label="Oria — état visuel"
     >
-      <div className="absolute inset-0 header-logo-orb">
-        <div className="blob one"></div>
-        <div className="blob two"></div>
-        <div className="blob three"></div>
-      </div>
+        <div className="absolute inset-0 header-logo-orb">
+            <div className="blob one"></div>
+            <div className="blob two"></div>
+            <div className="blob three"></div>
+        </div>
       {/* Anneau verre */}
       <motion.div
         className="absolute inset-0 rounded-full border backdrop-blur-md"
@@ -272,130 +268,6 @@ function OriaChatbot() {
     );
   }
 
-function useLocalState<T>(key: string, initial: T) {
-  const [v, setV] = useState<T>(initial);
-  useEffect(() => { try { const raw = localStorage.getItem(key); if (raw) setV(JSON.parse(raw)); } catch {} }, []);
-  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }, [key, v]);
-  return [v, setV] as const;
-}
-
-type Task = { id: string; title: string; done: boolean; eta: 15|30|60; createdAt: number };
-
-function WorkTasks({ onStartTimer }: { onStartTimer: (m: number)=>void }) {
-  const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
-  const [input, setInput] = useState("");
-  const add = (eta: 15|30|60) => {
-    const t = input.trim(); if (!t) return;
-    const id = (crypto?.randomUUID?.() ?? `t_${Date.now()}_${Math.random()}`);
-    setTasks(ts => [{ id, title: t, done: false, eta, createdAt: Date.now() }, ...ts]);
-    setInput(""); onStartTimer(eta);
-  };
-  const toggle = (id: string) => setTasks(ts => ts.map(t => t.id===id ? {...t, done: !t.done} : t));
-  const remove = (id: string) => setTasks(ts => ts.filter(t => t.id!==id));
-
-  return (
-    <Glass className="p-4">
-      <div className="font-semibold mb-2">Tâches rapides</div>
-      <div className="flex gap-2">
-        <Textarea rows={1} value={input} onChange={e=>setInput(e.target.value)}
-          placeholder="Ajouter une tâche…" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none" />
-        <Button onClick={()=>add(25)} variant="secondary">Ajouter</Button>
-      </div>
-      <div className="mt-3 flex gap-2">
-        {[15,30,60].map(m=>(
-          <button key={m} onClick={()=>add(m as 15|30|60)}
-            className="px-3 py-1 rounded-full text-sm border bg-white/10 hover:bg-white/15 border-white/25">
-            + {m} min
-          </button>
-        ))}
-      </div>
-      <div className="mt-4 space-y-2 max-h-60 overflow-auto pr-1 no-scrollbar">
-        {tasks.length===0 && <div className="text-white/60 text-sm">Aucune tâche.</div>}
-        {tasks.map(t=>(
-          <div key={t.id} className="rounded-xl border border-white/15 bg-white/5 p-2 flex items-center justify-between">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={t.done} onChange={()=>toggle(t.id)} />
-              <span className={t.done ? "line-through opacity-60" : ""}>{t.title}</span>
-            </label>
-            <div className="flex items-center gap-2">
-              <button onClick={()=>onStartTimer(t.eta)} className="text-xs underline opacity-80 hover:opacity-100">
-                Démarrer {t.eta} min
-              </button>
-              <button onClick={()=>remove(t.id)} className="text-xs opacity-70 hover:opacity-100">Supprimer</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </Glass>
-  );
-}
-
-function WorkBrief() {
-  const [title, setTitle] = useLocalState("xinspire.brief.title", "");
-  const [why, setWhy] = useLocalState("xinspire.brief.why", "");
-  const [how, setHow] = useLocalState("xinspire.brief.how", "");
-  const [first, setFirst] = useLocalState("xinspire.brief.first", "");
-
-  const fromInspiration = () => {
-    const notes = localStorage.getItem("xinspire.notes") || "";
-    if (!title) setTitle("Éclat intérieur");
-    if (!why) setWhy("Ancrer une émotion simple et vraie.");
-    if (!how) setHow("Une forme, une lumière, un silence.");
-    if (!first) setFirst("Esquisse 3 variations en 120 secondes.");
-    // ici tu peux appeler ton API LLM si tu veux un vrai brief depuis Oria + notes
-  };
-  const exportMd = () => {
-    const md = `# Mini-brief
-**Titre**: ${title}
-**Pourquoi**: ${why}
-**Comment**: ${how}
-**Premier pas**: ${first}
-`;
-    const blob = new Blob([md], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "brief.md"; a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <Glass className="p-4">
-      <div className="font-semibold mb-2">Mini-brief</div>
-      <div className="grid gap-2">
-        <Textarea rows={1} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Titre…" className="bg-white/10 border-white/20" />
-        <Textarea rows={2} value={why} onChange={e=>setWhy(e.target.value)} placeholder="Pourquoi…" className="bg-white/10 border-white/20" />
-        <Textarea rows={3} value={how} onChange={e=>setHow(e.target.value)} placeholder="Comment…" className="bg-white/10 border-white/20" />
-        <Textarea rows={2} value={first} onChange={e=>setFirst(e.target.value)} placeholder="Premier pas…" className="bg-white/10 border-white/20" />
-      </div>
-      <div className="mt-3 flex gap-2">
-        <Button variant="secondary" onClick={fromInspiration}>Générer depuis l’inspiration</Button>
-        <Button onClick={exportMd}>Exporter .md</Button>
-      </div>
-    </Glass>
-  );
-}
-
-function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }) {
-  const [remain, setRemain] = useState<number>(0);
-  useEffect(()=> {
-    if (!minutes) return;
-    setRemain(minutes*60);
-    const id = setInterval(()=> setRemain(s=> (s>0? s-1 : 0)), 1000);
-    return ()=> clearInterval(id);
-  }, [minutes]);
-  useEffect(()=> { if (minutes && remain===0) onEnd(); }, [remain, minutes, onEnd]);
-  if (!minutes) return null;
-  const mm = String(Math.floor(remain/60)).padStart(2,'0');
-  const ss = String(remain%60).padStart(2,'0');
-  return (
-    <div className="fixed top-4 right-4 z-30">
-      <Glass className="px-4 py-2">
-        <div className="text-xs uppercase tracking-wider text-white/70">Focus</div>
-        <div className="text-base font-semibold">{mm}:{ss}</div>
-      </Glass>
-    </div>
-  );
-}
-
 export default function XInspireEnvironment() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -405,36 +277,40 @@ export default function XInspireEnvironment() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [note, setNote] = useState("");
-  const [notes, setNotes] = useLocalState<string[]>("xinspire.notes", []);
-  const [activeTimer, setActiveTimer] = useState<number|null>(null);
+  const [notes, setNotes] = useState<string[]>([]);
   const playerRef = useRef<any>(null);
 
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
   useEffect(() => {
-    function createPlayer() {
+    const handlePlayerReady = (event: any) => {
+      if (hasInteracted && !isMuted) {
+        event.target.unMute();
+      } else {
+        event.target.mute();
+      }
+      event.target.playVideo();
+    };
+  
+    function createPlayer(videoId: string) {
       if (!(window as any).YT) return;
       playerRef.current = new (window as any).YT.Player('youtube-player', {
         width: '100%',
         height: '100%',
-        videoId: cur.videoId,
+        videoId: videoId,
         playerVars: {
           autoplay: 1,
           controls: 0,
           loop: 1,
-          playlist: cur.videoId,
+          playlist: videoId,
           modestbranding: 1,
           rel: 0,
           iv_load_policy: 3,
           playsinline: 1
         },
         events: {
-          onReady: (e: any) => {
-            if (hasInteracted && !isMuted) e.target.unMute();
-            else e.target.mute();
-            e.target.playVideo();
-          }
+          onReady: handlePlayerReady,
         }
       });
     }
@@ -442,26 +318,22 @@ export default function XInspireEnvironment() {
     if (!(window as any).YT || !(window as any).YT.Player) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
-      (window as any).onYouTubeIframeAPIReady = () => {
-        if (!playerRef.current) createPlayer();
-      };
-      return;
-    }
-
-    if (!playerRef.current) {
-        createPlayer();
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
     } else {
-        try {
-            playerRef.current.loadPlaylist({ listType: 'playlist', list: [cur.videoId], index: 0 });
-             if (hasInteracted && !isMuted) playerRef.current.unMute();
-             else playerRef.current.mute();
-        } catch (e) {
-             try { playerRef.current.destroy?.(); } catch {}
-             createPlayer();
+      if (playerRef.current && playerRef.current.loadVideoById) {
+        playerRef.current.loadVideoById(cur.videoId);
+        if (hasInteracted && !isMuted) {
+          playerRef.current.unMute();
+        } else {
+          playerRef.current.mute();
         }
+      } else {
+        playerRef.current?.destroy?.();
+        createPlayer(cur.videoId);
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cur.videoId, hasInteracted, isMuted]);
 
 
@@ -538,7 +410,6 @@ export default function XInspireEnvironment() {
           </div>
         </Glass>
       </div>
-      <WorkTimer minutes={activeTimer} onEnd={()=>setActiveTimer(null)} />
 
       {/* Overlay d’activation */}
       <AnimatePresence>
@@ -605,11 +476,10 @@ export default function XInspireEnvironment() {
                 </div>
 
                 <Tabs defaultValue="ambience" className="w-full mt-4">
-                  <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10">
+                  <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
                     <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
                     <TabsTrigger value="notes" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><NotebookPen className="mr-2 h-4 w-4"/>Notes</TabsTrigger>
-                    <TabsTrigger value="work" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">🛠 Travail</TabsTrigger>
                   </TabsList>
                   <TabsContent value="ambience" className="mt-4">
                     <div className="flex items-center justify-between">
@@ -661,12 +531,6 @@ export default function XInspireEnvironment() {
                         </div>
                     </div>
                   </TabsContent>
-                   <TabsContent value="work" className="mt-4">
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <WorkTasks onStartTimer={(m)=>setActiveTimer(m)} />
-                            <WorkBrief />
-                        </div>
-                    </TabsContent>
                 </Tabs>
               </Glass>
             </div>
@@ -676,3 +540,5 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
+    
