@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
@@ -167,14 +168,14 @@ export default function ProductClient({ product }: { product: Product }) {
     return getDefaultConfig(product);
   }, [searchParams, product]);
   
-  const [configuration, setConfiguration] = useState<Configuration | null>(getInitialConfig());
+  const [configuration, setConfig] = useState<Configuration | null>(getInitialConfig());
   
   const { addItem } = useCart();
   
   const [totalPrice, setTotalPrice] = useState(product.price);
   
   const handleConfigChange = (newConfig: Configuration, newPrice: number) => {
-    setConfiguration(newConfig);
+    setConfig(newConfig);
     setTotalPrice(newPrice);
   };
   
@@ -307,9 +308,17 @@ const benefits = [
                                 initialConfig={configuration}
                             />
                         ) : (
-                            <div className="text-center p-8 glass-card">
+                            <div className="text-left p-8 glass-card">
                                 <h3 className="text-xl font-semibold">Produit non configurable</h3>
                                 <p className="text-muted-foreground mt-2">Cette version du {product.name} est livrée avec une configuration standard optimisée.</p>
+                                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                                    {(product.features ?? []).map(feature => (
+                                        <li key={feature} className="flex items-start gap-2">
+                                            <CheckCircle className="h-4 w-4 text-primary mt-1 shrink-0" />
+                                            <span>{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         )}
 
@@ -448,3 +457,5 @@ const benefits = [
     </>
   );
 }
+
+    

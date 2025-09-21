@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -9,7 +10,6 @@ import { products } from '@/lib/products';
 import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/product-card';
 import Image from 'next/image';
-import imageData from '@/lib/placeholder-images.json';
 import { AiConfigurator } from '@/components/ai-configurator';
 import type { Configuration } from '@/components/ui/pc-configurator';
 import { useRouter } from 'next/navigation';
@@ -24,8 +24,7 @@ export default function StoreClient() {
     const { toast } = useToast();
     
     const xPhiProduct = products.find(p => p.name === '(X)-φ (fi)');
-    const workstationProduct = products.find(p => p.name === '(X)-fi');
-
+    
     const handleAiConfigSelect = (newConfig: Configuration, modelName: string, modelId: number) => {
         const params = new URLSearchParams({
             cpu: newConfig.cpu,
@@ -107,8 +106,8 @@ export default function StoreClient() {
       </section>
       
        <section className="container mx-auto px-4 md:px-6 mb-24 md:mb-32">
-        {workstationProduct && (
-            <AiConfigurator product={workstationProduct} onConfigSelect={handleAiConfigSelect} />
+        {xPhiProduct && (
+            <AiConfigurator product={xPhiProduct} onConfigSelect={handleAiConfigSelect} />
         )}
        </section>
       
@@ -176,3 +175,5 @@ export default function StoreClient() {
     </>
   );
 }
+
+    

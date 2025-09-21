@@ -1,3 +1,4 @@
+
 {
     "about": {
         "mission": {
@@ -82,7 +83,7 @@
         },
         "post_innovation": {
             "src": "/images/blog/posts/innovation.webp",
-            "hint": "abstract code"
+            "hint": "abstract innovation"
         },
         "post_workflow": {
             "src": "/images/blog/posts/workflow.webp",
@@ -115,10 +116,6 @@
         "post_gallery": {
             "src": "/images/blog/posts/gallery.webp",
             "hint": "art gallery"
-        },
-        "post_openai_video": {
-            "src": "/images/blog/posts/innovation.webp",
-            "hint": "abstract innovation"
         }
     },
     "collaborations": {
@@ -203,15 +200,41 @@
         }
     },
     "store": {
-        "workstation": {
-            "src": "/images/store/workstation.webp",
-            "hint": "futuristic workstation"
-        }
+        "x-phi-1": { "src": "/images/store/x-phi-1.webp" },
+        "x-phi-2": { "src": "/images/store/x-phi-2.webp" },
+        "x-phi-3": { "src": "/images/store/x-phi-3.webp" },
+        "x-phi-4": { "src": "/images/store/x-phi-4.webp" },
+        "x-alpha": { "src": "/images/store/x-alpha.webp" },
+        "x-pi": { "src": "/images/store/x-pi.webp" },
+        "x-omega": { "src": "/images/store/x-omega.webp" },
+        "xos-pro": { "src": "/images/store/xos-pro.webp" },
+        "x-pen": { "src": "/images/store/x-pen.webp" },
+        "x-sound": { "src": "/images/store/x-sound.webp" },
+        "x-vision": { "src": "/images/store/x-vision.webp" },
+        "x-flux-plugin": { "src": "/images/store/x-flux-plugin.webp" },
+        "x-type": { "src": "/images/store/x-type.webp" },
+        "x-sigma": { "src": "/images/store/x-sigma.webp" }
     },
     "general": {
         "user_avatar": {
             "src": "/images/general/user-avatar.webp",
             "hint": "person portrait"
         }
+    },
+    "homepage": {
+        "community": {
+            "src": "/images/homepage/community.webp",
+            "hint": "creative team meeting"
+        },
+        "gallery": {
+            "src": "/images/homepage/gallery.webp",
+            "hint": "art gallery"
+        },
+        "careers": {
+            "src": "/images/homepage/careers.webp",
+            "hint": "person working on laptop"
+        }
     }
 }
+
+    
