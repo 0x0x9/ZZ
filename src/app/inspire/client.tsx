@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -11,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dynamic from "next/dynamic";
 
 const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
-
 
 /**
  * OriaSiriOrbPro — Orbe VisionOS “future Siri”
@@ -90,82 +90,20 @@ export function OriaSiriOrbPro({
       style={{ width: size, height: size }}
       aria-label="Oria — état visuel"
     >
-      {/* Aura externe multi-tons */}
-      <motion.div
-        animate={haloCycle}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-0 rounded-full"
-        style={{
-          filter: "blur(22px)",
-          background:
-            `radial-gradient(closest-side, hsl(var(--primary)), transparent 80%),
-             radial-gradient(closest-side, hsl(var(--accent)), transparent 85%),
-             radial-gradient(closest-side, ${glowPink}, transparent 90%),
-             radial-gradient(closest-side, ${glowIndigo}, transparent 100%)`
-        }}
-      />
-
+      <div className="absolute inset-0 header-logo-orb">
+        <div className="blob one"></div>
+        <div className="blob two"></div>
+        <div className="blob three"></div>
+      </div>
       {/* Anneau verre */}
       <motion.div
-        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
+        className="absolute inset-0 rounded-full border backdrop-blur-md"
         style={{
           borderColor: "rgba(255,255,255,0.28)",
           boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)"
         }}
       />
-
-      {/* Reflets subtils */}
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))",
-          maskImage:
-            "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)"
-        }}
-      />
-
-      {/* Noyau “liquide” */}
-      <motion.div
-        animate={core}
-        className="absolute inset-2 rounded-full"
-        style={{
-          background: `radial-gradient(closest-side, rgba(255,255,255,0.24), rgba(255,255,255,0.06))`,
-          boxShadow: "inset 0 10px 40px rgba(255,255,255,0.08)"
-        }}
-      />
-
-      {/* Onde interne (rotation continue) */}
-      <motion.div
-        animate={wave}
-        className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          background:
-            "radial-gradient(closest-side, rgba(255,255,255,0.36), rgba(255,255,255,0.0))",
-          filter: "blur(10px)"
-        }}
-      />
-
-      {/* Points scintillants */}
-      <DotSpark x="20%" y="25%" delay={0.1} />
-      <DotSpark x="78%" y="40%" delay={0.4} />
-      <DotSpark x="38%" y="78%" delay={0.9} />
     </div>
-  );
-}
-
-function DotSpark({ x, y, delay=0 }: { x: string; y: string; delay?: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0.2, scale: 0.8 }}
-      animate={{ opacity: [0.2, 0.9, 0.2], scale: [0.8, 1, 0.8] }}
-      transition={{ duration: 2.6, repeat: Infinity, delay, ease: "easeInOut" }}
-      className="absolute h-2 w-2 rounded-full"
-      style={{
-        left: x, top: y,
-        background: "radial-gradient(closest-side, rgba(255,255,255,0.9), rgba(255,255,255,0))",
-        filter: "blur(0.5px)"
-      }}
-    />
   );
 }
 
@@ -266,7 +204,7 @@ function OriaChatbot() {
     return (
       <div className="flex flex-col h-full space-y-4">
         {/* Header visionOS */}
-        <Glass className={cn("p-4 flex items-center gap-4", isLoading && "ring-1 ring-white/20")}>
+        <Glass className={cn("p-4 flex items-center gap-4 transition-all duration-300", isLoading && "ring-1 ring-white/20")}>
           <OriaSiriOrbPro
             size={112}
             state={isLoading ? "thinking" : (input ? "active" : "idle")}
@@ -300,7 +238,7 @@ function OriaChatbot() {
               </motion.div>
             </div>
           ))}
-          {isLoading && (
+           {isLoading && (
               <div className="flex justify-start">
                   <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -504,27 +442,27 @@ export default function XInspireEnvironment() {
     if (!(window as any).YT || !(window as any).YT.Player) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      document.head.appendChild(tag);
       (window as any).onYouTubeIframeAPIReady = () => {
         if (!playerRef.current) createPlayer();
       };
+      return;
+    }
+
+    if (!playerRef.current) {
+        createPlayer();
     } else {
-        if (!playerRef.current) {
-            createPlayer();
-        } else {
-            try {
-                playerRef.current.loadPlaylist({ listType: 'playlist', list: [cur.videoId], index: 0 });
-                if (hasInteracted && !isMuted) playerRef.current.unMute();
-                else playerRef.current.mute();
-            } catch (e) {
-                try { playerRef.current.destroy?.(); } catch {}
-                createPlayer();
-            }
+        try {
+            playerRef.current.loadPlaylist({ listType: 'playlist', list: [cur.videoId], index: 0 });
+             if (hasInteracted && !isMuted) playerRef.current.unMute();
+             else playerRef.current.mute();
+        } catch (e) {
+             try { playerRef.current.destroy?.(); } catch {}
+             createPlayer();
         }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cur.videoId]);
+  }, [cur.videoId, hasInteracted, isMuted]);
 
 
   const handleFirstInteraction = () => {
@@ -723,12 +661,12 @@ export default function XInspireEnvironment() {
                         </div>
                     </div>
                   </TabsContent>
-                  <TabsContent value="work" className="mt-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <WorkTasks onStartTimer={(m)=>setActiveTimer(m)} />
-                        <WorkBrief />
-                      </div>
-                  </TabsContent>
+                   <TabsContent value="work" className="mt-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <WorkTasks onStartTimer={(m)=>setActiveTimer(m)} />
+                            <WorkBrief />
+                        </div>
+                    </TabsContent>
                 </Tabs>
               </Glass>
             </div>
