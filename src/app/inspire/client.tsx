@@ -3,7 +3,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, Pause, Play, X, NotebookPen, Settings, Sparkles } from "lucide-react";
+import { Music, Pause, Play, X, NotebookPen, Settings, Sparkles, ArrowLeft } from "lucide-react";
+import Link from 'next/link';
 
 /**
  * XInspire — Fullscreen Oasis Environment
@@ -23,9 +24,7 @@ const AMBIENCES = [
   {
     id: "forest" as const,
     label: "Forêt zen",
-    // Calming forest loop video (replace with your IDs)
     bgVideoId: "29XymHesxa0",
-    // Optional relaxing audio-only video id (rain, etc.)
     audioVideoId: "f77SKdyn-1Y",
     desc: "Lumière douce, brume légère, respiration longue.",
   },
@@ -157,6 +156,12 @@ export default function XInspireEnvironment() {
       className="fixed bottom-4 left-1/2 z-30 -translate-x-1/2 h-10 w-10 cursor-pointer rounded-full border border-white/20 bg-white/10 backdrop-blur hover:border-white/40"
     />
   );
+  
+  const backButton = (
+      <Link href="/" passHref>
+          <Pill className="fixed bottom-4 right-4 z-30" icon={<ArrowLeft className="h-4 w-4"/>}>Retour</Pill>
+      </Link>
+  );
 
   return (
     <div className="relative min-h-screen w-full text-white bg-black">
@@ -164,24 +169,24 @@ export default function XInspireEnvironment() {
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
       {/* Fullscreen background YouTube video */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-            <motion.div
-                key={cur.bgVideoId}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1.5, ease: 'easeInOut' }}
-                className="w-full h-full"
-            >
-                <iframe
-                    className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
-                    src={ytEmbedSrc(cur.bgVideoId)}
-                    title="XInspire background"
-                    allow="autoplay; encrypted-media; picture-in-picture"
-                />
-            </motion.div>
-             {/* Light vignette + glass effect overlay */}
-            <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
-        </div>
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+          <motion.div
+              key={cur.bgVideoId}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+              className="w-full h-full"
+          >
+              <iframe
+                  className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
+                  src={ytEmbedSrc(cur.bgVideoId)}
+                  title="XInspire background"
+                  allow="autoplay; encrypted-media; picture-in-picture"
+              />
+          </motion.div>
+           {/* Light vignette + glass effect overlay */}
+          <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+      </div>
 
       {/* Audio player: YouTube audio-only iframe (1x1 off-screen but accessible) */}
       <div className="sr-only" aria-hidden={!audioEnabled}>
@@ -224,6 +229,7 @@ export default function XInspireEnvironment() {
 
       {/* Hidden hotspot to open the panel */}
       {hotspot}
+      {backButton}
 
       {/* Control Panel */}
       <AnimatePresence>
@@ -300,3 +306,4 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
