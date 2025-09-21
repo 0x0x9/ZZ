@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
@@ -64,13 +64,11 @@ export default function XInspireEnvironment() {
   const [notes, setNotes] = useState<string[]>([]);
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
-  
+
   const videoSrc = useMemo(() => {
-    const videoId = cur.videoId;
     const muteState = isMuted || !hasInteracted ? 1 : 0;
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0`;
-  }, [cur.videoId, isMuted, hasInteracted]);
-  
+    return `https://www.youtube.com/embed/${cur.videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${cur.videoId}&modestbranding=1&showinfo=0&rel=0`;
+  }, [cur, isMuted, hasInteracted]);
 
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
@@ -80,13 +78,10 @@ export default function XInspireEnvironment() {
   };
 
   const toggleMute = () => {
-    if (!hasInteracted) {
-        handleFirstInteraction();
-        return;
-    }
+    if (!hasInteracted) return handleFirstInteraction();
     setIsMuted(m => !m);
   };
-  
+
   // Notes localStorage
   useEffect(() => {
     try {
@@ -115,20 +110,37 @@ export default function XInspireEnvironment() {
   };
 
   return (
-    <div className="relative min-h-screen w-full text-white bg-black">
+    <div className="relative min-h-screen w-full text-white">
       {/* Background gradient glow */}
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
       {/* Fullscreen YouTube */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <iframe
-            key={videoSrc} // Force re-render of iframe on src change
+      <AnimatePresence>
+        <motion.div
+          key={videoSrc}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+          className="absolute inset-0 -z-10 overflow-hidden"
+        >
+          <iframe
             src={videoSrc}
             className="absolute top-0 left-0 w-full h-full"
-            allow="autoplay; fullscreen"
             style={{ pointerEvents: "none" }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+            allow="autoplay; fullscreen"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        </motion.div>
+      </AnimatePresence>
+      
+       {/* Ambience badge */}
+       <div className="pointer-events-none fixed left-6 top-6 z-30 select-none">
+        <Glass className="px-4 py-2">
+          <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
+          <div className="text-base font-semibold flex items-center gap-2">
+            <Sparkles className="h-4 w-4" /> {cur.label}
+          </div>
+        </Glass>
       </div>
 
       {/* Overlay d’activation */}
@@ -163,16 +175,6 @@ export default function XInspireEnvironment() {
           </motion.div>
         )}
       </AnimatePresence>
-      
-       {/* Ambience badge */}
-       <div className="pointer-events-none fixed left-6 top-6 z-30 select-none">
-        <Glass className="px-4 py-2">
-          <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
-          <div className="text-base font-semibold flex items-center gap-2">
-            <Sparkles className="h-4 w-4" /> {cur.label}
-          </div>
-        </Glass>
-      </div>
 
       {/* Hotspot panneau */}
       <div
