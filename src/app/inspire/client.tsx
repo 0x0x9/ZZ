@@ -32,7 +32,7 @@ const AMBIENCES = [
   {
     id: "neon" as const,
     label: "Néon nocturne",
-    bgVideoId: "hHW1oY26kxQ",
+    bgVideoId: "-Xh4BNbxpI8",
     audioVideoId: "DWcJFNfaw9c",
     desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
   },
