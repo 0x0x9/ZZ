@@ -1,10 +1,11 @@
-
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
+import { cn } from "@/lib/utils";
+
 
 // ---- Config ----
 const AMBIENCES = [
@@ -117,15 +118,18 @@ export default function XInspireEnvironment() {
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
       {/* Fullscreen YouTube */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
+      <div className={cn(
+          "absolute inset-0 -z-10 overflow-hidden transition-all duration-500",
+          panelOpen ? "blur-md" : "blur-0"
+      )}>
         <iframe
           key={videoSrc}
           src={videoSrc}
-          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[177.77vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[177.77vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[2.5]"
           allow="autoplay; fullscreen"
           style={{ pointerEvents: 'none' }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
+        <div className="pointer-events-none absolute inset-0 bg-black/20" />
       </div>
 
        {/* Ambience badge */}
