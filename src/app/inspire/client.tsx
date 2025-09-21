@@ -24,7 +24,7 @@ const AMBIENCES = [
     id: "forest" as const,
     label: "Forêt zen",
     // Calming forest loop video (replace with your IDs)
-    bgVideoId: "MhwGxR1d6B8",
+    bgVideoId: "29XymHesxa0",
     // Optional relaxing audio-only video id (rain, etc.)
     audioVideoId: "f77SKdyn-1Y",
     desc: "Lumière douce, brume légère, respiration longue.",
