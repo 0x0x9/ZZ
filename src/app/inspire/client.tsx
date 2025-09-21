@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
 import Link from 'next/link';
@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OriaSiriOrbPro } from "../ui/oria-siri-pro";
 
 
 const AMBIENCES = [
@@ -47,13 +46,93 @@ const AMBIENCES = [
 ];
 type AmbienceId = typeof AMBIENCES[number]['id'];
 
-const inspirationalQuotes = [
-    "La créativité, c'est l'intelligence qui s'amuse. - Albert Einstein",
-    "Le seul moyen de faire du bon travail est d'aimer ce que vous faites. - Steve Jobs",
-    "La logique vous mènera d'un point A à un point B. L'imagination vous mènera partout. - Albert Einstein",
-    "Pour créer, il faut une grande solitude. - Pablo Picasso",
-    "N'attendez pas l'inspiration. Poursuivez-la avec une massue. - Jack London"
-];
+function OriaSiriOrbPro({
+  size = 120,
+  state = "idle",
+  subtle = false,
+  className
+}: {
+  size?: number;
+  state?: "idle" | "active" | "thinking" | "speaking";
+  subtle?: boolean;
+  className?: string;
+}) {
+  const blobControls = [useAnimationControls(), useAnimationControls(), useAnimationControls()];
+
+  useEffect(() => {
+    const commonOptions = { repeat: Infinity, ease: "easeInOut" };
+    const animations = {
+      idle: [
+        { scale: [1, 1.05, 1], rotate: 360, transition: { ...commonOptions, duration: 8 } },
+        { scale: [1, 0.95, 1], rotate: -360, transition: { ...commonOptions, duration: 11 } },
+        { scale: [1, 1.02, 1], rotate: 360, transition: { ...commonOptions, duration: 13 } }
+      ],
+      active: [
+        { scale: [1, 1.1, 1], rotate: 360, transition: { ...commonOptions, duration: 5 } },
+        { scale: [1, 0.9, 1], rotate: -360, transition: { ...commonOptions, duration: 7 } },
+        { scale: [1, 1.05, 1], rotate: 360, transition: { ...commonOptions, duration: 9 } }
+      ],
+      thinking: [
+        { scale: [1, 1.15, 1], rotate: 360, transition: { ...commonOptions, duration: 3 } },
+        { scale: [1, 0.85, 1], rotate: -360, transition: { ...commonOptions, duration: 4 } },
+        { scale: [1, 1.1, 1], rotate: 360, transition: { ...commonOptions, duration: 5 } }
+      ],
+      speaking: [
+        { scale: [1, 1.2, 1], rotate: 360, transition: { ...commonOptions, duration: 2 } },
+        { scale: [1, 0.8, 1], rotate: -360, transition: { ...commonOptions, duration: 3 } },
+        { scale: [1, 1.1, 1], rotate: 360, transition: { ...commonOptions, duration: 4 } }
+      ]
+    };
+
+    animations[state].forEach((anim, i) => blobControls[i].start(anim));
+
+  }, [state, blobControls]);
+  
+  return (
+    <div
+      className={cn("relative select-none", className)}
+      style={{ width: size, height: size }}
+      aria-label="Oria — état visuel"
+    >
+      <div className="absolute inset-0 rounded-full" style={{ filter: 'blur(20px)' }}>
+        <motion.div
+            className="absolute w-[70%] h-[70%] top-[15%] left-[15%] rounded-full opacity-70"
+            style={{
+                background: "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)",
+                mixBlendMode: 'screen',
+            }}
+            animate={blobControls[0]}
+        />
+        <motion.div
+            className="absolute w-[60%] h-[60%] top-[30%] left-[5%] rounded-full opacity-70"
+            style={{
+                background: "radial-gradient(circle, hsl(var(--accent)) 0%, transparent 70%)",
+                mixBlendMode: 'screen',
+            }}
+            animate={blobControls[1]}
+        />
+         <motion.div
+            className="absolute w-[65%] h-[65%] top-[10%] left-[35%] rounded-full opacity-70"
+            style={{
+                background: "radial-gradient(circle, #E84F8E 0%, transparent 70%)",
+                mixBlendMode: 'screen',
+            }}
+            animate={blobControls[2]}
+        />
+      </div>
+      
+       {/* Anneau verre */}
+      <motion.div
+        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
+        style={{
+          borderColor: "rgba(255,255,255,0.28)",
+          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)"
+        }}
+      />
+    </div>
+  );
+}
+
 
 function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
   return (
@@ -77,11 +156,11 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
 
 
 // Real AI Chatbot function
-const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
+const getInspirationalMessage = async (prompt: string) => {
     const response = await fetch('/api/generateInspiration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, history }),
+        body: JSON.stringify({ prompt }),
     });
 
     if (!response.ok) {
@@ -222,9 +301,18 @@ function OriaChatbot() {
     const [isLoading, setIsLoading] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [mounted, setMounted] = useState(false);
+
     useEffect(() => { setMounted(true); }, []);
     useEffect(() => { if (scrollAreaRef.current) scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight; }, [messages, isLoading]);
 
+    const inspirationalQuotes = [
+        "La créativité, c'est l'intelligence qui s'amuse. - Albert Einstein",
+        "Le seul moyen de faire du bon travail est d'aimer ce que vous faites. - Steve Jobs",
+        "La logique vous mènera d'un point A à un point B. L'imagination vous mènera partout. - Albert Einstein",
+        "Pour créer, il faut une grande solitude. - Pablo Picasso",
+        "N'attendez pas l'inspiration. Poursuivez-la avec une massue. - Jack London"
+    ];
+    
     const randomQuote = useMemo(() => inspirationalQuotes[Math.floor(Math.random() * inspirationalQuotes.length)], []);
 
     if (!mounted) return null;
@@ -233,11 +321,10 @@ function OriaChatbot() {
       if (!input.trim()) return;
       const newMessages = [...messages, { type: 'user' as const, text: input }];
       setMessages(newMessages);
-      const currentInput = input;
       setInput('');
       setIsLoading(true);
       try {
-        const aiResponse = await getInspirationalMessage(currentInput, newMessages);
+        const aiResponse = await getInspirationalMessage(input);
         setMessages(prev => [...prev, { type: 'ai' as const, text: aiResponse }]);
       } catch {
         setMessages(prev => [...prev, { type: 'ai' as const, text: "Désolé, je suis un peu à court d'inspiration pour le moment." }]);
@@ -245,7 +332,7 @@ function OriaChatbot() {
         setIsLoading(false);
       }
     };
-
+    
     const oriaState = isLoading ? "thinking" : (input ? "active" : "idle");
   
     return (
