@@ -585,7 +585,6 @@ export default function PulseClient() {
                         <OriaXOS
                           projectContext={`Nom du Projet: ${activeProject.name}\nBrief du Projet: ${activeProject.plan.creativeBrief}`}
                           openApp={() => {}}
-                          context="xos"
                         />
                     </div>
                 </TabsContent>
@@ -650,5 +649,3 @@ export default function PulseClient() {
         </div>
     );
 }
-
-    

@@ -101,13 +101,6 @@ export async function createManualProjectAction(prevState: any, formData: FormDa
     
     const project: ProjectPlan = projectToValidate;
     
-    const sanitizedTitle = title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-').toLowerCase();
-    const fileName = `maestro-projets/${sanitizedTitle}.json`;
-
-    const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(project))))}`;
-    
-    await uploadDocument({ name: fileName, content: dataUri, mimeType: 'application/json' });
-
     return { success: true, project: project };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -123,6 +116,7 @@ export async function oriaChatAction(prevState: any, formData: FormData): Promis
   const prompt = formData.get('prompt') as string;
   const context = formData.get('context') as OriaChatInput['context'];
   const historyString = formData.get('history') as string;
+  const projectContext = formData.get('projectContext') as string;
 
   let history: OriaChatInput['history'] = [];
   try {
@@ -135,7 +129,7 @@ export async function oriaChatAction(prevState: any, formData: FormData): Promis
   }
   
   try {
-    const result = await oria({ prompt, context, history });
+    const result = await oria({ prompt, context, history, projectContext });
     return { id: prevState.id + 1, result, error: null, message: 'success' };
   } catch (e: any) {
     console.error("Oria chat action failed:", e);
@@ -148,16 +142,6 @@ export async function pulseProjectAction(prevState: any, formData: FormData): Pr
   
   try {
     const result = await createPulseProject({ prompt });
-
-    if (result?.title) {
-        const sanitizedTitle = result.title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-').toLowerCase();
-        const fileName = `maestro-projets/${sanitizedTitle}.json`;
-
-        const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(result))))}`;
-    
-        await uploadDocument({ name: fileName, content: dataUri, mimeType: 'application/json' });
-    }
-
     return { success: true, result, error: null, prompt };
   } catch (e: any) {
     return { success: false, result: null, error: e.message || 'An error occurred', prompt };

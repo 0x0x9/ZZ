@@ -27,7 +27,7 @@ type Message = {
 
 interface OriaXosProps {
     openApp: (appId: string, props?: Record<string, any>) => void;
-    context?: string;
+    projectContext?: string;
 }
 
 const toolInfoMap = {
@@ -359,7 +359,7 @@ function OriaXosUI({ messages, handleReset, openApp, formRef }: { messages: Mess
     );
 }
 
-export default function OriaXOS({ openApp, context: projectContext = 'xos' }: OriaXosProps) {
+export default function OriaXOS({ openApp, projectContext = '' }: OriaXosProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const initialState = { id: 0, result: null, error: '', message: '' };
@@ -397,7 +397,10 @@ export default function OriaXOS({ openApp, context: projectContext = 'xos' }: Or
         .filter(msg => msg.content && msg.content.trim() !== '');
     
     formData.append('history', JSON.stringify(history));
-    formData.append('context', projectContext);
+    formData.append('context', 'xos');
+    if (projectContext) {
+      formData.append('projectContext', projectContext);
+    }
     
     setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: prompt }]);
     
@@ -410,5 +413,3 @@ export default function OriaXOS({ openApp, context: projectContext = 'xos' }: Or
     </form>
   );
 }
-
-    
