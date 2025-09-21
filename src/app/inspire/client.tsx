@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -257,12 +258,23 @@ export default function XInspireEnvironment() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <button
+            <motion.button
               onClick={handleFirstInteraction}
-              className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl hover:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/40"
+              className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-white/40"
+              whileHover={{ scale: 1.05, boxShadow: "0px 0px 15px rgba(255, 255, 255, 0.2)" }}
+              whileTap={{ scale: 0.95 }}
+              animate={{
+                scale: [1, 1.02, 1],
+              }}
+              transition={{
+                duration: 2,
+                ease: "easeInOut",
+                repeat: Infinity,
+                repeatType: "loop"
+              }}
             >
               Activer l'expérience
-            </button>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
