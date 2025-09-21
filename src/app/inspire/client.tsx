@@ -213,7 +213,7 @@ export default function XInspireEnvironment() {
       >
         <iframe
             src={videoSrc}
-            className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[100vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
+            className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[100vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.1]"
             allow="autoplay; fullscreen"
             style={{ pointerEvents: 'none' }}
         />
