@@ -26,7 +26,7 @@ export const blogPosts: Post[] = [
     category: "Annonce",
     date: "2024-08-01",
     readingTime: 4,
-    image: imageData.blog.post_openai_video.src,
+    image: imageData.blog.post_innovation.src,
     excerpt: "Vous utilisez nos outils et vous voyez les mentions 'Alpha' ou 'Bêta'. Qu'est-ce que cela signifie ? Plongez avec nous dans les coulisses de la création de (X)yzz.ai.",
     content: `
       <h2>Participer à la Révolution</h2>
@@ -48,7 +48,7 @@ export const blogPosts: Post[] = [
   {
     slug: "de-lidee-au-projet-avec-x-flux",
     title: "De l'idée au projet complet : Comment (X)flux révolutionne votre workflow",
-    author: "Alfred Sisley",
+    author: "Sisley Alfred",
     avatar: imageData.blog.author_sisley.src,
     imageHint: imageData.blog.author_sisley.hint,
     category: "Étude de Cas",
@@ -173,7 +173,7 @@ export const blogPosts: Post[] = [
   {
     slug: "etude-de-cas-x-flux",
     title: "Anatomie d'un projet (X)flux : De 'Lancer une marque de café' à la réalité",
-    author: "Alfred Sisley",
+    author: "Sisley Alfred",
     avatar: imageData.blog.author_sisley2.src,
     imageHint: imageData.blog.author_sisley2.hint,
     category: "Étude de Cas",

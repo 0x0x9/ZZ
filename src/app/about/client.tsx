@@ -12,7 +12,7 @@ import imageData from '@/lib/placeholder-images.json';
 
 const teamMembers = [
   { name: 'Démon François', role: 'Fondateur & CEO', avatar: imageData.about.team.francois_ceo.src, hint: imageData.about.team.francois_ceo.hint },
-  { name: 'Alfred Sisley', role: 'Directeur de la Technologie (CTO)', avatar: imageData.about.team.sisley_cto.src, hint: imageData.about.team.sisley_cto.hint },
+  { name: 'Sisley Alfred', role: 'Directeur de la Technologie (CTO)', avatar: imageData.about.team.sisley_cto.src, hint: imageData.about.team.sisley_cto.hint },
   { name: 'Ziari Kamal', role: 'Chef du Design (CDO)', avatar: imageData.about.team.kamal_cdo.src, hint: imageData.about.team.kamal_cdo.hint },
   { name: 'Flour Antoine', role: 'Responsable Communauté', avatar: imageData.about.team.chloe_com.src, hint: imageData.about.team.chloe_com.hint },
 ];
