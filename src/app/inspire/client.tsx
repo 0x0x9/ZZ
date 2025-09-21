@@ -3,14 +3,15 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import dynamic from "next/dynamic";
+import { OriaSiriOrbPro } from "../ui/oria-siri-pro";
+
 
 const AMBIENCES = [
   {
@@ -46,7 +47,6 @@ const AMBIENCES = [
 ];
 type AmbienceId = typeof AMBIENCES[number]['id'];
 
-
 const inspirationalQuotes = [
     "La créativité, c'est l'intelligence qui s'amuse. - Albert Einstein",
     "Le seul moyen de faire du bon travail est d'aimer ce que vous faites. - Steve Jobs",
@@ -75,108 +75,6 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
   );
 }
 
-function OriaSiriOrbPro({
-  size = 120,
-  state = "idle",
-  subtle = false,
-  className
-}: {
-  size?: number;
-  state?: "idle" | "active" | "thinking" | "speaking";
-  subtle?: boolean;
-  className?: string;
-}) {
-  const ring = useAnimationControls();
-  const core = useAnimationControls();
-  const wave = useAnimationControls();
-  const blob1 = useAnimationControls();
-  const blob2 = useAnimationControls();
-  const blob3 = useAnimationControls();
-
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mql.matches) {
-      ring.stop(); core.stop(); wave.stop(); blob1.stop(); blob2.stop(); blob3.stop();
-    }
-  }, [ring, core, wave, blob1, blob2, blob3]);
-
-  useEffect(() => {
-    const baseEase = "easeInOut";
-    const commonWaveTransition = { duration: 16, repeat: Infinity, ease: "linear" } as const;
-
-    if (state === "idle") {
-      core.start({ scale: [1, 1.015, 1], transition: { duration: 3.2, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: commonWaveTransition });
-    }
-    if (state === "active") {
-      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.4, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { ...commonWaveTransition, duration: 12 } });
-    }
-    if (state === "thinking") {
-      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.4, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { ...commonWaveTransition, duration: 8 } });
-    }
-    if (state === "speaking") {
-      core.start({ scale: [1, 1.08, 1], transition: { duration: 1.1, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { ...commonWaveTransition, duration: 6 } });
-    }
-  }, [state, core, wave]);
-
-  const baseBlobTransition = { duration: 10, repeat: Infinity, ease: "easeInOut" };
-  useEffect(() => {
-    blob1.start({
-      transform: ['translate(0, 0) scale(1)', 'translate(20%, -30%) scale(1.3)', 'translate(-15%, 20%) scale(0.8)', 'translate(0, 0) scale(1)'],
-      transition: baseBlobTransition
-    });
-     blob2.start({
-      transform: ['translate(0, 0) scale(1)', 'translate(-25%, 25%) scale(0.9)', 'translate(15%, -15%) scale(1.4)', 'translate(0, 0) scale(1)'],
-      transition: { ...baseBlobTransition, duration: 12 }
-    });
-     blob3.start({
-      transform: ['translate(0, 0) scale(1)', 'translate(-10%, -25%) scale(1.2)', 'translate(25%, 15%) scale(0.9)', 'translate(0, 0) scale(1)'],
-      transition: { ...baseBlobTransition, duration: 8 }
-    });
-  }, [blob1, blob2, blob3]);
-
-  return (
-    <div
-      className={cn("relative select-none", className)}
-      style={{ width: size, height: size }}
-      aria-label="Oria — état visuel"
-    >
-      {/* Cœur liquide animé */}
-      <motion.div
-          animate={core}
-          className="absolute inset-2 rounded-full overflow-hidden"
-          style={{
-              filter: "blur(12px)",
-              transformStyle: "preserve-3d",
-          }}
-      >
-          <motion.div animate={blob1} className="blob bg-[hsl(var(--primary))]" />
-          <motion.div animate={blob2} className="blob bg-[hsl(var(--accent))]" />
-          <motion.div animate={blob3} className="blob bg-pink-500" />
-      </motion.div>
-      
-      {/* Structure de verre */}
-      <div
-        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
-        style={{
-          borderColor: "rgba(255,255,255,0.28)",
-          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)",
-          background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 70%)"
-        }}
-      />
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))",
-          maskImage: "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)"
-        }}
-      />
-    </div>
-  );
-}
 
 // Real AI Chatbot function
 const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
@@ -453,13 +351,21 @@ export default function XInspireEnvironment() {
 
   const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
-        setHasInteracted(true);
-        setIsMuted(false);
+      setHasInteracted(true);
+      setIsMuted(false);
+      // Explicitly try to play the video if the player is ready
+      if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
+        playerRef.current.unMute();
+        playerRef.current.playVideo();
+      }
     }
   }, [hasInteracted]);
   
    const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
         handleFirstInteraction();
+        if (playerRef.current && typeof playerRef.current.loadVideoById === 'function') {
+            playerRef.current.loadVideoById(AMBIENCES.find(a => a.id === newAmbienceId)!.videoId);
+        }
         setAmbience(newAmbienceId);
     };
 
@@ -469,10 +375,12 @@ export default function XInspireEnvironment() {
     const onPlayerReady = (event: any) => {
         if (!isMuted) {
             event.target.unMute();
+            event.target.playVideo();
         } else {
             event.target.mute();
+            // Still try to play, but it will be muted. Browsers are more lenient with muted autoplay.
+            event.target.playVideo();
         }
-        event.target.playVideo();
     };
   
     const createPlayer = (videoId: string) => {
@@ -509,6 +417,7 @@ export default function XInspireEnvironment() {
     } else {
         createPlayer(cur.videoId);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cur.videoId, mounted]);
 
   const toggleMute = () => {
