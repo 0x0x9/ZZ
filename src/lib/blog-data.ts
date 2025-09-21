@@ -79,7 +79,7 @@ export const blogPosts: Post[] = [
   {
     slug: "maitriser-lart-du-prompt-avec-x-promptor",
     title: "Maîtriser l'Art du Prompt avec (X)promptor",
-    author: "Chloé Martin",
+    author: "Flour Antoine",
     avatar: imageData.blog.author_chloe.src,
     imageHint: imageData.blog.author_chloe.hint,
     category: "Conseils",
@@ -137,7 +137,7 @@ export const blogPosts: Post[] = [
   {
     slug: "creer-bande-son-muse-sound",
     title: "Tutoriel : Créez la bande-son de votre projet avec (X)muse et (X)sound",
-    author: "Chloé Martin",
+    author: "Flour Antoine",
     avatar: imageData.blog.author_chloe2.src,
     imageHint: imageData.blog.author_chloe2.hint,
     category: "Tutoriel",
@@ -288,7 +288,7 @@ export const blogPosts: Post[] = [
   {
     slug: "creations-de-la-communaute-aout-2024",
     title: "Les créations du mois : Le meilleur de la galerie (X)hibit",
-    author: "Chloé Martin",
+    author: "Flour Antoine",
     avatar: imageData.blog.author_chloe2.src,
     imageHint: imageData.blog.author_chloe2.hint,
     category: "Communauté",
