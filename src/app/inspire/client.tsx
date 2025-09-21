@@ -1,9 +1,9 @@
 
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence, useAnimationControls, useCycle } from "framer-motion";
-import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIcon } from "lucide-react";
+import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,253 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dynamic from "next/dynamic";
 
 const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
+
+/**
+ * OriaSiriOrbPro — Orbe VisionOS “future Siri”
+ * Props:
+ *  - size: px (default 120)
+ *  - state: "idle" | "active" | "thinking" | "speaking"
+ *  - className: tailwind extra
+ *  - subtle: moins de glow si true
+ */
+function OriaSiriOrbPro({
+  size = 120,
+  state = "idle",
+  subtle = false,
+  className
+}: {
+  size?: number;
+  state?: "idle" | "active" | "thinking" | "speaking";
+  subtle?: boolean;
+  className?: string;
+}) {
+  const ring = useAnimationControls();
+  const core = useAnimationControls();
+  const wave = useAnimationControls();
+
+  // Respecte prefers-reduced-motion
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mql.matches) {
+      ring.stop(); core.stop(); wave.stop();
+    }
+  }, [ring, core, wave]);
+
+  // Animations selon l’état
+  useEffect(() => {
+    const baseEase = "easeInOut";
+    if (state === "idle") {
+      ring.start({ opacity: [0.5, 0.9, 0.5], transition: { duration: 4, repeat: Infinity, ease: baseEase } });
+      core.start({ scale: [1, 1.015, 1], transition: { duration: 3.2, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 16, repeat: Infinity, ease: "linear" } });
+    }
+    if (state === "active") {
+      ring.start({ opacity: [0.6, 1, 0.6], transition: { duration: 3, repeat: Infinity, ease: baseEase } });
+      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.4, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 12, repeat: Infinity, ease: "linear" } });
+    }
+    if (state === "thinking") {
+      ring.start({ opacity: [0.7, 1, 0.7], blur: ["10px","14px","10px"], transition: { duration: 2, repeat: Infinity, ease: baseEase } as any });
+      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.4, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 8, repeat: Infinity, ease: "linear" } });
+    }
+    if (state === "speaking") {
+      ring.start({ opacity: [0.9, 1, 0.9], transition: { duration: 1.6, repeat: Infinity, ease: baseEase } });
+      core.start({ scale: [1, 1.08, 1], transition: { duration: 1.1, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 6, repeat: Infinity, ease: "linear" } });
+    }
+  }, [state, ring, core, wave]);
+
+  // Couleurs/halo adaptatifs
+  const glowCyan = subtle ? "rgba(56,189,248,0.25)" : "rgba(56,189,248,0.45)";
+  const glowMagenta = subtle ? "rgba(244,114,182,0.25)" : "rgba(244,114,182,0.45)";
+  const glowIndigo = subtle ? "rgba(129,140,248,0.2)" : "rgba(129,140,248,0.35)";
+
+  return (
+    <div
+      className={cn("relative select-none", className)}
+      style={{ width: size, height: size }}
+      aria-label="Oria — état visuel"
+    >
+      {/* Aura externe multi-tons */}
+      <motion.div
+        animate={ring}
+        className="absolute inset-0 rounded-full"
+        style={{
+          filter: "blur(22px)",
+          background:
+            `radial-gradient(closest-side, ${glowCyan}, transparent 60%),
+             radial-gradient(closest-side, ${glowMagenta}, transparent 65%),
+             radial-gradient(closest-side, ${glowIndigo}, transparent 70%)`
+        }}
+      />
+
+      {/* Anneau verre */}
+      <motion.div
+        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
+        style={{
+          borderColor: "rgba(255,255,255,0.28)",
+          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)"
+        }}
+      />
+
+      {/* Reflets subtils */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))",
+          maskImage:
+            "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)"
+        }}
+      />
+
+      {/* Noyau “liquide” */}
+      <motion.div
+        animate={core}
+        className="absolute inset-2 rounded-full"
+        style={{
+          background: `radial-gradient(closest-side, rgba(255,255,255,0.24), rgba(255,255,255,0.06))`,
+          boxShadow: "inset 0 10px 40px rgba(255,255,255,0.08)"
+        }}
+      />
+
+      {/* Onde interne (rotation continue) */}
+      <motion.div
+        animate={wave}
+        className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(255,255,255,0.36), rgba(255,255,255,0.0))",
+          filter: "blur(10px)"
+        }}
+      />
+    </div>
+  );
+}
+
+function useLocalState<T>(key: string, initial: T) {
+  const [v, setV] = useState<T>(initial);
+  useEffect(() => { try { const raw = localStorage.getItem(key); if (raw) setV(JSON.parse(raw)); } catch {} }, []);
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }, [key, v]);
+  return [v, setV] as const;
+}
+
+type Task = { id: string; title: string; done: boolean; eta: 15|30|60; createdAt: number };
+
+function WorkTasks({ onStartTimer }: { onStartTimer: (m: number)=>void }) {
+  const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
+  const [input, setInput] = useState("");
+  const add = (eta: 15|30|60) => {
+    const t = input.trim(); if (!t) return;
+    const id = (crypto?.randomUUID?.() ?? `t_${Date.now()}_${Math.random()}`);
+    setTasks(ts => [{ id, title: t, done: false, eta, createdAt: Date.now() }, ...ts]);
+    setInput(""); onStartTimer(eta);
+  };
+  const toggle = (id: string) => setTasks(ts => ts.map(t => t.id===id ? {...t, done: !t.done} : t));
+  const remove = (id: string) => setTasks(ts => ts.filter(t => t.id!==id));
+
+  return (
+    <Glass className="p-4">
+      <div className="font-semibold mb-2">Tâches rapides</div>
+      <div className="flex gap-2">
+        <Textarea rows={1} value={input} onChange={e=>setInput(e.target.value)}
+          placeholder="Ajouter une tâche…" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none" />
+        <Button onClick={()=>add(25)} variant="secondary">Ajouter</Button>
+      </div>
+      <div className="mt-3 flex gap-2">
+        {[15,30,60].map(m=>(
+          <button key={m} onClick={()=>add(m as 15|30|60)}
+            className="px-3 py-1 rounded-full text-sm border bg-white/10 hover:bg-white/15 border-white/25">
+            + {m} min
+          </button>
+        ))}
+      </div>
+      <div className="mt-4 space-y-2 max-h-60 overflow-auto pr-1 no-scrollbar">
+        {tasks.length===0 && <div className="text-white/60 text-sm">Aucune tâche.</div>}
+        {tasks.map(t=>(
+          <div key={t.id} className="rounded-xl border border-white/15 bg-white/5 p-2 flex items-center justify-between">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={t.done} onChange={()=>toggle(t.id)} />
+              <span className={t.done ? "line-through opacity-60" : ""}>{t.title}</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <button onClick={()=>onStartTimer(t.eta)} className="text-xs underline opacity-80 hover:opacity-100">
+                Démarrer {t.eta} min
+              </button>
+              <button onClick={()=>remove(t.id)} className="text-xs opacity-70 hover:opacity-100">Supprimer</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Glass>
+  );
+}
+
+function WorkBrief() {
+  const [title, setTitle] = useLocalState("xinspire.brief.title", "");
+  const [why, setWhy] = useLocalState("xinspire.brief.why", "");
+  const [how, setHow] = useLocalState("xinspire.brief.how", "");
+  const [first, setFirst] = useLocalState("xinspire.brief.first", "");
+
+  const fromInspiration = () => {
+    const notes = localStorage.getItem("xinspire.notes") || "";
+    if (!title) setTitle("Éclat intérieur");
+    if (!why) setWhy("Ancrer une émotion simple et vraie.");
+    if (!how) setHow("Une forme, une lumière, un silence.");
+    if (!first) setFirst("Esquisse 3 variations en 120 secondes.");
+    // ici tu peux appeler ton API LLM si tu veux un vrai brief depuis Oria + notes
+  };
+  const exportMd = () => {
+    const md = `# Mini-brief
+**Titre**: ${title}
+**Pourquoi**: ${why}
+**Comment**: ${how}
+**Premier pas**: ${first}
+`;
+    const blob = new Blob([md], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "brief.md"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Glass className="p-4">
+      <div className="font-semibold mb-2">Mini-brief</div>
+      <div className="grid gap-2">
+        <Textarea rows={1} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Titre…" className="bg-white/10 border-white/20" />
+        <Textarea rows={2} value={why} onChange={e=>setWhy(e.target.value)} placeholder="Pourquoi…" className="bg-white/10 border-white/20" />
+        <Textarea rows={3} value={how} onChange={e=>setHow(e.target.value)} placeholder="Comment…" className="bg-white/10 border-white/20" />
+        <Textarea rows={2} value={first} onChange={e=>setFirst(e.target.value)} placeholder="Premier pas…" className="bg-white/10 border-white/20" />
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Button variant="secondary" onClick={fromInspiration}>Générer depuis l’inspiration</Button>
+        <Button onClick={exportMd}>Exporter .md</Button>
+      </div>
+    </Glass>
+  );
+}
+
+function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }) {
+  const [remain, setRemain] = useState<number>(0);
+  useEffect(()=> {
+    if (!minutes) return;
+    setRemain(minutes*60);
+    const id = setInterval(()=> setRemain(s=> (s>0? s-1 : 0)), 1000);
+    return ()=> clearInterval(id);
+  }, [minutes]);
+  useEffect(()=> { if (minutes && remain===0) onEnd(); }, [remain, minutes, onEnd]);
+  if (!minutes) return null;
+  const mm = String(Math.floor(remain/60)).padStart(2,'0');
+  const ss = String(remain%60).padStart(2,'0');
+  return (
+    <div className="fixed top-4 right-4 z-30">
+      <Glass className="px-4 py-2">
+        <div className="text-xs uppercase tracking-wider text-white/70">Focus</div>
+        <div className="text-base font-semibold">{mm}:{ss}</div>
+      </Glass>
+    </div>
+  );
+}
 
 /** ========== EDGE GLOW (halo des bords) ========== */
 function EdgeGlow({
@@ -119,120 +366,6 @@ function EdgeGlow({
   );
 }
 
-/** ========== ORB (Siri-like simple) ========== */
-function OriaOrb({
-  state = 'idle', // 'idle' | 'active' | 'thinking'
-  size = 128,
-}: {
-  state?: 'idle' | 'active' | 'thinking';
-  size?: number;
-}) {
-  const ring = useAnimationControls();
-  const core = useAnimationControls();
-  const wave = useAnimationControls();
-
-  useEffect(() => {
-    const ease = 'easeInOut';
-    if (state === 'idle') {
-      ring.start({ opacity: [0.5, 0.9, 0.5], transition: { duration: 4, repeat: Infinity, ease } });
-      core.start({ scale: [1, 1.015, 1], transition: { duration: 3, repeat: Infinity, ease } });
-      wave.start({ rotate: [0, 360], transition: { duration: 16, repeat: Infinity, ease: 'linear' } });
-    }
-    if (state === 'active') {
-      ring.start({ opacity: [0.6, 1, 0.6], transition: { duration: 3, repeat: Infinity, ease } });
-      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.2, repeat: Infinity, ease } });
-      wave.start({ rotate: [0, 360], transition: { duration: 12, repeat: Infinity, ease: 'linear' } });
-    }
-    if (state === 'thinking') {
-      ring.start({ opacity: [0.8, 1, 0.8], transition: { duration: 1.6, repeat: Infinity, ease } });
-      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.2, repeat: Infinity, ease } });
-      wave.start({ rotate: [0, 360], transition: { duration: 8, repeat: Infinity, ease: 'linear' } });
-    }
-  }, [state, ring, core, wave]);
-
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      {/* Glow externe */}
-      <motion.div
-        animate={ring}
-        className="absolute inset-0 rounded-full"
-        style={{
-          filter: 'blur(22px)',
-          background: `
-            radial-gradient(closest-side, rgba(34,211,238,.45), transparent 60%),
-            radial-gradient(closest-side, rgba(244,114,182,.45), transparent 65%),
-            radial-gradient(closest-side, rgba(129,140,248,.35), transparent 70%)
-          `,
-        }}
-      />
-      {/* Anneau verre */}
-      <div
-        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
-        style={{
-          borderColor: 'rgba(255,255,255,0.28)',
-          boxShadow: '0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)',
-        }}
-      />
-      {/* Reflets */}
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background:
-            'conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))',
-          maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)',
-        }}
-      />
-      {/* Noyau */}
-      <motion.div
-        animate={core}
-        className="absolute inset-2 rounded-full"
-        style={{
-          background: 'radial-gradient(closest-side, rgba(255,255,255,0.25), rgba(255,255,255,0.06))',
-          boxShadow: 'inset 0 10px 40px rgba(255,255,255,0.08)',
-        }}
-      />
-      {/* Onde interne */}
-      <motion.div
-        animate={wave}
-        className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          background: 'radial-gradient(closest-side, rgba(255,255,255,0.36), rgba(255,255,255,0))',
-          filter: 'blur(10px)',
-        }}
-      />
-    </div>
-  );
-}
-
-const AMBIENCES = [
-  {
-    id: "forest" as const,
-    label: "Forêt Zen",
-    videoId: "29XymHesxa0",
-    desc: "Lumière douce, brume légère, respiration longue.",
-  },
-  {
-    id: "neon" as const,
-    label: "Néon Nocturne",
-    videoId: "-Xh4BNbxpI8",
-    desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
-  },
-  {
-    id: "loft" as const,
-    label: "Loft Urbain",
-    videoId: "ys50VgfL-u8",
-    desc: "Verre & métal, contre-jour, minimalisme élégant.",
-  },
-  {
-    id: "beach" as const,
-    label: "Plage futuriste",
-    videoId: "u9vK5utTcxE",
-    desc: "Horizon laiteux, brise légère, sons d'océan.",
-  },
-];
-
-type AmbienceId = typeof AMBIENCES[number]["id"];
-
 // Real AI Chatbot function
 const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
     const response = await fetch('/api/generateInspiration', {
@@ -295,23 +428,25 @@ function OriaChatbot() {
         setIsLoading(false);
       }
     };
+    
+    const state: 'idle' | 'active' | 'thinking' =
+    isLoading ? 'thinking' : input ? 'active' : 'idle';
   
     return (
       <div className="flex flex-col h-full space-y-4">
         {/* Header visionOS */}
         <Glass className={cn("p-4 flex items-center gap-4 transition-all duration-300", isLoading && "ring-1 ring-white/20")}>
-          <OriaOrb
-            state={isLoading ? "thinking" : (input ? "active" : "idle")}
-            size={112}
-          />
-          <div className="flex-1">
-            <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
-            <div className="text-base md:text-lg font-medium text-white/90">
-              {isLoading ? "Je façonne une piste pour toi…" :
-               input ? "On affine. Dis-moi ce que tu veux ressentir." :
-               "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
+            <OriaSiriOrbPro size={112} state={state} />
+            <div className="flex-1">
+              <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
+              <div className="text-base md:text-lg font-medium text-white/90">
+                {isLoading
+                  ? 'Je façonne une piste pour toi…'
+                  : input
+                  ? 'On affine. Dis-moi ce que tu veux ressentir.'
+                  : 'Je suis là. Décris une ambiance, un besoin, un rythme.'}
+              </div>
             </div>
-          </div>
         </Glass>
   
         {/* Messages */}
@@ -367,6 +502,35 @@ function OriaChatbot() {
     );
   }
 
+const AMBIENCES = [
+  {
+    id: "forest" as const,
+    label: "Forêt Zen",
+    videoId: "29XymHesxa0",
+    desc: "Lumière douce, brume légère, respiration longue.",
+  },
+  {
+    id: "neon" as const,
+    label: "Néon Nocturne",
+    videoId: "-Xh4BNbxpI8",
+    desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
+  },
+  {
+    id: "loft" as const,
+    label: "Loft Urbain",
+    videoId: "ys50VgfL-u8",
+    desc: "Verre & métal, contre-jour, minimalisme élégant.",
+  },
+  {
+    id: "beach" as const,
+    label: "Plage futuriste",
+    videoId: "u9vK5utTcxE",
+    desc: "Horizon laiteux, brise légère, sons d'océan.",
+  },
+];
+
+type AmbienceId = typeof AMBIENCES[number]["id"];
+
 export default function XInspireEnvironment() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -375,12 +539,12 @@ export default function XInspireEnvironment() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [note, setNote] = useState("");
-  const [notes, setNotes] = useState<string[]>([]);
+  const [notes, setNotes] = useLocalState<string[]>("xinspire.notes", []);
   const playerRef = useRef<any>(null);
-
+  const [activeTimer, setActiveTimer] = useState<number|null>(null);
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
+
 
   useEffect(() => {
     const handlePlayerReady = (event: any) => {
@@ -435,14 +599,23 @@ export default function XInspireEnvironment() {
   const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
       setHasInteracted(true);
-      setIsMuted(false);
-       if (playerRef.current?.unMute) {
+      if (playerRef.current?.unMute && playerRef.current.isMuted()) {
+          setIsMuted(false);
           playerRef.current.unMute();
-          // Ensure playVideo is called after unMute is effective
-          setTimeout(() => playerRef.current?.playVideo(), 100);
       }
+      playerRef.current?.playVideo?.();
     }
   }, [hasInteracted]);
+  
+   const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
+    setAmbience(newAmbienceId);
+    if (playerRef.current && playerRef.current.loadVideoById) {
+      const newVideoId = AMBIENCES.find(a => a.id === newAmbienceId)?.videoId;
+      if (newVideoId) {
+        playerRef.current.loadVideoById(newVideoId);
+      }
+    }
+  };
 
   const toggleMute = () => {
     if (!hasInteracted) {
@@ -471,13 +644,6 @@ export default function XInspireEnvironment() {
       localStorage.setItem("xinspire.ambience", ambience);
     } catch {}
   }, [ambience]);
-
-  const addNote = () => {
-    const t = note.trim();
-    if (!t) return;
-    setNotes(n => [t, ...n]);
-    setNote("");
-  };
 
   if (!mounted) return null;
 
@@ -572,10 +738,11 @@ export default function XInspireEnvironment() {
                 </div>
 
                 <Tabs defaultValue="ambience" className="w-full mt-4">
-                  <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
+                  <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
                     <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
                     <TabsTrigger value="notes" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><NotebookPen className="mr-2 h-4 w-4"/>Notes</TabsTrigger>
+                    <TabsTrigger value="work" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">🛠 Travail</TabsTrigger>
                   </TabsList>
                   <TabsContent value="ambience" className="mt-4">
                     <div className="flex items-center justify-between">
@@ -588,7 +755,7 @@ export default function XInspireEnvironment() {
                       {AMBIENCES.map(a => (
                         <button
                           key={a.id}
-                          onClick={() => setAmbience(a.id)}
+                          onClick={() => handleAmbienceChange(a.id)}
                           className={`rounded-xl border px-3 py-3 text-left transition-all backdrop-blur ${
                             ambience === a.id ? "border-white/50 bg-white/15" : "border-white/20 bg-white/5 hover:border-white/35"
                           }`}
@@ -603,36 +770,31 @@ export default function XInspireEnvironment() {
                     <OriaChatbot />
                   </TabsContent>
                   <TabsContent value="notes" className="mt-4">
-                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        <div className="md:col-span-2">
-                            <label className="text-sm text-white/80">Note rapide</label>
-                            <textarea
-                            value={note}
-                            onChange={e => setNote(e.target.value)}
-                            placeholder="Dépose ici une idée…"
-                            className="mt-2 h-28 w-full resize-none rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
-                            />
-                            <div className="mt-2 flex items-center gap-2">
-                            <Pill onClick={addNote} icon={<NotebookPen className="h-4 w-4" />}>Sauvegarder</Pill>
-                            </div>
-                        </div>
+                     <div className="grid grid-cols-1 gap-4">
                         <div>
-                            <div className="text-sm text-white/80 mb-2">Dernières idées</div>
-                            <div className="space-y-2 max-h-40 overflow-auto pr-1 no-scrollbar">
-                            {notes.length === 0 && <div className="text-white/60 text-sm">Aucune note.</div>}
-                            {notes.map((n, i) => (
-                                <div key={i} className="rounded-xl border border-white/15 bg-white/5 p-2 text-sm">{n}</div>
-                            ))}
-                            </div>
+                            <label className="text-sm text-white/80">Notes & Idées</label>
+                            <Textarea
+                              value={notes.join("\n\n---\n\n")}
+                              onChange={(e) => setNotes(e.target.value.split("\n\n---\n\n"))}
+                              placeholder="Déposez ici vos idées, vos pensées..."
+                              className="mt-2 h-64 w-full resize-none rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                            />
                         </div>
                     </div>
                   </TabsContent>
+                  <TabsContent value="work" className="mt-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <WorkTasks onStartTimer={(m)=>setActiveTimer(m)} />
+                        <WorkBrief />
+                      </div>
+                    </TabsContent>
                 </Tabs>
               </Glass>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+      <WorkTimer minutes={activeTimer} onEnd={()=>setActiveTimer(null)} />
     </div>
   );
 }
