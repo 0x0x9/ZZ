@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -337,30 +337,29 @@ function OriaChatbot() {
     const oriaState = isLoading ? "thinking" : (input ? "active" : "idle");
   
     return (
-      <div className="flex flex-col h-full space-y-4">
+      <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 flex flex-col items-center gap-4 transition-all duration-300">
-            <OriaSiriOrbPro size={96} state={oriaState} />
-            <div className="text-center">
-                <AnimatePresence mode="wait">
-                    <motion.p
-                        key={oriaState}
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        transition={{ duration: 0.2 }}
-                        className="text-base text-white/80 min-h-[40px]"
-                    >
-                         {isLoading
-                          ? "Je façonne une piste pour toi…"
-                          : input
-                          ? "On affine. Dis-moi ce que tu veux ressentir."
-                          : messages.length === 0 
-                          ? `"${randomQuote}"`
-                          : "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
-                    </motion.p>
-                </AnimatePresence>
-            </div>
+        <div className="p-4 flex flex-col items-center gap-2 transition-all duration-300">
+            <OriaSiriOrbPro size={messages.length > 0 ? 64 : 96} state={oriaState} />
+            <AnimatePresence mode="wait">
+                <motion.p
+                    key={isLoading ? 'loading' : 'idle'}
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    transition={{ duration: 0.2 }}
+                    className={cn(
+                        "text-base text-white/80 min-h-[40px] text-center",
+                        messages.length > 0 ? 'hidden' : 'block'
+                    )}
+                >
+                     {isLoading
+                      ? "Je façonne une piste pour toi…"
+                      : messages.length === 0 
+                      ? `"${randomQuote}"`
+                      : "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
+                </motion.p>
+            </AnimatePresence>
         </div>
 
         {/* Messages */}
@@ -397,9 +396,11 @@ function OriaChatbot() {
   
         {/* Entrée */}
         <div className="relative p-4">
-            <div className={cn(
-                "absolute inset-x-2 -top-2 h-1/2 bg-gradient-to-t from-transparent transition-all duration-500",
-                isLoading ? "to-primary/20 blur-xl" : "to-transparent blur-none"
+             <div className={cn(
+                "absolute inset-x-2 -top-2 h-12 bg-gradient-to-t from-transparent transition-all duration-500 pointer-events-none",
+                isLoading
+                    ? "to-primary/20 from-primary/5 blur-xl"
+                    : "to-transparent from-transparent blur-none"
             )} />
             <Textarea
                 value={input}
@@ -425,13 +426,12 @@ function OriaChatbot() {
 
 export default function XInspireEnvironment() {
   const [mounted, setMounted] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   
   const [ambience, setAmbience] = useState<AmbienceId>("forest");
   const [panelOpen, setPanelOpen] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [notes, setNotes] = useLocalState<string[]>("xinspire.notes", []);
   const playerRef = useRef<any>(null);
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
 
