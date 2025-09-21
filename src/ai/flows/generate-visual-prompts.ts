@@ -72,5 +72,3 @@ const generateVisualPromptsFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
