@@ -4,8 +4,8 @@ import { Footer } from "@/components/Footer";
 import FeaturesClient from "./client";
 
 export const metadata = {
-  title: 'Fonctionnalités - (X)yzz.ai',
-  description: "Découvrez en détail l'écosystème (X)yzz : (X)OS, la Station X-1 et notre suite d'outils créatifs IA.",
+  title: 'Fonctionnalités & Avantages - (X)yzz.ai',
+  description: "Découvrez en détail l'écosystème (X)yzz : (X)OS, nos workstations, et pourquoi notre approche unifiée est supérieure.",
 };
 
 const FeaturesPage = () => {
@@ -21,3 +21,5 @@ const FeaturesPage = () => {
 }
 
 export default FeaturesPage;
+
+    

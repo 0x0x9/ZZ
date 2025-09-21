@@ -87,8 +87,7 @@ import { usePageTransition } from "@/hooks/use-page-transition";
 
 const discoverLinks = [
     { href: "/about", label: "Notre Vision", icon: Info, description: "Découvrez la mission et l'équipe (X)yzz." },
-    { href: "/avantages", label: "Avantages (X)core", icon: Zap, description: "Explorez ce qui nous rend uniques." },
-    { href: "/features", label: "Écosystème (X)OS", icon: Layers, description: "Découvrez notre système d'exploitation." },
+    { href: "/features", label: "Fonctionnalités", icon: Zap, description: "Explorez ce qui nous rend uniques." },
     { href: "/hardware", label: "Matériel", icon: Cpu, description: "Les machines conçues pour la performance." },
     { href: "/download", label: "Téléchargement", icon: Download, description: "Installez (X)OS sur votre machine." },
 ];
@@ -488,3 +487,5 @@ export function Header() {
     </header>
   );
 }
+
+    

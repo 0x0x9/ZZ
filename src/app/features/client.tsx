@@ -5,11 +5,14 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Cpu, Zap, Layers, Folder, Check, ArrowRight, Sparkles, Users, CheckCircle, MonitorPlay, Download } from 'lucide-react';
+import { Cpu, Zap, Layers, Folder, Check, ArrowRight, Sparkles, Users, CheckCircle, MonitorPlay, Download, Cloud } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { products } from '@/lib/products';
 import imageData from '@/lib/placeholder-images.json';
+import PerformanceChart from '@/components/ui/performance-chart';
+import { Card, CardContent } from '@/components/ui/card';
+
 
 const features = [
     { title: "Un OS, Trois Mondes", description: "Basculez instantanément entre Windows, macOS et Linux. Profitez du meilleur de chaque système, sans redémarrage, sans compromis.", icon: Layers, videoId: 'wLiwRGYaVnw' },
@@ -19,6 +22,63 @@ const features = [
 ];
 
 const hardwareProducts = products.filter(p => p.category === 'Matériel' && p.name.startsWith('(X)-'));
+
+const advantages = [
+    {
+        icon: Layers,
+        title: "Écosystème fluide et unifié",
+        description: "Vos idées voyagent entre vos outils comme un rayon de lumière traverse le verre. PC, Mac, Linux — un seul univers.",
+    },
+    {
+        icon: Cpu,
+        title: "Osmose matériel + logiciel",
+        description: "Le matériel devient extension de votre geste, le logiciel prolonge votre intuition. Aucune couture, aucune friction.",
+    },
+     {
+        icon: Cloud,
+        title: "Le Cloud invisible",
+        description: "Les fichiers ne se “transfèrent” pas. Ils sont déjà là, où vous en avez besoin.",
+    },
+    {
+        icon: Sparkles,
+        title: "IA qui amplifie",
+        description: "L’intelligence qui vous devance, suggère, ajuste — tout en restant dans l’ombre.",
+    },
+    {
+        icon: Users,
+        title: "Communauté qui inspire",
+        description: "Une scène créative mondiale, vibrante, vivante, reliée par le même langage : l’excellence.",
+    },
+];
+
+const comparisonData = [
+    {
+        feature: "Gestion des OS",
+        xyzz: "Fusion de Windows, macOS & Linux sans redémarrage.",
+        competitors: "Un seul OS par machine ou dual-boot complexe."
+    },
+    {
+        feature: "Rôle de l'IA",
+        xyzz: "Chef d'orchestre intégré au cœur du système.",
+        competitors: "Ensemble d'outils IA séparés et non connectés."
+    },
+    {
+        feature: "Flexibilité Matérielle",
+        xyzz: "Support natif des GPU NVIDIA et AMD.",
+        competitors: "Écosystème matériel fermé (ex: puces Apple Silicon)."
+    },
+    {
+        feature: "Workflow de Projet",
+        xyzz: "Génération de projet complet à partir d'une seule idée.",
+        competitors: "Assemblage manuel de multiples services et logiciels."
+    },
+];
+
+const performanceData = [
+    { name: '(X)-φ (fi)', 'Rendu 3D (Cycles)': 142, 'Compilation de code (LLVM)': 135, 'Simulation IA (PyTorch)': 155 },
+    { name: 'Mac Pro (M4 Ultra)', 'Rendu 3D (Cycles)': 100, 'Compilation de code (LLVM)': 110, 'Simulation IA (PyTorch)': 95 },
+    { name: 'PC Haut de Gamme (RTX 4090)', 'Rendu 3D (Cycles)': 115, 'Compilation de code (LLVM)': 100, 'Simulation IA (PyTorch)': 110 },
+];
 
 function StickyScrollSection() {
     const targetRef = useRef<HTMLDivElement>(null);
@@ -176,29 +236,72 @@ export default function FeaturesClient() {
         </AnimatedSection>
       </Section>
       
-       <Section>
-            <AnimatedSection className="text-center">
-                <h2 className="section-title">La création, réinventée.</h2>
-                <p className="section-subtitle">
-                    Voyez comment notre suite d'outils et notre système d'exploitation unifié transforment votre processus créatif.
-                </p>
-            </AnimatedSection>
-            <AnimatedSection className="mt-16">
-                <div className="glass-card p-2 md:p-3 max-w-5xl mx-auto rounded-2xl">
-                    <div className="aspect-video w-full">
-                        <iframe
-                        src="https://www.youtube.com/embed/SqJGQ25sc8Q?si=279cRsOPl_dffifa&autoplay=1&mute=1&loop=1&playlist=SqJGQ25sc8Q&controls=0&showinfo=0"
-                        title="YouTube video player"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full rounded-lg"
-                        ></iframe>
-                    </div>
+      <Section>
+            <AnimatedSection>
+                <div className="text-center container mx-auto px-6 lg:px-8">
+                    <h2 className="section-title">Les Piliers de l'Innovation</h2>
                 </div>
             </AnimatedSection>
-        </Section>
+            <div className="mt-20 grid md:grid-cols-2 lg:grid-cols-3 gap-8 container mx-auto px-6 lg:px-8">
+                {advantages.map((advantage, index) => (
+                   <AnimatedSection key={advantage.title}>
+                        <Card className="glass-card h-full flex flex-col text-center items-center p-8 transition-all duration-300 hover:border-primary/30 hover:-translate-y-2">
+                            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6">
+                                <advantage.icon className="h-8 w-8 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold">{advantage.title}</h3>
+                            <p className="mt-2 flex-grow text-muted-foreground">{advantage.description}</p>
+                        </Card>
+                    </AnimatedSection>
+                ))}
+            </div>
+      </Section>
+
+      <Section>
+        <AnimatedSection>
+            <div className="text-center container mx-auto px-6 lg:px-8">
+                <h2 className="section-title">Des performances qui défient la réalité.</h2>
+                <p className="section-subtitle">
+                Grâce à notre synergie matériel-logiciel, la (X)-φ (fi) surpasse les configurations les plus puissantes du marché.
+                </p>
+            </div>
+        </AnimatedSection>
+        <AnimatedSection className="mt-16 container mx-auto px-6 lg:px-8">
+            <PerformanceChart data={performanceData} />
+        </AnimatedSection>
+      </Section>
       
+      <Section>
+            <AnimatedSection>
+                <div className="text-center container mx-auto px-6 lg:px-8">
+                    <h2 className="section-title">Face à Face : (X)yzz vs. Le Reste</h2>
+                    <p className="section-subtitle">
+                        Voici un aperçu de la manière dont notre approche intégrée surpasse les workflows traditionnels et fragmentés.
+                    </p>
+                </div>
+            </AnimatedSection>
+            
+             <div className="mt-20 max-w-4xl mx-auto space-y-4 container px-6 lg:px-8">
+                {comparisonData.map((item, index) => (
+                     <AnimatedSection key={index}>
+                        <Card className="glass-card overflow-hidden">
+                            <CardContent className="p-0">
+                                <div className="grid grid-cols-1 md:grid-cols-2">
+                                    <div className="p-6 border-b md:border-b-0 md:border-r border-border">
+                                        <h4 className="font-semibold text-primary mb-2">{item.feature}</h4>
+                                        <p className="text-muted-foreground">{item.xyzz}</p>
+                                    </div>
+                                    <div className="p-6 bg-black/10">
+                                        <h4 className="font-semibold text-muted-foreground/80 mb-2">Les Autres Solutions</h4>
+                                        <p className="text-muted-foreground/70">{item.competitors}</p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </AnimatedSection>
+                ))}
+            </div>
+        </Section>
        <Section>
             <AnimatedSection>
                 <div className="text-center container mx-auto px-6 lg:px-8">
@@ -288,3 +391,5 @@ const Section = ({ children, className }: { children: React.ReactNode, className
       {children}
     </section>
   );
+
+    
