@@ -1,11 +1,13 @@
-
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
+import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIcon } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 // ---- Config ----
@@ -38,9 +40,21 @@ const AMBIENCES = [
 
 type AmbienceId = typeof AMBIENCES[number]["id"];
 
+// Mockup pour le chatbot (X)light
+const getInspirationalMessage = async (prompt: string) => {
+    await new Promise(res => setTimeout(res, 800));
+    const responses = [
+        `"La créativité, c'est l'intelligence qui s'amuse." - Albert Einstein. Que diriez-vous d'explorer une palette de couleurs basée sur 'ciel étoilé' ?`,
+        `"Le seul moyen de faire du bon travail est d'aimer ce que vous faites." - Steve Jobs. Visualisez une image : un artiste peignant une aurore boréale.`,
+        `"L'inspiration existe, mais elle doit vous trouver au travail." - Pablo Picasso. Essayons de développer l'idée de 'mémoire liquide'.`,
+        `"N'ayez pas peur de la perfection, vous ne l'atteindrez jamais." - Salvador Dalí. Et si on imaginait une chaise qui défie la gravité ?`,
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
+}
+
 function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className={`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg ${className}`}>
+    <div className={cn(`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg`, className)}>
       {children}
     </div>
   );
@@ -50,12 +64,48 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 bg-white/10 backdrop-blur hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 ${className}`}
+      className={cn(`inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 bg-white/10 backdrop-blur hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30`, className)}
     >
       {icon}
       <span className="font-medium">{children}</span>
     </button>
   );
+}
+
+function XLightChatbot() {
+    const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSend = async () => {
+        if (!input.trim()) return;
+        const newMessages = [...messages, { type: 'user' as 'user', text: input }];
+        setMessages(newMessages);
+        setInput('');
+        setIsLoading(true);
+        const aiResponse = await getInspirationalMessage(input);
+        setMessages(prev => [...prev, { type: 'ai' as 'ai', text: aiResponse }]);
+        setIsLoading(false);
+    };
+
+    return (
+        <div className="flex flex-col h-full space-y-4">
+             <div className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2">
+                {messages.map((msg, i) => (
+                    <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
+                        <div className={cn("max-w-[80%] rounded-xl px-4 py-2", msg.type === 'user' ? "bg-primary/80 text-white" : "bg-white/15")}>
+                            {msg.text}
+                        </div>
+                    </div>
+                ))}
+                 {isLoading && <div className="text-center text-white/70">...</div>}
+            </div>
+            <div className="flex gap-2">
+                <Textarea value={input} onChange={e => setInput(e.target.value)} placeholder="Demandez une idée..." rows={1} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
+                <Button onClick={handleSend} disabled={isLoading} variant="secondary">Envoyer</Button>
+            </div>
+        </div>
+    )
 }
 
 export default function XInspireEnvironment() {
@@ -116,7 +166,7 @@ export default function XInspireEnvironment() {
   return (
     <div className="relative min-h-screen w-full text-white">
       {/* Background gradient glow */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
+      <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10" />
 
       {/* Fullscreen YouTube */}
       <motion.div
@@ -128,11 +178,11 @@ export default function XInspireEnvironment() {
       >
         <iframe
           src={videoSrc}
-          className="absolute top-1/2 left-1/2 min-h-full min-w-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
+          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[100vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2"
           allow="autoplay; fullscreen"
           style={{ pointerEvents: 'none' }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-black/20" />
+        <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
 
        {/* Ambience badge */}
@@ -201,59 +251,71 @@ export default function XInspireEnvironment() {
             <div className="absolute inset-0 bg-black/20" onClick={() => setPanelOpen(false)} />
             <div className="absolute left-1/2 top-10 w-[92%] max-w-5xl -translate-x-1/2">
               <Glass className="p-4 md:p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2 text-white/90">
-                    <NotebookPen className="h-5 w-5" />
-                    <div className="text-lg font-semibold">Panneau de contrôle</div>
+                    <Sparkles className="h-5 w-5" />
+                    <div className="text-lg font-semibold">Studio d'Inspiration</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Pill onClick={toggleMute} icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}>
-                      {isMuted ? "Son coupé" : "Son actif"}
-                    </Pill>
-                    <Pill onClick={() => setPanelOpen(false)} icon={<X className="h-4 w-4" />}>Fermer</Pill>
-                  </div>
+                  <Pill onClick={() => setPanelOpen(false)} icon={<X className="h-4 w-4" />}>Fermer</Pill>
                 </div>
 
-                {/* Choix ambiance */}
-                <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-                  {AMBIENCES.map(a => (
-                    <button
-                      key={a.id}
-                      onClick={() => setAmbience(a.id)}
-                      className={`rounded-xl border px-3 py-3 text-left transition-all backdrop-blur ${
-                        ambience === a.id ? "border-white/50 bg-white/15" : "border-white/20 bg-white/5 hover:border-white/35"
-                      }`}
-                    >
-                      <div className="text-sm font-semibold">{a.label}</div>
-                      <div className="text-xs text-white/70">{a.desc}</div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Notes */}
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div className="md:col-span-2">
-                    <label className="text-sm text-white/80">Note rapide</label>
-                    <textarea
-                      value={note}
-                      onChange={e => setNote(e.target.value)}
-                      placeholder="Dépose ici une idée…"
-                      className="mt-2 h-28 w-full resize-none rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
-                    />
-                    <div className="mt-2 flex items-center gap-2">
-                      <Pill onClick={addNote} icon={<NotebookPen className="h-4 w-4" />}>Sauvegarder</Pill>
+                <Tabs defaultValue="ambience" className="w-full mt-4">
+                  <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
+                    <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
+                    <TabsTrigger value="ideas" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Idées</TabsTrigger>
+                    <TabsTrigger value="notes" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><NotebookPen className="mr-2 h-4 w-4"/>Notes</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="ambience" className="mt-4">
+                    <div className="flex items-center justify-between">
+                        <div className="text-sm text-white/80">Changer d'ambiance</div>
+                        <Pill onClick={toggleMute} icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}>
+                            {isMuted ? "Son coupé" : "Son actif"}
+                        </Pill>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-white/80 mb-2">Dernières idées</div>
-                    <div className="space-y-2 max-h-40 overflow-auto pr-1">
-                      {notes.length === 0 && <div className="text-white/60 text-sm">Aucune note.</div>}
-                      {notes.map((n, i) => (
-                        <div key={i} className="rounded-xl border border-white/15 bg-white/5 p-2 text-sm">{n}</div>
+                    <div className="mt-2 grid grid-cols-2 gap-3 md:grid-cols-4">
+                      {AMBIENCES.map(a => (
+                        <button
+                          key={a.id}
+                          onClick={() => setAmbience(a.id)}
+                          className={`rounded-xl border px-3 py-3 text-left transition-all backdrop-blur ${
+                            ambience === a.id ? "border-white/50 bg-white/15" : "border-white/20 bg-white/5 hover:border-white/35"
+                          }`}
+                        >
+                          <div className="text-sm font-semibold">{a.label}</div>
+                          <div className="text-xs text-white/70">{a.desc}</div>
+                        </button>
                       ))}
                     </div>
-                  </div>
-                </div>
+                  </TabsContent>
+                  <TabsContent value="ideas" className="mt-4 h-64">
+                    <XLightChatbot />
+                  </TabsContent>
+                  <TabsContent value="notes" className="mt-4">
+                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div className="md:col-span-2">
+                            <label className="text-sm text-white/80">Note rapide</label>
+                            <textarea
+                            value={note}
+                            onChange={e => setNote(e.target.value)}
+                            placeholder="Dépose ici une idée…"
+                            className="mt-2 h-28 w-full resize-none rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                            />
+                            <div className="mt-2 flex items-center gap-2">
+                            <Pill onClick={addNote} icon={<NotebookPen className="h-4 w-4" />}>Sauvegarder</Pill>
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-sm text-white/80 mb-2">Dernières idées</div>
+                            <div className="space-y-2 max-h-40 overflow-auto pr-1">
+                            {notes.length === 0 && <div className="text-white/60 text-sm">Aucune note.</div>}
+                            {notes.map((n, i) => (
+                                <div key={i} className="rounded-xl border border-white/15 bg-white/5 p-2 text-sm">{n}</div>
+                            ))}
+                            </div>
+                        </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </Glass>
             </div>
           </motion.div>
