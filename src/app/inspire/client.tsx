@@ -4,13 +4,14 @@
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
-import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
+import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 
 const AMBIENCES = [
@@ -274,26 +275,88 @@ function WorkBrief() {
   );
 }
 
+function FocusModalContent() {
+    const [tasks] = useLocalState<Task[]>("xinspire.tasks", []);
+    const [title] = useLocalState("xinspire.brief.title", "Mon Brief");
+    const [why] = useLocalState("xinspire.brief.why", "Aucun 'pourquoi' défini.");
+    const [how] = useLocalState("xinspire.brief.how", "Aucun 'comment' défini.");
+    const [first] = useLocalState("xinspire.brief.first", "Aucun 'premier pas' défini.");
+
+    return (
+        <DialogContent className="glass-card max-w-2xl text-white">
+            <DialogHeader>
+                <DialogTitle className="text-2xl">Session de Focus</DialogTitle>
+                <DialogDescription>
+                    Restez concentré sur vos objectifs.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-6 py-4">
+                <div>
+                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><BookOpen className="h-5 w-5 text-primary" /> Mini-Brief</h3>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                        <h4 className="font-bold">{title}</h4>
+                        <p><strong>Pourquoi :</strong> {why}</p>
+                        <p><strong>Comment :</strong> {how}</p>
+                        <p><strong>Premier pas :</strong> {first}</p>
+                    </div>
+                </div>
+                 <div>
+                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><CheckSquare className="h-5 w-5 text-primary" /> Tâches Rapides</h3>
+                    <div className="space-y-2">
+                        {tasks.length > 0 ? tasks.map(t => (
+                            <div key={t.id} className="text-sm rounded-lg border border-white/10 bg-white/5 p-3 flex items-center gap-3">
+                               <div className={cn("w-4 h-4 rounded-sm border-2 flex items-center justify-center", t.done ? 'bg-primary border-primary' : 'border-white/30')}>
+                                 {t.done && <X className="w-3 h-3"/>}
+                               </div>
+                               <span className={cn(t.done && "line-through text-white/50")}>{t.title}</span>
+                            </div>
+                        )) : <p className="text-sm text-white/60">Aucune tâche pour cette session.</p>}
+                    </div>
+                </div>
+            </div>
+        </DialogContent>
+    );
+}
+
+
 function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }) {
-  const [remain, setRemain] = useState<number>(0);
-  useEffect(()=> {
-    if (!minutes) return;
-    setRemain(minutes*60);
-    const id = setInterval(()=> setRemain(s=> (s>0? s-1 : 0)), 1000);
-    return ()=> clearInterval(id);
-  }, [minutes]);
-  useEffect(()=> { if (minutes && remain===0) onEnd(); }, [remain, minutes, onEnd]);
-  if (!minutes) return null;
-  const mm = String(Math.floor(remain/60)).padStart(2,'0');
-  const ss = String(remain%60).padStart(2,'0');
-  return (
-    <div className="fixed top-4 right-4 z-30">
-      <Glass className="px-4 py-2">
-        <div className="text-xs uppercase tracking-wider text-white/70">Focus</div>
-        <div className="text-base font-semibold">{mm}:{ss}</div>
-      </Glass>
-    </div>
-  );
+    const [remain, setRemain] = useState<number>(0);
+    const [isFocusModalOpen, setIsFocusModalOpen] = useState(false);
+
+    useEffect(()=> {
+      if (minutes === null) {
+          setRemain(0);
+          return;
+      }
+      setRemain(minutes*60);
+      const id = setInterval(()=> setRemain(s=> (s>0? s-1 : 0)), 1000);
+      return ()=> clearInterval(id);
+    }, [minutes]);
+
+    useEffect(()=> { 
+      if (minutes !== null && remain === 0) {
+        onEnd(); 
+      }
+    }, [remain, minutes, onEnd]);
+
+    if (!minutes) return null;
+
+    const mm = String(Math.floor(remain/60)).padStart(2,'0');
+    const ss = String(remain%60).padStart(2,'0');
+
+    return (
+        <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
+            <DialogTrigger asChild>
+                <div className="fixed top-4 right-4 z-30">
+                    <Glass className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors">
+                        <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5"><Timer className="w-3 h-3"/> Focus</div>
+                        <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
+                    </Glass>
+                </div>
+            </DialogTrigger>
+            <FocusModalContent />
+        </Dialog>
+    );
 }
 
 function OriaChatbot() {
@@ -438,7 +501,7 @@ export default function XInspireEnvironment() {
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
-   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
+  const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
     // Débloque l’audio si première interaction
     if (!hasInteracted) {
       setHasInteracted(true);
@@ -466,7 +529,7 @@ export default function XInspireEnvironment() {
       // Si le player n’est pas prêt, l’effet useEffect recréera avec le bon ID
     }
   }, [hasInteracted, isMuted]);
-
+  
   const toggleMute = useCallback(() => {
     if (!hasInteracted) {
         setHasInteracted(true);
@@ -481,7 +544,6 @@ export default function XInspireEnvironment() {
     });
   }, [hasInteracted]);
   
-
   useEffect(() => {
     if (!mounted) return;
 
@@ -584,10 +646,9 @@ export default function XInspireEnvironment() {
           <PopoverContent
             align="start"
             className="w-60 p-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl"
-            onClick={(e) => e.stopPropagation()} // ✅ évite une fermeture involontaire
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-2">
-              {/* Toggle son */}
               <button
                 onClick={(e) => { e.stopPropagation(); toggleMute(); }}
                 className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm border border-white/20 bg-white/10 hover:bg-white/15"
@@ -598,7 +659,6 @@ export default function XInspireEnvironment() {
 
               <div className="h-px bg-white/10 my-1" />
 
-              {/* Liste des ambiances */}
               <div className="grid grid-cols-1 gap-1">
                 {AMBIENCES.map((a) => (
                   <button
