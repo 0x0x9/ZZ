@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -13,6 +12,155 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dynamic from "next/dynamic";
 
 const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
+
+/**
+ * OriaSiriOrbPro — Orbe VisionOS “future Siri”
+ * Props:
+ *  - size: px (default 120)
+ *  - state: "idle" | "active" | "thinking" | "speaking"
+ *  - className: tailwind extra
+ *  - subtle: moins de glow si true
+ *
+ * Conseil UX:
+ *  - state="active" quand l’input a du texte
+ *  - state="thinking" pendant l’appel API
+ *  - state="speaking" si tu fais du TTS
+ */
+export function OriaSiriOrbPro({
+  size = 120,
+  state = "idle",
+  subtle = false,
+  className
+}: {
+  size?: number;
+  state?: "idle" | "active" | "thinking" | "speaking";
+  subtle?: boolean;
+  className?: string;
+}) {
+  const ring = useAnimationControls();
+  const core = useAnimationControls();
+  const wave = useAnimationControls();
+
+  // Respecte prefers-reduced-motion
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mql.matches) {
+      ring.stop(); core.stop(); wave.stop();
+    }
+  }, [ring, core, wave]);
+
+  // Animations selon l’état
+  useEffect(() => {
+    const baseEase = "easeInOut";
+    if (state === "idle") {
+      ring.start({ opacity: [0.5, 0.9, 0.5], transition: { duration: 4, repeat: Infinity, ease: baseEase } });
+      core.start({ scale: [1, 1.015, 1], transition: { duration: 3.2, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 16, repeat: Infinity, ease: "linear" } });
+    }
+    if (state === "active") {
+      ring.start({ opacity: [0.6, 1, 0.6], transition: { duration: 3, repeat: Infinity, ease: baseEase } });
+      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.4, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 12, repeat: Infinity, ease: "linear" } });
+    }
+    if (state === "thinking") {
+      ring.start({ opacity: [0.7, 1, 0.7], blur: ["10px","14px","10px"], transition: { duration: 2, repeat: Infinity, ease: baseEase } as any });
+      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.4, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 8, repeat: Infinity, ease: "linear" } });
+    }
+    if (state === "speaking") {
+      ring.start({ opacity: [0.9, 1, 0.9], transition: { duration: 1.6, repeat: Infinity, ease: baseEase } });
+      core.start({ scale: [1, 1.08, 1], transition: { duration: 1.1, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { duration: 6, repeat: Infinity, ease: "linear" } });
+    }
+  }, [state, ring, core, wave]);
+
+  // Couleurs/halo adaptatifs
+  const glowCyan = subtle ? "rgba(56,189,248,0.25)" : "rgba(56,189,248,0.45)";
+  const glowMagenta = subtle ? "rgba(244,114,182,0.25)" : "rgba(244,114,182,0.45)";
+  const glowIndigo = subtle ? "rgba(129,140,248,0.2)" : "rgba(129,140,248,0.35)";
+
+  return (
+    <div
+      className={cn("relative select-none", className)}
+      style={{ width: size, height: size }}
+      aria-label="Oria — état visuel"
+    >
+      {/* Aura externe multi-tons */}
+      <motion.div
+        animate={ring}
+        className="absolute inset-0 rounded-full"
+        style={{
+          filter: "blur(22px)",
+          background:
+            `radial-gradient(closest-side, ${glowCyan}, transparent 60%),
+             radial-gradient(closest-side, ${glowMagenta}, transparent 65%),
+             radial-gradient(closest-side, ${glowIndigo}, transparent 70%)`
+        }}
+      />
+
+      {/* Anneau verre */}
+      <motion.div
+        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
+        style={{
+          borderColor: "rgba(255,255,255,0.28)",
+          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)"
+        }}
+      />
+
+      {/* Reflets subtils */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))",
+          maskImage:
+            "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)"
+        }}
+      />
+
+      {/* Noyau “liquide” */}
+      <motion.div
+        animate={core}
+        className="absolute inset-2 rounded-full"
+        style={{
+          background: `radial-gradient(closest-side, rgba(255,255,255,0.24), rgba(255,255,255,0.06))`,
+          boxShadow: "inset 0 10px 40px rgba(255,255,255,0.08)"
+        }}
+      />
+
+      {/* Onde interne (rotation continue) */}
+      <motion.div
+        animate={wave}
+        className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(255,255,255,0.36), rgba(255,255,255,0.0))",
+          filter: "blur(10px)"
+        }}
+      />
+
+      {/* Points scintillants */}
+      <DotSpark x="20%" y="25%" delay={0.1} />
+      <DotSpark x="78%" y="40%" delay={0.4} />
+      <DotSpark x="38%" y="78%" delay={0.9} />
+    </div>
+  );
+}
+
+function DotSpark({ x, y, delay=0 }: { x: string; y: string; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0.2, scale: 0.8 }}
+      animate={{ opacity: [0.2, 0.9, 0.2], scale: [0.8, 1, 0.8] }}
+      transition={{ duration: 2.6, repeat: Infinity, delay, ease: "easeInOut" }}
+      className="absolute h-2 w-2 rounded-full"
+      style={{
+        left: x, top: y,
+        background: "radial-gradient(closest-side, rgba(255,255,255,0.9), rgba(255,255,255,0))",
+        filter: "blur(0.5px)"
+      }}
+    />
+  );
+}
 
 
 // ---- Config ----
@@ -81,181 +229,104 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
   );
 }
 
-function GlowDot({ delay = 0, size = '100%', opacity = 0.25 }) {
-    return (
-        <motion.div
-            initial={{ scale: 0.8, opacity }}
-            animate={{ scale: [0.95, 1.05, 0.95], opacity: [opacity, opacity * 1.2, opacity] }}
-            transition={{ duration: 3.6, repeat: Infinity, delay }}
-            className="absolute inset-0 rounded-full blur-2xl"
-            style={{
-                background: "radial-gradient(closest-side, rgba(255,255,255,0.7), rgba(255,255,255,0))",
-                width: size, height: size, margin: "auto", filter: `blur(24px)`
-            }}
-        />
-    );
-}
-
-function OriaSiriOrb({ active = false, thinking = false }: { active?: boolean; thinking?: boolean }) {
-  const controls = useAnimationControls();
-
-  useEffect(() => {
-    if (thinking) {
-      controls.start({
-        scale: [1, 1.06, 1],
-        transition: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
-      });
-    } else if (active) {
-      controls.start({
-        scale: [1, 1.03, 1],
-        transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
-      });
-    } else {
-      controls.stop();
-    }
-  }, [active, thinking, controls]);
-
-  return (
-    <div className="relative mx-auto h-24 w-24">
-      {/* anneaux doux */}
-      <motion.div
-        className="absolute inset-0 rounded-full border border-white/20"
-        animate={{ opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 3, repeat: Infinity }}
-        style={{ boxShadow: "0 10px 40px rgba(0,0,0,0.25)" }}
-      />
-      <GlowDot delay={0.2} opacity={0.18} />
-      <GlowDot delay={0.9} size="120%" opacity={0.12} />
-      {/* orbe principal */}
-      <motion.div
-        animate={controls}
-        className="absolute inset-0 rounded-full backdrop-blur-2xl border border-white/30"
-        style={{
-          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.18), rgba(255,255,255,0.06), rgba(255,255,255,0.18))"
-        }}
-      >
-        {/* vague interne */}
-        <motion.div
-          className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          animate={{
-            scale: thinking ? [1, 1.12, 1] : active ? [1, 1.06, 1] : 1,
-            rotate: [0, 360],
-          }}
-          transition={{
-            scale: { duration: thinking ? 1.2 : 2, repeat: Infinity, ease: "easeInOut" },
-            rotate: { duration: 16, repeat: Infinity, ease: "linear" },
-          }}
-          style={{
-            background: "radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(255,255,255,0))",
-            filter: "blur(8px)"
-          }}
-        />
-      </motion.div>
-    </div>
-  );
-}
-
 function OriaChatbot() {
     const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
-
     const [mounted, setMounted] = useState(false);
     useEffect(() => { setMounted(true); }, []);
-
-    useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-        }
-    }, [messages, isLoading]);
-
-    const handleSend = async () => {
-        if (!input.trim()) return;
-        const newMessages: {type: 'user' | 'ai', text: string}[] = [...messages, { type: 'user', text: input }];
-        setMessages(newMessages);
-        const currentInput = input;
-        setInput('');
-        setIsLoading(true);
-        try {
-            const aiResponse = await getInspirationalMessage(currentInput, newMessages);
-            setMessages(prev => [...prev, { type: 'ai', text: aiResponse }]);
-        } catch (error) {
-            setMessages(prev => [...prev, { type: 'ai', text: "Désolé, je suis un peu à court d'inspiration pour le moment." }]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
+    useEffect(() => { if (scrollAreaRef.current) scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight; }, [messages, isLoading]);
     if (!mounted) return null;
-
+  
+    const handleSend = async () => {
+      if (!input.trim()) return;
+      const newMessages = [...messages, { type: 'user' as const, text: input }];
+      setMessages(newMessages);
+      const currentInput = input;
+      setInput('');
+      setIsLoading(true);
+      try {
+        const aiResponse = await getInspirationalMessage(currentInput, newMessages);
+        setMessages(prev => [...prev, { type: 'ai' as const, text: aiResponse }]);
+      } catch {
+        setMessages(prev => [...prev, { type: 'ai' as const, text: "Désolé, je suis un peu à court d'inspiration pour le moment." }]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
     return (
-        <div className="flex flex-col h-full space-y-4">
-             {/* Header visionOS */}
-            <Glass className={cn("p-4 flex items-center gap-4", isLoading && "ring-1 ring-white/20")}>
-                <OriaSiriOrb active={!!input} thinking={isLoading} />
-                <div className={cn("flex-1 transition-all duration-300", isLoading && "blur-[2px] opacity-70")}>
-                  <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
-                  <div className="text-base md:text-lg font-medium text-white/90">
-                      {isLoading ? "Je réfléchis à quelque chose pour toi…" : input ? "On façonne une idée ensemble." : "Je suis prête. Parle-moi de ce que tu veux créer."}
-                  </div>
-                </div>
-            </Glass>
-
-             <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
-                {messages.length === 0 && !isLoading && (
-                    <div className="flex flex-col items-center justify-center h-full text-center">
-                        <p className="text-white/80">Je suis Oria, ta muse. Dis-moi ce que tu veux explorer ✨</p>
-                    </div>
-                )}
-                {messages.map((msg, i) => (
-                    <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.25 }} 
-                            className={cn("max-w-[90%] rounded-xl px-4 py-2", msg.type === 'user' ? "bg-primary/80 text-white" : "bg-white/15")}
-                        >
-                            {msg.text}
-                        </motion.div>
-                    </div>
-                ))}
-                 {isLoading && (
-                     <div className="flex justify-start">
-                         <motion.div
-                             initial={{ opacity: 0, y: 10 }}
-                             animate={{ opacity: 1, y: 0 }}
-                             transition={{ duration: 0.25 }}
-                             className="max-w-[90%] rounded-xl px-4 py-2 bg-white/15"
-                         >
-                            <div className="flex gap-2 items-center">
-                                <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
-                                <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-                                <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
-                            </div>
-                         </motion.div>
+      <div className="flex flex-col h-full space-y-4">
+        {/* Header visionOS */}
+        <Glass className={cn("p-4 flex items-center gap-4", isLoading && "ring-1 ring-white/20")}>
+          <OriaSiriOrbPro
+            size={112}
+            state={isLoading ? "thinking" : (input ? "active" : "idle")}
+          />
+          <div className={cn("flex-1 transition-all duration-300", isLoading && "blur-[2px] opacity-70")}>
+            <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
+            <div className="text-base md:text-lg font-medium text-white/90">
+              {isLoading ? "Je façonne une piste pour toi…" :
+               input ? "On affine. Dis-moi ce que tu veux ressentir." :
+               "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
+            </div>
+          </div>
+        </Glass>
+  
+        {/* Messages */}
+        <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
+          {messages.length === 0 && !isLoading && (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <p className="text-white/80">Je suis Oria, ta muse. Dis-moi ce que tu veux explorer ✨</p>
+            </div>
+          )}
+          {messages.map((msg, i) => (
+            <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+                className={cn("max-w-[90%] rounded-xl px-4 py-2", msg.type === 'user' ? "bg-primary/80 text-white" : "bg-white/15")}
+              >
+                {msg.text}
+              </motion.div>
+            </div>
+          ))}
+          {isLoading && (
+              <div className="flex justify-start">
+                  <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="max-w-[90%] rounded-xl px-4 py-2 bg-white/15"
+                  >
+                     <div className="flex gap-2 items-center">
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
                      </div>
-                 )}
-            </div>
-            <div className="flex gap-2">
-                <Textarea 
-                    value={input} 
-                    onChange={e => setInput(e.target.value)} 
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSend();
-                        }
-                    }}
-                    placeholder="Décris ton idée, le ressenti, la contrainte…" 
-                    rows={1} 
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none" 
-                />
-                <Button onClick={handleSend} disabled={isLoading} variant="secondary">Envoyer</Button>
-            </div>
+                  </motion.div>
+              </div>
+          )}
         </div>
-    )
-}
+  
+        {/* Entrée */}
+        <div className="flex gap-2">
+          <Textarea
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+            placeholder="Décris ton idée, le ressenti, la contrainte…"
+            rows={1}
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none"
+          />
+          <Button onClick={handleSend} disabled={isLoading} variant="secondary">Envoyer</Button>
+        </div>
+      </div>
+    );
+  }
+
 function useLocalState<T>(key: string, initial: T) {
   const [v, setV] = useState<T>(initial);
   useEffect(() => { try { const raw = localStorage.getItem(key); if (raw) setV(JSON.parse(raw)); } catch {} }, []);
@@ -436,7 +507,7 @@ export default function XInspireEnvironment() {
       createPlayer();
     } else {
       try {
-        playerRef.current.loadVideoById(cur.videoId);
+        playerRef.current.loadVideoById({videoId: cur.videoId});
         if (hasInteracted && !isMuted) playerRef.current.unMute();
         else playerRef.current.mute();
       } catch (e) {
@@ -460,7 +531,10 @@ export default function XInspireEnvironment() {
   };
 
   const toggleMute = () => {
-    if (!hasInteracted) return handleFirstInteraction();
+    if (!hasInteracted) {
+        handleFirstInteraction();
+        return;
+    };
     setIsMuted(m => {
         const newMuted = !m;
         if (playerRef.current) {
@@ -647,7 +721,6 @@ export default function XInspireEnvironment() {
                         <WorkBrief />
                     </div>
                     </TabsContent>
-
                 </Tabs>
               </Glass>
             </div>
