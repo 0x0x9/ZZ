@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
@@ -65,72 +64,78 @@ export default function XInspireEnvironment() {
   const [notes, setNotes] = useState<string[]>([]);
 
   const bgPlayerRef = useRef<any>(null);
+  const isApiReady = useRef(false);
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
+
+  const createPlayer = useCallback(() => {
+    if (!isApiReady.current || bgPlayerRef.current) return;
+
+    bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
+      videoId: cur.videoId,
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        loop: 1,
+        playlist: cur.videoId,
+        modestbranding: 1,
+        rel: 0,
+        fs: 0,
+        playsinline: 1,
+        mute: 1, // démarrage muet
+      },
+      events: {
+        onReady: (e: any) => {
+          e.target.playVideo();
+        },
+      },
+    });
+  }, [cur.videoId]);
 
   // Load YT API
   useEffect(() => {
     if (!window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-    }
-  }, []);
-
-  // Create player
-  useEffect(() => {
-    function createPlayer() {
-      if (bgPlayerRef.current) {
-        bgPlayerRef.current.destroy();
-      }
-      bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
-        videoId: cur.videoId,
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          loop: 1,
-          playlist: cur.videoId,
-          modestbranding: 1,
-          rel: 0,
-          fs: 0,
-          playsinline: 1,
-          mute: 1, // démarrage muet
-        },
-        events: {
-          onReady: (e: any) => {
-            e.target.playVideo();
-          },
-        },
-      });
-    }
-
-    if (typeof (window as any).YT === "undefined" || typeof (window as any).YT.Player === "undefined") {
-      (window as any).onYouTubeIframeAPIReady = createPlayer;
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode!.insertBefore(tag, firstScriptTag);
+      
+      (window as any).onYouTubeIframeAPIReady = () => {
+        isApiReady.current = true;
+        createPlayer();
+      };
     } else {
-      createPlayer();
+        isApiReady.current = true;
+        createPlayer();
     }
 
     return () => {
       if (bgPlayerRef.current?.destroy) {
         bgPlayerRef.current.destroy();
+        bgPlayerRef.current = null;
       }
     };
+  }, [createPlayer]);
+  
+  useEffect(() => {
+    if (bgPlayerRef.current && bgPlayerRef.current.loadVideoById) {
+      bgPlayerRef.current.loadVideoById(cur.videoId);
+    }
   }, [cur.videoId]);
 
-  // Clic d’activation
+
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
       try {
         bgPlayerRef.current?.unMute();
-        bgPlayerRef.current?.playVideo(); // <- essentiel
+        bgPlayerRef.current?.playVideo();
       } catch (err) {
         console.error("Erreur activation audio:", err);
       }
     }
   };
 
-  // Toggle mute
   const toggleMute = () => {
     if (!hasInteracted) return handleFirstInteraction();
     setIsMuted((m) => {
@@ -189,12 +194,25 @@ export default function XInspireEnvironment() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <button
-              onClick={handleFirstInteraction}
-              className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl hover:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/40"
+             <motion.button
+                onClick={handleFirstInteraction}
+                className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-white/40"
+                whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.2)" }}
+                animate={{
+                    scale: [1, 1.03, 1],
+                    boxShadow: [
+                    "0 0 10px rgba(255,255,255,0.1)",
+                    "0 0 25px rgba(255,255,255,0.25)",
+                    "0 0 10px rgba(255,255,255,0.1)"
+                    ],
+                }}
+                transition={{
+                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                    boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                }}
             >
               Activer l'expérience
-            </button>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
