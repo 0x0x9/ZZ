@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
@@ -121,11 +121,11 @@ export default function XInspireEnvironment() {
         <iframe
           key={videoSrc}
           src={videoSrc}
-          className="absolute top-1/2 left-1/2 min-h-full min-w-[177.77vh] w-auto h-auto -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[177.77vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2"
           allow="autoplay; fullscreen"
           style={{ pointerEvents: 'none' }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
       </div>
 
        {/* Ambience badge */}
