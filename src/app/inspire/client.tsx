@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
@@ -238,13 +239,38 @@ function OriaChatbot() {
   
     return (
       <div className="flex flex-col h-full space-y-4">
+        {/* Header */}
+        <Glass className="p-4 flex items-center gap-4 transition-all duration-300">
+            <OriaAnimation className="w-16 h-16" />
+            <div className="flex-1">
+                <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
+                <div className="text-base md:text-lg font-medium text-white/90">
+                {isLoading
+                    ? "Je prépare quelques pistes..."
+                    : input
+                    ? "Continuez, je vous écoute."
+                    : "Prête à explorer une idée ?"}
+                </div>
+            </div>
+        </Glass>
+
         {/* Messages */}
         <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
-          {messages.length === 0 && !isLoading && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-                <OriaAnimation className="w-24 h-24 mb-4"/>
-              <p className="text-white/80">Je suis Oria, ta muse. Dis-moi ce que tu veux explorer ✨</p>
-            </div>
+          {isLoading && messages.length > 0 && messages[messages.length-1].type === 'user' && (
+              <div className="flex justify-start">
+                  <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="max-w-[90%] rounded-xl px-4 py-3 bg-white/15 backdrop-blur-xl"
+                  >
+                     <div className="flex gap-2 items-center">
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
+                     </div>
+                  </motion.div>
+              </div>
           )}
           {messages.map((msg, i) => (
             <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
@@ -258,22 +284,6 @@ function OriaChatbot() {
               </motion.div>
             </div>
           ))}
-           {isLoading && (
-              <div className="flex justify-start">
-                  <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="max-w-[90%] rounded-xl px-4 py-2 bg-white/15"
-                  >
-                     <div className="flex gap-2 items-center">
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
-                     </div>
-                  </motion.div>
-              </div>
-          )}
         </div>
   
         {/* Entrée */}
@@ -282,7 +292,7 @@ function OriaChatbot() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            placeholder="Décris ton idée, le ressenti, la contrainte…"
+            placeholder="Décrivez votre idée, le ressenti, la contrainte…"
             rows={1}
             className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none"
           />
@@ -309,19 +319,22 @@ export default function XInspireEnvironment() {
 
   const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
-      setHasInteracted(true);
-      setIsMuted(false); // Unmute on first interaction
-      if (playerRef.current?.unMute && playerRef.current.isMuted()) {
-          playerRef.current.unMute();
-      }
-      playerRef.current?.playVideo?.();
+        setHasInteracted(true);
+        setIsMuted(false);
+        if (playerRef.current?.unMute && playerRef.current.isMuted()) {
+            playerRef.current.unMute();
+        }
+        playerRef.current?.playVideo?.();
     }
-  }, [hasInteracted]);
+}, [hasInteracted]);
   
    const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
-    handleFirstInteraction();
-    setAmbience(newAmbienceId);
-  };
+        handleFirstInteraction();
+        setAmbience(newAmbienceId);
+        if (playerRef.current && playerRef.current.loadVideoById) {
+            playerRef.current.loadVideoById(newAmbienceId);
+        }
+    };
 
   useEffect(() => {
     if (!mounted) return;
@@ -361,9 +374,7 @@ export default function XInspireEnvironment() {
       });
     }
 
-    if (playerRef.current && playerRef.current.loadVideoById) {
-      playerRef.current.loadVideoById(cur.videoId);
-    } else if ((window as any).YT?.Player) {
+    if ((window as any).YT?.Player) {
       createPlayer(cur.videoId);
     } else {
       const tag = document.createElement('script');
@@ -557,3 +568,4 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
