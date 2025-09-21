@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -445,37 +446,25 @@ export default function PulseClient() {
             const allDocs = await listDocuments();
             setDocs(allDocs || []);
 
+            // This is a simplified mock. A real implementation would fetch and parse JSON from storage.
             const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
             
-            const projectPromises: Promise<Project | null>[] = maestroDocs.map(async (doc) => {
-                try {
-                    const name = doc.name.replace('.json', '').replace(/-/g, ' ').replace(/_/g, ' ');
-                    
-                    const { url } = await getSignedUrlAction({ docId: doc.id });
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        console.warn(`Failed to fetch project plan for ${doc.name}. Status: ${response.status}`);
-                        const mockPlan: ProjectPlan = { id: doc.id, title: name, creativeBrief: `Brief créatif simulé pour "${name}". Le chargement a échoué.`, tasks: [], imagePrompts: [] };
-                        return { id: doc.id, name, plan: mockPlan, path: doc.path };
-                    }
-                    
-                    const planData = await response.json();
-                    
-                    const parsedPlan = ProjectPlanSchema.safeParse(planData);
-                    if (!parsedPlan.success) {
-                        console.error("Zod validation failed for project:", doc.name, parsedPlan.error.flatten());
-                         const mockPlan: ProjectPlan = { id: doc.id, title: name, creativeBrief: `Le plan pour "${name}" est corrompu ou invalide.`, tasks: [], imagePrompts: [] };
-                        return { id: doc.id, name, plan: mockPlan, path: doc.path };
-                    }
-
-                    return { id: doc.id, name, plan: parsedPlan.data, path: doc.path };
-                } catch (e) {
-                    console.error("Failed to parse project from doc:", doc.name, e);
-                    return null;
-                }
+            const parsedProjects: Project[] = maestroDocs.map(doc => {
+                const name = doc.name.replace('.json', '').replace(/[-_]/g, ' ');
+                 // MOCKUP of project plan content
+                const mockPlan: ProjectPlan = {
+                    id: doc.id,
+                    title: name,
+                    creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}". Le contenu réel du fichier n'est pas chargé dans cette version de démonstration.`,
+                    tasks: [
+                        { title: "Définir la stratégie", description: "Recherche initiale et brainstorming.", category: "Stratégie & Recherche", duration: "3 jours", checklist: [{text: "Analyser la concurrence", completed: true}, {text: "Définir la cible", completed: false}]},
+                        { title: "Créer les visuels", description: "Design du logo et de la charte graphique.", category: "Création & Production", duration: "5 jours", checklist: [{text: "Moodboard", completed: true}, {text: "Propositions de logo", completed: true}, {text: "Valider la palette", completed: false}]}
+                    ],
+                    imagePrompts: ["abstract digital art, minimal, soft gradients, calm, serene"],
+                };
+                return { id: doc.id, name, plan: mockPlan, path: doc.path };
             });
 
-            const parsedProjects = (await Promise.all(projectPromises)).filter((p): p is Project => p !== null);
             setProjects(parsedProjects);
 
         } catch (error: any) {
@@ -617,5 +606,3 @@ export default function PulseClient() {
         </div>
     );
 }
-
-    
