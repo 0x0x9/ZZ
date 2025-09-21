@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -468,13 +469,9 @@ function TopMenuBar({ activeProject, onCreateNew, onProjectDeleted, onSaveProjec
     
     return (
         <Menubar className="rounded-none border-x-0 border-t-0 px-2 lg:px-4 bg-muted/30 backdrop-blur-md">
-            <MenubarMenu>
-                <MenubarTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8 mr-1">
-                        {isSidebarVisible ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
-                    </Button>
-                </MenubarTrigger>
-            </MenubarMenu>
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8 mr-1">
+                {isSidebarVisible ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
+            </Button>
              <MenubarMenu>
                  <MenubarTrigger asChild>
                     <Link href="/" className="flex items-center">
