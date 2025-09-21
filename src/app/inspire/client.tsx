@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -67,8 +68,9 @@ export default function XInspireEnvironment() {
 
   const videoSrc = useMemo(() => {
     const muteState = !hasInteracted || isMuted ? 1 : 0;
-    return `https://www.youtube.com/embed/${cur.videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${cur.videoId}&modestbranding=1&showinfo=0&rel=0`;
+    return `https://www.youtube.com/embed/${cur.videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${cur.videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3`;
   }, [cur, isMuted, hasInteracted]);
+
 
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
@@ -117,9 +119,9 @@ export default function XInspireEnvironment() {
       {/* Fullscreen YouTube */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <iframe
-          key={videoSrc} // Force re-render on src change
+          key={videoSrc}
           src={videoSrc}
-          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 min-h-full min-w-[177.77vh] w-auto h-auto -translate-x-1/2 -translate-y-1/2"
           allow="autoplay; fullscreen"
           style={{ pointerEvents: 'none' }}
         />
