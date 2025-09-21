@@ -35,7 +35,7 @@ const AMBIENCES = [
   {
     id: "beach" as const,
     label: "Plage futuriste",
-    videoId: "1ZYbU82GVz4",
+    videoId: "u9vK5utTcxE",
     desc: "Horizon laiteux, brise légère, sons d'océan.",
   },
 ];
