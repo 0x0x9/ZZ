@@ -97,62 +97,62 @@ function GlowDot({ delay = 0, size = '100%', opacity = 0.25 }) {
 }
 
 function OriaSiriOrb({ active = false, thinking = false }: { active?: boolean; thinking?: boolean }) {
-    const controls = useAnimationControls();
+  const controls = useAnimationControls();
 
-    useEffect(() => {
-        if (thinking) {
-            controls.start({
-                scale: [1, 1.06, 1],
-                transition: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
-            });
-        } else if (active) {
-            controls.start({
-                scale: [1, 1.03, 1],
-                transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
-            });
-        } else {
-            controls.stop();
-        }
-    }, [active, thinking, controls]);
+  useEffect(() => {
+    if (thinking) {
+      controls.start({
+        scale: [1, 1.06, 1],
+        transition: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+      });
+    } else if (active) {
+      controls.start({
+        scale: [1, 1.03, 1],
+        transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+      });
+    } else {
+      controls.stop();
+    }
+  }, [active, thinking, controls]);
 
-    return (
-        <div className="relative mx-auto h-24 w-24">
-            {/* anneaux doux */}
-            <motion.div
-                className="absolute inset-0 rounded-full border border-white/20"
-                animate={{ opacity: [0.5, 0.8, 0.5] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                style={{ boxShadow: "0 10px 40px rgba(0,0,0,0.25)" }}
-            />
-            <GlowDot delay={0.2} opacity={0.18} />
-            <GlowDot delay={0.9} size="120%" opacity={0.12} />
-            {/* orbe principal */}
-            <motion.div
-                animate={controls}
-                className="absolute inset-0 rounded-full backdrop-blur-2xl border border-white/30"
-                style={{
-                    background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.18), rgba(255,255,255,0.06), rgba(255,255,255,0.18))"
-                }}
-            >
-                {/* vague interne */}
-                <motion.div
-                    className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                    animate={{
-                        scale: thinking ? [1, 1.12, 1] : active ? [1, 1.06, 1] : 1,
-                        rotate: [0, 360],
-                    }}
-                    transition={{
-                        scale: { duration: thinking ? 1.2 : 2, repeat: Infinity, ease: "easeInOut" },
-                        rotate: { duration: 16, repeat: Infinity, ease: "linear" },
-                    }}
-                    style={{
-                        background: "radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(255,255,255,0))",
-                        filter: "blur(8px)"
-                    }}
-                />
-            </motion.div>
-        </div>
-    );
+  return (
+    <div className="relative mx-auto h-24 w-24">
+      {/* anneaux doux */}
+      <motion.div
+        className="absolute inset-0 rounded-full border border-white/20"
+        animate={{ opacity: [0.5, 0.8, 0.5] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        style={{ boxShadow: "0 10px 40px rgba(0,0,0,0.25)" }}
+      />
+      <GlowDot delay={0.2} opacity={0.18} />
+      <GlowDot delay={0.9} size="120%" opacity={0.12} />
+      {/* orbe principal */}
+      <motion.div
+        animate={controls}
+        className="absolute inset-0 rounded-full backdrop-blur-2xl border border-white/30"
+        style={{
+          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.18), rgba(255,255,255,0.06), rgba(255,255,255,0.18))"
+        }}
+      >
+        {/* vague interne */}
+        <motion.div
+          className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          animate={{
+            scale: thinking ? [1, 1.12, 1] : active ? [1, 1.06, 1] : 1,
+            rotate: [0, 360],
+          }}
+          transition={{
+            scale: { duration: thinking ? 1.2 : 2, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 16, repeat: Infinity, ease: "linear" },
+          }}
+          style={{
+            background: "radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(255,255,255,0))",
+            filter: "blur(8px)"
+          }}
+        />
+      </motion.div>
+    </div>
+  );
 }
 
 function OriaChatbot() {
@@ -436,11 +436,10 @@ export default function XInspireEnvironment() {
       createPlayer();
     } else {
       try {
-        playerRef.current.loadPlaylist({ listType: 'playlist', playlist: [cur.videoId], index: 0 });
+        playerRef.current.loadVideoById(cur.videoId);
         if (hasInteracted && !isMuted) playerRef.current.unMute();
         else playerRef.current.mute();
-        playerRef.current.playVideo();
-      } catch {
+      } catch (e) {
         try { playerRef.current.destroy?.(); } catch {}
         createPlayer();
       }
