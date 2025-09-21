@@ -13,98 +13,197 @@ import dynamic from "next/dynamic";
 
 const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
 
-/**
- * OriaSiriOrbPro — Orbe VisionOS “future Siri”
- * Props:
- *  - size: px (default 120)
- *  - state: "idle" | "active" | "thinking" | "speaking"
- *  - className: tailwind extra
- *  - subtle: moins de glow si true
- *
- * Conseil UX:
- *  - state="active" quand l’input a du texte
- *  - state="thinking" pendant l’appel API
- *  - state="speaking" si tu fais du TTS
- */
-export function OriaSiriOrbPro({
-  size = 120,
-  state = "idle",
-  subtle = false,
-  className
+/** ========== EDGE GLOW (halo des bords) ========== */
+function EdgeGlow({
+  active = false,
+  colors = ['#22D3EE', '#F472B6', '#818CF8'], // cyan/magenta/indigo
+  bold = false,
 }: {
-  size?: number;
-  state?: "idle" | "active" | "thinking" | "speaking";
-  subtle?: boolean;
-  className?: string;
+  active?: boolean;
+  colors?: [string, string, string];
+  bold?: boolean;
 }) {
-  const ring = useAnimationControls();
-  const core = useAnimationControls();
-  const wave = useAnimationControls();
-  const [haloCycle, cycleHalo] = useCycle(
-    { rotate: 0, scale: 1 },
-    { rotate: 360, scale: 1.1 }
-  );
+  const alpha = bold ? 0.75 : 0.4;
+  const thickness = bold ? 14 : 10;
 
-  // Respecte prefers-reduced-motion
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mql.matches) {
-      ring.stop(); core.stop(); wave.stop();
-    } else {
-        cycleHalo();
-    }
-  }, [ring, core, wave, cycleHalo]);
+  const toRGBA = (hex: string, a: number) => {
+    if (!hex.startsWith('#')) return hex;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  };
 
-  // Animations selon l’état
-  useEffect(() => {
-    const baseEase = "easeInOut";
-    if (state === "idle") {
-      ring.start({ opacity: [0.5, 0.9, 0.5], transition: { duration: 4, repeat: Infinity, ease: baseEase } });
-      core.start({ scale: [1, 1.015, 1], transition: { duration: 3.2, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 16, repeat: Infinity, ease: "linear" } });
-    }
-    if (state === "active") {
-      ring.start({ opacity: [0.6, 1, 0.6], transition: { duration: 3, repeat: Infinity, ease: baseEase } });
-      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.4, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 12, repeat: Infinity, ease: "linear" } });
-    }
-    if (state === "thinking") {
-      ring.start({ opacity: [0.7, 1, 0.7], blur: ["10px","14px","10px"], transition: { duration: 2, repeat: Infinity, ease: baseEase } as any });
-      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.4, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 8, repeat: Infinity, ease: "linear" } });
-    }
-    if (state === "speaking") {
-      ring.start({ opacity: [0.9, 1, 0.9], transition: { duration: 1.6, repeat: Infinity, ease: baseEase } });
-      core.start({ scale: [1, 1.08, 1], transition: { duration: 1.1, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 6, repeat: Infinity, ease: "linear" } });
-    }
-  }, [state, ring, core, wave]);
+  const gradH = `linear-gradient(90deg,
+    ${toRGBA(colors[0], alpha)} 0%,
+    ${toRGBA(colors[1], alpha)} 50%,
+    ${toRGBA(colors[2], alpha)} 100%)`;
+
+  const anim = active
+    ? { backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }
+    : { backgroundPosition: '50% 50%' };
+
+  const transition = active
+    ? { duration: 6, repeat: Infinity as const, ease: 'linear' }
+    : { duration: 0.3 };
 
   return (
-    <div
-      className={cn("relative select-none", className)}
-      style={{ width: size, height: size }}
-      aria-label="Oria — état visuel"
-    >
-        <div className="absolute inset-0 header-logo-orb">
-            <div className="blob one"></div>
-            <div className="blob two"></div>
-            <div className="blob three"></div>
-        </div>
-      {/* Anneau verre */}
+    <div className="pointer-events-none fixed inset-0 z-40">
+      {/* TOP */}
       <motion.div
-        className="absolute inset-0 rounded-full border backdrop-blur-md"
+        initial={false}
+        animate={anim}
+        transition={transition}
+        className="absolute left-0 right-0 top-0"
         style={{
-          borderColor: "rgba(255,255,255,0.28)",
-          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)"
+          height: thickness,
+          backgroundImage: gradH,
+          backgroundSize: '200% 100%',
+          filter: 'blur(6px)',
+          opacity: active ? 0.95 : 0.35,
+          mixBlendMode: 'screen',
+        }}
+      />
+      {/* BOTTOM */}
+      <motion.div
+        initial={false}
+        animate={anim}
+        transition={transition}
+        className="absolute left-0 right-0 bottom-0"
+        style={{
+          height: thickness,
+          backgroundImage: gradH,
+          backgroundSize: '200% 100%',
+          filter: 'blur(6px)',
+          opacity: active ? 0.95 : 0.35,
+          mixBlendMode: 'screen',
+        }}
+      />
+      {/* LEFT */}
+      <motion.div
+        initial={false}
+        animate={anim}
+        transition={transition}
+        className="absolute left-0 top-0 bottom-0"
+        style={{
+          width: thickness,
+          backgroundImage: `linear-gradient(180deg,
+            ${toRGBA(colors[0], alpha)} 0%,
+            ${toRGBA(colors[1], alpha)} 50%,
+            ${toRGBA(colors[2], alpha)} 100%)`,
+          backgroundSize: '100% 200%',
+          filter: 'blur(6px)',
+          opacity: active ? 0.95 : 0.35,
+          mixBlendMode: 'screen',
+        }}
+      />
+      {/* RIGHT */}
+      <motion.div
+        initial={false}
+        animate={anim}
+        transition={transition}
+        className="absolute right-0 top-0 bottom-0"
+        style={{
+          width: thickness,
+          backgroundImage: `linear-gradient(180deg,
+            ${toRGBA(colors[2], alpha)} 0%,
+            ${toRGBA(colors[1], alpha)} 50%,
+            ${toRGBA(colors[0], alpha)} 100%)`,
+          backgroundSize: '100% 200%',
+          filter: 'blur(6px)',
+          opacity: active ? 0.95 : 0.35,
+          mixBlendMode: 'screen',
         }}
       />
     </div>
   );
 }
 
+/** ========== ORB (Siri-like simple) ========== */
+function OriaOrb({
+  state = 'idle', // 'idle' | 'active' | 'thinking'
+  size = 128,
+}: {
+  state?: 'idle' | 'active' | 'thinking';
+  size?: number;
+}) {
+  const ring = useAnimationControls();
+  const core = useAnimationControls();
+  const wave = useAnimationControls();
 
-// ---- Config ----
+  useEffect(() => {
+    const ease = 'easeInOut';
+    if (state === 'idle') {
+      ring.start({ opacity: [0.5, 0.9, 0.5], transition: { duration: 4, repeat: Infinity, ease } });
+      core.start({ scale: [1, 1.015, 1], transition: { duration: 3, repeat: Infinity, ease } });
+      wave.start({ rotate: [0, 360], transition: { duration: 16, repeat: Infinity, ease: 'linear' } });
+    }
+    if (state === 'active') {
+      ring.start({ opacity: [0.6, 1, 0.6], transition: { duration: 3, repeat: Infinity, ease } });
+      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.2, repeat: Infinity, ease } });
+      wave.start({ rotate: [0, 360], transition: { duration: 12, repeat: Infinity, ease: 'linear' } });
+    }
+    if (state === 'thinking') {
+      ring.start({ opacity: [0.8, 1, 0.8], transition: { duration: 1.6, repeat: Infinity, ease } });
+      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.2, repeat: Infinity, ease } });
+      wave.start({ rotate: [0, 360], transition: { duration: 8, repeat: Infinity, ease: 'linear' } });
+    }
+  }, [state, ring, core, wave]);
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      {/* Glow externe */}
+      <motion.div
+        animate={ring}
+        className="absolute inset-0 rounded-full"
+        style={{
+          filter: 'blur(22px)',
+          background: `
+            radial-gradient(closest-side, rgba(34,211,238,.45), transparent 60%),
+            radial-gradient(closest-side, rgba(244,114,182,.45), transparent 65%),
+            radial-gradient(closest-side, rgba(129,140,248,.35), transparent 70%)
+          `,
+        }}
+      />
+      {/* Anneau verre */}
+      <div
+        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
+        style={{
+          borderColor: 'rgba(255,255,255,0.28)',
+          boxShadow: '0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)',
+        }}
+      />
+      {/* Reflets */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background:
+            'conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))',
+          maskImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)',
+        }}
+      />
+      {/* Noyau */}
+      <motion.div
+        animate={core}
+        className="absolute inset-2 rounded-full"
+        style={{
+          background: 'radial-gradient(closest-side, rgba(255,255,255,0.25), rgba(255,255,255,0.06))',
+          boxShadow: 'inset 0 10px 40px rgba(255,255,255,0.08)',
+        }}
+      />
+      {/* Onde interne */}
+      <motion.div
+        animate={wave}
+        className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          background: 'radial-gradient(closest-side, rgba(255,255,255,0.36), rgba(255,255,255,0))',
+          filter: 'blur(10px)',
+        }}
+      />
+    </div>
+  );
+}
+
 const AMBIENCES = [
   {
     id: "forest" as const,
@@ -201,11 +300,11 @@ function OriaChatbot() {
       <div className="flex flex-col h-full space-y-4">
         {/* Header visionOS */}
         <Glass className={cn("p-4 flex items-center gap-4 transition-all duration-300", isLoading && "ring-1 ring-white/20")}>
-          <OriaSiriOrbPro
-            size={112}
+          <OriaOrb
             state={isLoading ? "thinking" : (input ? "active" : "idle")}
+            size={112}
           />
-          <div className={cn("flex-1 transition-all duration-300", isLoading && "blur-[2px] opacity-70")}>
+          <div className="flex-1">
             <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
             <div className="text-base md:text-lg font-medium text-white/90">
               {isLoading ? "Je façonne une piste pour toi…" :
@@ -287,10 +386,11 @@ export default function XInspireEnvironment() {
     const handlePlayerReady = (event: any) => {
       if (hasInteracted && !isMuted) {
         event.target.unMute();
+        event.target.playVideo();
       } else {
         event.target.mute();
+        event.target.playVideo();
       }
-      event.target.playVideo();
     };
   
     function createPlayer(videoId: string) {
@@ -324,11 +424,6 @@ export default function XInspireEnvironment() {
     } else {
       if (playerRef.current && playerRef.current.loadVideoById) {
         playerRef.current.loadVideoById(cur.videoId);
-        if (hasInteracted && !isMuted) {
-          playerRef.current.unMute();
-        } else {
-          playerRef.current.mute();
-        }
       } else {
         playerRef.current?.destroy?.();
         createPlayer(cur.videoId);
@@ -337,16 +432,17 @@ export default function XInspireEnvironment() {
   }, [cur.videoId, hasInteracted, isMuted]);
 
 
-  const handleFirstInteraction = () => {
+  const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
        if (playerRef.current?.unMute) {
           playerRef.current.unMute();
-          playerRef.current.playVideo();
+          // Ensure playVideo is called after unMute is effective
+          setTimeout(() => playerRef.current?.playVideo(), 100);
       }
     }
-  };
+  }, [hasInteracted]);
 
   const toggleMute = () => {
     if (!hasInteracted) {
@@ -540,5 +636,3 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
-
-    
