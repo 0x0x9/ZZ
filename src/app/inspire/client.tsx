@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence, useAnimationControls, useCycle } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -13,132 +13,44 @@ import dynamic from "next/dynamic";
 
 const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
 
-/**
- * OriaSiriOrbPro — Orbe VisionOS “future Siri”
- * Props:
- *  - size: px (default 120)
- *  - state: "idle" | "active" | "thinking" | "speaking"
- *  - className: tailwind extra
- *  - subtle: moins de glow si true
- */
-function OriaSiriOrbPro({
-  size = 120,
-  state = "idle",
-  subtle = false,
-  className
-}: {
-  size?: number;
-  state?: "idle" | "active" | "thinking" | "speaking";
-  subtle?: boolean;
-  className?: string;
-}) {
-  const ring = useAnimationControls();
-  const core = useAnimationControls();
-  const wave = useAnimationControls();
+const AMBIENCES = [
+  {
+    id: "forest" as const,
+    label: "Forêt Zen",
+    videoId: "29XymHesxa0",
+    desc: "Lumière douce, brume légère, respiration longue.",
+  },
+  {
+    id: "neon" as const,
+    label: "Néon Nocturne",
+    videoId: "-Xh4BNbxpI8",
+    desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
+  },
+  {
+    id: "loft" as const,
+    label: "Loft Urbain",
+    videoId: "ys50VgfL-u8",
+    desc: "Verre & métal, contre-jour, minimalisme élégant.",
+  },
+  {
+    id: "beach" as const,
+    label: "Plage futuriste",
+    videoId: "u9vK5utTcxE",
+    desc: "Horizon laiteux, brise légère, sons d'océan.",
+  },
+  {
+    id: "rainy_apartment" as const,
+    label: "Appartement Pluvieux",
+    videoId: "-5_NiRTS2nE",
+    desc: "Pluie contre la vitre, ambiance cosy et introspective.",
+  },
+];
 
-  // Respecte prefers-reduced-motion
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mql.matches) {
-      ring.stop(); core.stop(); wave.stop();
-    }
-  }, [ring, core, wave]);
-
-  // Animations selon l’état
-  useEffect(() => {
-    const baseEase = "easeInOut";
-    if (state === "idle") {
-      ring.start({ opacity: [0.5, 0.9, 0.5], transition: { duration: 4, repeat: Infinity, ease: baseEase } });
-      core.start({ scale: [1, 1.015, 1], transition: { duration: 3.2, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 16, repeat: Infinity, ease: "linear" } });
-    }
-    if (state === "active") {
-      ring.start({ opacity: [0.6, 1, 0.6], transition: { duration: 3, repeat: Infinity, ease: baseEase } });
-      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.4, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 12, repeat: Infinity, ease: "linear" } });
-    }
-    if (state === "thinking") {
-      ring.start({ opacity: [0.7, 1, 0.7], blur: ["10px","14px","10px"], transition: { duration: 2, repeat: Infinity, ease: baseEase } as any });
-      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.4, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 8, repeat: Infinity, ease: "linear" } });
-    }
-    if (state === "speaking") {
-      ring.start({ opacity: [0.9, 1, 0.9], transition: { duration: 1.6, repeat: Infinity, ease: baseEase } });
-      core.start({ scale: [1, 1.08, 1], transition: { duration: 1.1, repeat: Infinity, ease: baseEase } });
-      wave.start({ rotate: [0, 360], transition: { duration: 6, repeat: Infinity, ease: "linear" } });
-    }
-  }, [state, ring, core, wave]);
-
-  // Couleurs/halo adaptatifs
-  const glowCyan = subtle ? "rgba(56,189,248,0.25)" : "rgba(56,189,248,0.45)";
-  const glowMagenta = subtle ? "rgba(244,114,182,0.25)" : "rgba(244,114,182,0.45)";
-  const glowIndigo = subtle ? "rgba(129,140,248,0.2)" : "rgba(129,140,248,0.35)";
-
-  return (
-    <div
-      className={cn("relative select-none", className)}
-      style={{ width: size, height: size }}
-      aria-label="Oria — état visuel"
-    >
-      {/* Aura externe multi-tons */}
-      <motion.div
-        animate={ring}
-        className="absolute inset-0 rounded-full"
-        style={{
-          filter: "blur(22px)",
-          background:
-            `radial-gradient(closest-side, ${glowCyan}, transparent 60%),
-             radial-gradient(closest-side, ${glowMagenta}, transparent 65%),
-             radial-gradient(closest-side, ${glowIndigo}, transparent 70%)`
-        }}
-      />
-
-      {/* Anneau verre */}
-      <motion.div
-        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
-        style={{
-          borderColor: "rgba(255,255,255,0.28)",
-          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)"
-        }}
-      />
-
-      {/* Reflets subtils */}
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))",
-          maskImage:
-            "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)"
-        }}
-      />
-
-      {/* Noyau “liquide” */}
-      <motion.div
-        animate={core}
-        className="absolute inset-2 rounded-full"
-        style={{
-          background: `radial-gradient(closest-side, rgba(255,255,255,0.24), rgba(255,255,255,0.06))`,
-          boxShadow: "inset 0 10px 40px rgba(255,255,255,0.08)"
-        }}
-      />
-
-      {/* Onde interne (rotation continue) */}
-      <motion.div
-        animate={wave}
-        className="absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          background:
-            "radial-gradient(closest-side, rgba(255,255,255,0.36), rgba(255,255,255,0.0))",
-          filter: "blur(10px)"
-        }}
-      />
-    </div>
-  );
-}
+type AmbienceId = typeof AMBIENCES[number]["id"];
 
 function useLocalState<T>(key: string, initial: T) {
   const [v, setV] = useState<T>(initial);
-  useEffect(() => { try { const raw = localStorage.getItem(key); if (raw) setV(JSON.parse(raw)); } catch {} }, []);
+  useEffect(() => { try { const raw = localStorage.getItem(key); if (raw) setV(JSON.parse(raw)); } catch {} }, [key]);
   useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }, [key, v]);
   return [v, setV] as const;
 }
@@ -260,111 +172,6 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
   );
 }
 
-/** ========== EDGE GLOW (halo des bords) ========== */
-function EdgeGlow({
-  active = false,
-  colors = ['#22D3EE', '#F472B6', '#818CF8'], // cyan/magenta/indigo
-  bold = false,
-}: {
-  active?: boolean;
-  colors?: [string, string, string];
-  bold?: boolean;
-}) {
-  const alpha = bold ? 0.75 : 0.4;
-  const thickness = bold ? 14 : 10;
-
-  const toRGBA = (hex: string, a: number) => {
-    if (!hex.startsWith('#')) return hex;
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r},${g},${b},${a})`;
-  };
-
-  const gradH = `linear-gradient(90deg,
-    ${toRGBA(colors[0], alpha)} 0%,
-    ${toRGBA(colors[1], alpha)} 50%,
-    ${toRGBA(colors[2], alpha)} 100%)`;
-
-  const anim = active
-    ? { backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }
-    : { backgroundPosition: '50% 50%' };
-
-  const transition = active
-    ? { duration: 6, repeat: Infinity as const, ease: 'linear' }
-    : { duration: 0.3 };
-
-  return (
-    <div className="pointer-events-none fixed inset-0 z-40">
-      {/* TOP */}
-      <motion.div
-        initial={false}
-        animate={anim}
-        transition={transition}
-        className="absolute left-0 right-0 top-0"
-        style={{
-          height: thickness,
-          backgroundImage: gradH,
-          backgroundSize: '200% 100%',
-          filter: 'blur(6px)',
-          opacity: active ? 0.95 : 0.35,
-          mixBlendMode: 'screen',
-        }}
-      />
-      {/* BOTTOM */}
-      <motion.div
-        initial={false}
-        animate={anim}
-        transition={transition}
-        className="absolute left-0 right-0 bottom-0"
-        style={{
-          height: thickness,
-          backgroundImage: gradH,
-          backgroundSize: '200% 100%',
-          filter: 'blur(6px)',
-          opacity: active ? 0.95 : 0.35,
-          mixBlendMode: 'screen',
-        }}
-      />
-      {/* LEFT */}
-      <motion.div
-        initial={false}
-        animate={anim}
-        transition={transition}
-        className="absolute left-0 top-0 bottom-0"
-        style={{
-          width: thickness,
-          backgroundImage: `linear-gradient(180deg,
-            ${toRGBA(colors[0], alpha)} 0%,
-            ${toRGBA(colors[1], alpha)} 50%,
-            ${toRGBA(colors[2], alpha)} 100%)`,
-          backgroundSize: '100% 200%',
-          filter: 'blur(6px)',
-          opacity: active ? 0.95 : 0.35,
-          mixBlendMode: 'screen',
-        }}
-      />
-      {/* RIGHT */}
-      <motion.div
-        initial={false}
-        animate={anim}
-        transition={transition}
-        className="absolute right-0 top-0 bottom-0"
-        style={{
-          width: thickness,
-          backgroundImage: `linear-gradient(180deg,
-            ${toRGBA(colors[2], alpha)} 0%,
-            ${toRGBA(colors[1], alpha)} 50%,
-            ${toRGBA(colors[0], alpha)} 100%)`,
-          backgroundSize: '100% 200%',
-          filter: 'blur(6px)',
-          opacity: active ? 0.95 : 0.35,
-          mixBlendMode: 'screen',
-        }}
-      />
-    </div>
-  );
-}
 
 // Real AI Chatbot function
 const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
@@ -428,31 +235,14 @@ function OriaChatbot() {
         setIsLoading(false);
       }
     };
-    
-    const state: 'idle' | 'active' | 'thinking' =
-    isLoading ? 'thinking' : input ? 'active' : 'idle';
   
     return (
       <div className="flex flex-col h-full space-y-4">
-        {/* Header visionOS */}
-        <Glass className={cn("p-4 flex items-center gap-4 transition-all duration-300", isLoading && "ring-1 ring-white/20")}>
-            <OriaSiriOrbPro size={112} state={state} />
-            <div className="flex-1">
-              <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
-              <div className="text-base md:text-lg font-medium text-white/90">
-                {isLoading
-                  ? 'Je façonne une piste pour toi…'
-                  : input
-                  ? 'On affine. Dis-moi ce que tu veux ressentir.'
-                  : 'Je suis là. Décris une ambiance, un besoin, un rythme.'}
-              </div>
-            </div>
-        </Glass>
-  
         {/* Messages */}
         <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
           {messages.length === 0 && !isLoading && (
             <div className="flex flex-col items-center justify-center h-full text-center">
+                <OriaAnimation className="w-24 h-24 mb-4"/>
               <p className="text-white/80">Je suis Oria, ta muse. Dis-moi ce que tu veux explorer ✨</p>
             </div>
           )}
@@ -502,34 +292,6 @@ function OriaChatbot() {
     );
   }
 
-const AMBIENCES = [
-  {
-    id: "forest" as const,
-    label: "Forêt Zen",
-    videoId: "29XymHesxa0",
-    desc: "Lumière douce, brume légère, respiration longue.",
-  },
-  {
-    id: "neon" as const,
-    label: "Néon Nocturne",
-    videoId: "-Xh4BNbxpI8",
-    desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
-  },
-  {
-    id: "loft" as const,
-    label: "Loft Urbain",
-    videoId: "ys50VgfL-u8",
-    desc: "Verre & métal, contre-jour, minimalisme élégant.",
-  },
-  {
-    id: "beach" as const,
-    label: "Plage futuriste",
-    videoId: "u9vK5utTcxE",
-    desc: "Horizon laiteux, brise légère, sons d'océan.",
-  },
-];
-
-type AmbienceId = typeof AMBIENCES[number]["id"];
 
 export default function XInspireEnvironment() {
   const [mounted, setMounted] = useState(false);
@@ -545,8 +307,25 @@ export default function XInspireEnvironment() {
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
+  const handleFirstInteraction = useCallback(() => {
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setIsMuted(false); // Unmute on first interaction
+      if (playerRef.current?.unMute && playerRef.current.isMuted()) {
+          playerRef.current.unMute();
+      }
+      playerRef.current?.playVideo?.();
+    }
+  }, [hasInteracted]);
+  
+   const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
+    handleFirstInteraction();
+    setAmbience(newAmbienceId);
+  };
 
   useEffect(() => {
+    if (!mounted) return;
+
     const handlePlayerReady = (event: any) => {
       if (hasInteracted && !isMuted) {
         event.target.unMute();
@@ -557,8 +336,11 @@ export default function XInspireEnvironment() {
       }
     };
   
-    function createPlayer(videoId: string) {
+    const createPlayer = (videoId: string) => {
       if (!(window as any).YT) return;
+       if (playerRef.current && typeof playerRef.current.destroy === 'function') {
+        playerRef.current.destroy();
+      }
       playerRef.current = new (window as any).YT.Player('youtube-player', {
         width: '100%',
         height: '100%',
@@ -578,44 +360,19 @@ export default function XInspireEnvironment() {
         }
       });
     }
-  
-    if (!(window as any).YT || !(window as any).YT.Player) {
+
+    if (playerRef.current && playerRef.current.loadVideoById) {
+      playerRef.current.loadVideoById(cur.videoId);
+    } else if ((window as any).YT?.Player) {
+      createPlayer(cur.videoId);
+    } else {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       const firstScriptTag = document.getElementsByTagName('script')[0];
       firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
       (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
-    } else {
-      if (playerRef.current && playerRef.current.loadVideoById) {
-        playerRef.current.loadVideoById(cur.videoId);
-      } else {
-        playerRef.current?.destroy?.();
-        createPlayer(cur.videoId);
-      }
     }
-  }, [cur.videoId, hasInteracted, isMuted]);
-
-
-  const handleFirstInteraction = useCallback(() => {
-    if (!hasInteracted) {
-      setHasInteracted(true);
-      if (playerRef.current?.unMute && playerRef.current.isMuted()) {
-          setIsMuted(false);
-          playerRef.current.unMute();
-      }
-      playerRef.current?.playVideo?.();
-    }
-  }, [hasInteracted]);
-  
-   const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
-    setAmbience(newAmbienceId);
-    if (playerRef.current && playerRef.current.loadVideoById) {
-      const newVideoId = AMBIENCES.find(a => a.id === newAmbienceId)?.videoId;
-      if (newVideoId) {
-        playerRef.current.loadVideoById(newVideoId);
-      }
-    }
-  };
+  }, [cur.videoId, mounted, hasInteracted, isMuted]);
 
   const toggleMute = () => {
     if (!hasInteracted) {
@@ -635,7 +392,9 @@ export default function XInspireEnvironment() {
   useEffect(() => {
     try {
       const lastAmb = localStorage.getItem("xinspire.ambience");
-      if (lastAmb && ["forest", "neon", "loft", "beach"].includes(lastAmb)) setAmbience(lastAmb as AmbienceId);
+      if (lastAmb && AMBIENCES.some(a => a.id === lastAmb)) {
+        setAmbience(lastAmb as AmbienceId);
+      }
     } catch {}
   }, []);
 
@@ -751,7 +510,7 @@ export default function XInspireEnvironment() {
                             {isMuted ? "Son coupé" : "Son actif"}
                         </Pill>
                     </div>
-                    <div className="mt-2 grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div className="mt-2 grid grid-cols-2 gap-3 md:grid-cols-5">
                       {AMBIENCES.map(a => (
                         <button
                           key={a.id}
@@ -782,11 +541,11 @@ export default function XInspireEnvironment() {
                         </div>
                     </div>
                   </TabsContent>
-                  <TabsContent value="work" className="mt-4">
-                      <div className="grid gap-4 md:grid-cols-2">
+                   <TabsContent value="work" className="mt-4">
+                    <div className="grid gap-4 md:grid-cols-2">
                         <WorkTasks onStartTimer={(m)=>setActiveTimer(m)} />
                         <WorkBrief />
-                      </div>
+                    </div>
                     </TabsContent>
                 </Tabs>
               </Glass>
@@ -794,7 +553,7 @@ export default function XInspireEnvironment() {
           </motion.div>
         )}
       </AnimatePresence>
-      <WorkTimer minutes={activeTimer} onEnd={()=>setActiveTimer(null)} />
+       <WorkTimer minutes={activeTimer} onEnd={()=>setActiveTimer(null)} />
     </div>
   );
 }
