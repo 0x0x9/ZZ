@@ -69,7 +69,7 @@ export default function XInspireEnvironment() {
 
   const videoSrc = useMemo(() => {
     const muteState = !hasInteracted || isMuted ? 1 : 0;
-    return `https://www.youtube.com/embed/${cur.videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${cur.videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3`;
+    return `https://www.youtube.com/embed/${cur.videoId}?autoplay=1&mute=${muteState}&controls=0&loop=1&playlist=${cur.videoId}&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&vq=hd1080`;
   }, [cur, isMuted, hasInteracted]);
 
 
@@ -118,19 +118,21 @@ export default function XInspireEnvironment() {
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
       {/* Fullscreen YouTube */}
-      <div className={cn(
+      <motion.div
+        key={videoSrc}
+        className={cn(
           "absolute inset-0 -z-10 overflow-hidden transition-all duration-500",
-          panelOpen ? "blur-md" : "blur-0"
-      )}>
+          panelOpen ? "blur-md" : "blur-sm"
+        )}
+      >
         <iframe
-          key={videoSrc}
           src={videoSrc}
-          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[177.77vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[2.5]"
+          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[177.77vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.8]"
           allow="autoplay; fullscreen"
           style={{ pointerEvents: 'none' }}
         />
         <div className="pointer-events-none absolute inset-0 bg-black/20" />
-      </div>
+      </motion.div>
 
        {/* Ambience badge */}
        <div className="pointer-events-none fixed left-6 top-6 z-30 select-none">
