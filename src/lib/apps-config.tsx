@@ -108,7 +108,7 @@ export const ALL_APPS_CONFIG = [
     { id: 'agenda', name: '(X)agenda', icon: Calendar, component: (props: any) => <LazyAgenda {...props} />, defaultPos: { x: 530, y: 290 }, defaultSize: { width: 950, height: 700 } },
     { id: 'nexus', name: '(X)nexus', icon: Network, component: (props: any) => <LazyNexus {...props} />, defaultPos: { x: 770, y: 290 }, defaultSize: { width: 700, height: 700 } },
     { id: 'muse', name: '(X)muse', icon: Guitar, component: (props: any) => <LazyMuse {...props} />, defaultPos: { x: 410, y: 50}, defaultSize: { width: 1200, height: 800 } },
-    { id: 'sound', name: '(X)sound', icon: Music, component: (props: any) => <LazySound {...props} />, defaultPos: { x: 200, y: 200}, defaultSize: { width: 500, height: 400 } },
+    { id: 'sound', name: '(X)sound', icon: Music, component: (props: any) => <LazySound {...props} />, defaultPos: { x: 200, y: 200}, defaultSize: { width: 700, height: 550 } },
     { id: 'palette', name: '(X)palette', icon: Palette, component: (props: any) => <LazyPalette {...props} />, defaultPos: { x: 220, y: 220}, defaultSize: { width: 600, height: 500 } },
     { id: 'tone', name: '(X)tone', icon: Mic, component: (props: any) => <LazyTone {...props} />, defaultPos: { x: 240, y: 240}, defaultSize: { width: 600, height: 600 } },
     { id: 'persona', name: '(X)persona', icon: Users, component: (props: any) => <LazyPersona {...props} />, defaultPos: { x: 260, y: 260}, defaultSize: { width: 800, height: 700 } },
@@ -133,3 +133,4 @@ export const ALL_APPS_CONFIG = [
 ];
 export type AppConfig = typeof ALL_APPS_CONFIG[0];
 
+    

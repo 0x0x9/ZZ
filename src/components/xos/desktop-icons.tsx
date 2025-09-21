@@ -13,7 +13,7 @@ const iconGroupCategories: { title: string; ids: string[] }[] = [
     },
     {
         title: "Stratégie & Idéation",
-        ids: ['flux', 'maestro', 'promptor', 'brand-identity', 'nexus', 'persona', 'agenda']
+        ids: ['flux', 'maestro', 'promptor', 'brand-identity', 'nexus', 'persona', 'agenda', 'light']
     },
     {
         title: "Création de Contenu",
@@ -93,3 +93,5 @@ export default function DesktopIcons({ isBooting, onOpenApp }: DesktopIconsProps
         </div>
     );
 }
+
+    
