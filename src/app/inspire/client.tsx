@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
@@ -11,7 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 
 const AMBIENCES = [
@@ -320,7 +326,7 @@ function FocusModalContent() {
 
 
 function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }) {
-    const [remain, setRemain] = useState<number>(0);
+    const [remain, setRemain] = useState(0);
     const [isFocusModalOpen, setIsFocusModalOpen] = useState(false);
 
     useEffect(()=> {
@@ -329,17 +335,15 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
           return;
       }
       setRemain(minutes*60);
-      const id = setInterval(()=> setRemain(s=> (s>0? s-1 : 0)), 1000);
+      const id = setInterval(()=> setRemain(s => {
+          if (s > 1) return s - 1;
+          onEnd();
+          return 0;
+      }), 1000);
       return ()=> clearInterval(id);
-    }, [minutes]);
+    }, [minutes, onEnd]);
 
-    useEffect(()=> { 
-      if (minutes !== null && remain === 0) {
-        onEnd(); 
-      }
-    }, [remain, minutes, onEnd]);
-
-    if (!minutes) return null;
+    if (!minutes || remain <= 0) return null;
 
     const mm = String(Math.floor(remain/60)).padStart(2,'0');
     const ss = String(remain%60).padStart(2,'0');
@@ -502,7 +506,6 @@ export default function XInspireEnvironment() {
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
-    // Débloque l’audio si première interaction
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
@@ -510,23 +513,20 @@ export default function XInspireEnvironment() {
 
     setAmbience(newAmbienceId);
     const targetId = AMBIENCES.find(a => a.id === newAmbienceId)!.videoId;
-
-    // Player prêt → on change vraiment la vidéo
     const p = playerRef.current;
+    
     try {
       if (p?.loadPlaylist) {
-        // boucle fiable via playlist d’un seul ID
         p.loadPlaylist({ playlist: [targetId], index: 0 });
         if (!isMuted) p.unMute();
         p.playVideo?.();
       } else if (p?.loadVideoById) {
-        // fallback
-        p.loadVideoById({ videoId: targetId, startSeconds: 0, suggestedQuality: 'hd1080' });
-        if (!isMuted) p.unMute();
+        p.loadVideoById({ videoId: targetId });
+         if (!isMuted) p.unMute();
         p.playVideo?.();
       }
-    } catch {
-      // Si le player n’est pas prêt, l’effet useEffect recréera avec le bon ID
+    } catch (e) {
+      console.error("Failed to change video", e);
     }
   }, [hasInteracted, isMuted]);
   
@@ -537,8 +537,12 @@ export default function XInspireEnvironment() {
     setIsMuted(m => {
         const newMuted = !m;
         if (playerRef.current) {
-            if (newMuted) playerRef.current.mute();
-            else playerRef.current.unMute();
+            try {
+                if (newMuted) playerRef.current.mute();
+                else playerRef.current.unMute();
+            } catch (e) {
+                console.error("Mute/unmute failed", e);
+            }
         }
         return newMuted;
     });
@@ -550,11 +554,10 @@ export default function XInspireEnvironment() {
     const onPlayerReady = (event: any) => {
         if (!isMuted) {
             event.target.unMute();
-            event.target.playVideo();
         } else {
             event.target.mute();
-            event.target.playVideo();
         }
+        event.target.playVideo();
     };
   
     const createPlayer = (videoId: string) => {
