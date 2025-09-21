@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -143,7 +143,7 @@ function Glass({ className = "", children }: { className?: string; children: Rea
   );
 }
 
-function Pill({ onClick, icon, children, className = "" }: { onClick?: () => void; icon?: React.ReactNode; children?: React.ReactNode; className?: string }) {
+function Pill({ onClick, icon, children, className = "" }: { onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void; icon?: React.ReactNode; children?: React.ReactNode; className?: string }) {
   return (
     <button
       onClick={onClick}
@@ -556,39 +556,55 @@ export default function XInspireEnvironment() {
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
 
-       {/* Ambience Controller */}
+      {/* Ambience Controller (en haut à gauche) */}
       <div className="fixed left-6 top-6 z-30">
         <Popover>
-            <PopoverTrigger asChild>
-                <Glass className="px-4 py-2 cursor-pointer transition-all hover:border-white/40">
-                    <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
-                    <div className="text-base font-semibold flex items-center gap-2">
-                        <Sparkles className="h-4 w-4" /> {cur.label}
-                    </div>
-                </Glass>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-auto p-2 glass-card">
-                <div className="space-y-1">
-                    <Pill onClick={toggleMute} icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />} className="w-full justify-start">
-                        {isMuted ? "Son coupé" : "Son actif"}
-                    </Pill>
-                    {AMBIENCES.map(a => (
-                        <button
-                            key={a.id}
-                            disabled={a.id === ambience}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleAmbienceChange(a.id);
-                            }}
-                            className="w-full text-left rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {a.label}
-                        </button>
-                    ))}
-                </div>
-            </PopoverContent>
+          <PopoverTrigger asChild>
+            <Glass className="px-4 py-2 cursor-pointer transition-all hover:border-white/40">
+              <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
+              <div className="text-base font-semibold flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> {cur.label}
+              </div>
+            </Glass>
+          </PopoverTrigger>
+
+          <PopoverContent align="start" className="w-52 p-2 glass-card">
+            <div className="space-y-1">
+              {/* Toggle son */}
+              <Pill
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMute();
+                }}
+                icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                className="w-full justify-start"
+              >
+                {isMuted ? "Son coupé" : "Son actif"}
+              </Pill>
+
+              {/* Liste des ambiances */}
+              {AMBIENCES.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 🔑 évite la fermeture avant l’action
+                    handleAmbienceChange(a.id); // 🔑 applique le changement
+                  }}
+                  className={cn(
+                    "w-full text-left rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    a.id === ambience
+                      ? "bg-white/15 border border-white/30 text-white"
+                      : "hover:bg-white/10"
+                  )}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
         </Popover>
       </div>
+
 
       {/* Overlay d’activation */}
       <AnimatePresence>
