@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -35,6 +36,28 @@ const AMBIENCES = [
 
 type AmbienceId = typeof AMBIENCES[number]["id"];
 
+// Helper to build a YouTube embed src
+function ytEmbedSrc(id: string, opts: { autoplay?: 0 | 1; mute?: 0 | 1; loop?: 0 | 1; controls?: 0 | 1; playsinline?: 0 | 1; start?: number; end?: number } = {}) {
+  const p = new URLSearchParams({
+    autoplay: String(opts.autoplay ?? 1),
+    mute: String(opts.mute ?? 1),
+    loop: String(opts.loop ?? 1),
+    controls: String(opts.controls ?? 0),
+    playsinline: String(opts.playsinline ?? 1),
+    enablejsapi: "1",
+    modestbranding: "1",
+    rel: "0",
+    iv_load_policy: "3",
+    showinfo: "0",
+    fs: "0",
+  });
+  // Loop needs playlist param set to the same ID
+  if ((opts.loop ?? 1) === 1) p.set("playlist", id);
+  if (opts.start) p.set("start", String(opts.start));
+  if (opts.end) p.set("end", String(opts.end));
+  return `https://www.youtube.com/embed/${id}?${p.toString()}`;
+}
+
 function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
   return (
     <div className={`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg ${className}`}>
@@ -63,82 +86,20 @@ export default function XInspireEnvironment() {
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
 
-  const bgPlayerRef = useRef<any>(null);
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
-
-  // Load YT API
-  useEffect(() => {
-    if (!(window as any).YT) {
-      const tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-    }
-  }, []);
-
-  // Create player
-  useEffect(() => {
-    function createPlayer() {
-      if (bgPlayerRef.current) {
-        bgPlayerRef.current.destroy();
-      }
-      bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
-        videoId: cur.videoId,
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          loop: 1,
-          playlist: cur.videoId,
-          modestbranding: 1,
-          rel: 0,
-          fs: 0,
-          playsinline: 1,
-          mute: 1, // démarrage muet
-        },
-        events: {
-          onReady: (e: any) => {
-            e.target.playVideo();
-          },
-        },
-      });
-    }
-
-    if (typeof (window as any).YT === "undefined" || typeof (window as any).YT.Player === "undefined") {
-      (window as any).onYouTubeIframeAPIReady = createPlayer;
-    } else {
-      createPlayer();
-    }
-
-    return () => {
-      if (bgPlayerRef.current?.destroy) {
-        bgPlayerRef.current.destroy();
-      }
-    };
-  }, [cur.videoId]);
 
   // Clic d’activation
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
-      try {
-        bgPlayerRef.current?.unMute();
-        bgPlayerRef.current?.playVideo(); // <- essentiel
-      } catch (err) {
-        console.error("Erreur activation audio:", err);
-      }
     }
   };
 
   // Toggle mute
   const toggleMute = () => {
     if (!hasInteracted) return handleFirstInteraction();
-    setIsMuted((m) => {
-      const next = !m;
-      try {
-        next ? bgPlayerRef.current?.mute() : bgPlayerRef.current?.unMute();
-      } catch {}
-      return next;
-    });
+    setIsMuted((m) => !m);
   };
 
   // Notes localStorage
@@ -173,10 +134,16 @@ export default function XInspireEnvironment() {
       {/* Background gradient glow */}
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
-      {/* Fullscreen YouTube */}
+      {/* Fullscreen YouTube using a simple iframe */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div id="player-bg" className="absolute inset-0 w-full h-full" style={{ pointerEvents: "none" }} />
-        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        <iframe
+            key={`${cur.videoId}-${isMuted}`}
+            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
+            src={ytEmbedSrc(cur.videoId, { autoplay: 1, mute: isMuted ? 1 : 0, loop: 1 })}
+            title="XInspire Background"
+            allow="autoplay; encrypted-media"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-black/30 backdrop-blur-sm" />
       </div>
 
       {/* Overlay d’activation */}
@@ -188,7 +155,7 @@ export default function XInspireEnvironment() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-             <motion.button
+            <motion.button
                 onClick={handleFirstInteraction}
                 className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-white/40"
                 whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.2)" }}
