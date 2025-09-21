@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
@@ -35,28 +35,6 @@ const AMBIENCES = [
 
 type AmbienceId = typeof AMBIENCES[number]["id"];
 
-// Helper to build a YouTube embed src
-function ytEmbedSrc(id: string, opts: { autoplay?: 0 | 1; mute?: 0 | 1; loop?: 0 | 1; controls?: 0 | 1; playsinline?: 0 | 1; start?: number; end?: number } = {}) {
-  const p = new URLSearchParams({
-    autoplay: String(opts.autoplay ?? 1),
-    mute: String(opts.mute ?? 1),
-    loop: String(opts.loop ?? 1),
-    controls: String(opts.controls ?? 0),
-    playsinline: String(opts.playsinline ?? 1),
-    enablejsapi: "1",
-    modestbranding: "1",
-    rel: "0",
-    iv_load_policy: "3",
-    showinfo: "0",
-    fs: "0",
-  });
-  // Loop needs playlist param set to the same ID
-  if ((opts.loop ?? 1) === 1) p.set("playlist", id);
-  if (opts.start) p.set("start", String(opts.start));
-  if (opts.end) p.set("end", String(opts.end));
-  return `https://www.youtube.com/embed/${id}?${p.toString()}`;
-}
-
 function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
   return (
     <div className={`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg ${className}`}>
@@ -85,20 +63,98 @@ export default function XInspireEnvironment() {
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
 
+  const bgPlayerRef = useRef<any>(null);
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
+
+  // Load YT API
+  useEffect(() => {
+    if (!(window as any).YT) {
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+    }
+  }, []);
+
+  // Create player
+  useEffect(() => {
+    function createPlayer() {
+      if (bgPlayerRef.current) {
+        bgPlayerRef.current.destroy();
+      }
+      bgPlayerRef.current = new (window as any).YT.Player("player-bg", {
+        videoId: cur.videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          loop: 1,
+          playlist: cur.videoId,
+          modestbranding: 1,
+          rel: 0,
+          fs: 0,
+          playsinline: 1,
+          mute: hasInteracted && !isMuted ? 0 : 1,
+        },
+        events: {
+          onReady: (e: any) => {
+            e.target.playVideo();
+            const iframe = document.getElementById("player-bg")?.querySelector("iframe");
+            if (iframe) {
+              iframe.style.width = "100%";
+              iframe.style.height = "100%";
+              iframe.style.objectFit = "cover";
+              iframe.style.position = "absolute";
+              iframe.style.top = "0";
+              iframe.style.left = "0";
+            }
+            if (hasInteracted && !isMuted) {
+              e.target.unMute();
+            }
+          },
+        },
+      });
+    }
+
+    if (typeof (window as any).YT === "undefined" || typeof (window as any).YT.Player === "undefined") {
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
+    } else {
+      createPlayer();
+    }
+
+    return () => {
+      if (bgPlayerRef.current?.destroy) {
+        try {
+          bgPlayerRef.current.destroy();
+        } catch (e) {
+          console.error("Error destroying YouTube player:", e);
+        }
+      }
+    };
+  }, [cur.videoId, hasInteracted, isMuted]);
 
   // Clic d’activation
   const handleFirstInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
       setIsMuted(false);
+      try {
+        bgPlayerRef.current?.unMute();
+        bgPlayerRef.current?.playVideo();
+      } catch (err) {
+        console.error("Erreur activation audio:", err);
+      }
     }
   };
 
   // Toggle mute
   const toggleMute = () => {
     if (!hasInteracted) return handleFirstInteraction();
-    setIsMuted((m) => !m);
+    setIsMuted((m) => {
+      const next = !m;
+      try {
+        next ? bgPlayerRef.current?.mute() : bgPlayerRef.current?.unMute();
+      } catch {}
+      return next;
+    });
   };
 
   // Notes localStorage
@@ -135,15 +191,12 @@ export default function XInspireEnvironment() {
 
       {/* Fullscreen YouTube */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <iframe
-          key={`${cur.videoId}-${isMuted}`}
+        <div
+          id="player-bg"
           className="absolute inset-0 w-full h-full"
           style={{ pointerEvents: "none" }}
-          src={ytEmbedSrc(cur.videoId, { autoplay: 1, mute: isMuted ? 1 : 0, loop: 1 })}
-          title="XInspire Background"
-          allow="autoplay; encrypted-media"
         />
-        <div className="pointer-events-none absolute inset-0 bg-black/30 backdrop-blur-sm" />
+        <div className="pointer-events-none absolute inset-0 bg-black/20 backdrop-blur-sm" />
       </div>
 
       {/* Overlay d’activation */}
