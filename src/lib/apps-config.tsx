@@ -46,6 +46,7 @@ const LazyGoogleDriveApp = dynamic(() => import('@/components/google/drive-app')
 const LazyGoogleDocsApp = dynamic(() => import('@/components/google/docs-app'));
 const LazyGoogleSheetsApp = dynamic(() => import('@/components/google/sheets-app'));
 const LazyGoogleSlidesApp = dynamic(() => import('@/components/google/slides-app'));
+const LazyInspireApp = dynamic(() => import('@/app/inspire/client'));
 
 
 // Google Suite Icons
@@ -96,7 +97,7 @@ export const ALL_APPS_CONFIG = [
     { id: 'fusion', name: '(X)fusion', icon: Zap, component: (props: any) => <LazyFusion isPanel={true} {...props} />, defaultPos: { x: 290, y: 50}, defaultSize: { width: 1000, height: 750 } },
     { id: 'flux', name: '(X)flux', icon: Wand2, component: (props: any) => <LazyFlux {...props} />, defaultPos: { x: 530, y: 50 }, defaultSize: { width: 1000, height: 750 } },
     { id: 'maestro', name: 'Maestro', icon: BrainCircuit, component: (props: any) => <LazyMaestro {...props} />, defaultPos: { x: 650, y: 50 }, defaultSize: { width: 950, height: 700 } },
-    { id: 'image', name: 'Image', icon: ImageIconLucide, component: (props: any) => <LazyImage {...props} />, defaultPos: { x: 770, y: 50 }, defaultSize: { width: 850, height: 650 } },
+    { id: 'image', name: '(X)Inspire', icon: ImageIconLucide, component: (props: any) => <LazyImage {...props} />, defaultPos: { x: 770, y: 50 }, defaultSize: { width: 850, height: 650 } },
     { id: 'brand-identity', name: '(X)brand', icon: Layers, component: (props: any) => <LazyBrandIdentity {...props} />, defaultPos: { x: 890, y: 50 }, defaultSize: { width: 900, height: 600 } },
     { id: 'promptor', name: '(X)promptor', icon: Lightbulb, component: (props: any) => <LazyPromptor {...props} />, defaultPos: { x: 290, y: 170 }, defaultSize: { width: 900, height: 550 } },
     { id: 'motion', name: '(X)motion', icon: Film, component: (props: any) => <LazyMotion {...props} />, defaultPos: { x: 410, y: 170 }, defaultSize: { width: 850, height: 750 } },
@@ -116,6 +117,7 @@ export const ALL_APPS_CONFIG = [
     { id: 'code', name: '(X)code', icon: CodeXml, component: (props: any) => <LazyCode {...props} />, defaultPos: { x: 300, y: 300}, defaultSize: { width: 800, height: 700 } },
     { id: 'reality', name: '(X)reality', icon: View, component: (props: any) => <LazyRealityApp {...props} />, defaultPos: { x: 320, y: 320}, defaultSize: { width: 900, height: 600 } },
     { id: 'light', name: '(X)light', icon: Sparkles, component: (props: any) => <LazyLightApp {...props} />, defaultPos: { x: 100, y: 150 }, defaultSize: { width: 900, height: 700 } },
+    { id: 'inspire', name: '(X)Inspire', icon: Sparkles, component: (props: any) => <LazyInspireApp {...props} />, defaultPos: { x: 100, y: 100 }, defaultSize: { width: 1200, height: 800 } },
     { id: 'store', name: 'Boutique', icon: ShoppingCart, component: (props: any) => <LazyStoreApp {...props} />, defaultPos: { x: 100, y: 100 }, defaultSize: { width: 1200, height: 800 } },
     { id: 'checkout', name: 'Panier', icon: ShoppingCart, component: (props: any) => <LazyCheckoutApp {...props} />, defaultPos: { x: 120, y: 120 }, defaultSize: { width: 1000, height: 750 } },
     { id: 'gallery', name: 'Galerie', icon: Paintbrush, component: (props: any) => <LazyGalleryApp {...props} />, defaultPos: { x: 140, y: 140 }, defaultSize: { width: 1100, height: 800 } },
@@ -132,5 +134,3 @@ export const ALL_APPS_CONFIG = [
     { id: 'google-slides', name: 'Google Slides', icon: GoogleSlidesIcon, component: (props: any) => <LazyGoogleSlidesApp {...props} />, defaultPos: { x: 360, y: 160 }, defaultSize: { width: 900, height: 700 } },
 ];
 export type AppConfig = typeof ALL_APPS_CONFIG[0];
-
-    

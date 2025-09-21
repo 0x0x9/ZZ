@@ -8,7 +8,7 @@ import {
   Wand2, BrainCircuit, Layers, Lightbulb, Calendar, Network,
   Film, Image as ImageIconLucide, AudioLines, FileText,
   Guitar, Music, SquareTerminal, LayoutTemplate, Terminal, CodeXml, ArrowRight, View,
-  FileKey, FilePenLine, Presentation, Users, Cloud, Heart
+  FileKey, FilePenLine, Presentation, Users, Cloud, Heart, Sparkles as XInspireIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -51,6 +51,7 @@ const toolCategories = [
       { title: '(X)persona', description: "Créez des profils d'utilisateurs pour mieux cibler vos projets.", href: '/persona', icon: Users },
       { title: '(X)agenda', description: "Organisez vos tâches et vos idées avec l'IA.", href: '/agenda', icon: Calendar },
       { title: '(X)nexus', description: 'Déployez vos idées en cartes mentales visuelles.', href: '/nexus', icon: Network },
+      { title: '(X)Inspire', description: "Une pause créative immersive pour trouver l'inspiration.", href: '/inspire', icon: XInspireIcon },
     ],
   },
   {
