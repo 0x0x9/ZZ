@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -127,7 +128,7 @@ export default function XInspireEnvironment() {
       >
         <iframe
           src={videoSrc}
-          className="absolute top-1/2 left-1/2 min-h-[177.77vh] min-w-[177.77vw] w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.8]"
+          className="absolute top-1/2 left-1/2 min-h-full min-w-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
           allow="autoplay; fullscreen"
           style={{ pointerEvents: 'none' }}
         />
