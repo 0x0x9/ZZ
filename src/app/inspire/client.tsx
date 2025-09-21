@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
@@ -134,14 +133,15 @@ export default function XInspireEnvironment() {
       {/* Background gradient glow */}
       <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
-      {/* Fullscreen YouTube using a simple iframe */}
+      {/* Fullscreen YouTube */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <iframe
-            key={`${cur.videoId}-${isMuted}`}
-            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2 scale-[1.5]"
-            src={ytEmbedSrc(cur.videoId, { autoplay: 1, mute: isMuted ? 1 : 0, loop: 1 })}
-            title="XInspire Background"
-            allow="autoplay; encrypted-media"
+          key={`${cur.videoId}-${isMuted}`}
+          className="absolute inset-0 w-full h-full"
+          style={{ pointerEvents: "none" }}
+          src={ytEmbedSrc(cur.videoId, { autoplay: 1, mute: isMuted ? 1 : 0, loop: 1 })}
+          title="XInspire Background"
+          allow="autoplay; encrypted-media"
         />
         <div className="pointer-events-none absolute inset-0 bg-black/30 backdrop-blur-sm" />
       </div>
