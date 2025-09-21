@@ -282,11 +282,28 @@ function WorkBrief() {
 }
 
 function FocusModalContent() {
-    const [tasks] = useLocalState<Task[]>("xinspire.tasks", []);
-    const [title] = useLocalState("xinspire.brief.title", "Mon Brief");
-    const [why] = useLocalState("xinspire.brief.why", "Aucun 'pourquoi' défini.");
-    const [how] = useLocalState("xinspire.brief.how", "Aucun 'comment' défini.");
-    const [first] = useLocalState("xinspire.brief.first", "Aucun 'premier pas' défini.");
+    // This component now re-fetches its state from localStorage to ensure it's up-to-date
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [brief, setBrief] = useState({ title: '', why: '', how: '', first: '' });
+
+    useEffect(() => {
+        const getStoredData = (key: string, defaultValue: any) => {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            } catch (e) {
+                return defaultValue;
+            }
+        };
+
+        setTasks(getStoredData("xinspire.tasks", []));
+        setBrief({
+            title: getStoredData("xinspire.brief.title", "Mon Brief"),
+            why: getStoredData("xinspire.brief.why", "Aucun 'pourquoi' défini."),
+            how: getStoredData("xinspire.brief.how", "Aucun 'comment' défini."),
+            first: getStoredData("xinspire.brief.first", "Aucun 'premier pas' défini."),
+        });
+    }, []);
 
     return (
         <DialogContent className="glass-card max-w-2xl text-white">
@@ -300,10 +317,10 @@ function FocusModalContent() {
                 <div>
                     <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><BookOpen className="h-5 w-5 text-primary" /> Mini-Brief</h3>
                     <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                        <h4 className="font-bold">{title}</h4>
-                        <p><strong>Pourquoi :</strong> {why}</p>
-                        <p><strong>Comment :</strong> {how}</p>
-                        <p><strong>Premier pas :</strong> {first}</p>
+                        <h4 className="font-bold">{brief.title}</h4>
+                        <p><strong>Pourquoi :</strong> {brief.why}</p>
+                        <p><strong>Comment :</strong> {brief.how}</p>
+                        <p><strong>Premier pas :</strong> {brief.first}</p>
                     </div>
                 </div>
                  <div>
