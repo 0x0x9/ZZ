@@ -12,7 +12,7 @@ import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, S
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { oriaChatAction, deleteDocument, listDocuments, createManualProjectAction, fluxAction } from '@/app/actions';
+import { oriaChatAction, deleteDocument, listDocuments, createManualProjectAction, fluxAction, getSignedUrlAction, uploadDocumentAction } from '@/app/actions';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import DocManager from '@/components/doc-manager';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -30,6 +30,7 @@ import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import OriaXOS from '@/components/oria-xos';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { ProjectPlanSchema } from '@/ai/types';
 
 
 type ActivityType = 'CREATED' | 'UPDATED' | 'SHARED' | 'DELETED' | 'GENERATED';
@@ -447,26 +448,37 @@ export default function PulseClient() {
 
             const maestroDocs = allDocs.filter(doc => doc.mimeType === 'application/json' && doc.path.startsWith('maestro-projets/'));
             
-            const parsedProjects: Project[] = maestroDocs.map(doc => {
-                 try {
+            const projectPromises: Promise<Project | null>[] = maestroDocs.map(async (doc) => {
+                try {
                     const name = doc.name.replace('.json', '').replace(/-/g, ' ').replace(/_/g, ' ');
-                     // This is a mock plan based on file name, in a real app, you'd fetch and parse file content
-                     const mockPlan: ProjectPlan = {
-                        id: doc.id,
-                        title: name,
-                        creativeBrief: `Ceci est un brief créatif simulé pour le projet "${name}".`,
-                        tasks: [
-                            { title: 'Tâche simulée 1', description: 'Description de la première tâche simulée pour ce projet.', category: 'Stratégie & Recherche', duration: '1 jour', checklist: [{text: 'Point de contrôle 1', completed: Math.random() > 0.5}, {text: 'Point 2', completed: false}]},
-                            { title: 'Tâche simulée 2', description: 'Description pour la seconde tâche importante.', category: 'Création & Production', duration: '3 jours', checklist: [{text: 'Point de contrôle A', completed: false}, {text: 'Point de contrôle B', completed: true}]}
-                        ],
-                        imagePrompts: ['abstract'],
-                    };
-                    return { id: doc.id, name, plan: mockPlan, path: doc.path };
+                    
+                    const { url } = await getSignedUrlAction({ docId: doc.id });
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        // For this prototype, if fetch fails, we generate a mock plan
+                        console.warn(`Failed to fetch project plan for ${doc.name}. Falling back to mock.`);
+                        const mockPlan: ProjectPlan = { id: doc.id, title: name, creativeBrief: `Brief créatif simulé pour "${name}". Le chargement a échoué.`, tasks: [], imagePrompts: [] };
+                        return { id: doc.id, name, plan: mockPlan, path: doc.path };
+                    }
+                    
+                    const planData = await response.json();
+                    
+                    // Validate data with Zod schema
+                    const parsedPlan = ProjectPlanSchema.safeParse(planData);
+                    if (!parsedPlan.success) {
+                        console.error("Zod validation failed for project:", doc.name, parsedPlan.error);
+                         const mockPlan: ProjectPlan = { id: doc.id, title: name, creativeBrief: `Le plan pour "${name}" est corrompu.`, tasks: [], imagePrompts: [] };
+                        return { id: doc.id, name, plan: mockPlan, path: doc.path };
+                    }
+
+                    return { id: doc.id, name, plan: parsedPlan.data, path: doc.path };
                 } catch (e) {
                     console.error("Failed to parse project from doc:", doc.name, e);
                     return null;
                 }
-            }).filter((p): p is Project => p !== null);
+            });
+
+            const parsedProjects = (await Promise.all(projectPromises)).filter((p): p is Project => p !== null);
             setProjects(parsedProjects);
 
         } catch (error: any) {
@@ -504,7 +516,7 @@ export default function PulseClient() {
         
         try {
             const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(activeProject.plan))))}`;
-            await createManualProjectAction(new FormData()); // This is not ideal, but it's a mock
+            await uploadDocumentAction({ name: activeProject.path, content: dataUri, mimeType: 'application/json' });
             toast({ title: 'Projet sauvegardé !', description: `Les modifications de "${activeProject.name}" ont été enregistrées.` });
         } catch (error: any) {
             toast({ variant: 'destructive', title: "Erreur de sauvegarde", description: error.message });
