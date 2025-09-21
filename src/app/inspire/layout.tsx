@@ -1,18 +1,13 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-
+// This layout ensures the content takes up the full screen height
+// without the standard Header and Footer, as the component is self-contained.
 export default function InspireLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-1">
-        {children}
-      </main>
-      <Footer />
-    </div>
+    <main className="w-full h-screen">
+      {children}
+    </main>
   );
 }

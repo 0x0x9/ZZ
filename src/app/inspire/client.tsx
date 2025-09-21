@@ -1,240 +1,298 @@
+
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX, Maximize, Music, Edit3, Sun, Moon, Sparkles, ChevronLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Textarea } from '@/components/ui/textarea';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Music, Pause, Play, X, NotebookPen, Settings, Sparkles } from "lucide-react";
 
-type AmbienceId = "forest" | "loft" | "beach" | "neon";
+/**
+ * XInspire — Fullscreen Oasis Environment
+ * --------------------------------------
+ * VisionOS-like fullscreen ambience: background YouTube video + optional background audio,
+ * minimal chrome, hidden glass panel (notes + controls) revealed via hotspot or keyboard.
+ *
+ * Drop this component in `app/xinspire/page.tsx` (Next.js App Router) or any route.
+ * Requires TailwindCSS + Framer Motion + lucide-react.
+ *
+ * Autoplay note: browsers block audio until user interaction. We start muted.
+ * After the first click ("Activer l'expérience"), we allow audio.
+ */
 
-interface Ambience {
-  id: AmbienceId;
-  name: string;
-  bgVideoId: string;
-  audioVideoId: string;
-  icon: React.ElementType;
-}
-
-const AMBIENCES: Ambience[] = [
-  { id: 'forest', name: 'Forêt Zen', bgVideoId: 'yFHe-PAc0s0', audioVideoId: 'vumr_nQ31p4', icon: Sun },
-  { id: 'neon', name: 'Nuit Urbaine', bgVideoId: 'S_dfq9rFWAE', audioVideoId: 'A5n-s9g4g_4', icon: Moon },
-  { id: 'beach', name: 'Plage Futuriste', bgVideoId: 'k39z12J3Xy0', audioVideoId: 'wE3A-2c0w8U', icon: Sparkles },
-  { id: 'loft', name: 'Loft Créatif', bgVideoId: 'R9eKkH725pE', audioVideoId: 'y6Nf3aA7t5A', icon: Edit3 },
+// ---- Config ----
+const AMBIENCES = [
+  {
+    id: "forest" as const,
+    label: "Forêt zen",
+    // Calming forest loop video (replace with your IDs)
+    bgVideoId: "MhwGxR1d6B8",
+    // Optional relaxing audio-only video id (rain, etc.)
+    audioVideoId: "f77SKdyn-1Y",
+    desc: "Lumière douce, brume légère, respiration longue.",
+  },
+  {
+    id: "neon" as const,
+    label: "Néon nocturne",
+    bgVideoId: "hHW1oY26kxQ",
+    audioVideoId: "DWcJFNfaw9c",
+    desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
+  },
+  {
+    id: "loft" as const,
+    label: "Loft urbain",
+    bgVideoId: "7NOSDKb0HlU",
+    audioVideoId: "kgx4WGK0oNU",
+    desc: "Verre & métal, contre-jour, minimalisme élégant.",
+  },
+  {
+    id: "beach" as const,
+    label: "Plage futuriste",
+    bgVideoId: "1ZYbU82GVz4",
+    audioVideoId: "lFcSrYw-ARY",
+    desc: "Horizon laiteux, brise légère, sons d'océan.",
+  },
 ];
 
-function YouTubePlayer({ videoId, isPlaying, volume, isMuted, onReady, onStateChange, isBackground }: {
-    videoId: string;
-    isPlaying: boolean;
-    volume: number;
-    isMuted: boolean;
-    onReady: (event: any) => void;
-    onStateChange: (event: any) => void;
-    isBackground?: boolean;
-}) {
-    useEffect(() => {
-        const player = (window as any).YT?.get(`player-${videoId}`);
-        if (player) {
-            if (isPlaying && player.getPlayerState() !== 1) {
-                player.playVideo();
-            } else if (!isPlaying && player.getPlayerState() === 1) {
-                player.pauseVideo();
-            }
-            player.setVolume(isMuted ? 0 : volume * 100);
-        }
-    }, [isPlaying, volume, isMuted, videoId]);
+type AmbienceId = typeof AMBIENCES[number]["id"];
 
-    return (
-        <div id={`player-${videoId}`} className={cn(isBackground ? "absolute inset-0 w-full h-full" : "w-1 h-1 opacity-0 absolute")}></div>
-    );
+// Utility to build a YouTube embed src
+function ytEmbedSrc(id: string, opts: { autoplay?: 0 | 1; mute?: 0 | 1; loop?: 0 | 1; controls?: 0 | 1; playsinline?: 0 | 1; start?: number; end?: number } = {}) {
+  const p = new URLSearchParams({
+    autoplay: String(opts.autoplay ?? 1),
+    mute: String(opts.mute ?? 1),
+    loop: String(opts.loop ?? 1),
+    controls: String(opts.controls ?? 0),
+    playsinline: String(opts.playsinline ?? 1),
+    enablejsapi: "1",
+    modestbranding: "1",
+    rel: "0",
+    iv_load_policy: "3",
+    showinfo: "0",
+    fs: "0",
+  });
+  // Loop needs playlist param set to the same ID
+  if ((opts.loop ?? 1) === 1) p.set("playlist", id);
+  if (opts.start) p.set("start", String(opts.start));
+  if (opts.end) p.set("end", String(opts.end));
+  return `https://www.youtube.com/embed/${id}?${p.toString()}`;
 }
 
+// Glass panel wrapper
+function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div className={`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.25)] ${className}`}>{children}</div>
+  );
+}
 
-export default function XInspireClient() {
-  const [isPanelOpen, setPanelOpen] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [ambience, setAmbience] = useState<Ambience>(() => {
-    if (typeof window === 'undefined') return AMBIENCES[0];
-    const savedId = localStorage.getItem('xinspire.ambience');
-    return AMBIENCES.find(a => a.id === savedId) || AMBIENCES[0];
-  });
-  const [notes, setNotes] = useState<string>(() => {
-    if (typeof window === 'undefined') return '';
-    return localStorage.getItem('xinspire.notes') || '';
-  });
-  const [isMuted, setIsMuted] = useState(true);
-  
-  const bgPlayerRef = useRef<any>(null);
-  const audioPlayerRef = useRef<any>(null);
-  
+// Small pill button
+function Pill({ onClick, icon, children, className = "" }: { onClick?: () => void; icon?: React.ReactNode; children?: React.ReactNode; className?: string }) {
+  return (
+    <button onClick={onClick} className={`inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 bg-white/10 backdrop-blur hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 ${className}`}>
+      {icon}
+      <span className="font-medium">{children}</span>
+    </button>
+  );
+}
+
+export default function XInspireEnvironment() {
+  const [ambience, setAmbience] = useState<AmbienceId>("forest");
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false); // gated by user action
+  const [muted, setMuted] = useState(true);
+  const [note, setNote] = useState("");
+  const [notes, setNotes] = useState<string[]>([]);
+
+  const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
+
+  // Keyboard shortcut to toggle panel (Cmd/Ctrl+K)
   useEffect(() => {
-    localStorage.setItem('xinspire.ambience', ambience.id);
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPanelOpen(v => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Save notes locally
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("xinspire.notes");
+      if (raw) setNotes(JSON.parse(raw));
+      const lastAmb = localStorage.getItem("xinspire.ambience");
+      if (lastAmb && ["forest","neon","loft","beach"].includes(lastAmb)) setAmbience(lastAmb as AmbienceId);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try { localStorage.setItem("xinspire.notes", JSON.stringify(notes)); } catch {}
+  }, [notes]);
+  useEffect(() => {
+    try { localStorage.setItem("xinspire.ambience", ambience); } catch {}
   }, [ambience]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        localStorage.setItem('xinspire.notes', notes);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [notes]);
-
-  useEffect(() => {
-    const onYouTubeIframeAPIReady = () => {
-      bgPlayerRef.current = new (window as any).YT.Player(`player-${ambience.bgVideoId}`, {
-        videoId: ambience.bgVideoId,
-        playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: ambience.bgVideoId, mute: 1, origin: window.location.origin },
-        events: { 'onReady': (e: any) => e.target.playVideo() }
-      });
-      audioPlayerRef.current = new (window as any).YT.Player(`player-${ambience.audioVideoId}`, {
-        videoId: ambience.audioVideoId,
-        playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: ambience.audioVideoId, origin: window.location.origin },
-         events: { 'onReady': (e: any) => {
-             e.target.setVolume(isMuted ? 0 : 50);
-             if(hasInteracted) e.target.playVideo();
-         } }
-      });
-    };
-
-    if (!(window as any).YT) {
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-    } else {
-        onYouTubeIframeAPIReady();
-    }
-    
-    return () => {
-        bgPlayerRef.current?.destroy();
-        audioPlayerRef.current?.destroy();
-    }
-  }, [ambience.id, hasInteracted, isMuted]);
-
-  const handleFirstInteraction = () => {
-      if (!hasInteracted) {
-          setHasInteracted(true);
-          setIsMuted(false);
-          audioPlayerRef.current?.playVideo();
-      }
+  const addNote = () => {
+    const t = note.trim();
+    if (!t) return;
+    setNotes(n => [t, ...n]);
+    setNote("");
   };
 
-  const handleToggleMute = () => {
-    if (!hasInteracted) handleFirstInteraction();
-    else setIsMuted(!isMuted);
-  };
+  const ambienceBadge = (
+    <div className="pointer-events-none fixed left-6 top-6 z-30 select-none">
+      <Glass className="px-4 py-2">
+        <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
+        <div className="text-base font-semibold flex items-center gap-2">
+          <Sparkles className="h-4 w-4" /> {cur.label}
+        </div>
+      </Glass>
+    </div>
+  );
+
+  const hotspot = (
+    <div
+      aria-label="Ouvrir le panneau"
+      title="Ouvrir le panneau (⌘/Ctrl+K)"
+      onClick={() => setPanelOpen(true)}
+      className="fixed bottom-4 left-1/2 z-30 -translate-x-1/2 h-10 w-10 cursor-pointer rounded-full border border-white/20 bg-white/10 backdrop-blur hover:border-white/40"
+    />
+  );
 
   return (
-    <div className="w-full h-screen relative overflow-hidden bg-black text-white">
-      {/* Background Video */}
-      <motion.div 
-        key={ambience.bgVideoId}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="absolute inset-0 z-0"
-      >
-        <YouTubePlayer 
-            videoId={ambience.bgVideoId} 
-            isPlaying={true} 
-            volume={0} 
-            isMuted={true}
-            onReady={() => {}} 
-            onStateChange={() => {}}
-            isBackground={true}
-        />
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
-      </motion.div>
-      <YouTubePlayer videoId={ambience.audioVideoId} isPlaying={hasInteracted} volume={0.5} isMuted={isMuted} onReady={() => {}} onStateChange={() => {}} />
+    <div className="relative min-h-screen w-full text-white bg-black">
+      {/* Background gradient glow */}
+      <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-cyan-300/20 via-fuchsia-400/10 to-indigo-500/10 blur-[2px]" />
 
-       {/* First Interaction Overlay */}
+      {/* Fullscreen background YouTube video inside a glass window */}
+      <div className="absolute inset-0 -z-10 flex items-center justify-center p-0">
+        <motion.div
+          key={cur.bgVideoId}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, ease: 'easeInOut' }}
+          className="relative h-full w-full overflow-hidden"
+        >
+          <iframe
+            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-1/2 -translate-y-1/2"
+            src={ytEmbedSrc(cur.bgVideoId)}
+            title="XInspire background"
+            allow="autoplay; encrypted-media; picture-in-picture"
+          />
+          {/* Light vignette + gloss */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/5" />
+        </motion.div>
+      </div>
+
+      {/* Audio player: YouTube audio-only iframe (1x1 off-screen but accessible) */}
+      <div className="sr-only" aria-hidden={!audioEnabled}>
+        {audioEnabled && (
+          <iframe
+            key={cur.audioVideoId + String(!muted)}
+            width="1"
+            height="1"
+            src={ytEmbedSrc(cur.audioVideoId, { mute: muted ? 1 : 0 })}
+            title="XInspire audio"
+            allow="autoplay; encrypted-media"
+          />
+        )}
+      </div>
+
+      {/* Minimal top hint */}
+      <div className="fixed top-4 right-4 z-30 text-sm text-white/70">Appuie sur ⌘/Ctrl+K pour le panneau</div>
+
+      {/* Ambience badge */}
+      {ambienceBadge}
+
+      {/* Center CTA overlay to unlock audio */}
       <AnimatePresence>
-        {!hasInteracted && (
+        {!audioEnabled && (
           <motion.div
-            initial={{ opacity: 1 }}
+            className="fixed inset-0 z-20 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-30 bg-black/50 flex flex-col items-center justify-center text-center p-4"
           >
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">Bienvenue dans (X)Inspire</h1>
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mb-8">
-              Cliquez pour activer l'audio et commencer votre expérience immersive.
-            </p>
-            <Button size="lg" onClick={handleFirstInteraction} className="rounded-full">
-              Entrer dans l'Oasis
-            </Button>
+            <button
+              onClick={() => { setAudioEnabled(true); setMuted(false); }}
+              className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl hover:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/40"
+            >
+              Activer l'expérience
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Main UI */}
-      <div className="relative z-20 h-full w-full flex flex-col p-8">
-        <header className="flex justify-between items-center">
-             <Button variant="ghost" asChild>
-                <a href="/xos" className="flex items-center gap-2"><ChevronLeft className="h-4 w-4" /> Retour à (X)OS</a>
-             </Button>
-        </header>
+      {/* Hidden hotspot to open the panel */}
+      {hotspot}
 
-        <div className="flex-grow flex items-center justify-center">
-            {/* Center Content could go here */}
-        </div>
-
-        {/* Bottom Control Panel Hotspot */}
-        <footer className="flex-shrink-0 flex justify-center">
-          <button onClick={() => setPanelOpen(true)} className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300">
-             <Sparkles className="h-8 w-8"/>
-          </button>
-        </footer>
-      </div>
-
-       {/* Control Panel */}
+      {/* Control Panel */}
       <AnimatePresence>
-        {isPanelOpen && (
+        {panelOpen && (
           <motion.div
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="absolute bottom-0 left-0 right-0 z-40 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40"
           >
-            <div className="glass-card max-w-4xl mx-auto p-6 rounded-3xl">
-              <div className="flex justify-between items-start">
-                  <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {/* Ambience Picker */}
-                      <div>
-                          <h3 className="font-semibold text-lg mb-3">Ambiances</h3>
-                          <div className="flex flex-col gap-2">
-                              {AMBIENCES.map(a => (
-                                  <Button key={a.id} variant={ambience.id === a.id ? "secondary" : "ghost"} onClick={() => setAmbience(a)} className="justify-start gap-3">
-                                      <a.icon className="h-5 w-5" /> {a.name}
-                                  </Button>
-                              ))}
-                          </div>
-                      </div>
-                      {/* Audio Controls */}
-                      <div>
-                         <h3 className="font-semibold text-lg mb-3">Audio</h3>
-                         <Button onClick={handleToggleMute} variant="ghost" className="w-full justify-start gap-3">
-                             {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                             {isMuted ? 'Son coupé' : 'Son actif'}
-                         </Button>
-                      </div>
-                      {/* Notes */}
-                      <div className="col-span-2">
-                           <h3 className="font-semibold text-lg mb-3">Carnet d'inspiration</h3>
-                           <Textarea
-                                placeholder="Vos idées..."
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                rows={5}
-                                className="bg-background/50 border-white/30"
-                           />
-                      </div>
+            {/* Click-away backdrop */}
+            <div className="absolute inset-0 bg-black/20" onClick={() => setPanelOpen(false)} />
+            <div className="absolute left-1/2 top-10 w-[92%] max-w-5xl -translate-x-1/2">
+              <Glass className="p-4 md:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-white/90">
+                    <NotebookPen className="h-5 w-5" />
+                    <div className="text-lg font-semibold">Panneau de contrôle</div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => setPanelOpen(false)} className="ml-4">
-                      <X className="h-6 w-6"/>
-                  </Button>
-              </div>
+                  <div className="flex items-center gap-2">
+                    <Pill onClick={() => setMuted(m => !m)} icon={muted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}>{muted ? "Son coupé" : "Son actif"}</Pill>
+                    <Pill onClick={() => setPanelOpen(false)} icon={<X className="h-4 w-4" />}>Fermer</Pill>
+                  </div>
+                </div>
+
+                {/* Ambience selector */}
+                <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+                  {AMBIENCES.map(a => (
+                    <button
+                      key={a.id}
+                      onClick={() => setAmbience(a.id)}
+                      className={`rounded-xl border px-3 py-3 text-left transition-all backdrop-blur ${
+                        ambience === a.id ? "border-white/50 bg-white/15" : "border-white/20 bg-white/5 hover:border-white/35"
+                      }`}
+                    >
+                      <div className="text-sm font-semibold">{a.label}</div>
+                      <div className="text-xs text-white/70">{a.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Notes */}
+                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="md:col-span-2">
+                    <label className="text-sm text-white/80">Note rapide</label>
+                    <textarea
+                      value={note}
+                      onChange={e => setNote(e.target.value)}
+                      placeholder="Dépose ici une idée, un mot, une image mentale…"
+                      className="mt-2 h-28 w-full resize-none rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+                    />
+                    <div className="mt-2 flex items-center gap-2">
+                      <Pill onClick={addNote} icon={<NotebookPen className="h-4 w-4" />}>Sauvegarder</Pill>
+                      <span className="text-xs text-white/60">Astuce: ⌘/Ctrl+K pour ouvrir/fermer le panneau</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/80 mb-2">Dernières idées</div>
+                    <div className="space-y-2 max-h-40 overflow-auto pr-1">
+                      {notes.length === 0 && <div className="text-white/60 text-sm">Aucune note pour l’instant.</div>}
+                      {notes.map((n, i) => (
+                        <div key={i} className="rounded-xl border border-white/15 bg-white/5 p-2 text-sm">
+                          {n}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Glass>
             </div>
           </motion.div>
         )}
