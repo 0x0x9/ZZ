@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 
 const AMBIENCES = [
@@ -555,14 +556,35 @@ export default function XInspireEnvironment() {
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
 
-       {/* Ambience badge */}
-       <div className="pointer-events-none fixed left-6 top-6 z-30 select-none">
-        <Glass className="px-4 py-2">
-          <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
-          <div className="text-base font-semibold flex items-center gap-2">
-            <Sparkles className="h-4 w-4" /> {cur.label}
-          </div>
-        </Glass>
+       {/* Ambience Controller */}
+      <div className="fixed left-6 top-6 z-30">
+        <Popover>
+            <PopoverTrigger asChild>
+                <Glass className="px-4 py-2 cursor-pointer transition-all hover:border-white/40">
+                    <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
+                    <div className="text-base font-semibold flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" /> {cur.label}
+                    </div>
+                </Glass>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto p-2 glass-card">
+                <div className="space-y-1">
+                    <Pill onClick={toggleMute} icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />} className="w-full justify-start">
+                        {isMuted ? "Son coupé" : "Son actif"}
+                    </Pill>
+                    {AMBIENCES.map(a => (
+                        <button
+                            key={a.id}
+                            disabled={a.id === ambience}
+                            onClick={() => handleAmbienceChange(a.id)}
+                            className="w-full text-left rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {a.label}
+                        </button>
+                    ))}
+                </div>
+            </PopoverContent>
+        </Popover>
       </div>
 
       {/* Overlay d’activation */}
