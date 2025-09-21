@@ -498,6 +498,7 @@ export const OriaChatInputSchema = z.object({
   prompt: z.string().describe("La requête ou le besoin de l'utilisateur."),
   context: z.enum(['homepage', 'xos', 'dock']).optional().describe("Le contexte d'où la requête est émise (ex: page d'accueil, bureau (X)OS, ou la barre d'outils)."),
   history: z.array(OriaHistoryMessageSchema).optional().describe("L'historique des messages précédents pour maintenir le contexte."),
+  projectContext: z.string().optional().describe("Contexte spécifique au projet, comme le titre ou le brief."),
 });
 export type OriaChatInput = z.infer<typeof OriaChatInputSchema>;
 
@@ -630,5 +631,3 @@ export const ActivitySchema = z.object({
   timestamp: z.string().datetime(),
 });
 export type Activity = z.infer<typeof ActivitySchema>;
-
-  

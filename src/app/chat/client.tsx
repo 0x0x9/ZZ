@@ -12,7 +12,7 @@ import { Send, ArrowLeft, BrainCircuit, Trash2, PanelLeftOpen, PanelLeftClose, S
 import { cn } from '@/lib/utils';
 import type { OriaHistoryMessage, ProjectPlan, Doc, GenerateFluxOutput } from '@/ai/types';
 import { AnimatePresence, motion } from 'framer-motion';
-import { oriaChatAction, createPulseProject } from '@/app/actions';
+import { pulseProjectAction, createManualProjectAction } from '@/app/actions';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import DocManager from '@/components/doc-manager';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -38,7 +38,6 @@ type Project = {
     id: string;
     name: string;
     plan: ProjectPlan;
-    path: string; // Will be a virtual path now
 };
 
 const STORAGE_KEY = 'pulse-projects';
@@ -250,43 +249,25 @@ function ProjectTracker({ activeProject, setActiveProject, onProjectDeleted, pro
 
 function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (project: Project) => void, onCancel: () => void }) {
     const { toast } = useToast();
-    const [pending, setPending] = useState(false);
-    const formRef = useRef<HTMLFormElement>(null);
+    const initialState = { success: false, error: undefined, project: undefined };
+    const [state, formAction] = useFormState(createManualProjectAction, initialState);
+    const { pending } = useFormStatus();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setPending(true);
-        const formData = new FormData(e.currentTarget);
-        const title = formData.get('title') as string;
-        const creativeBrief = formData.get('creativeBrief') as string;
-        
-        if (!title || !creativeBrief) {
-            toast({ variant: 'destructive', title: "Erreur", description: "Le titre et le brief sont requis." });
-            setPending(false);
-            return;
+    useEffect(() => {
+        if (state.success && state.project) {
+            const newProject: Project = {
+                id: state.project.id || uuidv4(),
+                name: state.project.title || 'Nouveau Projet Manuel',
+                plan: state.project,
+            };
+            onProjectCreated(newProject);
+        } else if (state.error) {
+            toast({ variant: "destructive", title: "Erreur", description: state.error });
         }
+    }, [state, onProjectCreated, toast]);
 
-        const newProject: Project = {
-            id: uuidv4(),
-            name: title,
-            path: `pulse-projects/${title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-')}/`,
-            plan: {
-                id: uuidv4(),
-                title: title,
-                creativeBrief: creativeBrief,
-                tasks: [],
-                imagePrompts: [],
-                events: []
-            }
-        };
-
-        projectApi.create(newProject, 'CREATED');
-        onProjectCreated(newProject);
-        setPending(false);
-    };
-    
     return (
-        <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-lg mt-8 space-y-4 text-left">
+        <form action={formAction} className="w-full max-w-lg mt-8 space-y-4 text-left">
             <div className="space-y-2">
                 <Label htmlFor="title">Titre du projet</Label>
                 <Input id="title" name="title" placeholder="Ex: Lancement de ma chaîne YouTube" required disabled={pending} />
@@ -309,31 +290,23 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
 function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (project: Project) => void, onCancel: () => void}) {
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
-    const [isPending, setIsPending] = useState(false);
-    const formRef = useRef<HTMLFormElement>(null);
+    const [state, formAction] = useFormState(pulseProjectAction, { success: false, result: null, error: null, prompt: '' });
+    const { pending } = useFormStatus();
 
-    const handleAiSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsPending(true);
-        const formData = new FormData(e.currentTarget);
-        const prompt = formData.get('prompt') as string;
-
-        try {
-            const plan = await createPulseProject({ prompt });
+    useEffect(() => {
+        if (state.success && state.result) {
             const newProject: Project = {
                 id: uuidv4(),
-                name: plan.title || 'Nouveau Projet IA',
-                path: `pulse-projects/${(plan.title || 'new-ai-project').replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-')}/`,
-                plan: plan,
+                name: state.result.title || 'Nouveau Projet IA',
+                plan: state.result
             };
             projectApi.create(newProject, 'GENERATED');
             onProjectCreated(newProject);
-        } catch (error: any) {
-             toast({variant: 'destructive', title: 'Erreur (X)flux', description: error.message});
-        } finally {
-            setIsPending(false);
         }
-    };
+        if (state.error) {
+            toast({ variant: 'destructive', title: 'Erreur (X)flux', description: state.error });
+        }
+    }, [state, onProjectCreated, toast]);
     
     return (
         <div className="h-full flex flex-col items-center justify-center text-center p-8">
@@ -351,13 +324,13 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (pro
                             <Sparkles className="mx-auto h-20 w-20 text-muted-foreground/30" />
                             <h2 className="mt-6 text-xl font-semibold text-foreground">Créer un nouveau projet avec l'IA</h2>
                             <p className="mt-2 text-muted-foreground">Décrivez votre objectif et laissez Pulse générer un plan d'action.</p>
-                            <form ref={formRef} onSubmit={handleAiSubmit} className="w-full max-w-lg mt-8 space-y-4">
-                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={isPending} />
-                                <Button type="submit" size="lg" disabled={isPending} className="w-full">
-                                    {isPending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
-                                    {isPending ? 'Génération en cours...' : 'Lancer Pulse'}
+                            <form action={formAction} className="w-full max-w-lg mt-8 space-y-4">
+                                <Textarea name="prompt" placeholder="Exemple : Je suis une artiste et je veux lancer une collection de NFT sur le thème de l'espace." rows={3} required minLength={15} className="bg-background/50 text-base text-center" disabled={pending} />
+                                <Button type="submit" size="lg" disabled={pending} className="w-full">
+                                    {pending ? <Loader className="animate-spin mr-2"/> : <Sparkles className="mr-2 h-4 w-4"/>}
+                                    {pending ? 'Génération en cours...' : 'Lancer Pulse'}
                                 </Button>
-                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={isPending}>Ou créer manuellement</Button>
+                                <Button type="button" variant="link" onClick={() => setView('manual')} disabled={pending}>Ou créer manuellement</Button>
                             </form>
                         </>
                     ) : (
@@ -370,7 +343,7 @@ function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (pro
                     )}
                 </motion.div>
             </AnimatePresence>
-            <Button variant="ghost" onClick={onCancel} disabled={isPending} className="mt-8">Retour</Button>
+            <Button variant="ghost" onClick={onCancel} disabled={pending} className="mt-8">Retour</Button>
         </div>
     )
 }
@@ -592,8 +565,9 @@ export default function PulseClient() {
                 <TabsContent value="oria" className="flex-1 min-h-0 mt-0">
                     <div className="h-full p-4">
                         <OriaXOS 
-                          context={`Projet Actif: ${activeProject.name}\nBrief: ${activeProject.plan.creativeBrief}`}
+                          projectContext={`Projet Actif: ${activeProject.name}\nBrief: ${activeProject.plan.creativeBrief}`}
                           openApp={() => {}} 
+                          context="xos"
                         />
                     </div>
                 </TabsContent>

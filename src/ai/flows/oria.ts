@@ -203,7 +203,7 @@ const fluxTool = ai.defineTool(
 // The main prompt that guides Oria
 const oriaRouterSystemPrompt = `Vous êtes Oria, l'IA chef d'orchestre de la plateforme (X)yzz. Votre mission est de comprendre le besoin de l'utilisateur et de mobiliser les outils nécessaires pour y répondre. Votre réponse doit être **exclusivement** un objet JSON valide.
 
-**CONTEXTE ACTUEL : {{{context}}}**
+{{#if context}}**CONTEXTE ACTUEL : {{{context}}}**{{/if}}
 
 Vous avez 3 options principales :
 
@@ -258,7 +258,7 @@ export const oria = ai.defineFlow(
 
     const systemPrompt = oriaRouterSystemPrompt
       .replace('{{{prompt}}}', input.prompt)
-      .replace('{{{context}}}', input.context || 'non spécifié');
+      .replace('{{{context}}}', input.projectContext || 'non spécifié');
 
     const model = input.context === 'homepage'
         ? googleAI.model('gemini-1.5-flash-latest')
@@ -306,5 +306,3 @@ export const oria = ai.defineFlow(
     return output;
   }
 );
-
-    
