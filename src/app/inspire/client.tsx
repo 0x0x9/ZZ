@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -11,8 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dynamic from "next/dynamic";
-
-const OriaAnimation = dynamic(() => import("@/components/ui/oria-animation"), { ssr: false });
 
 const AMBIENCES = [
   {
@@ -55,7 +53,146 @@ const inspirationalQuotes = [
     "N'attendez pas l'inspiration. Poursuivez-la avec une massue. - Jack London"
 ];
 
-type AmbienceId = typeof AMBIENCES[number]["id"];
+function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div className={cn(`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg`, className)}>
+      {children}
+    </div>
+  );
+}
+
+function Pill({ onClick, icon, children, className = "" }: { onClick?: () => void; icon?: React.ReactNode; children?: React.ReactNode; className?: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(`inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 bg-white/10 backdrop-blur hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30`, className)}
+    >
+      {icon}
+      <span className="font-medium">{children}</span>
+    </button>
+  );
+}
+
+function OriaSiriOrbPro({
+  size = 120,
+  state = "idle",
+  subtle = false,
+  className
+}: {
+  size?: number;
+  state?: "idle" | "active" | "thinking" | "speaking";
+  subtle?: boolean;
+  className?: string;
+}) {
+  const ring = useAnimationControls();
+  const core = useAnimationControls();
+  const wave = useAnimationControls();
+  const blob1 = useAnimationControls();
+  const blob2 = useAnimationControls();
+  const blob3 = useAnimationControls();
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mql.matches) {
+      ring.stop(); core.stop(); wave.stop(); blob1.stop(); blob2.stop(); blob3.stop();
+    }
+  }, [ring, core, wave, blob1, blob2, blob3]);
+
+  useEffect(() => {
+    const baseEase = "easeInOut";
+    const commonWaveTransition = { duration: 16, repeat: Infinity, ease: "linear" } as const;
+
+    if (state === "idle") {
+      core.start({ scale: [1, 1.015, 1], transition: { duration: 3.2, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: commonWaveTransition });
+    }
+    if (state === "active") {
+      core.start({ scale: [1, 1.03, 1], transition: { duration: 2.4, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { ...commonWaveTransition, duration: 12 } });
+    }
+    if (state === "thinking") {
+      core.start({ scale: [1, 1.06, 1], transition: { duration: 1.4, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { ...commonWaveTransition, duration: 8 } });
+    }
+    if (state === "speaking") {
+      core.start({ scale: [1, 1.08, 1], transition: { duration: 1.1, repeat: Infinity, ease: baseEase } });
+      wave.start({ rotate: [0, 360], transition: { ...commonWaveTransition, duration: 6 } });
+    }
+  }, [state, core, wave]);
+
+  const baseBlobTransition = { duration: 10, repeat: Infinity, ease: "easeInOut" };
+  useEffect(() => {
+    blob1.start({
+      transform: ['translate(0, 0) scale(1)', 'translate(20%, -30%) scale(1.3)', 'translate(-15%, 20%) scale(0.8)', 'translate(0, 0) scale(1)'],
+      transition: baseBlobTransition
+    });
+     blob2.start({
+      transform: ['translate(0, 0) scale(1)', 'translate(-25%, 25%) scale(0.9)', 'translate(15%, -15%) scale(1.4)', 'translate(0, 0) scale(1)'],
+      transition: { ...baseBlobTransition, duration: 12 }
+    });
+     blob3.start({
+      transform: ['translate(0, 0) scale(1)', 'translate(-10%, -25%) scale(1.2)', 'translate(25%, 15%) scale(0.9)', 'translate(0, 0) scale(1)'],
+      transition: { ...baseBlobTransition, duration: 8 }
+    });
+  }, [blob1, blob2, blob3]);
+
+  return (
+    <div
+      className={cn("relative select-none", className)}
+      style={{ width: size, height: size }}
+      aria-label="Oria — état visuel"
+    >
+      {/* Cœur liquide animé */}
+      <motion.div
+          animate={core}
+          className="absolute inset-2 rounded-full overflow-hidden"
+          style={{
+              filter: "blur(12px)",
+              transformStyle: "preserve-3d",
+          }}
+      >
+          <motion.div animate={blob1} className="blob bg-[hsl(var(--primary))]" />
+          <motion.div animate={blob2} className="blob bg-[hsl(var(--accent))]" />
+          <motion.div animate={blob3} className="blob bg-pink-500" />
+      </motion.div>
+      
+      {/* Structure de verre */}
+      <div
+        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
+        style={{
+          borderColor: "rgba(255,255,255,0.28)",
+          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)",
+          background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 70%)"
+        }}
+      />
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.12), rgba(255,255,255,0.04), rgba(255,255,255,0.12))",
+          maskImage: "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 80%)"
+        }}
+      />
+    </div>
+  );
+}
+
+// Real AI Chatbot function
+const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
+    const response = await fetch('/api/generateInspiration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, history }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "L'IA n'a pas pu répondre.");
+    }
+    const result = await response.json();
+    return result.inspiration;
+}
+
+type Task = { id: string; title: string; done: boolean; eta: 15|30|60; createdAt: number };
 
 function useLocalState<T>(key: string, initial: T) {
   const [v, setV] = useState<T>(initial);
@@ -63,8 +200,6 @@ function useLocalState<T>(key: string, initial: T) {
   useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }, [key, v]);
   return [v, setV] as const;
 }
-
-type Task = { id: string; title: string; done: boolean; eta: 15|30|60; createdAt: number };
 
 function WorkTasks({ onStartTimer }: { onStartTimer: (m: number)=>void }) {
   const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
@@ -181,42 +316,6 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
   );
 }
 
-// Real AI Chatbot function
-const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
-    const response = await fetch('/api/generateInspiration', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, history }),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "L'IA n'a pas pu répondre.");
-    }
-    const result = await response.json();
-    return result.inspiration;
-}
-
-function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
-  return (
-    <div className={cn(`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg`, className)}>
-      {children}
-    </div>
-  );
-}
-
-function Pill({ onClick, icon, children, className = "" }: { onClick?: () => void; icon?: React.ReactNode; children?: React.ReactNode; className?: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(`inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 bg-white/10 backdrop-blur hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30`, className)}
-    >
-      {icon}
-      <span className="font-medium">{children}</span>
-    </button>
-  );
-}
-
 function OriaChatbot() {
     const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
     const [input, setInput] = useState('');
@@ -246,55 +345,38 @@ function OriaChatbot() {
         setIsLoading(false);
       }
     };
+
+    const oriaState = isLoading ? "thinking" : (input ? "active" : "idle");
   
     return (
       <div className="flex flex-col h-full space-y-4">
         {/* Header */}
-        <Glass className="p-4 flex items-center gap-4 transition-all duration-300">
-            <OriaAnimation className="w-16 h-16" />
-            <div className="flex-1">
-                <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
-                <div className="text-base md:text-lg font-medium text-white/90">
-                {isLoading ? (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex gap-1 items-center"
+        <div className="p-4 flex flex-col items-center gap-4 transition-all duration-300">
+            <OriaSiriOrbPro size={96} state={oriaState} />
+            <div className="text-center">
+                <AnimatePresence mode="wait">
+                    <motion.p
+                        key={oriaState}
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-base text-white/80 min-h-[40px]"
                     >
-                        <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
-                        <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-                        <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
-                    </motion.div>
-                    ) : (
-                    "Prête à explorer une idée ?"
-                )}
-                </div>
+                         {isLoading
+                          ? "Je façonne une piste pour toi…"
+                          : input
+                          ? "On affine. Dis-moi ce que tu veux ressentir."
+                          : messages.length === 0 
+                          ? `"${randomQuote}"`
+                          : "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
+                    </motion.p>
+                </AnimatePresence>
             </div>
-        </Glass>
+        </div>
 
         {/* Messages */}
-        <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
-          {messages.length === 0 && !isLoading && (
-              <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} className="text-center text-white/70 italic p-4">
-                  "{randomQuote}"
-              </motion.div>
-          )}
-          {isLoading && messages.length > 0 && messages[messages.length-1].type === 'user' && (
-              <div className="flex justify-start">
-                  <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="max-w-[90%] rounded-xl px-4 py-3 bg-white/15 backdrop-blur-xl"
-                  >
-                     <div className="flex gap-2 items-center">
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
-                     </div>
-                  </motion.div>
-              </div>
-          )}
+        <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto px-4 no-scrollbar">
           {messages.map((msg, i) => (
             <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
               <motion.div
@@ -307,19 +389,46 @@ function OriaChatbot() {
               </motion.div>
             </div>
           ))}
+          {isLoading && (
+              <div className="flex justify-start">
+                  <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="max-w-[90%] rounded-xl px-4 py-3 bg-white/15 backdrop-blur-xl"
+                  >
+                     <div className="flex gap-1 items-center">
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
+                     </div>
+                  </motion.div>
+              </div>
+          )}
         </div>
   
         {/* Entrée */}
-        <div className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            placeholder="Décrivez votre idée, le ressenti, la contrainte…"
-            rows={1}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none"
-          />
-          <Button onClick={handleSend} disabled={isLoading} variant="secondary">Envoyer</Button>
+        <div className="relative p-4">
+            <div className={cn(
+                "absolute inset-x-2 -top-2 h-1/2 bg-gradient-to-t from-transparent transition-all duration-500",
+                isLoading ? "to-primary/20 blur-xl" : "to-transparent blur-none"
+            )} />
+            <Textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                placeholder="Décrivez votre idée, le ressenti, la contrainte…"
+                rows={1}
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none pr-12 text-base"
+            />
+             <Button 
+                onClick={handleSend} disabled={isLoading} 
+                className="absolute right-6 top-1/2 -translate-y-1/2" 
+                size="icon" 
+                variant="ghost"
+            >
+                <MessageSquare className="h-5 w-5" />
+            </Button>
         </div>
       </div>
     );
@@ -344,32 +453,24 @@ export default function XInspireEnvironment() {
     if (!hasInteracted) {
         setHasInteracted(true);
         setIsMuted(false);
-        if (playerRef.current?.unMute && playerRef.current.isMuted()) {
-            playerRef.current.unMute();
-        }
-        playerRef.current?.playVideo?.();
     }
   }, [hasInteracted]);
   
    const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
         handleFirstInteraction();
         setAmbience(newAmbienceId);
-        if (playerRef.current && playerRef.current.loadVideoById) {
-            playerRef.current.loadVideoById(newAmbienceId);
-        }
     };
 
   useEffect(() => {
     if (!mounted) return;
 
-    const handlePlayerReady = (event: any) => {
-      if (hasInteracted && !isMuted) {
-        event.target.unMute();
+    const onPlayerReady = (event: any) => {
+        if (!isMuted) {
+            event.target.unMute();
+        } else {
+            event.target.mute();
+        }
         event.target.playVideo();
-      } else {
-        event.target.mute();
-        event.target.playVideo();
-      }
     };
   
     const createPlayer = (videoId: string) => {
@@ -392,21 +493,21 @@ export default function XInspireEnvironment() {
           playsinline: 1
         },
         events: {
-          onReady: handlePlayerReady,
+          onReady: onPlayerReady,
         }
       });
     }
 
-    if ((window as any).YT?.Player) {
-      createPlayer(cur.videoId);
+    if (typeof (window as any).YT === 'undefined' || typeof (window as any).YT.Player === 'undefined') {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+        (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
     } else {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-      (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
+        createPlayer(cur.videoId);
     }
-  }, [cur.videoId, mounted, hasInteracted, isMuted]);
+  }, [cur.videoId, mounted]);
 
   const toggleMute = () => {
     if (!hasInteracted) {
