@@ -10,6 +10,7 @@ import { generateCode } from '@/ai/flows/generate-code';
 import { debugCode } from '@/ai/flows/debug-code';
 import { explainCode } from '@/ai/flows/explain-code';
 import { refactorCode } from '@/ai/flows/refactor-code';
+import { createPulseProject } from '@/ai/flows/create-pulse-project';
 
 import { createFolder as createFolderFlow } from '@/ai/flows/create-folder';
 import { deleteDocument as deleteDocumentFlow } from '@/ai/flows/delete-document';
@@ -60,7 +61,7 @@ export const getSignedUrlAction = getSignedUrl;
 export const renameDocumentAction = renameDocument;
 
 // AI Actions
-export { generateSchedule, generateContent, generateCode, debugCode, explainCode, refactorCode, copilotLyrics, convertImage, generateFlux, generateMotion, generateDeck, generateLightMood, generateMuse, generateNexus, generatePalette, generatePersona, generateSound, generateTone, configurePc };
+export { generateSchedule, generateContent, generateCode, debugCode, explainCode, refactorCode, copilotLyrics, convertImage, generateFlux, generateMotion, generateDeck, generateLightMood, generateMuse, generateNexus, generatePalette, generatePersona, generateSound, generateTone, configurePc, createPulseProject };
 
 export const generateMoodboard = generateMoodboardFlow;
 
@@ -98,11 +99,8 @@ export async function createManualProjectAction(prevState: any, formData: FormDa
       events: []
     };
     
-    // We can't really validate with Zod here because tasks is empty, which violates min(5)
-    // For this prototype, we'll trust the structure.
     const project: ProjectPlan = projectToValidate;
     
-    // The name should be sanitized to be a valid filename
     const sanitizedTitle = title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-').toLowerCase();
     const fileName = `maestro-projets/${sanitizedTitle}.json`;
 
@@ -145,25 +143,23 @@ export async function oriaChatAction(prevState: any, formData: FormData): Promis
   }
 }
 
-export async function fluxAction(prevState: any, formData: FormData): Promise<{ success: boolean; result: GenerateFluxOutput | null; error: string | null; prompt: string, job: string }> {
+export async function pulseProjectAction(prevState: any, formData: FormData): Promise<{ success: boolean; result: ProjectPlan | null; error: string | null; prompt: string }> {
   const prompt = formData.get('prompt') as string;
-  const job = formData.get('job') as string;
   
   try {
-    const result = await generateFlux({ prompt, job });
+    const result = await createPulseProject({ prompt });
 
-    if (result.projectPlan?.title) {
-        const project = result.projectPlan;
-        const sanitizedTitle = project.title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-').toLowerCase();
+    if (result?.title) {
+        const sanitizedTitle = result.title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-').toLowerCase();
         const fileName = `maestro-projets/${sanitizedTitle}.json`;
 
-        const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(project))))}`;
+        const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(result))))}`;
     
         await uploadDocument({ name: fileName, content: dataUri, mimeType: 'application/json' });
     }
 
-    return { success: true, result, error: null, prompt, job };
+    return { success: true, result, error: null, prompt };
   } catch (e: any) {
-    return { success: false, result: null, error: e.message || 'An error occurred', prompt, job };
+    return { success: false, result: null, error: e.message || 'An error occurred', prompt };
   }
 }

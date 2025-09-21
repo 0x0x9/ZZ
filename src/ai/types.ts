@@ -206,6 +206,21 @@ const ChecklistItemSchema = z.object({
   completed: z.boolean().describe("Indique si la tâche est terminée."),
 });
 
+const ProjectTaskSchema = z.object({
+  title: z.string().describe('Le titre de la tâche, court et commençant par un verbe d\'action (ex: "Écrire le script").'),
+  toolId: z.string().optional().describe("L'ID de l'outil (X)OS le plus pertinent pour cette tâche (ex: 'motion', 'text', 'frame')."),
+  description: z.string().describe('Une description claire en 1 ou 2 phrases de ce que la tâche implique concrètement.'),
+  category: z
+    .string()
+    .describe(
+      'La phase du projet à laquelle la tâche appartient. Utilisez exclusivement une des catégories suivantes : "Stratégie & Recherche", "Pré-production", "Création & Production", "Post-production & Lancement".'
+    ),
+  duration: z.string().describe("Une estimation de la durée de la tâche (ex: '2 jours', '1 semaine')."),
+  checklist: z.array(ChecklistItemSchema).describe("Une checklist de 2 à 4 sous-tâches ou points de vérification très concrets pour accomplir la tâche principale.")
+});
+export type ProjectTask = z.infer<typeof ProjectTaskSchema>;
+
+
 export const ProjectPlanSchema = z.object({
   id: z.string().optional().describe("ID unique pour le projet, peut être généré côté client/serveur."),
   title: z
@@ -213,19 +228,7 @@ export const ProjectPlanSchema = z.object({
     .optional()
     .describe("Un titre créatif et engageant pour le projet. Doit être en français et refléter l'essence de l'idée."),
   creativeBrief: z.string().optional().describe("Un paragraphe de 3-4 phrases qui définit la vision, le ton, le style et le public cible du projet. C'est la direction artistique."),
-  tasks: z.array(
-    z.object({
-      title: z.string().describe('Le titre de la tâche, court et commençant par un verbe d\'action (ex: "Écrire le script").'),
-      description: z.string().describe('Une description claire en 1 ou 2 phrases de ce que la tâche implique concrètement.'),
-      category: z
-        .string()
-        .describe(
-          'La phase du projet à laquelle la tâche appartient. Utilisez exclusivement une des catégories suivantes : "Stratégie & Recherche", "Pré-production", "Création & Production", "Post-production & Lancement".'
-        ),
-      duration: z.string().describe("Une estimation de la durée de la tâche (ex: '2 jours', '1 semaine')."),
-      checklist: z.array(ChecklistItemSchema).describe("Une checklist de 2 à 4 sous-tâches ou points de vérification très concrets pour accomplir la tâche principale.")
-    })
-  ).min(5).describe("Une liste d'au moins 5 tâches concrètes et bien définies nécessaires pour réaliser le projet."),
+  tasks: z.array(ProjectTaskSchema).min(5).describe("Une liste d'au moins 5 tâches concrètes et bien définies nécessaires pour réaliser le projet."),
   imagePrompts: z.array(z.string()).min(1).describe("Une liste d'au moins 1 prompt unique et très descriptif, en anglais, pour générer un moodboard visuel sur Midjourney ou DALL-E. Ce prompt doit être directement inspiré du brief créatif."),
   events: z.array(AgendaEventSchema).optional().describe("Une liste d'événements d'agenda extraits de la demande de l'utilisateur, le cas échéant."),
 });
