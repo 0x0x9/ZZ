@@ -62,7 +62,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import React, { useState, useEffect, useCallback } from "react";
-import HeaderLogo from "./layout/header-logo";
+import HeaderLogo from "@/components/layout/header-logo";
 import { useCart } from "@/hooks/use-cart-store";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
@@ -487,5 +487,3 @@ export function Header() {
     </header>
   );
 }
-
-    
