@@ -202,7 +202,9 @@ const fluxTool = ai.defineTool(
 
 // The main prompt that guides Oria
 const oriaRouterSystemPrompt = `Vous êtes Oria, l'IA chef d'orchestre de la plateforme (X)yzz. Votre mission est de comprendre le besoin de l'utilisateur et de mobiliser les outils nécessaires pour y répondre. Votre réponse doit être **exclusivement** un objet JSON valide.
-{{projectContextPrompt}}
+{{#if projectContext}}**IMPORTANT: Vous êtes dans le contexte d'un projet spécifique. Utilisez les informations suivantes comme source de vérité principale pour répondre aux questions de l'utilisateur sur le projet :**
+{{{projectContext}}}
+{{/if}}
 Vous avez 3 options principales :
 
 1.  **UTILISER UN OUTIL (pour une création)** :
@@ -255,11 +257,8 @@ export const oria = ai.defineFlow(
       .filter((h): h is { role: 'user' | 'model', content: string } => h !== null && typeof h.content === 'string');
 
     let systemPrompt = oriaRouterSystemPrompt.replace('{{{prompt}}}', input.prompt);
-    if (input.projectContext) {
-      systemPrompt = systemPrompt.replace('{{projectContextPrompt}}', `\n**IMPORTANT: Vous êtes dans le contexte d'un projet spécifique. Utilisez les informations suivantes comme source de vérité principale pour répondre aux questions de l'utilisateur sur le projet :**\n${input.projectContext}\n`);
-    } else {
-        systemPrompt = systemPrompt.replace('{{projectContextPrompt}}', '');
-    }
+    systemPrompt = systemPrompt.replace('{{{projectContext}}}', input.projectContext || '');
+
 
     const model = input.context === 'homepage'
         ? googleAI.model('gemini-1.5-flash-latest')

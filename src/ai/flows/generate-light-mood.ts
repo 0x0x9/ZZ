@@ -10,6 +10,7 @@
 import { ai } from '../genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import { GenerateLightMoodInputSchema, GenerateLightMoodOutputSchema, type GenerateLightMoodInput, type GenerateLightMoodOutput } from '@/ai/types';
+import { generateMoodboard } from './generate-moodboard';
 
 export async function generateLightMood(input: GenerateLightMoodInput): Promise<GenerateLightMoodOutput> {
   return generateLightMoodFlow(input);

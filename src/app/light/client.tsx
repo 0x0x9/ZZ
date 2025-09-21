@@ -33,3 +33,4 @@ function LightGeneratorSkeleton() {
 export default function LightClient() {
     return <LightGenerator />;
 }
+

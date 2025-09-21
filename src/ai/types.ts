@@ -587,6 +587,7 @@ const OriaRedirectSchema = z.object({
     'tone',
     'terminal',
     'muse',
+    'light',
   ]),
   response: z
     .string()

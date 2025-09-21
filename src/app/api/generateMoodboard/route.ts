@@ -1,3 +1,4 @@
+
 import { generateMoodboard } from '@/ai/flows/generate-moodboard';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -10,3 +11,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message || 'An error occurred' }, { status: 500 });
   }
 }
+

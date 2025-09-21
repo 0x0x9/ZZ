@@ -147,3 +147,4 @@ export async function pulseProjectAction(prevState: any, formData: FormData): Pr
     return { success: false, result: null, error: e.message || 'An error occurred', prompt };
   }
 }
+
