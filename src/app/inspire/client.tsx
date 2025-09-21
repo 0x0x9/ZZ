@@ -47,6 +47,14 @@ const AMBIENCES = [
   },
 ];
 
+const inspirationalQuotes = [
+    "La créativité, c'est l'intelligence qui s'amuse. - Albert Einstein",
+    "Le seul moyen de faire du bon travail est d'aimer ce que vous faites. - Steve Jobs",
+    "La logique vous mènera d'un point A à un point B. L'imagination vous mènera partout. - Albert Einstein",
+    "Pour créer, il faut une grande solitude. - Pablo Picasso",
+    "N'attendez pas l'inspiration. Poursuivez-la avec une massue. - Jack London"
+];
+
 type AmbienceId = typeof AMBIENCES[number]["id"];
 
 function useLocalState<T>(key: string, initial: T) {
@@ -173,7 +181,6 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
   );
 }
 
-
 // Real AI Chatbot function
 const getInspirationalMessage = async (prompt: string, history: {type: 'user' | 'ai', text: string}[]) => {
     const response = await fetch('/api/generateInspiration', {
@@ -218,6 +225,9 @@ function OriaChatbot() {
     const [mounted, setMounted] = useState(false);
     useEffect(() => { setMounted(true); }, []);
     useEffect(() => { if (scrollAreaRef.current) scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight; }, [messages, isLoading]);
+
+    const randomQuote = useMemo(() => inspirationalQuotes[Math.floor(Math.random() * inspirationalQuotes.length)], []);
+
     if (!mounted) return null;
   
     const handleSend = async () => {
@@ -245,17 +255,30 @@ function OriaChatbot() {
             <div className="flex-1">
                 <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
                 <div className="text-base md:text-lg font-medium text-white/90">
-                {isLoading
-                    ? "Je prépare quelques pistes..."
-                    : input
-                    ? "Continuez, je vous écoute."
-                    : "Prête à explorer une idée ?"}
+                {isLoading ? (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex gap-1 items-center"
+                    >
+                        <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
+                        <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                        <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
+                    </motion.div>
+                    ) : (
+                    "Prête à explorer une idée ?"
+                )}
                 </div>
             </div>
         </Glass>
 
         {/* Messages */}
         <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
+          {messages.length === 0 && !isLoading && (
+              <motion.div initial={{opacity: 0, y: 10}} animate={{opacity: 1, y: 0}} className="text-center text-white/70 italic p-4">
+                  "{randomQuote}"
+              </motion.div>
+          )}
           {isLoading && messages.length > 0 && messages[messages.length-1].type === 'user' && (
               <div className="flex justify-start">
                   <motion.div
@@ -326,7 +349,7 @@ export default function XInspireEnvironment() {
         }
         playerRef.current?.playVideo?.();
     }
-}, [hasInteracted]);
+  }, [hasInteracted]);
   
    const handleAmbienceChange = (newAmbienceId: AmbienceId) => {
         handleFirstInteraction();
@@ -568,4 +591,3 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
-
