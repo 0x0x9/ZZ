@@ -630,10 +630,9 @@ export default function XInspireEnvironment() {
                 </div>
 
                 <Tabs defaultValue="ambience" className="w-full mt-4">
-                  <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10">
+                  <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
                     <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
-                    <TabsTrigger value="notes" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><NotebookPen className="mr-2 h-4 w-4"/>Notes</TabsTrigger>
                     <TabsTrigger value="work" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">🛠 Travail</TabsTrigger>
                   </TabsList>
                   <TabsContent value="ambience" className="mt-4">
@@ -660,19 +659,6 @@ export default function XInspireEnvironment() {
                   </TabsContent>
                   <TabsContent value="oria" className="mt-4 min-h-[300px] md:h-[30rem] md:max-h-[70vh]">
                     <OriaChatbot />
-                  </TabsContent>
-                  <TabsContent value="notes" className="mt-4">
-                     <div className="grid grid-cols-1 gap-4">
-                        <div>
-                            <label className="text-sm text-white/80">Notes & Idées</label>
-                            <Textarea
-                              value={notes.join("\n\n---\n\n")}
-                              onChange={(e) => setNotes(e.target.value.split("\n\n---\n\n"))}
-                              placeholder="Déposez ici vos idées, vos pensées..."
-                              className="mt-2 h-64 w-full resize-none rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
-                            />
-                        </div>
-                    </div>
                   </TabsContent>
                    <TabsContent value="work" className="mt-4">
                     <div className="grid gap-4 md:grid-cols-2">
