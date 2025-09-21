@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIcon } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -81,6 +81,81 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
   );
 }
 
+function GlowDot({ delay=0, size='100%', opacity=0.25 }) {
+  return (
+    <motion.div
+      initial={{ scale: 0.8, opacity }}
+      animate={{ scale: [0.95, 1.05, 0.95], opacity: [opacity, opacity*1.2, opacity] }}
+      transition={{ duration: 3.6, repeat: Infinity, delay }}
+      className="absolute inset-0 rounded-full blur-2xl"
+      style={{
+        background: "radial-gradient(closest-side, rgba(255,255,255,0.7), rgba(255,255,255,0))",
+        width: size, height: size, margin: "auto", filter: "blur(24px)"
+      }}
+    />
+  );
+}
+
+export function OriaSiriOrb({ active=false, thinking=false }: { active?: boolean; thinking?: boolean }) {
+  const controls = useAnimationControls();
+
+  useEffect(() => {
+    if (thinking) {
+      controls.start({
+        scale: [1, 1.06, 1],
+        transition: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+      });
+    } else if (active) {
+      controls.start({
+        scale: [1, 1.03, 1],
+        transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+      });
+    } else {
+      controls.stop();
+    }
+  }, [active, thinking, controls]);
+
+  return (
+    <div className="relative mx-auto h-24 w-24">
+      {/* anneaux doux */}
+      <motion.div
+        className="absolute inset-0 rounded-full border border-white/20"
+        animate={{ opacity: [0.5, 0.8, 0.5] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        style={{ boxShadow: "0 10px 40px rgba(0,0,0,0.25)" }}
+      />
+      <GlowDot delay={0.2} opacity={0.18} />
+      <GlowDot delay={0.9} size="120%" opacity={0.12} />
+      {/* orbe principal */}
+      <motion.div
+        animate={controls}
+        className="absolute inset-0 rounded-full backdrop-blur-2xl border border-white/30"
+        style={{
+          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.18), rgba(255,255,255,0.06), rgba(255,255,255,0.18))"
+        }}
+      >
+        {/* vague interne */}
+        <motion.div
+          className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          animate={{
+            scale: thinking ? [1, 1.12, 1] : active ? [1, 1.06, 1] : 1,
+            rotate: [0, 360],
+          }}
+          transition={{
+            scale: { duration: thinking ? 1.2 : 2, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 16, repeat: Infinity, ease: "linear" },
+          }}
+          style={{
+            background: "radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(255,255,255,0))",
+            filter: "blur(8px)"
+          }}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
+
 function OriaChatbot() {
     const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
     const [input, setInput] = useState('');
@@ -117,12 +192,30 @@ function OriaChatbot() {
 
     return (
         <div className="flex flex-col h-full space-y-4">
+              {/* Header visionOS */}
+            <Glass className={cn("p-4 flex items-center gap-4", isLoading && "ring-1 ring-white/20")}>
+                <OriaSiriOrb active={!!input} thinking={isLoading} />
+                <div className="flex-1">
+                <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
+                <div className="text-base md:text-lg font-medium text-white/90">
+                    {isLoading ? "Je réfléchis à quelque chose pour toi…" : input ? "On façonne une idée ensemble." : "Je suis prête. Parle-moi de ce que tu veux créer."}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                    {["Un titre fort", "3 palettes", "Un hook court", "Mini-brief", "3 pistes visuelles"].map((q,i)=>(
+                    <button key={i}
+                        onClick={()=>setInput(q)}
+                        className="px-3 py-1 rounded-full border bg-white/10 border-white/20 hover:bg-white/15">
+                        {q}
+                    </button>
+                    ))}
+                </div>
+                </div>
+            </Glass>
+
              <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto pr-2 -mr-2 no-scrollbar">
                 {messages.length === 0 && !isLoading && (
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                        <OriaAnimation className="w-20 h-20 mb-4" />
-                        <p className="text-white/80">Je suis Oria, votre muse.
-                            <br />Que puis-je faire pour vous inspirer ?</p>
+                        <p className="text-white/80">Je suis Oria, ta muse. Dis-moi ce que tu veux explorer ✨</p>
                     </div>
                 )}
                 {messages.map((msg, i) => (
@@ -130,7 +223,7 @@ function OriaChatbot() {
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }} 
+                            transition={{ duration: 0.25 }} 
                             className={cn("max-w-[90%] rounded-xl px-4 py-2", msg.type === 'user' ? "bg-primary/80 text-white" : "bg-white/15")}
                         >
                             {msg.text}
@@ -149,7 +242,7 @@ function OriaChatbot() {
                             handleSend();
                         }
                     }}
-                    placeholder="Discuter avec Oria..." 
+                    placeholder="Décris ton idée, le ressenti, la contrainte…" 
                     rows={1} 
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none" 
                 />
@@ -220,7 +313,6 @@ export default function XInspireEnvironment() {
         playerRef.current.playVideo();
       } catch {
         try { playerRef.current.destroy?.(); } catch {}
-        playerRef.current = null;
         createPlayer();
       }
     }
