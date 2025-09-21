@@ -41,7 +41,7 @@ const LazyFormatApp = dynamic(() => import('@/components/format-app'));
 const LazyConvertApp = dynamic(() => import('@/components/convert-app'));
 const LazyPulseApp = dynamic(() => import('@/components/pulse-app'));
 const LazyRealityApp = dynamic(() => import('@/components/reality-app'));
-const LazyLightApp = dynamic(() => import('@/components/light-generator'));
+const LazyLightApp = dynamic(() => import('@/components/light-app'));
 const LazyGoogleDriveApp = dynamic(() => import('@/components/google/drive-app'));
 const LazyGoogleDocsApp = dynamic(() => import('@/components/google/docs-app'));
 const LazyGoogleSheetsApp = dynamic(() => import('@/components/google/sheets-app'));
@@ -132,3 +132,4 @@ export const ALL_APPS_CONFIG = [
     { id: 'google-slides', name: 'Google Slides', icon: GoogleSlidesIcon, component: (props: any) => <LazyGoogleSlidesApp {...props} />, defaultPos: { x: 360, y: 160 }, defaultSize: { width: 900, height: 700 } },
 ];
 export type AppConfig = typeof ALL_APPS_CONFIG[0];
+

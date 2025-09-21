@@ -36,7 +36,7 @@ import { convertImage } from '@/ai/flows/convert-image';
 import { configurePc } from '@/ai/flows/configure-pc';
 
 
-import type { ProjectPlan, OriaChatInput, OriaChatOutput, GenerateFluxInput, ConfigurePcInput, ConfigurePcOutput, GenerateFluxOutput } from '@/ai/types';
+import type { ProjectPlan, OriaChatInput, OriaChatOutput, GenerateFluxInput, ConfigurePcInput, ConfigurePcOutput } from '@/ai/types';
 import { ProjectPlanSchema } from '@/ai/types';
 import { z } from 'zod';
 
@@ -147,4 +147,5 @@ export async function pulseProjectAction(prevState: any, formData: FormData): Pr
     return { success: false, result: null, error: e.message || 'An error occurred', prompt };
   }
 }
+
 

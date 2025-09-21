@@ -251,7 +251,7 @@ export type GenerateTextOutput = z.infer<typeof GenerateTextOutputSchema>;
 export const GenerateToneInputSchema = z.object({
   prompt: z.string().describe("Une description de la marque ou du projet pour lequel définir le ton."),
 });
-export type GenerateToneInput = z.infer<typeof GenerateToneInputSchema>;
+export type GenerateToneInput = zinfer<typeof GenerateToneInputSchema>;
 
 export const GenerateToneOutputSchema = z.object({
     adjectives: z.array(z.string()).length(3).describe("Une liste de 3 adjectifs clés qui définissent le ton."),
@@ -632,3 +632,4 @@ export const ActivitySchema = z.object({
   timestamp: z.string().datetime(),
 });
 export type Activity = z.infer<typeof ActivitySchema>;
+
