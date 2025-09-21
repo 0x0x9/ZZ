@@ -247,15 +247,15 @@ function ManualProjectForm({ onProjectCreated, onCancel }: { onProjectCreated: (
 }
 
 
-function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: (result: any) => void, onCancel: () => void}) {
+function NewProjectView({ onProjectCreated, onCancel }: { onProjectCreated: () => void, onCancel: () => void}) {
     const [view, setView] = useState<'ai' | 'manual'>('ai');
     const { toast } = useToast();
-    const [state, formAction] = useFormState(fluxAction, { result: null, error: null, prompt: '', job: '' });
+    const [state, formAction] = useFormState(fluxAction, { success: false, result: null, error: null, prompt: '', job: '' });
     const { pending } = useFormStatus();
     
     useEffect(() => {
-        if (state.result) {
-            onProjectCreated(state.result);
+        if (state.success) {
+            onProjectCreated();
         } else if (state.error) {
             toast({variant: 'destructive', title: 'Erreur (X)flux', description: state.error});
         }
@@ -624,3 +624,4 @@ export default function PulseClient() {
     
 
     
+

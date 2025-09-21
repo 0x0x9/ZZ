@@ -145,14 +145,25 @@ export async function oriaChatAction(prevState: any, formData: FormData): Promis
   }
 }
 
-export async function fluxAction(prevState: any, formData: FormData): Promise<{ result: GenerateFluxOutput | null; error: string | null; prompt: string, job: string }> {
+export async function fluxAction(prevState: any, formData: FormData): Promise<{ success: boolean; result: GenerateFluxOutput | null; error: string | null; prompt: string, job: string }> {
   const prompt = formData.get('prompt') as string;
   const job = formData.get('job') as string;
   
   try {
     const result = await generateFlux({ prompt, job });
-    return { result, error: null, prompt, job };
+
+    if (result.projectPlan?.title) {
+        const project = result.projectPlan;
+        const sanitizedTitle = project.title.replace(/[^a-zA-Z0-9 -]/g, '').replace(/\s+/g, '-').toLowerCase();
+        const fileName = `maestro-projets/${sanitizedTitle}.json`;
+
+        const dataUri = `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(project))))}`;
+    
+        await uploadDocument({ name: fileName, content: dataUri, mimeType: 'application/json' });
+    }
+
+    return { success: true, result, error: null, prompt, job };
   } catch (e: any) {
-    return { result: null, error: e.message || 'An error occurred', prompt, job };
+    return { success: false, result: null, error: e.message || 'An error occurred', prompt, job };
   }
 }
