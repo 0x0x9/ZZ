@@ -81,80 +81,79 @@ function Pill({ onClick, icon, children, className = "" }: { onClick?: () => voi
   );
 }
 
-function GlowDot({ delay=0, size='100%', opacity=0.25 }) {
-  return (
-    <motion.div
-      initial={{ scale: 0.8, opacity }}
-      animate={{ scale: [0.95, 1.05, 0.95], opacity: [opacity, opacity*1.2, opacity] }}
-      transition={{ duration: 3.6, repeat: Infinity, delay }}
-      className="absolute inset-0 rounded-full blur-2xl"
-      style={{
-        background: "radial-gradient(closest-side, rgba(255,255,255,0.7), rgba(255,255,255,0))",
-        width: size, height: size, margin: "auto", filter: "blur(24px)"
-      }}
-    />
-  );
-}
-
-export function OriaSiriOrb({ active=false, thinking=false }: { active?: boolean; thinking?: boolean }) {
-  const controls = useAnimationControls();
-
-  useEffect(() => {
-    if (thinking) {
-      controls.start({
-        scale: [1, 1.06, 1],
-        transition: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
-      });
-    } else if (active) {
-      controls.start({
-        scale: [1, 1.03, 1],
-        transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
-      });
-    } else {
-      controls.stop();
-    }
-  }, [active, thinking, controls]);
-
-  return (
-    <div className="relative mx-auto h-24 w-24">
-      {/* anneaux doux */}
-      <motion.div
-        className="absolute inset-0 rounded-full border border-white/20"
-        animate={{ opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 3, repeat: Infinity }}
-        style={{ boxShadow: "0 10px 40px rgba(0,0,0,0.25)" }}
-      />
-      <GlowDot delay={0.2} opacity={0.18} />
-      <GlowDot delay={0.9} size="120%" opacity={0.12} />
-      {/* orbe principal */}
-      <motion.div
-        animate={controls}
-        className="absolute inset-0 rounded-full backdrop-blur-2xl border border-white/30"
-        style={{
-          background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.18), rgba(255,255,255,0.06), rgba(255,255,255,0.18))"
-        }}
-      >
-        {/* vague interne */}
+function GlowDot({ delay = 0, size = '100%', opacity = 0.25 }) {
+    return (
         <motion.div
-          className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          animate={{
-            scale: thinking ? [1, 1.12, 1] : active ? [1, 1.06, 1] : 1,
-            rotate: [0, 360],
-          }}
-          transition={{
-            scale: { duration: thinking ? 1.2 : 2, repeat: Infinity, ease: "easeInOut" },
-            rotate: { duration: 16, repeat: Infinity, ease: "linear" },
-          }}
-          style={{
-            background: "radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(255,255,255,0))",
-            filter: "blur(8px)"
-          }}
+            initial={{ scale: 0.8, opacity }}
+            animate={{ scale: [0.95, 1.05, 0.95], opacity: [opacity, opacity * 1.2, opacity] }}
+            transition={{ duration: 3.6, repeat: Infinity, delay }}
+            className="absolute inset-0 rounded-full blur-2xl"
+            style={{
+                background: "radial-gradient(closest-side, rgba(255,255,255,0.7), rgba(255,255,255,0))",
+                width: size, height: size, margin: "auto", filter: `blur(24px)`
+            }}
         />
-      </motion.div>
-    </div>
-  );
+    );
 }
 
+function OriaSiriOrb({ active = false, thinking = false }: { active?: boolean; thinking?: boolean }) {
+    const controls = useAnimationControls();
+
+    useEffect(() => {
+        if (thinking) {
+            controls.start({
+                scale: [1, 1.06, 1],
+                transition: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+            });
+        } else if (active) {
+            controls.start({
+                scale: [1, 1.03, 1],
+                transition: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+            });
+        } else {
+            controls.stop();
+        }
+    }, [active, thinking, controls]);
+
+    return (
+        <div className="relative mx-auto h-24 w-24">
+            {/* anneaux doux */}
+            <motion.div
+                className="absolute inset-0 rounded-full border border-white/20"
+                animate={{ opacity: [0.5, 0.8, 0.5] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                style={{ boxShadow: "0 10px 40px rgba(0,0,0,0.25)" }}
+            />
+            <GlowDot delay={0.2} opacity={0.18} />
+            <GlowDot delay={0.9} size="120%" opacity={0.12} />
+            {/* orbe principal */}
+            <motion.div
+                animate={controls}
+                className="absolute inset-0 rounded-full backdrop-blur-2xl border border-white/30"
+                style={{
+                    background: "conic-gradient(from 180deg at 50% 50%, rgba(255,255,255,0.18), rgba(255,255,255,0.06), rgba(255,255,255,0.18))"
+                }}
+            >
+                {/* vague interne */}
+                <motion.div
+                    className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                    animate={{
+                        scale: thinking ? [1, 1.12, 1] : active ? [1, 1.06, 1] : 1,
+                        rotate: [0, 360],
+                    }}
+                    transition={{
+                        scale: { duration: thinking ? 1.2 : 2, repeat: Infinity, ease: "easeInOut" },
+                        rotate: { duration: 16, repeat: Infinity, ease: "linear" },
+                    }}
+                    style={{
+                        background: "radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(255,255,255,0))",
+                        filter: "blur(8px)"
+                    }}
+                />
+            </motion.div>
+        </div>
+    );
+}
 
 function OriaChatbot() {
     const [messages, setMessages] = useState<{type: 'user' | 'ai', text: string}[]>([]);
@@ -192,23 +191,14 @@ function OriaChatbot() {
 
     return (
         <div className="flex flex-col h-full space-y-4">
-              {/* Header visionOS */}
+             {/* Header visionOS */}
             <Glass className={cn("p-4 flex items-center gap-4", isLoading && "ring-1 ring-white/20")}>
                 <OriaSiriOrb active={!!input} thinking={isLoading} />
-                <div className="flex-1">
-                <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
-                <div className="text-base md:text-lg font-medium text-white/90">
-                    {isLoading ? "Je réfléchis à quelque chose pour toi…" : input ? "On façonne une idée ensemble." : "Je suis prête. Parle-moi de ce que tu veux créer."}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                    {["Un titre fort", "3 palettes", "Un hook court", "Mini-brief", "3 pistes visuelles"].map((q,i)=>(
-                    <button key={i}
-                        onClick={()=>setInput(q)}
-                        className="px-3 py-1 rounded-full border bg-white/10 border-white/20 hover:bg-white/15">
-                        {q}
-                    </button>
-                    ))}
-                </div>
+                <div className={cn("flex-1 transition-all duration-300", isLoading && "blur-[2px] opacity-70")}>
+                  <div className="text-sm uppercase tracking-wider text-white/70">Oria</div>
+                  <div className="text-base md:text-lg font-medium text-white/90">
+                      {isLoading ? "Je réfléchis à quelque chose pour toi…" : input ? "On façonne une idée ensemble." : "Je suis prête. Parle-moi de ce que tu veux créer."}
+                  </div>
                 </div>
             </Glass>
 
@@ -230,7 +220,22 @@ function OriaChatbot() {
                         </motion.div>
                     </div>
                 ))}
-                 {isLoading && <div className="text-center text-white/70">...</div>}
+                 {isLoading && (
+                     <div className="flex justify-start">
+                         <motion.div
+                             initial={{ opacity: 0, y: 10 }}
+                             animate={{ opacity: 1, y: 0 }}
+                             transition={{ duration: 0.25 }}
+                             className="max-w-[90%] rounded-xl px-4 py-2 bg-white/15"
+                         >
+                            <div className="flex gap-2 items-center">
+                                <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
+                                <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                                <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
+                            </div>
+                         </motion.div>
+                     </div>
+                 )}
             </div>
             <div className="flex gap-2">
                 <Textarea 
@@ -380,7 +385,7 @@ export default function XInspireEnvironment() {
           panelOpen ? "blur-sm" : ""
         )}
       >
-        <div id="youtube-player" className="absolute w-full h-full scale-[1.8] object-cover" style={{ pointerEvents: 'none' }} />
+        <div id="youtube-player" className="absolute w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
 
