@@ -54,6 +54,45 @@ const AMBIENCES = [
 ];
 type AmbienceId = typeof AMBIENCES[number]['id'];
 
+const INSPIRATIONAL_QUOTES = [
+    { quote: "La créativité, c'est l'intelligence qui s'amuse.", author: "Albert Einstein" },
+    { quote: "Le seul moyen de faire du bon travail est d'aimer ce que vous faites.", author: "Steve Jobs" },
+    { quote: "La logique vous mènera d'un point A à un point B. L'imagination vous mènera partout.", author: "Albert Einstein" },
+    { quote: "Pour créer, il faut une grande solitude.", author: "Pablo Picasso" },
+    { quote: "N'attendez pas l'inspiration. Poursuivez-la avec une massue.", author: "Jack London" },
+];
+
+function VideoTransitionOverlay({ active }: { active: boolean; }) {
+  const [quote] = useState(() => INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)]);
+
+  return (
+    <AnimatePresence>
+      {active && (
+        <motion.div
+          key="quote-overlay"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
+          style={{ backdropFilter: 'blur(16px)', backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <motion.div 
+            className="text-center text-white"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <p className="text-2xl md:text-3xl font-medium italic">"{quote.quote}"</p>
+            <p className="mt-4 text-lg text-white/70">- {quote.author}</p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+
 function OriaSiriOrbPro({
   size = 120,
   state = "idle",
@@ -282,7 +321,7 @@ function WorkBrief() {
 }
 
 function FocusModalContent() {
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
     const [brief, setBrief] = useState({ title: '', why: '', how: '', first: '' });
 
     useEffect(() => {
@@ -298,13 +337,13 @@ function FocusModalContent() {
             return defaultValue;
         };
 
-        setTasks(getStoredData("xinspire.tasks", []));
         setBrief({
             title: getStoredData("xinspire.brief.title", "Mon Brief"),
             why: getStoredData("xinspire.brief.why", "Aucun 'pourquoi' défini."),
             how: getStoredData("xinspire.brief.how", "Aucun 'comment' défini."),
             first: getStoredData("xinspire.brief.first", "Aucun 'premier pas' défini."),
         });
+        setTasks(getStoredData("xinspire.tasks", []));
     }, []);
 
     return (
@@ -367,23 +406,25 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
     const ss = String(remain%60).padStart(2,'0');
 
     return (
-        <>
-            <div className="fixed top-4 right-4 z-30">
-                 <DialogTrigger asChild>
-                     <div
-                        role="button"
-                        onClick={() => setIsFocusModalOpen(true)}
-                        className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg"
-                      >
-                        <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5"><Timer className="w-3 h-3"/> Focus</div>
-                        <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
-                    </div>
-                 </DialogTrigger>
+      <>
+        <div className="fixed top-4 right-4 z-30">
+          <DialogTrigger asChild>
+            <div
+              role="button"
+              onClick={() => setIsFocusModalOpen(true)}
+              className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg"
+            >
+              <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5">
+                <Timer className="w-3 h-3" /> Focus
+              </div>
+              <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
             </div>
-             <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
-                <FocusModalContent />
-            </Dialog>
-        </>
+          </DialogTrigger>
+        </div>
+         <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
+            <FocusModalContent />
+        </Dialog>
+      </>
     );
 }
 
@@ -397,15 +438,7 @@ function OriaChatbot() {
     useEffect(() => { setMounted(true); }, []);
     useEffect(() => { if (scrollAreaRef.current) scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight; }, [messages, isLoading]);
 
-    const inspirationalQuotes = [
-        "La créativité, c'est l'intelligence qui s'amuse. - Albert Einstein",
-        "Le seul moyen de faire du bon travail est d'aimer ce que vous faites. - Steve Jobs",
-        "La logique vous mènera d'un point A à un point B. L'imagination vous mènera partout. - Albert Einstein",
-        "Pour créer, il faut une grande solitude. - Pablo Picasso",
-        "N'attendez pas l'inspiration. Poursuivez-la avec une massue. - Jack London"
-    ];
-    
-    const randomQuote = useMemo(() => inspirationalQuotes[Math.floor(Math.random() * inspirationalQuotes.length)], []);
+    const randomQuote = useMemo(() => INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)], []);
 
     if (!mounted) return null;
   
@@ -447,7 +480,7 @@ function OriaChatbot() {
                      {isLoading
                       ? "Je façonne une piste pour toi…"
                       : messages.length === 0 
-                      ? `"${randomQuote}"`
+                      ? `"${randomQuote.quote}"`
                       : "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
                 </motion.p>
             </AnimatePresence>
@@ -514,107 +547,6 @@ function OriaChatbot() {
     );
   }
 
-function VideoTransitionOverlay({
-  active,
-  minDuration = 1200,
-  maxFallback = 2800,
-}: { active: boolean; minDuration?: number; maxFallback?: number }) {
-  const [visible, setVisible] = React.useState(false);
-  const startRef = React.useRef<number | null>(null);
-
-  useEffect(() => {
-    if (active) {
-      startRef.current = Date.now();
-      setVisible(true);
-    } else if (visible) {
-      const elapsed = startRef.current ? Date.now() - startRef.current : 0;
-      const wait = Math.max(0, minDuration - elapsed);
-      const t = setTimeout(() => setVisible(false), wait);
-      return () => clearTimeout(t);
-    }
-  }, [active, visible, minDuration]);
-
-  useEffect(() => {
-    if (!active || !visible) return;
-    const t = setTimeout(() => setVisible(false), maxFallback);
-    return () => clearTimeout(t);
-  }, [active, visible, maxFallback]);
-
-  if (!visible) return null;
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        key="halo"
-        className="pointer-events-none absolute inset-0 z-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ ease: 'easeOut', duration: 0.35 }}
-        style={{
-          background:
-            'radial-gradient(1200px 800px at 50% 60%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.35) 100%)',
-          backdropFilter: 'blur(10px)',
-        }}
-      >
-        <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            width: '64vmin',
-            height: '64vmin',
-            background:
-              'radial-gradient(circle at 50% 50%, rgba(160,220,255,0.55) 0%, rgba(160,220,255,0.15) 35%, rgba(255,255,255,0) 70%)',
-            filter: 'blur(18px)',
-            mixBlendMode: 'screen',
-          }}
-          initial={{ scale: 0.8, opacity: 0.7 }}
-          animate={{ scale: [0.8, 1.05, 1], opacity: [0.7, 0.95, 0.85] }}
-          transition={{ duration: 1.1, times: [0, 0.6, 1], ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            width: '58vmin',
-            height: '58vmin',
-            border: '2px solid rgba(255,255,255,0.28)',
-            boxShadow:
-              '0 0 60px rgba(120,180,255,0.35), inset 0 0 1px rgba(255,255,255,0.5)',
-            filter: 'blur(1px)',
-          }}
-          initial={{ scale: 0.75, opacity: 0.0 }}
-          animate={{ scale: [0.75, 1.02, 0.98], opacity: [0.0, 0.8, 0.6] }}
-          transition={{ duration: 1.2, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            width: '70vmin',
-            height: '70vmin',
-            filter: 'blur(26px)',
-            mixBlendMode: 'screen',
-            background:
-              'conic-gradient(from 0deg, rgba(110,195,255,0.25), rgba(240,115,200,0.25), rgba(160,255,210,0.25), rgba(110,195,255,0.25))',
-          }}
-          initial={{ rotate: 0, opacity: 0.4, scale: 0.95 }}
-          animate={{ rotate: 360, opacity: 0.5, scale: 1 }}
-          transition={{ duration: 6, ease: 'linear', repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(1200px 800px at 50% 60%, rgba(255,255,255,0) 0%, rgba(0,0,0,0.35) 80%)',
-          }}
-          initial={{ opacity: 0.0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-      </motion.div>
-    </AnimatePresence>
-  );
-}
-
-
 export default function XInspireEnvironment() {
   const [mounted, setMounted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -635,21 +567,18 @@ export default function XInspireEnvironment() {
 
   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
     setIsSwitching(true);
-    if (!hasInteracted) {
-        setHasInteracted(true);
-        setIsMuted(false);
-    }
     setAmbience(newAmbienceId);
     const targetId = AMBIENCES.find(a => a.id === newAmbienceId)!.videoId;
     const p = playerRef.current;
     try {
-        if (p?.loadPlaylist) {
-            p.loadPlaylist({ playlist: [targetId], index: 0 });
-        } else if (p?.loadVideoById) {
-            p.loadVideoById({ videoId: targetId });
-        }
+      if (p?.loadPlaylist) {
+        p.loadPlaylist({ playlist: [targetId], index: 0 });
+      } else if (p?.loadVideoById) {
+        p.loadVideoById({ videoId: targetId });
+      }
     } catch {}
-  }, [hasInteracted]);
+    setAmbPopoverOpen(false);
+  }, []);
   
   const toggleMute = useCallback(() => {
     if (!hasInteracted) {
@@ -777,7 +706,6 @@ export default function XInspireEnvironment() {
             onClick={(e) => e.stopPropagation()}
             >
             <div className="space-y-2">
-                {/* Toggle son */}
                 <button
                 onClick={(e) => { e.stopPropagation(); toggleMute(); }}
                 className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm border border-white/20 bg-white/10 hover:bg-white/15"
@@ -788,7 +716,6 @@ export default function XInspireEnvironment() {
 
                 <div className="h-px bg-white/10 my-1" />
 
-                {/* Liste des ambiances */}
                 <div className="grid grid-cols-1 gap-1">
                 {AMBIENCES.map((a) => (
                     <button
