@@ -61,6 +61,9 @@ const INSPIRATIONAL_QUOTES = [
     { quote: "La logique vous mènera d'un point A à un point B. L'imagination vous mènera partout.", author: "Albert Einstein" },
     { quote: "Pour créer, il faut une grande solitude.", author: "Pablo Picasso" },
     { quote: "N'attendez pas l'inspiration. Poursuivez-la avec une massue.", author: "Jack London" },
+    { quote: "La créativité est un esprit sauvage et un œil discipliné.", author: "Dorothy Parker" },
+    { quote: "On ne peut pas épuiser la créativité. Plus on l'utilise, plus on en a.", author: "Maya Angelou" },
+    { quote: "La curiosité à propos de la vie dans tous ses aspects, je pense, est encore le secret des grands créateurs.", author: "Leo Burnett" }
 ];
 
 function VideoTransitionOverlay({ active }: { active: boolean; }) {
@@ -75,7 +78,7 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: 'easeInOut' }}
+          transition={{ duration: 1.5, ease: 'easeInOut' }}
         >
           {/* Blurred background layer */}
           <div 
@@ -328,30 +331,8 @@ function WorkBrief() {
 }
 
 function FocusModalContent() {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [brief, setBrief] = useState({ title: '', why: '', how: '', first: '' });
-
-    useEffect(() => {
-        const getStoredData = (key: string, defaultValue: any) => {
-            try {
-                if (typeof window !== 'undefined') {
-                    const item = localStorage.getItem(key);
-                    return item ? JSON.parse(item) : defaultValue;
-                }
-            } catch (e) {
-                return defaultValue;
-            }
-            return defaultValue;
-        };
-
-        setBrief({
-            title: getStoredData("xinspire.brief.title", "Mon Brief"),
-            why: getStoredData("xinspire.brief.why", "Aucun 'pourquoi' défini."),
-            how: getStoredData("xinspire.brief.how", "Aucun 'comment' défini."),
-            first: getStoredData("xinspire.brief.first", "Aucun 'premier pas' défini."),
-        });
-        setTasks(getStoredData("xinspire.tasks", []));
-    }, []);
+    const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
+    const [brief, setBrief] = useLocalState("xinspire.brief", { title: '', why: '', how: '', first: '' });
 
     return (
         <DialogContent className="glass-card max-w-2xl text-white">
@@ -365,10 +346,10 @@ function FocusModalContent() {
                 <div>
                     <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><BookOpen className="h-5 w-5 text-primary" /> Mini-Brief</h3>
                     <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                        <h4 className="font-bold">{brief.title}</h4>
-                        <p><strong>Pourquoi :</strong> {brief.why}</p>
-                        <p><strong>Comment :</strong> {brief.how}</p>
-                        <p><strong>Premier pas :</strong> {brief.first}</p>
+                        <h4 className="font-bold">{brief.title || "Mon Brief"}</h4>
+                        <p><strong>Pourquoi :</strong> {brief.why || "Aucun 'pourquoi' défini."}</p>
+                        <p><strong>Comment :</strong> {brief.how || "Aucun 'comment' défini."}</p>
+                        <p><strong>Premier pas :</strong> {brief.first || "Aucun 'premier pas' défini."}</p>
                     </div>
                 </div>
                  <div>
@@ -863,4 +844,5 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
 
