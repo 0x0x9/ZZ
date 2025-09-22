@@ -71,11 +71,10 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
       {active && (
         <motion.div
           key="quote-overlay"
-          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-8"
+          className="pointer-events-none absolute inset-0 z-20"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
+          animate={{ opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } }}
+          exit={{ opacity: 0, transition: { duration: 1.5, ease: 'easeIn', delay: 1 } }}
         >
           {/* Blurred background layer */}
           <div 
@@ -85,13 +84,14 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
           
           {/* Content layer (not blurred) */}
           <motion.div 
-            className="relative text-center text-white"
+            className="relative h-full flex items-center justify-center text-center text-white p-8"
             initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+            animate={{ opacity: 1, y: 0, transition: { duration: 0.8, delay: 0.2, ease: 'easeOut' } }}
           >
-            <p className="text-2xl md:text-3xl font-medium italic">"{quote.quote}"</p>
-            <p className="mt-4 text-lg text-white/70">- {quote.author}</p>
+            <div>
+              <p className="text-2xl md:text-3xl font-medium italic">"{quote.quote}"</p>
+              <p className="mt-4 text-lg text-white/70">- {quote.author}</p>
+            </div>
           </motion.div>
         </motion.div>
       )}
@@ -843,6 +843,7 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
 
 
 
