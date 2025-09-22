@@ -64,7 +64,13 @@ const INSPIRATIONAL_QUOTES = [
 ];
 
 function VideoTransitionOverlay({ active }: { active: boolean; }) {
-  const [quote] = useState(() => INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)]);
+  const [quote, setQuote] = useState(() => INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)]);
+
+  useEffect(() => {
+    if (active) {
+        setQuote(INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)]);
+    }
+  }, [active]);
 
   return (
     <AnimatePresence>
