@@ -74,7 +74,7 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
           className="pointer-events-none absolute inset-0 z-20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } }}
-          exit={{ opacity: 0, transition: { duration: 1.5, ease: 'easeIn', delay: 1 } }}
+          exit={{ opacity: 0, transition: { duration: 2.5, ease: 'easeIn', delay: 1 } }}
         >
           {/* Blurred background layer */}
           <div 
@@ -465,7 +465,7 @@ function OriaChatbot() {
                      {isLoading
                       ? "Je façonne une piste pour toi…"
                       : messages.length === 0 
-                      ? `"${randomQuote.quote}"`
+                      ? `"${randomQuote.quote}" - ${randomQuote.author}`
                       : "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
                 </motion.p>
             </AnimatePresence>
@@ -670,7 +670,10 @@ export default function XInspireEnvironment() {
       >
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
         <VideoTransitionOverlay active={isSwitching} />
-        <div className="pointer-events-none absolute inset-0 bg-black/30 backdrop-blur-sm" />
+        <div className={cn(
+            "pointer-events-none absolute inset-0 bg-black/30 transition-all duration-500",
+            hasInteracted ? "backdrop-blur-0" : "backdrop-blur-sm"
+        )} />
       </motion.div>
       
       {/* Ambience Controller (en haut à gauche) */}
@@ -843,5 +846,3 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
-
-    
