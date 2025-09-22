@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -111,7 +111,7 @@ function OriaSiriOrbPro({
   subtle?: boolean;
   className?: string;
 }) {
-  const blobControls = [useAnimationControls(), useAnimationControls(), useAnimationControls()];
+  const blobControls = [useAnimation(), useAnimation(), useAnimation()];
 
   useEffect(() => {
     const commonOptions = { repeat: Infinity, ease: "easeInOut" };
@@ -670,7 +670,7 @@ export default function XInspireEnvironment() {
       >
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
         <VideoTransitionOverlay active={isSwitching} />
-        <div className="pointer-events-none absolute inset-0 bg-black/30" />
+        <div className="pointer-events-none absolute inset-0 bg-black/30 backdrop-blur-sm" />
       </motion.div>
       
       {/* Ambience Controller (en haut à gauche) */}
@@ -844,8 +844,4 @@ export default function XInspireEnvironment() {
   );
 }
 
-
-
-
-
-
+    
