@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -111,7 +111,7 @@ function OriaSiriOrbPro({
   subtle?: boolean;
   className?: string;
 }) {
-  const blobControls = [useAnimation(), useAnimation(), useAnimation()];
+  const blobControls = [useAnimationControls(), useAnimationControls(), useAnimationControls()];
 
   useEffect(() => {
     const commonOptions = { repeat: Infinity, ease: "easeInOut" };
@@ -672,7 +672,7 @@ export default function XInspireEnvironment() {
         <VideoTransitionOverlay active={isSwitching} />
         <div className={cn(
             "pointer-events-none absolute inset-0 bg-black/30 transition-all duration-500",
-            hasInteracted ? "backdrop-blur-0" : "backdrop-blur-sm"
+            !hasInteracted ? "backdrop-blur-sm" : (panelOpen ? "backdrop-blur-sm" : "backdrop-blur-0")
         )} />
       </motion.div>
       
