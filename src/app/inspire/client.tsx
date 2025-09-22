@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Music, Pause, X, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -120,6 +120,36 @@ function OriaSiriOrbPro({
   state?: "idle" | "active" | "thinking" | "speaking";
   className?: string;
 }) {
+  const blobControls = [useAnimationControls(), useAnimationControls(), useAnimationControls()];
+
+  useEffect(() => {
+    const commonOptions = { repeat: Infinity, ease: "easeInOut" };
+
+    blobControls[0].start({
+      x: ["0%", "30%", "-25%", "0%"],
+      y: ["0%", "-40%", "30%", "0%"],
+      scale: [1, 1.3, 0.7, 1],
+      rotate: [0, 120, 240, 360],
+      transition: { duration: 10, ...commonOptions },
+    });
+
+    blobControls[1].start({
+      x: ["0%", "-30%", "25%", "0%"],
+      y: ["0%", "30%", "-25%", "0%"],
+      scale: [1, 0.8, 1.4, 1],
+      rotate: [0, -100, -220, -360],
+      transition: { duration: 12, ...commonOptions, delay: 0.5 },
+    });
+
+    blobControls[2].start({
+      x: ["0%", "-20%", "35%", "0%"],
+      y: ["0%", "-35%", "25%", "0%"],
+      scale: [1, 1.2, 0.8, 1],
+      rotate: [0, 150, 290, 360],
+      transition: { duration: 8, ...commonOptions, delay: 1 },
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div
@@ -134,6 +164,7 @@ function OriaSiriOrbPro({
                 background: "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)",
                 mixBlendMode: 'screen',
             }}
+             animate={blobControls[0]}
         />
         <motion.div
             className="absolute w-[60%] h-[60%] top-[30%] left-[5%] rounded-full opacity-70"
@@ -141,6 +172,7 @@ function OriaSiriOrbPro({
                 background: "radial-gradient(circle, hsl(var(--accent)) 0%, transparent 70%)",
                 mixBlendMode: 'screen',
             }}
+             animate={blobControls[1]}
         />
          <motion.div
             className="absolute w-[65%] h-[65%] top-[10%] left-[35%] rounded-full opacity-70"
@@ -148,6 +180,7 @@ function OriaSiriOrbPro({
                 background: "radial-gradient(circle, #E84F8E 0%, transparent 70%)",
                 mixBlendMode: 'screen',
             }}
+             animate={blobControls[2]}
         />
       </div>
       
@@ -511,20 +544,61 @@ function OriaChatbot() {
 export default function XInspireEnvironment() {
   const [mounted, setMounted] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const playerRef = useRef<any>(null);
   
   const [ambience, setAmbience] = useState<AmbienceId>("rainy_apartment");
-  const [dockOpen, setDockOpen] = React.useState(false);
-  const [panelOpen, setPanelOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isSwitching, setIsSwitching] = useState(false);
-  const [activeTab, setActiveTab] = React.useState<'ambience' | 'oria' | 'work'>('ambience');
   
-  const playerRef = useRef<any>(null);
+  const [dockOpen, setDockOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'ambience' | 'oria' | 'work'>('ambience');
+  
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
   const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
 
+  useEffect(() => { setMounted(true); }, []);
+  
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
+
+  const onPlayerReady = useCallback((event: any) => {
+    if (isMuted) event.target.mute();
+    else event.target.unMute();
+    event.target.playVideo();
+  }, [isMuted]);
+
+  const onPlayerStateChange = useCallback((event: any) => {
+    if (event.data === (window as any).YT.PlayerState.PLAYING) {
+      setIsSwitching(false);
+    }
+  }, []);
+
+  const createPlayer = useCallback((videoId: string) => {
+    if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+    }
+    playerRef.current = new (window as any).YT.Player('youtube-player', {
+        width: '100%',
+        height: '100%',
+        videoId: videoId,
+        playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: videoId, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1 },
+        events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
+    });
+  }, [onPlayerReady, onPlayerStateChange]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof (window as any).YT === 'undefined' || typeof (window as any).YT.Player === 'undefined') {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+        (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
+    } else {
+        createPlayer(cur.videoId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
 
   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
     if (newAmbienceId === ambience) return;
@@ -563,56 +637,6 @@ export default function XInspireEnvironment() {
         return next;
     });
   }, [hasInteracted]);
-  
-    const createPlayer = useCallback((videoId: string) => {
-      if (playerRef.current) {
-        try {
-            playerRef.current.destroy();
-        } catch {}
-      }
-      playerRef.current = new (window as any).YT.Player('youtube-player', {
-        width: '100%',
-        height: '100%',
-        videoId: videoId,
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          loop: 1,
-          playlist: videoId,
-          modestbranding: 1,
-          rel: 0,
-          iv_load_policy: 3,
-          playsinline: 1
-        },
-        events: {
-          onReady: (event: any) => {
-            if (isMuted) event.target.mute();
-            else event.target.unMute();
-            event.target.playVideo();
-          },
-          onStateChange: (e: any) => {
-            if (e.data === (window as any).YT.PlayerState.PLAYING) {
-              setIsSwitching(false);
-            }
-          }
-        }
-      });
-    }, [isMuted]);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    if (typeof (window as any).YT === 'undefined' || typeof (window as any).YT.Player === 'undefined') {
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-        (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
-    } else {
-        createPlayer(cur.videoId);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted, createPlayer]);
 
   useEffect(() => {
     try {
@@ -629,8 +653,7 @@ export default function XInspireEnvironment() {
     } catch {}
   }, [ambience]);
 
-  // jump centralisé depuis le dock
-  const handleJump = React.useCallback((
+  const handleJump = useCallback((
     target: 'chat'|'work'|'brief'|'tasks'|'ambience',
     payload?: any
   )=>{
@@ -640,8 +663,6 @@ export default function XInspireEnvironment() {
     if (target==='brief')  setActiveTab('work');
     if (target==='ambience') {
       setActiveTab('ambience');
-      // éventuellement: changer d'ambiance si payload.id
-      // if (payload?.id) handleAmbienceChange(payload.id);
     }
   }, []);
 
@@ -649,14 +670,11 @@ export default function XInspireEnvironment() {
 
   return (
     <div className="relative min-h-screen w-full text-white">
-      {/* Background gradient glow */}
-      <div className="pointer-events-none absolute inset-0 -z-20" />
-
-      {/* Fullscreen YouTube */}
+      {/* Background Video */}
       <motion.div
         className="absolute inset-0 -z-10 overflow-hidden"
       >
-        <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
+        <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none', transition: 'opacity 0.5s ease-in-out', opacity: isSwitching ? 0 : 1 }} />
         <VideoTransitionOverlay active={isSwitching} />
         <div className={cn(
             "pointer-events-none absolute inset-0 bg-black/30 transition-all duration-500",
@@ -664,7 +682,7 @@ export default function XInspireEnvironment() {
         )} />
       </motion.div>
       
-      {/* Ambience Controller (en haut à gauche) */}
+      {/* Ambience Controller (top left) */}
        <div className="fixed left-6 top-6 z-30">
           <Popover open={ambPopoverOpen} onOpenChange={setAmbPopoverOpen}>
             <PopoverTrigger asChild>
@@ -723,7 +741,7 @@ export default function XInspireEnvironment() {
         </Popover>
         </div>
       
-      {/* Dock latéral (ouvre des liens vers tes sections) */}
+      {/* Project Dock */}
       <ProjectDock
         open={dockOpen}
         onOpenChange={setDockOpen}
@@ -731,7 +749,7 @@ export default function XInspireEnvironment() {
         currentAmbienceId={ambience}
       />
 
-      {/* Overlay d’activation */}
+      {/* Activation Overlay */}
       <AnimatePresence>
         {!hasInteracted && (
           <motion.div
@@ -764,18 +782,18 @@ export default function XInspireEnvironment() {
         )}
       </AnimatePresence>
 
-      {/* Hotspot panneau */}
+      {/* Panel Hotspot */}
       <div
         onClick={() => setPanelOpen(true)}
         className="fixed bottom-4 left-1/2 z-30 -translate-x-1/2 h-10 w-10 cursor-pointer rounded-full border border-white/20 bg-white/10 backdrop-blur hover:border-white/40"
       />
 
-      {/* Bouton retour */}
+      {/* Back Button */}
       <Link href="/" passHref>
         <Pill className="fixed bottom-4 right-4 z-30" icon={<ArrowLeft className="h-4 w-4" />}>Retour</Pill>
       </Link>
 
-      {/* Panneau de contrôle */}
+      {/* Main Control Panel */}
       <AnimatePresence>
         {panelOpen && (
           <motion.div
