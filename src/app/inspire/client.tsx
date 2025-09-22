@@ -282,7 +282,6 @@ function WorkBrief() {
 }
 
 function FocusModalContent() {
-    // This component now re-fetches its state from localStorage to ensure it's up-to-date
     const [tasks, setTasks] = useState<Task[]>([]);
     const [brief, setBrief] = useState({ title: '', why: '', how: '', first: '' });
 
@@ -340,7 +339,6 @@ function FocusModalContent() {
         </DialogContent>
     );
 }
-
 
 function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }) {
     const [remain, setRemain] = useState(0);
@@ -507,6 +505,42 @@ function OriaChatbot() {
     );
   }
 
+function VideoTransitionOverlay({ videoKey }: { videoKey: string }) {
+  const [key, setKey] = useState(videoKey);
+
+  useEffect(() => {
+    setKey(videoKey);
+  }, [videoKey]);
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={key + "-fadeout"}
+        className="pointer-events-none absolute inset-0 z-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0 }}
+        exit={{ opacity: 1 }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
+      />
+      <motion.div
+        key={key + "-bloom"}
+        className="pointer-events-none absolute inset-0 z-30"
+        initial={{ opacity: 0, scale: 1.02 }}
+        animate={{ opacity: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          background:
+            "radial-gradient(60% 60% at 50% 50%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0) 100%)",
+          boxShadow:
+            "inset 0 0 120px rgba(0,255,255,0.08), inset 0 0 160px rgba(255,0,180,0.06)",
+          backdropFilter: "blur(2px)",
+        }}
+      />
+    </AnimatePresence>
+  );
+}
+
 
 export default function XInspireEnvironment() {
   const [mounted, setMounted] = useState(false);
@@ -643,6 +677,7 @@ export default function XInspireEnvironment() {
         )}
       >
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
+        <VideoTransitionOverlay videoKey={cur.videoId} />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
       
