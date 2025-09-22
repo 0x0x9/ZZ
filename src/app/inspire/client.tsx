@@ -369,7 +369,7 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
     return (
         <>
             <div className="fixed top-4 right-4 z-30">
-                <DialogTrigger asChild>
+                 <DialogTrigger asChild>
                      <div
                         role="button"
                         onClick={() => setIsFocusModalOpen(true)}
@@ -378,7 +378,7 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
                         <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5"><Timer className="w-3 h-3"/> Focus</div>
                         <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
                     </div>
-                </DialogTrigger>
+                 </DialogTrigger>
             </div>
              <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
                 <FocusModalContent />
@@ -515,32 +515,21 @@ function OriaChatbot() {
   }
 
 function VideoTransitionOverlay({ videoKey }: { videoKey: string }) {
-    const [isTransitioning, setIsTransitioning] = useState(false);
-
-    useEffect(() => {
-        setIsTransitioning(true);
-        const timer = setTimeout(() => setIsTransitioning(false), 500); // Duration of the transition
-        return () => clearTimeout(timer);
-    }, [videoKey]);
-
-    return (
-        <AnimatePresence>
-            {isTransitioning && (
-                <motion.div
-                    key={videoKey}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="pointer-events-none absolute inset-0 z-20"
-                    style={{
-                        background: 'radial-gradient(circle, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)',
-                        backdropFilter: 'blur(8px)',
-                    }}
-                />
-            )}
-        </AnimatePresence>
-    );
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={videoKey}
+        className="pointer-events-none absolute inset-0 z-20"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        style={{
+          background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.8) 100%)',
+          backdropFilter: 'blur(16px)',
+        }}
+      />
+    </AnimatePresence>
+  );
 }
 
 
@@ -552,6 +541,9 @@ export default function XInspireEnvironment() {
   const [ambience, setAmbience] = useState<AmbienceId>("forest");
   const [panelOpen, setPanelOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const isMutedRef = useRef(isMuted);
+  useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
+
   const playerRef = useRef<any>(null);
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
   const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
@@ -578,23 +570,16 @@ export default function XInspireEnvironment() {
   const toggleMute = useCallback(() => {
     if (!hasInteracted) {
         setHasInteracted(true);
-        setIsMuted(false); // Unmute on first interaction
+        setIsMuted(false);
+        playerRef.current?.unMute?.();
         return;
     };
     setIsMuted(m => {
-        const newMutedState = !m;
-        if (playerRef.current) {
-            try {
-                if (newMutedState) {
-                    playerRef.current.mute();
-                } else {
-                    playerRef.current.unMute();
-                }
-            } catch (e) {
-                console.error("Mute/unmute failed", e);
-            }
-        }
-        return newMutedState;
+        const next = !m;
+        try {
+            next ? playerRef.current?.mute?.() : playerRef.current?.unMute?.();
+        } catch {}
+        return next;
     });
   }, [hasInteracted]);
   
@@ -602,10 +587,10 @@ export default function XInspireEnvironment() {
     if (!mounted) return;
 
     const onPlayerReady = (event: any) => {
-        if (!isMuted) {
-            event.target.unMute();
-        } else {
+        if (isMutedRef.current) {
             event.target.mute();
+        } else {
+            event.target.unMute();
         }
         event.target.playVideo();
     };
@@ -644,7 +629,7 @@ export default function XInspireEnvironment() {
     } else {
         createPlayer(cur.videoId);
     }
-  }, [cur.videoId, mounted, isMuted]);
+  }, [cur.videoId, mounted]);
 
   useEffect(() => {
     try {
