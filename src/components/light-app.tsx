@@ -1,14 +1,12 @@
 
 'use client';
 
-import LightGenerator from "@/components/light-generator";
+import LightClient from "@/app/light/client";
 
 export default function LightApp() {
     return (
-        <div className="h-full w-full bg-background overflow-y-auto no-scrollbar p-6">
-           <LightGenerator />
+        <div className="h-full w-full bg-background overflow-y-auto no-scrollbar">
+           <LightClient />
         </div>
     );
 }
-
-
