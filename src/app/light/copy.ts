@@ -1,3 +1,4 @@
+
 import {
   Wand2,
   BrainCircuit,
@@ -8,6 +9,12 @@ import {
   Users,
   Cloud,
   Heart,
+  Webhook,
+  DollarSign,
+  Share2,
+  FolderKanban
+} from 'lucide-react';
+import {
   NotionLogo,
   StripeLogo,
   FigmaLogo,
@@ -72,10 +79,10 @@ export const copy = {
     points: [
       { icon: Wand2, title: "Oria IA", desc: "Conseils contextuels, auto-brief, génération." },
       { icon: BrainCircuit, title: "Flow sans friction", desc: "Tâches, timer, snapshots. Synchronisés." },
-      { icon: CheckCircle, title: "Ouvert par design", desc: "Notion, Google, Slack, Discord, Webhooks." },
-      { icon: Users, title: "Monétisation intégrée", desc: "Stripe, Gumroad, Shopify." },
-      { icon: Cloud, title: "Diffusion instantanée", desc: "Pages, exports, kits média." },
-      { icon: Heart, title: "Dock projets", desc: "Fenêtres XOS, verre & halos. Discret, puissant." },
+      { icon: Webhook, title: "Ouvert par design", desc: "Notion, Google, Slack, Discord, Webhooks." },
+      { icon: DollarSign, title: "Monétisation intégrée", desc: "Stripe, Gumroad, Shopify." },
+      { icon: Share2, title: "Diffusion instantanée", desc: "Pages, exports, kits média." },
+      { icon: FolderKanban, title: "Dock projets", desc: "Fenêtres XOS, verre & halos. Discret, puissant." },
     ],
   },
   integrations: {
