@@ -3,8 +3,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
-import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Music, Pause, X, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -60,11 +60,16 @@ const INSPIRATIONAL_QUOTES = [
     { quote: "La curiosité à propos de la vie dans tous ses aspects, je pense, est encore le secret des grands créateurs.", author: "Leo Burnett" },
     { quote: "Le désir de créer est l'un des plus profonds désirs de l'âme humaine.", author: "Dieter F. Uchtdorf" },
     { quote: "L'art lave notre âme de la poussière du quotidien.", author: "Pablo Picasso" },
-    { quote: "La créativité exige le courage de laisser aller les certitudes.", author: "Erich Fromm" }
+    { quote: "La créativité exige le courage de laisser aller les certitudes.", author: "Erich Fromm" },
+    { quote: "L'imagination est le commencement de la création. On imagine ce que l'on désire, on veut ce que l'on imagine, et enfin, on crée ce que l'on veut.", author: "George Bernard Shaw" },
+    { quote: "La créativité, c'est inventer, expérimenter, grandir, prendre des risques, briser les règles, faire des erreurs et s'amuser.", author: "Mary Lou Cook" },
+    { quote: "La créativité est contagieuse, faites-la tourner.", author: "Albert Einstein" },
+    { quote: "Une idée qui n'est pas dangereuse ne mérite pas d'être appelée une idée.", author: "Oscar Wilde" }
 ];
 
+
 function VideoTransitionOverlay({ active }: { active: boolean; }) {
-  const [quote, setQuote] = useState(() => INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)]);
+  const [quote, setQuote] = useState(INSPIRATIONAL_QUOTES[0]);
 
   useEffect(() => {
     if (active) {
@@ -109,45 +114,13 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
 function OriaSiriOrbPro({
   size = 120,
   state = "idle",
-  subtle = false,
   className
 }: {
   size?: number;
   state?: "idle" | "active" | "thinking" | "speaking";
-  subtle?: boolean;
   className?: string;
 }) {
-  const blobControls = [useAnimationControls(), useAnimationControls(), useAnimationControls()];
 
-  useEffect(() => {
-    const commonOptions = { repeat: Infinity, ease: "easeInOut" };
-    const animations = {
-      idle: [
-        { scale: [1, 1.05, 1], rotate: 360, transition: { ...commonOptions, duration: 8 } },
-        { scale: [1, 0.95, 1], rotate: -360, transition: { ...commonOptions, duration: 11 } },
-        { scale: [1, 1.02, 1], rotate: 360, transition: { ...commonOptions, duration: 13 } }
-      ],
-      active: [
-        { scale: [1, 1.1, 1], rotate: 360, transition: { ...commonOptions, duration: 5 } },
-        { scale: [1, 0.9, 1], rotate: -360, transition: { ...commonOptions, duration: 7 } },
-        { scale: [1, 1.05, 1], rotate: 360, transition: { ...commonOptions, duration: 9 } }
-      ],
-      thinking: [
-        { scale: [1, 1.15, 1], rotate: 360, transition: { ...commonOptions, duration: 3 } },
-        { scale: [1, 0.85, 1], rotate: -360, transition: { ...commonOptions, duration: 4 } },
-        { scale: [1, 1.1, 1], rotate: 360, transition: { ...commonOptions, duration: 5 } }
-      ],
-      speaking: [
-        { scale: [1, 1.2, 1], rotate: 360, transition: { ...commonOptions, duration: 2 } },
-        { scale: [1, 0.8, 1], rotate: -360, transition: { ...commonOptions, duration: 3 } },
-        { scale: [1, 1.1, 1], rotate: 360, transition: { ...commonOptions, duration: 4 } }
-      ]
-    };
-
-    animations[state].forEach((anim, i) => blobControls[i].start(anim));
-
-  }, [state, blobControls]);
-  
   return (
     <div
       className={cn("relative select-none", className)}
@@ -161,7 +134,6 @@ function OriaSiriOrbPro({
                 background: "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)",
                 mixBlendMode: 'screen',
             }}
-            animate={blobControls[0]}
         />
         <motion.div
             className="absolute w-[60%] h-[60%] top-[30%] left-[5%] rounded-full opacity-70"
@@ -169,7 +141,6 @@ function OriaSiriOrbPro({
                 background: "radial-gradient(circle, hsl(var(--accent)) 0%, transparent 70%)",
                 mixBlendMode: 'screen',
             }}
-            animate={blobControls[1]}
         />
          <motion.div
             className="absolute w-[65%] h-[65%] top-[10%] left-[35%] rounded-full opacity-70"
@@ -177,7 +148,6 @@ function OriaSiriOrbPro({
                 background: "radial-gradient(circle, #E84F8E 0%, transparent 70%)",
                 mixBlendMode: 'screen',
             }}
-            animate={blobControls[2]}
         />
       </div>
       
@@ -335,7 +305,7 @@ function WorkBrief() {
 
 function FocusModalContent() {
     const [tasks] = useLocalState<Task[]>("xinspire.tasks", []);
-    const [brief, setBrief] = useLocalState<{ title: string; why: string; how: string; first: string }>("xinspire.brief", { title: '', why: '', how: '', first: '' });
+    const [brief] = useLocalState<{ title: string; why: string; how: string; first: string }>("xinspire.brief", { title: '', why: '', how: '', first: '' });
 
 
     return (
@@ -546,15 +516,16 @@ export default function XInspireEnvironment() {
   const [ambience, setAmbience] = useState<AmbienceId>("rainy_apartment");
   const [panelOpen, setPanelOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [isSwitching, setIsSwitching] = useState(false);
   
   const playerRef = useRef<any>(null);
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
   const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
-  const [isSwitching, setIsSwitching] = useState(false);
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
+    if (newAmbienceId === ambience) return;
     setIsSwitching(true);
     if (!hasInteracted) {
       setHasInteracted(true);
@@ -573,7 +544,7 @@ export default function XInspireEnvironment() {
       }
     } catch {}
     setAmbPopoverOpen(false);
-  }, [hasInteracted]);
+  }, [ambience, hasInteracted]);
   
   const toggleMute = useCallback(() => {
     if (!hasInteracted) {
@@ -595,19 +566,18 @@ export default function XInspireEnvironment() {
     if (!mounted) return;
 
     const onPlayerReady = (event: any) => {
-        if (isMuted) {
-            event.target.mute();
-        } else {
-            event.target.unMute();
-        }
+        if (isMuted) event.target.mute();
+        else event.target.unMute();
         event.target.playVideo();
+    };
+
+    const onPlayerStateChange = (e: any) => {
+        if (e.data === (window as any).YT.PlayerState.PLAYING) {
+          setIsSwitching(false);
+        }
     };
   
     const createPlayer = (videoId: string) => {
-      if (!(window as any).YT) return;
-       if (playerRef.current && typeof playerRef.current.destroy === 'function') {
-        playerRef.current.destroy();
-      }
       playerRef.current = new (window as any).YT.Player('youtube-player', {
         width: '100%',
         height: '100%',
@@ -624,11 +594,7 @@ export default function XInspireEnvironment() {
         },
         events: {
           onReady: onPlayerReady,
-          onStateChange: (e: any) => {
-            if (e.data === (window as any).YT.PlayerState.PLAYING) {
-              setIsSwitching(false);
-            }
-          }
+          onStateChange: onPlayerStateChange,
         }
       });
     }
@@ -640,9 +606,13 @@ export default function XInspireEnvironment() {
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
         (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
     } else {
-        createPlayer(cur.videoId);
+        if (playerRef.current) {
+            // Player exists, just load new video
+        } else {
+            createPlayer(cur.videoId);
+        }
     }
-  }, [cur.videoId, mounted, isMuted]);
+  }, [mounted]);
 
   useEffect(() => {
     try {
@@ -668,15 +638,13 @@ export default function XInspireEnvironment() {
 
       {/* Fullscreen YouTube */}
       <motion.div
-        className={cn(
-          "absolute inset-0 -z-10 overflow-hidden"
-        )}
+        className="absolute inset-0 -z-10 overflow-hidden"
       >
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
         <VideoTransitionOverlay active={isSwitching} />
         <div className={cn(
             "pointer-events-none absolute inset-0 bg-black/30 transition-all duration-500",
-            !hasInteracted ? "backdrop-blur-sm" : (panelOpen ? "backdrop-blur-sm" : "backdrop-blur-0")
+            (!hasInteracted || panelOpen) ? "backdrop-blur-sm" : "backdrop-blur-0"
         )} />
       </motion.div>
       
@@ -816,7 +784,7 @@ export default function XInspireEnvironment() {
                             {isMuted ? "Son coupé" : "Son actif"}
                         </Pill>
                     </div>
-                    <div className="mt-2 grid grid-cols-2 gap-3 md:grid-cols-5">
+                    <div className="mt-2 grid grid-cols-2 gap-3 md:grid-cols-4">
                       {AMBIENCES.map((a) => (
                         <button
                           key={a.id}
