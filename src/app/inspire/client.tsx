@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
@@ -74,14 +75,20 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
-          style={{ backdropFilter: 'blur(16px)', backgroundColor: 'rgba(0,0,0,0.5)' }}
+          transition={{ duration: 0.8, ease: 'easeInOut' }}
         >
+          {/* Blurred background layer */}
+          <div 
+            className="absolute inset-0"
+            style={{ backdropFilter: 'blur(16px)', backgroundColor: 'rgba(0,0,0,0.5)' }}
+          />
+          
+          {/* Content layer (not blurred) */}
           <motion.div 
-            className="text-center text-white"
+            className="relative text-center text-white" // Use relative to ensure it's on top of the blurred div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
           >
             <p className="text-2xl md:text-3xl font-medium italic">"{quote.quote}"</p>
             <p className="mt-4 text-lg text-white/70">- {quote.author}</p>
@@ -567,8 +574,14 @@ export default function XInspireEnvironment() {
 
   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
     setIsSwitching(true);
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      setIsMuted(false);
+    }
+  
     setAmbience(newAmbienceId);
     const targetId = AMBIENCES.find(a => a.id === newAmbienceId)!.videoId;
+  
     const p = playerRef.current;
     try {
       if (p?.loadPlaylist) {
@@ -578,7 +591,7 @@ export default function XInspireEnvironment() {
       }
     } catch {}
     setAmbPopoverOpen(false);
-  }, []);
+  }, [hasInteracted, isMuted]);
   
   const toggleMute = useCallback(() => {
     if (!hasInteracted) {
@@ -721,9 +734,9 @@ export default function XInspireEnvironment() {
                     <button
                     key={a.id}
                     onClick={(e) => {
-                        e.stopPropagation();
-                        handleAmbienceChange(a.id);
-                        setAmbPopoverOpen(false);
+                      e.stopPropagation();
+                      handleAmbienceChange(a.id);
+                      setAmbPopoverOpen(false);
                     }}
                     className={cn(
                         "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
