@@ -1,4 +1,3 @@
-
 import {
   Wand2,
   BrainCircuit,
@@ -33,14 +32,14 @@ export const copy = {
     title: "LIGHT",
     subtitle: "La lumière de vos projets.\nDe l’étincelle à l’impact.",
     paragraph:
-      "Un lieu simple et puissant où l’inspiration devient œuvre, et l’œuvre devient valeur.",
+      "Dans chaque idée, il y a une promesse. Une étincelle fragile, souvent étouffée par le bruit, les doutes, la complexité. LIGHT existe pour protéger cette étincelle. Pour lui donner la place de grandir, se transformer en projet, puis en réussite. Ici, vos idées ne se perdent plus : elles trouvent leur chemin.",
     ctaPrimary: "Lancer l’environnement",
     ctaSecondary: "En savoir plus",
   },
   friction: {
-    title: "Une idée.\nPuis le bruit. Puis… le silence.",
+    title: "Une idée.\nPuis le chaos. Et si tout devenait clair ?",
     text:
-      "LIGHT efface la friction. Vous retrouvez l’essentiel : votre vision.\nLe reste s’aligne.",
+      "Fichiers éparpillés, outils dispersés, inspiration qui s’évapore. LIGHT réduit le bruit, aligne les pièces, et vous ramène à l’essentiel : créer.",
   },
   pillars: {
     h2: "De l’étincelle à l’impact",
@@ -49,19 +48,19 @@ export const copy = {
         title: "Trouver",
         hint: "(Inspiration)",
         desc:
-          "Oria, ambiances, moodboards, prompts guidés.\nL’étincelle naît, la page blanche disparaît.",
+          "Commencez par rien… et repartez avec une vision. Oria, notre IA créative, vous pose les bonnes questions, génère des concepts, des slogans, des ambiances. Un espace immersif (X)Inspire vous plonge dans la lumière créative : sons, images, atmosphères qui stimulent vos sens. Vous n’êtes jamais seul devant la page blanche.",
       },
       {
         title: "Faire",
         hint: "(Création)",
         desc:
-          "Brief vivant, tâches, timer focus, rendus IA.\nVotre projet avance, naturellement.",
+          "Une idée n’a de valeur que si elle devient un projet. Avec LIGHT, structurez naturellement : brief vivant, tâches intelligentes, fenêtres XOS translucides, timer focus. Prototypage, rendus visuels, textes, musiques — vos outils IA se combinent, vos ressources se synchronisent. Vous ne perdez pas de temps à organiser. Vous avancez.",
       },
       {
         title: "Vendre",
         hint: "(Monétisation)",
         desc:
-          "Landing, pitch, identité, paiements.\nDe l’idée au marché, sans détour.",
+          "Créer ne suffit pas. Encore faut-il partager, diffuser, monétiser. LIGHT connecte votre projet au monde réel : Landing page générée automatiquement, pitch deck IA, identité visuelle. Puis, vendez directement via Stripe, Gumroad, Shopify, Patreon, NFT, ou vos propres canaux. De l’idée au marché, sans friction.",
       },
     ],
   },
@@ -103,7 +102,7 @@ export const copy = {
   },
   credo: {
     h2: "Ce n’est pas une suite d’outils.\nC’est votre orchestre.",
-    p: "Trouver. Faire. Vendre.\nLIGHT coordonne tout, avec la précision d’Oria et la liberté de vos APIs.",
+    p: "Trouver. Faire. Vendre.\nLIGHT vous accompagne de A à Z, de l’idée au succès, avec la précision d’Oria et la liberté des API.",
     cta: "Lancer l’environnement",
   },
 };

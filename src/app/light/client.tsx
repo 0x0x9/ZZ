@@ -30,7 +30,7 @@ const Section = ({ children, className }: { children: React.ReactNode, className
 );
 
 const HeroSection = () => (
-    <section className="h-screen flex flex-col items-center justify-center text-center container mx-auto px-4 md:px-6">
+    <section className="h-[80vh] flex flex-col items-center justify-center text-center container mx-auto px-4 md:px-6">
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
