@@ -364,17 +364,23 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
     const ss = String(remain%60).padStart(2,'0');
 
     return (
-        <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
-            <DialogTrigger asChild>
-                <div className="fixed top-4 right-4 z-30">
-                    <Glass className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors">
+        <>
+            <div className="fixed top-4 right-4 z-30">
+                <DialogTrigger asChild>
+                     <div
+                        role="button"
+                        onClick={() => setIsFocusModalOpen(true)}
+                        className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg"
+                      >
                         <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5"><Timer className="w-3 h-3"/> Focus</div>
                         <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
-                    </Glass>
-                </div>
-            </DialogTrigger>
-            <FocusModalContent />
-        </Dialog>
+                    </div>
+                </DialogTrigger>
+            </div>
+             <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
+                <FocusModalContent />
+            </Dialog>
+        </>
     );
 }
 
@@ -506,39 +512,28 @@ function OriaChatbot() {
   }
 
 function VideoTransitionOverlay({ videoKey }: { videoKey: string }) {
-  const [key, setKey] = useState(videoKey);
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
-  useEffect(() => {
-    setKey(videoKey);
-  }, [videoKey]);
+    useEffect(() => {
+        setIsTransitioning(true);
+        const timer = setTimeout(() => setIsTransitioning(false), 500); // Duration of the transition
+        return () => clearTimeout(timer);
+    }, [videoKey]);
 
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={key + "-fadeout"}
-        className="pointer-events-none absolute inset-0 z-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0 }}
-        exit={{ opacity: 1 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-      />
-      <motion.div
-        key={key + "-bloom"}
-        className="pointer-events-none absolute inset-0 z-30"
-        initial={{ opacity: 0, scale: 1.02 }}
-        animate={{ opacity: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          background:
-            "radial-gradient(60% 60% at 50% 50%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0) 100%)",
-          boxShadow:
-            "inset 0 0 120px rgba(0,255,255,0.08), inset 0 0 160px rgba(255,0,180,0.06)",
-          backdropFilter: "blur(2px)",
-        }}
-      />
-    </AnimatePresence>
-  );
+    return (
+        <AnimatePresence>
+            {isTransitioning && (
+                <motion.div
+                    key={videoKey}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="pointer-events-none absolute inset-0 z-20 bg-black/50 backdrop-blur-md"
+                />
+            )}
+        </AnimatePresence>
+    );
 }
 
 
@@ -682,7 +677,7 @@ export default function XInspireEnvironment() {
       </motion.div>
       
       {/* Ambience Controller (en haut à gauche) */}
-      <div className="fixed left-6 top-6 z-30">
+       <div className="fixed left-6 top-6 z-30">
         <Popover open={ambPopoverOpen} onOpenChange={setAmbPopoverOpen}>
           <PopoverTrigger asChild>
             <button
