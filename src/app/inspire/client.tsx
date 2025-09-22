@@ -540,9 +540,7 @@ export default function XInspireEnvironment() {
   const [ambience, setAmbience] = useState<AmbienceId>("rainy_apartment");
   const [panelOpen, setPanelOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const isMutedRef = useRef(isMuted);
-  useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
-
+  
   const playerRef = useRef<any>(null);
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
   const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
@@ -591,7 +589,7 @@ export default function XInspireEnvironment() {
     if (!mounted) return;
 
     const onPlayerReady = (event: any) => {
-        if (isMutedRef.current) {
+        if (isMuted) {
             event.target.mute();
         } else {
             event.target.unMute();
@@ -638,7 +636,7 @@ export default function XInspireEnvironment() {
     } else {
         createPlayer(cur.videoId);
     }
-  }, [cur.videoId, mounted]);
+  }, [cur.videoId, mounted, isMuted]);
 
   useEffect(() => {
     try {
