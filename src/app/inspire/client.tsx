@@ -3,7 +3,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -63,7 +63,10 @@ const INSPIRATIONAL_QUOTES = [
     { quote: "N'attendez pas l'inspiration. Poursuivez-la avec une massue.", author: "Jack London" },
     { quote: "La créativité est un esprit sauvage et un œil discipliné.", author: "Dorothy Parker" },
     { quote: "On ne peut pas épuiser la créativité. Plus on l'utilise, plus on en a.", author: "Maya Angelou" },
-    { quote: "La curiosité à propos de la vie dans tous ses aspects, je pense, est encore le secret des grands créateurs.", author: "Leo Burnett" }
+    { quote: "La curiosité à propos de la vie dans tous ses aspects, je pense, est encore le secret des grands créateurs.", author: "Leo Burnett" },
+    { quote: "Le désir de créer est l'un des plus profonds désirs de l'âme humaine.", author: "Dieter F. Uchtdorf" },
+    { quote: "L'art lave notre âme de la poussière du quotidien.", author: "Pablo Picasso" },
+    { quote: "La créativité exige le courage de laisser aller les certitudes.", author: "Erich Fromm" }
 ];
 
 function VideoTransitionOverlay({ active }: { active: boolean; }) {
@@ -78,7 +81,7 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: 'easeInOut' }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
           {/* Blurred background layer */}
           <div 
@@ -91,7 +94,7 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
             className="relative text-center text-white"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
+            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
           >
             <p className="text-2xl md:text-3xl font-medium italic">"{quote.quote}"</p>
             <p className="mt-4 text-lg text-white/70">- {quote.author}</p>
@@ -331,8 +334,8 @@ function WorkBrief() {
 }
 
 function FocusModalContent() {
-    const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
-    const [brief, setBrief] = useLocalState("xinspire.brief", { title: '', why: '', how: '', first: '' });
+    const [tasks] = useLocalState<Task[]>("xinspire.tasks", []);
+    const [brief] = useLocalState("xinspire.brief", { title: '', why: '', how: '', first: '' });
 
     return (
         <DialogContent className="glass-card max-w-2xl text-white">
@@ -665,8 +668,7 @@ export default function XInspireEnvironment() {
       {/* Fullscreen YouTube */}
       <motion.div
         className={cn(
-          "absolute inset-0 -z-10 overflow-hidden transition-all duration-500",
-          panelOpen ? "blur-sm" : ""
+          "absolute inset-0 -z-10 overflow-hidden"
         )}
       >
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
@@ -844,5 +846,6 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
 
 
