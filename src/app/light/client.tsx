@@ -1,862 +1,138 @@
 
 'use client';
 
-import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
-import { Music, Pause, X, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
+import React from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, Sparkles, Layers, Cpu, Palette, Code, Film } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ProjectDock } from '@/components/ProjectDock';
 
-
-const AMBIENCES = [
-  {
-    id: "rainy_apartment" as const,
-    label: "Appartement Pluvieux",
-    videoId: "-5_NiRTS2nE",
-    desc: "Pluie contre la vitre, ambiance cosy et introspective.",
-  },
-  {
-    id: "neon" as const,
-    label: "Néon Nocturne",
-    videoId: "-Xh4BNbxpI8",
-    desc: "Halos cyan/magenta, rythme lent, ville la nuit.",
-  },
-  {
-    id: "loft" as const,
-    label: "Loft Urbain",
-    videoId: "ys50VgfL-u8",
-    desc: "Verre & métal, contre-jour, minimalisme élégant.",
-  },
-  {
-    id: "beach" as const,
-    label: "Plage futuriste",
-    videoId: "u9vK5utTcxE",
-    desc: "Horizon laiteux, brise légère, sons d'océan.",
-  },
-];
-type AmbienceId = typeof AMBIENCES[number]['id'];
-
-const INSPIRATIONAL_QUOTES = [
-    { quote: "La créativité, c'est l'intelligence qui s'amuse.", author: "Albert Einstein" },
-    { quote: "Le seul moyen de faire du bon travail est d'aimer ce que vous faites.", author: "Steve Jobs" },
-    { quote: "La logique vous mènera d'un point A à un point B. L'imagination vous mènera partout.", author: "Albert Einstein" },
-    { quote: "Pour créer, il faut une grande solitude.", author: "Pablo Picasso" },
-    { quote: "N'attendez pas l'inspiration. Poursuivez-la avec une massue.", author: "Jack London" },
-    { quote: "La créativité est un esprit sauvage et un œil discipliné.", author: "Dorothy Parker" },
-    { quote: "On ne peut pas épuiser la créativité. Plus on l'utilise, plus on en a.", author: "Maya Angelou" },
-    { quote: "La curiosité à propos de la vie dans tous ses aspects, je pense, est encore le secret des grands créateurs.", author: "Leo Burnett" },
-    { quote: "Le désir de créer est l'un des plus profonds désirs de l'âme humaine.", author: "Dieter F. Uchtdorf" },
-    { quote: "L'art lave notre âme de la poussière du quotidien.", author: "Pablo Picasso" },
-    { quote: "La créativité exige le courage de laisser aller les certitudes.", author: "Erich Fromm" },
-    { quote: "L'imagination est le commencement de la création. On imagine ce que l'on désire, on veut ce que l'on imagine, et enfin, on crée ce que l'on veut.", author: "George Bernard Shaw" },
-    { quote: "La créativité, c'est inventer, expérimenter, grandir, prendre des risques, briser les règles, faire des erreurs et s'amuser.", author: "Mary Lou Cook" },
-    { quote: "La créativité est contagieuse, faites-la tourner.", author: "Albert Einstein" },
-    { quote: "Une idée qui n'est pas dangereuse ne mérite pas d'être appelée une idée.", author: "Oscar Wilde" }
-];
-
-
-function VideoTransitionOverlay({ active }: { active: boolean; }) {
-  const [quote, setQuote] = useState(INSPIRATIONAL_QUOTES[0]);
-
-  useEffect(() => {
-    if (active) {
-        setQuote(INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)]);
-    }
-  }, [active]);
-
-  return (
-    <AnimatePresence>
-      {active && (
-        <motion.div
-          key="quote-overlay"
-          className="pointer-events-none absolute inset-0 z-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { duration: 0.5, ease: 'easeOut' } }}
-          exit={{ opacity: 0, transition: { duration: 2.5, ease: 'easeIn', delay: 1 } }}
-        >
-          {/* Blurred background layer */}
-          <div 
-            className="absolute inset-0"
-            style={{ backdropFilter: 'blur(24px)', backgroundColor: 'rgba(0,0,0,0.6)' }}
-          />
-          
-          {/* Content layer (not blurred) */}
-          <motion.div 
-            className="relative h-full flex items-center justify-center text-center text-white p-8"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0, transition: { duration: 0.8, delay: 0.2, ease: 'easeOut' } }}
-          >
-            <div>
-              <p className="text-2xl md:text-3xl font-medium italic">"{quote.quote}"</p>
-              <p className="mt-4 text-lg text-white/70">- {quote.author}</p>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-
-function OriaSiriOrbPro({
-  size = 120,
-  state = "idle",
-  className
-}: {
-  size?: number;
-  state?: "idle" | "active" | "thinking" | "speaking";
-  className?: string;
-}) {
-  const blobControls = [useAnimationControls(), useAnimationControls(), useAnimationControls()];
-
-  useEffect(() => {
-    const commonOptions = { repeat: Infinity, ease: "easeInOut" };
-
-    blobControls[0].start({
-      x: ["0%", "30%", "-25%", "0%"],
-      y: ["0%", "-40%", "30%", "0%"],
-      scale: [1, 1.3, 0.7, 1],
-      rotate: [0, 120, 240, 360],
-      transition: { duration: 10, ...commonOptions },
-    });
-
-    blobControls[1].start({
-      x: ["0%", "-30%", "25%", "0%"],
-      y: ["0%", "30%", "-25%", "0%"],
-      scale: [1, 0.8, 1.4, 1],
-      rotate: [0, -100, -220, -360],
-      transition: { duration: 12, ...commonOptions, delay: 0.5 },
-    });
-
-    blobControls[2].start({
-      x: ["0%", "-20%", "35%", "0%"],
-      y: ["0%", "-35%", "25%", "0%"],
-      scale: [1, 1.2, 0.8, 1],
-      rotate: [0, 150, 290, 360],
-      transition: { duration: 8, ...commonOptions, delay: 1 },
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <div
-      className={cn("relative select-none", className)}
-      style={{ width: size, height: size }}
-      aria-label="Oria — état visuel"
-    >
-      <div className="absolute inset-0 rounded-full" style={{ filter: 'blur(20px)' }}>
-        <motion.div
-            className="absolute w-[70%] h-[70%] top-[15%] left-[15%] rounded-full opacity-70"
-            style={{
-                background: "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)",
-                mixBlendMode: 'screen',
-            }}
-             animate={blobControls[0]}
-        />
-        <motion.div
-            className="absolute w-[60%] h-[60%] top-[30%] left-[5%] rounded-full opacity-70"
-            style={{
-                background: "radial-gradient(circle, hsl(var(--accent)) 0%, transparent 70%)",
-                mixBlendMode: 'screen',
-            }}
-             animate={blobControls[1]}
-        />
-         <motion.div
-            className="absolute w-[65%] h-[65%] top-[10%] left-[35%] rounded-full opacity-70"
-            style={{
-                background: "radial-gradient(circle, #E84F8E 0%, transparent 70%)",
-                mixBlendMode: 'screen',
-            }}
-             animate={blobControls[2]}
-        />
-      </div>
-      
-       {/* Anneau verre */}
-      <motion.div
-        className="absolute inset-0 rounded-full border backdrop-blur-2xl"
-        style={{
-          borderColor: "rgba(255,255,255,0.28)",
-          boxShadow: "0 18px 70px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.3)"
-        }}
-      />
-    </div>
-  );
-}
-
-
-function Glass({ className = "", children }: { className?: string; children: React.ReactNode }) {
-  return (
-    <div className={cn(`rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg`, className)}>
-      {children}
-    </div>
-  );
-}
-
-function Pill({ onClick, icon, children, className = "" }: { onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void; icon?: React.ReactNode; children?: React.ReactNode; className?: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(`inline-flex items-center gap-2 rounded-full border border-white/25 px-4 py-2 bg-white/10 backdrop-blur hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30`, className)}
-    >
-      {icon}
-      <span className="font-medium">{children}</span>
-    </button>
-  );
-}
-
-
-// Real AI Chatbot function
-const getInspirationalMessage = async (prompt: string) => {
-    const response = await fetch('/api/generateInspiration', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "L'IA n'a pas pu répondre.");
-    }
-    const result = await response.json();
-    return result.inspiration;
-}
-
-type Task = { id: string; title: string; done: boolean; eta: 15|30|60; createdAt: number };
-
-function useLocalState<T>(key: string, initial: T) {
-  const [v, setV] = useState<T>(initial);
-  useEffect(() => { try { const raw = localStorage.getItem(key); if (raw) setV(JSON.parse(raw)); } catch {} }, [key]);
-  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }, [key, v]);
-  return [v, setV] as const;
-}
-
-function WorkTasks({ onStartTimer }: { onStartTimer: (m: number)=>void }) {
-  const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
-  const [input, setInput] = useState("");
-  const add = (eta: 15|30|60) => {
-    const t = input.trim(); if (!t) return;
-    const id = (crypto?.randomUUID?.() ?? `t_${Date.now()}_${Math.random()}`);
-    setTasks(ts => [{ id, title: t, done: false, eta, createdAt: Date.now() }, ...ts]);
-    setInput(""); onStartTimer(eta);
-  };
-  const toggle = (id: string) => setTasks(ts => ts.map(t => t.id===id ? {...t, done: !t.done} : t));
-  const remove = (id: string) => setTasks(ts => ts.filter(t => t.id!==id));
-
-  return (
-    <Glass className="p-4">
-      <div className="font-semibold mb-2">Tâches rapides</div>
-      <div className="flex gap-2">
-        <Textarea rows={1} value={input} onChange={e=>setInput(e.target.value)}
-          placeholder="Ajouter une tâche…" className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none" />
-        <Button onClick={()=>add(25)} variant="secondary">Ajouter</Button>
-      </div>
-      <div className="mt-3 flex gap-2">
-        {[15,30,60].map(m=>(
-          <button key={m} onClick={()=>add(m as 15|30|60)}
-            className="px-3 py-1 rounded-full text-sm border bg-white/10 hover:bg-white/15 border-white/25">
-            + {m} min
-          </button>
-        ))}
-      </div>
-      <div className="mt-4 space-y-2 max-h-60 overflow-auto pr-1 no-scrollbar">
-        {tasks.length===0 && <div className="text-white/60 text-sm">Aucune tâche.</div>}
-        {tasks.map(t=>(
-          <div key={t.id} className="rounded-xl border border-white/15 bg-white/5 p-2 flex items-center justify-between">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={t.done} onChange={()=>toggle(t.id)} />
-              <span className={t.done ? "line-through opacity-60" : ""}>{t.title}</span>
-            </label>
-            <div className="flex items-center gap-2">
-              <button onClick={()=>onStartTimer(t.eta)} className="text-xs underline opacity-80 hover:opacity-100">
-                Démarrer {t.eta} min
-              </button>
-              <button onClick={()=>remove(t.id)} className="text-xs opacity-70 hover:opacity-100">Supprimer</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </Glass>
-  );
-}
-
-function WorkBrief() {
-  const [title, setTitle] = useLocalState("xinspire.brief.title", "");
-  const [why, setWhy] = useLocalState("xinspire.brief.why", "");
-  const [how, setHow] = useLocalState("xinspire.brief.how", "");
-  const [first, setFirst] = useLocalState("xinspire.brief.first", "");
-
-  const fromInspiration = () => {
-    const notes = localStorage.getItem("xinspire.notes") || "";
-    if (!title) setTitle("Éclat intérieur");
-    if (!why) setWhy("Ancrer une émotion simple et vraie.");
-    if (!how) setHow("Une forme, une lumière, un silence.");
-    if (!first) setFirst("Esquisse 3 variations en 120 secondes.");
-    // ici tu peux appeler ton API LLM si tu veux un vrai brief depuis Oria + notes
-  };
-  const exportMd = () => {
-    const md = `# Mini-brief
-**Titre**: ${title}
-**Pourquoi**: ${why}
-**Comment**: ${how}
-**Premier pas**: ${first}
-`;
-    const blob = new Blob([md], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "brief.md"; a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <Glass className="p-4">
-      <div className="font-semibold mb-2">Mini-brief</div>
-      <div className="grid gap-2">
-        <Textarea rows={1} value={title} onChange={e=>setTitle(e.target.value)} placeholder="Titre…" className="bg-white/10 border-white/20" />
-        <Textarea rows={2} value={why} onChange={e=>setWhy(e.target.value)} placeholder="Pourquoi…" className="bg-white/10 border-white/20" />
-        <Textarea rows={3} value={how} onChange={e=>setHow(e.target.value)} placeholder="Comment…" className="bg-white/10 border-white/20" />
-        <Textarea rows={2} value={first} onChange={e=>setFirst(e.target.value)} placeholder="Premier pas…" className="bg-white/10 border-white/20" />
-      </div>
-      <div className="mt-3 flex gap-2">
-        <Button variant="secondary" onClick={fromInspiration}>Générer depuis l’inspiration</Button>
-        <Button onClick={exportMd}>Exporter .md</Button>
-      </div>
-    </Glass>
-  );
-}
-
-function FocusModalContent() {
-    const [tasks] = useLocalState<Task[]>("xinspire.tasks", []);
-    const [brief] = useLocalState<{ title: string; why: string; how: string; first: string }>("xinspire.brief", { title: '', why: '', how: '', first: '' });
-
+// Section 1: La Friction
+const FrictionSection = () => {
+    const ref = React.useRef(null);
+    const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+    const opacity = useTransform(scrollYProgress, [0.3, 0.5, 0.7], [0, 1, 0]);
+    const scale = useTransform(scrollYProgress, [0.3, 0.5], [0.9, 1]);
 
     return (
-        <DialogContent className="glass-card max-w-2xl text-white">
-            <DialogHeader>
-                <DialogTitle className="text-2xl">Session de Focus</DialogTitle>
-                <DialogDescription>
-                    Restez concentré sur vos objectifs.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-6 py-4">
-                <div>
-                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><BookOpen className="h-5 w-5 text-primary" /> Mini-Brief</h3>
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                        <h4 className="font-bold">{brief.title || "Mon Brief"}</h4>
-                        <p><strong>Pourquoi :</strong> {brief.why || "Aucun 'pourquoi' défini."}</p>
-                        <p><strong>Comment :</strong> {brief.how || "Aucun 'comment' défini."}</p>
-                        <p><strong>Premier pas :</strong> {brief.first || "Aucun 'premier pas' défini."}</p>
-                    </div>
-                </div>
-                 <div>
-                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><CheckSquare className="h-5 w-5 text-primary" /> Tâches Rapides</h3>
-                    <div className="space-y-2">
-                        {tasks.length > 0 ? tasks.map(t => (
-                            <div key={t.id} className="text-sm rounded-lg border border-white/10 bg-white/5 p-3 flex items-center gap-3">
-                               <div className={cn("w-4 h-4 rounded-sm border-2 flex items-center justify-center", t.done ? 'bg-primary border-primary' : 'border-white/30')}>
-                                 {t.done && <X className="w-3 h-3"/>}
-                               </div>
-                               <span className={cn(t.done && "line-through text-white/50")}>{t.title}</span>
-                            </div>
-                        )) : <p className="text-sm text-white/60">Aucune tâche pour cette session.</p>}
-                    </div>
-                </div>
-            </div>
-        </DialogContent>
+        <section ref={ref} className="h-screen flex items-center justify-center text-center text-white relative">
+            <div className="absolute inset-0 bg-black -z-10" />
+            <motion.div style={{ opacity, scale }}>
+                <h1 className="text-4xl md:text-6xl font-medium tracking-tight">Une idée.</h1>
+                <h2 className="text-4xl md:text-6xl font-medium tracking-tight text-muted-foreground mt-2">Puis... le bruit. Le chaos.</h2>
+            </motion.div>
+        </section>
     );
 }
 
-function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }) {
-    const [remain, setRemain] = useState(0);
-    const [isFocusModalOpen, setIsFocusModalOpen] = useState(false);
-
-    useEffect(()=> {
-      if (minutes === null) {
-          setRemain(0);
-          return;
-      }
-      setRemain(minutes*60);
-      const id = setInterval(()=> setRemain(s => {
-          if (s > 1) return s - 1;
-          onEnd();
-          return 0;
-      }), 1000);
-      return ()=> clearInterval(id);
-    }, [minutes, onEnd]);
-
-    if (!minutes || remain <= 0) return null;
-
-    const mm = String(Math.floor(remain/60)).padStart(2,'0');
-    const ss = String(remain%60).padStart(2,'0');
+// Section 2: L'introduction d'Oria
+const OriaIntroductionSection = () => {
+    const ref = React.useRef(null);
+    const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+    const opacity = useTransform(scrollYProgress, [0.3, 0.5], [0, 1]);
+    const y = useTransform(scrollYProgress, [0.3, 0.5], [50, 0]);
 
     return (
-      <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
-        <DialogTrigger asChild>
-           <div
-                role="button"
-                className="fixed top-4 right-4 z-30"
-            >
-              <div
-                className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg"
-              >
-                <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5">
-                  <Timer className="w-3 h-3" /> Focus
-                </div>
-                <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
-              </div>
-            </div>
-        </DialogTrigger>
-        <FocusModalContent />
-      </Dialog>
+        <section ref={ref} className="h-screen flex items-center justify-center text-center text-white relative">
+            <div className="absolute inset-0 bg-black -z-10" />
+            <motion.div style={{ opacity, y }}>
+                <h2 className="text-4xl md:text-6xl font-medium tracking-tight">
+                    Et si... le silence se faisait.
+                </h2>
+                <p className="text-3xl md:text-5xl text-muted-foreground mt-4 max-w-4xl mx-auto">
+                    Pour que votre voix soit la seule entendue.
+                </p>
+            </motion.div>
+        </section>
     );
 }
 
-function OriaChatbot() {
-    const [messages, setMessages] = useLocalState<{type: 'user' | 'ai', text: string}[]>("xinspire.messages", []);
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
-    const [mounted, setMounted] = useState(false);
+// Section 3: La Symphonie en action
+const SymphonySection = () => {
+    const ref = React.useRef(null);
+    const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"]});
 
-    useEffect(() => { setMounted(true); }, []);
-    useEffect(() => { if (scrollAreaRef.current) scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight; }, [messages, isLoading]);
-
-    const randomQuote = useMemo(() => INSPIRATIONAL_QUOTES[Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length)], []);
-
-    if (!mounted) return null;
-  
-    const handleSend = async () => {
-      if (!input.trim()) return;
-      const newMessages = [...messages, { type: 'user' as const, text: input }];
-      setMessages(newMessages);
-      setInput('');
-      setIsLoading(true);
-      try {
-        const aiResponse = await getInspirationalMessage(input);
-        setMessages(prev => [...prev, { type: 'ai' as const, text: aiResponse }]);
-      } catch {
-        setMessages(prev => [...prev, { type: 'ai' as const, text: "Désolé, je suis un peu à court d'inspiration pour le moment." }]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const items = [
+        { icon: Palette, text: '(X)palette' },
+        { icon: Code, text: '(X)frame' },
+        { icon: Film, text: '(X)motion' },
+    ];
     
-    const oriaState = isLoading ? "thinking" : (input ? "active" : "idle");
-  
     return (
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="p-4 flex flex-col items-center gap-2 transition-all duration-300">
-            <OriaSiriOrbPro size={messages.length > 0 ? 64 : 96} state={oriaState} />
-            <AnimatePresence mode="wait">
-                <motion.p
-                    key={isLoading ? 'loading' : 'idle'}
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    transition={{ duration: 0.2 }}
-                    className={cn(
-                        "text-base text-white/80 min-h-[40px] text-center",
-                        messages.length > 0 ? 'hidden' : 'block'
-                    )}
-                >
-                     {isLoading
-                      ? "Je façonne une piste pour toi…"
-                      : messages.length === 0 
-                      ? `"${randomQuote.quote}" - ${randomQuote.author}`
-                      : "Je suis là. Décris-moi une ambiance, un besoin, un rythme."}
-                </motion.p>
-            </AnimatePresence>
-        </div>
-
-        {/* Messages */}
-        <div ref={scrollAreaRef} className="flex-1 space-y-4 overflow-y-auto px-4 no-scrollbar">
-          {messages.map((msg, i) => (
-            <div key={i} className={cn("flex", msg.type === 'user' ? "justify-end" : "justify-start")}>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25 }}
-                className={cn("max-w-[90%] rounded-xl px-4 py-2", msg.type === 'user' ? "bg-primary/80 text-white" : "bg-white/15")}
-              >
-                {msg.text}
-              </motion.div>
-            </div>
-          ))}
-          {isLoading && (
-              <div className="flex justify-start">
-                  <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="max-w-[90%] rounded-xl px-4 py-3 bg-white/15 backdrop-blur-xl"
-                  >
-                     <div className="flex gap-1 items-center">
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-                         <span className="h-2 w-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
-                     </div>
-                  </motion.div>
-              </div>
-          )}
-        </div>
-  
-        {/* Entrée */}
-        <div className="relative p-4">
-             <div className={cn(
-                "absolute inset-x-2 -top-2 h-12 bg-gradient-to-t from-transparent transition-all duration-500 pointer-events-none",
-                isLoading
-                    ? "to-primary/20 from-primary/5 blur-xl"
-                    : "to-transparent from-transparent blur-none"
-            )} />
-            <Textarea
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder="Décrivez votre idée, le ressenti, la contrainte…"
-                rows={1}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 flex-1 resize-none pr-12 text-base"
-            />
-             <Button 
-                onClick={handleSend} disabled={isLoading} 
-                className="absolute right-6 top-1/2 -translate-y-1/2" 
-                size="icon" 
-                variant="ghost"
+        <section ref={ref} className="h-screen flex flex-col items-center justify-center text-center text-white relative">
+            <div className="absolute inset-0 bg-black -z-10" />
+            <motion.div 
+                style={{
+                    opacity: useTransform(scrollYProgress, [0.3, 0.5], [0, 1]),
+                    y: useTransform(scrollYProgress, [0.3, 0.5], [50, 0])
+                }}
             >
-                <MessageSquare className="h-5 w-5" />
-            </Button>
-        </div>
-      </div>
+                <h2 className="text-4xl md:text-6xl font-medium tracking-tight">
+                    Où chaque outil est une conversation.
+                </h2>
+                <p className="text-3xl md:text-5xl text-muted-foreground mt-4 max-w-4xl mx-auto">
+                    Chaque idée trouve son écho.
+                </p>
+            </motion.div>
+            <div className="flex items-center justify-center gap-8 md:gap-16 mt-16">
+                {items.map((item, index) => {
+                     const opacity = useTransform(scrollYProgress, [0.5 + index * 0.1, 0.6 + index * 0.1], [0, 1]);
+                     const y = useTransform(scrollYProgress, [0.5 + index * 0.1, 0.6 + index * 0.1], [30, 0]);
+                    return (
+                        <motion.div key={item.text} style={{ opacity, y }} className="flex flex-col items-center gap-3">
+                            <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20">
+                                <item.icon className="h-8 w-8 md:h-10 md:w-10 text-primary" />
+                            </div>
+                            <span className="text-sm md:text-base font-semibold text-muted-foreground">{item.text}</span>
+                        </motion.div>
+                    )
+                })}
+            </div>
+        </section>
     );
-  }
+};
+
+// Section 4: Le Credo
+const CredoSection = () => {
+     const ref = React.useRef(null);
+     const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+     const opacity = useTransform(scrollYProgress, [0.3, 0.6], [0, 1]);
+
+    return (
+        <section ref={ref} className="h-screen flex items-center justify-center text-center text-white relative">
+            <div className="absolute inset-0 bg-black -z-10" />
+            <motion.div style={{ opacity }} className="space-y-12">
+                <div>
+                     <h2 className="text-4xl md:text-6xl font-medium tracking-tight">
+                        Ce ne sont pas des outils.
+                    </h2>
+                    <p className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mt-4">
+                        C'est votre orchestre.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 className="text-3xl font-bold tracking-tight">(X)yzz.ai</h3>
+                    <p className="text-2xl text-muted-foreground">La création, unifiée.</p>
+                </div>
+                 <Button size="lg" asChild className="rounded-full text-lg">
+                    <Link href="/welcome">
+                        Découvrir l'écosystème <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                </Button>
+            </motion.div>
+        </section>
+    );
+};
+
 
 export default function LightClient() {
-  const [mounted, setMounted] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const playerRef = useRef<any>(null);
-  
-  const [ambience, setAmbience] = useState<AmbienceId>("rainy_apartment");
-  const [isMuted, setIsMuted] = useState(true);
-  const [isSwitching, setIsSwitching] = useState(false);
-  
-  const [dockOpen, setDockOpen] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ambience' | 'oria' | 'work'>('ambience');
-  
-  const [activeTimer, setActiveTimer] = useState<number|null>(null);
-  const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
-  
-  const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
-
-  const onPlayerReady = useCallback((event: any) => {
-    if (isMuted) event.target.mute();
-    else event.target.unMute();
-    event.target.playVideo();
-  }, [isMuted]);
-
-  const onPlayerStateChange = useCallback((event: any) => {
-    if (event.data === (window as any).YT.PlayerState.PLAYING) {
-      setIsSwitching(false);
-    }
-  }, []);
-
-  const createPlayer = useCallback((videoId: string) => {
-    if (playerRef.current) {
-        try { playerRef.current.destroy(); } catch {}
-    }
-    playerRef.current = new (window as any).YT.Player('youtube-player', {
-        width: '100%',
-        height: '100%',
-        videoId: videoId,
-        playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: videoId, modestbranding: 1, rel: 0, iv_load_policy: 3, playsinline: 1 },
-        events: { onReady: onPlayerReady, onStateChange: onPlayerStateChange }
-    });
-  }, [onPlayerReady, onPlayerStateChange]);
-
-  useEffect(() => {
-    if (!mounted) return;
-    if (typeof (window as any).YT === 'undefined' || typeof (window as any).YT.Player === 'undefined') {
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-        (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
-    } else {
-        createPlayer(cur.videoId);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mounted]);
-
-  const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
-    if (newAmbienceId === ambience) return;
-    setIsSwitching(true);
-    if (!hasInteracted) {
-      setHasInteracted(true);
-      setIsMuted(false);
-    }
-  
-    setAmbience(newAmbienceId);
-    const targetId = AMBIENCES.find(a => a.id === newAmbienceId)!.videoId;
-  
-    const p = playerRef.current;
-    try {
-      if (p?.loadPlaylist) {
-        p.loadPlaylist({ playlist: [targetId], index: 0 });
-      } else if (p?.loadVideoById) {
-        p.loadVideoById({ videoId: targetId });
-      }
-    } catch {}
-    setAmbPopoverOpen(false);
-  }, [ambience, hasInteracted]);
-  
-  const toggleMute = useCallback(() => {
-    if (!hasInteracted) {
-        setHasInteracted(true);
-        setIsMuted(false);
-        playerRef.current?.unMute?.();
-        return;
-    };
-    setIsMuted(m => {
-        const next = !m;
-        try {
-            next ? playerRef.current?.mute?.() : playerRef.current?.unMute?.();
-        } catch {}
-        return next;
-    });
-  }, [hasInteracted]);
-
-  useEffect(() => {
-    try {
-      const lastAmb = localStorage.getItem("xinspire.ambience");
-      if (lastAmb && AMBIENCES.some(a => a.id === lastAmb)) {
-        setAmbience(lastAmb as AmbienceId);
-      }
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("xinspire.ambience", ambience);
-    } catch {}
-  }, [ambience]);
-
-  const handleJump = useCallback((
-    target: 'chat'|'work'|'brief'|'tasks'|'ambience',
-    payload?: any
-  )=>{
-    setPanelOpen(true);
-    if (target==='chat')   setActiveTab('oria');
-    if (target==='tasks')  setActiveTab('work');
-    if (target==='brief')  setActiveTab('work');
-    if (target==='ambience') {
-      setActiveTab('ambience');
-    }
-  }, []);
-
-  if (!mounted) return null;
-
   return (
-    <div className="relative min-h-screen w-full text-white">
-      {/* Background Video */}
-      <motion.div
-        className="absolute inset-0 -z-10 overflow-hidden"
-      >
-        <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none', transition: 'opacity 0.5s ease-in-out', opacity: isSwitching ? 0 : 1 }} />
-        <VideoTransitionOverlay active={isSwitching} />
-        <div className={cn(
-            "pointer-events-none absolute inset-0 bg-black/30 transition-all duration-500",
-            (!hasInteracted || panelOpen) ? "backdrop-blur-sm" : "backdrop-blur-0"
-        )} />
-      </motion.div>
-      
-      {/* Ambience Controller (top left) */}
-       <div className="fixed left-6 top-6 z-30">
-          <Popover open={ambPopoverOpen} onOpenChange={setAmbPopoverOpen}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className="px-4 py-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg cursor-pointer transition-all hover:border-white/40"
-                aria-haspopup="dialog"
-                aria-expanded={ambPopoverOpen}
-              >
-                <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
-                <div className="text-base font-semibold flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" /> {cur.label}
-                </div>
-              </button>
-            </PopoverTrigger>
-
-            <PopoverContent
-            align="start"
-            className="w-60 p-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-            >
-            <div className="space-y-2">
-                <button
-                onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm border border-white/20 bg-white/10 hover:bg-white/15"
-                >
-                {isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                {isMuted ? 'Son coupé' : 'Son actif'}
-                </button>
-
-                <div className="h-px bg-white/10 my-1" />
-
-                <div className="grid grid-cols-1 gap-1">
-                {AMBIENCES.map((a) => (
-                    <button
-                    key={a.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAmbienceChange(a.id);
-                      setAmbPopoverOpen(false);
-                    }}
-                    className={cn(
-                        "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
-                        a.id === ambience
-                        ? "bg-white/15 border border-white/30"
-                        : "border border-transparent hover:bg-white/10"
-                    )}
-                    >
-                    <div className="font-medium">{a.label}</div>
-                    <div className="text-xs text-white/70">{a.desc}</div>
-                    </button>
-                ))}
-                </div>
-            </div>
-            </PopoverContent>
-        </Popover>
-        </div>
-      
-      {/* Project Dock */}
-      <ProjectDock
-        open={dockOpen}
-        onOpenChange={setDockOpen}
-        onJump={handleJump}
-        currentAmbienceId={ambience}
-      />
-
-      {/* Activation Overlay */}
-      <AnimatePresence>
-        {!hasInteracted && (
-          <motion.div
-            className="fixed inset-0 z-20 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-             <motion.button
-                onClick={toggleMute}
-                className="rounded-2xl border border-white/30 bg-white/10 px-6 py-3 backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-white/40"
-                whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.2)" }}
-                animate={{
-                    scale: [1, 1.03, 1],
-                    boxShadow: [
-                    "0 0 10px rgba(255,255,255,0.1)",
-                    "0 0 25px rgba(255,255,255,0.25)",
-                    "0 0 10px rgba(255,255,255,0.1)"
-                    ],
-                }}
-                transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                }}
-            >
-              Activer l'expérience
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Panel Hotspot */}
-      <div
-        onClick={() => setPanelOpen(true)}
-        className="fixed bottom-4 left-1/2 z-30 -translate-x-1/2 h-10 w-10 cursor-pointer rounded-full border border-white/20 bg-white/10 backdrop-blur hover:border-white/40"
-      />
-
-      {/* Back Button */}
-      <Link href="/" passHref>
-        <Pill className="fixed bottom-4 right-4 z-30" icon={<ArrowLeft className="h-4 w-4" />}>Retour</Pill>
-      </Link>
-
-      {/* Main Control Panel */}
-      <AnimatePresence>
-        {panelOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40"
-          >
-            <div className="absolute inset-0 bg-black/20" onClick={() => setPanelOpen(false)} />
-            <div className="absolute left-1/2 top-10 w-[92%] max-w-5xl -translate-x-1/2">
-              <Glass className="p-4 md:p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2 text-white/90">
-                    <Sparkles className="h-5 w-5" />
-                    <div className="text-lg font-semibold">Studio d'Inspiration</div>
-                  </div>
-                  <Pill onClick={() => setPanelOpen(false)} icon={<X className="h-4 w-4" />}>Fermer</Pill>
-                </div>
-
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full mt-4">
-                  <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
-                    <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
-                    <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
-                    <TabsTrigger value="work" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">🛠 Travail</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="ambience" className="mt-4">
-                    <div className="flex items-center justify-between">
-                        <div className="text-sm text-white/80">Changer d'ambiance</div>
-                        <Pill onClick={toggleMute} icon={isMuted ? <Music className="h-4 w-4" /> : <Pause className="h-4 w-4" />}>
-                            {isMuted ? "Son coupé" : "Son actif"}
-                        </Pill>
-                    </div>
-                    <div className="mt-2 grid grid-cols-2 gap-3 md:grid-cols-4">
-                      {AMBIENCES.map((a) => (
-                        <button
-                          key={a.id}
-                          onClick={() => handleAmbienceChange(a.id)}
-                          className={`rounded-xl border px-3 py-3 text-left transition-all backdrop-blur ${
-                            ambience === a.id ? "border-white/50 bg-white/15" : "border-white/20 bg-white/5 hover:border-white/35"
-                          }`}
-                        >
-                          <div className="text-sm font-semibold">{a.label}</div>
-                          <div className="text-xs text-white/70">{a.desc}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="oria" className="mt-4 min-h-[300px] md:h-[30rem] md:max-h-[70vh]">
-                    <OriaChatbot />
-                  </TabsContent>
-                   <TabsContent value="work" className="mt-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <WorkTasks onStartTimer={(m)=>setActiveTimer(m)} />
-                        <WorkBrief />
-                    </div>
-                    </TabsContent>
-                </Tabs>
-              </Glass>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-       <WorkTimer minutes={activeTimer} onEnd={()=>setActiveTimer(null)} />
+    <div>
+        <FrictionSection />
+        <OriaIntroductionSection />
+        <SymphonySection />
+        <CredoSection />
     </div>
   );
 }
