@@ -514,20 +514,102 @@ function OriaChatbot() {
     );
   }
 
-function VideoTransitionOverlay({ videoKey }: { videoKey: string }) {
+function VideoTransitionOverlay({
+  active,
+  minDuration = 1200,
+  maxFallback = 2800,
+}: { active: boolean; minDuration?: number; maxFallback?: number }) {
+  const [visible, setVisible] = React.useState(false);
+  const startRef = React.useRef<number | null>(null);
+
+  useEffect(() => {
+    if (active) {
+      startRef.current = Date.now();
+      setVisible(true);
+    } else if (visible) {
+      const elapsed = startRef.current ? Date.now() - startRef.current : 0;
+      const wait = Math.max(0, minDuration - elapsed);
+      const t = setTimeout(() => setVisible(false), wait);
+      return () => clearTimeout(t);
+    }
+  }, [active, visible, minDuration]);
+
+  useEffect(() => {
+    if (!active || !visible) return;
+    const t = setTimeout(() => setVisible(false), maxFallback);
+    return () => clearTimeout(t);
+  }, [active, visible, maxFallback]);
+
+  if (!visible) return null;
+
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       <motion.div
-        key={videoKey}
+        key="halo"
         className="pointer-events-none absolute inset-0 z-20"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ ease: 'easeOut', duration: 0.35 }}
         style={{
-          background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.8) 100%)',
-          backdropFilter: 'blur(16px)',
+          background:
+            'radial-gradient(1200px 800px at 50% 60%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.35) 100%)',
+          backdropFilter: 'blur(10px)',
         }}
-      />
+      >
+        <motion.div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            width: '64vmin',
+            height: '64vmin',
+            background:
+              'radial-gradient(circle at 50% 50%, rgba(160,220,255,0.55) 0%, rgba(160,220,255,0.15) 35%, rgba(255,255,255,0) 70%)',
+            filter: 'blur(18px)',
+            mixBlendMode: 'screen',
+          }}
+          initial={{ scale: 0.8, opacity: 0.7 }}
+          animate={{ scale: [0.8, 1.05, 1], opacity: [0.7, 0.95, 0.85] }}
+          transition={{ duration: 1.1, times: [0, 0.6, 1], ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            width: '58vmin',
+            height: '58vmin',
+            border: '2px solid rgba(255,255,255,0.28)',
+            boxShadow:
+              '0 0 60px rgba(120,180,255,0.35), inset 0 0 1px rgba(255,255,255,0.5)',
+            filter: 'blur(1px)',
+          }}
+          initial={{ scale: 0.75, opacity: 0.0 }}
+          animate={{ scale: [0.75, 1.02, 0.98], opacity: [0.0, 0.8, 0.6] }}
+          transition={{ duration: 1.2, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            width: '70vmin',
+            height: '70vmin',
+            filter: 'blur(26px)',
+            mixBlendMode: 'screen',
+            background:
+              'conic-gradient(from 0deg, rgba(110,195,255,0.25), rgba(240,115,200,0.25), rgba(160,255,210,0.25), rgba(110,195,255,0.25))',
+          }}
+          initial={{ rotate: 0, opacity: 0.4, scale: 0.95 }}
+          animate={{ rotate: 360, opacity: 0.5, scale: 1 }}
+          transition={{ duration: 6, ease: 'linear', repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(1200px 800px at 50% 60%, rgba(255,255,255,0) 0%, rgba(0,0,0,0.35) 80%)',
+          }}
+          initial={{ opacity: 0.0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
+      </motion.div>
     </AnimatePresence>
   );
 }
@@ -547,10 +629,12 @@ export default function XInspireEnvironment() {
   const playerRef = useRef<any>(null);
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
   const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
 
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
+    setIsSwitching(true);
     if (!hasInteracted) {
         setHasInteracted(true);
         setIsMuted(false);
@@ -616,6 +700,11 @@ export default function XInspireEnvironment() {
         },
         events: {
           onReady: onPlayerReady,
+          onStateChange: (e: any) => {
+            if (e.data === (window as any).YT.PlayerState.PLAYING) {
+              setIsSwitching(false);
+            }
+          }
         }
       });
     }
@@ -661,7 +750,7 @@ export default function XInspireEnvironment() {
         )}
       >
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none' }} />
-        <VideoTransitionOverlay videoKey={cur.videoId} />
+        <VideoTransitionOverlay active={isSwitching} />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
       </motion.div>
       
