@@ -1,4 +1,3 @@
-
 import LightEnvClient from './client';
 
 export const metadata = {

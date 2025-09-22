@@ -677,8 +677,8 @@ export default function LightEnvClient() {
         <div id="youtube-player" className="absolute inset-0 w-full h-full object-cover scale-[1.5]" style={{ pointerEvents: 'none', transition: 'opacity 0.5s ease-in-out', opacity: isSwitching ? 0 : 1 }} />
         <VideoTransitionOverlay active={isSwitching} />
         <div className={cn(
-            "pointer-events-none absolute inset-0 bg-black/30 transition-all duration-500",
-            (!hasInteracted || panelOpen) ? "backdrop-blur-sm" : "backdrop-blur-0"
+            "pointer-events-none absolute inset-0 transition-all duration-500",
+            (!hasInteracted || panelOpen) ? "backdrop-blur-sm bg-black/60" : "backdrop-blur-0"
         )} />
       </motion.div>
       
