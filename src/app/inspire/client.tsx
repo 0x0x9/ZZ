@@ -75,20 +75,20 @@ function VideoTransitionOverlay({ active }: { active: boolean; }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: 'easeInOut' }}
+          transition={{ duration: 1.2, ease: 'easeInOut' }}
         >
           {/* Blurred background layer */}
           <div 
             className="absolute inset-0"
-            style={{ backdropFilter: 'blur(16px)', backgroundColor: 'rgba(0,0,0,0.5)' }}
+            style={{ backdropFilter: 'blur(24px)', backgroundColor: 'rgba(0,0,0,0.6)' }}
           />
           
           {/* Content layer (not blurred) */}
           <motion.div 
-            className="relative text-center text-white" // Use relative to ensure it's on top of the blurred div
-            initial={{ opacity: 0, y: 10 }}
+            className="relative text-center text-white"
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
+            transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
           >
             <p className="text-2xl md:text-3xl font-medium italic">"{quote.quote}"</p>
             <p className="mt-4 text-lg text-white/70">- {quote.author}</p>
@@ -328,7 +328,7 @@ function WorkBrief() {
 }
 
 function FocusModalContent() {
-    const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [brief, setBrief] = useState({ title: '', why: '', how: '', first: '' });
 
     useEffect(() => {
@@ -413,25 +413,22 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
     const ss = String(remain%60).padStart(2,'0');
 
     return (
-      <>
-        <div className="fixed top-4 right-4 z-30">
-          <DialogTrigger asChild>
-            <div
-              role="button"
-              onClick={() => setIsFocusModalOpen(true)}
-              className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg"
-            >
-              <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5">
-                <Timer className="w-3 h-3" /> Focus
+      <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
+        <DialogTrigger asChild>
+           <div className="fixed top-4 right-4 z-30">
+              <div
+                role="button"
+                className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg"
+              >
+                <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5">
+                  <Timer className="w-3 h-3" /> Focus
+                </div>
+                <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
               </div>
-              <div className="text-xl font-semibold tracking-tighter">{mm}:{ss}</div>
             </div>
-          </DialogTrigger>
-        </div>
-         <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
-            <FocusModalContent />
-        </Dialog>
-      </>
+        </DialogTrigger>
+        <FocusModalContent />
+      </Dialog>
     );
 }
 
@@ -591,7 +588,7 @@ export default function XInspireEnvironment() {
       }
     } catch {}
     setAmbPopoverOpen(false);
-  }, [hasInteracted, isMuted]);
+  }, [hasInteracted]);
   
   const toggleMute = useCallback(() => {
     if (!hasInteracted) {
@@ -866,3 +863,4 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
