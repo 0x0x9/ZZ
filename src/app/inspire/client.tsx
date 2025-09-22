@@ -23,10 +23,10 @@ import {
 
 const AMBIENCES = [
   {
-    id: "forest" as const,
-    label: "Forêt Zen",
-    videoId: "29XymHesxa0",
-    desc: "Lumière douce, brume légère, respiration longue.",
+    id: "rainy_apartment" as const,
+    label: "Appartement Pluvieux",
+    videoId: "-5_NiRTS2nE",
+    desc: "Pluie contre la vitre, ambiance cosy et introspective.",
   },
   {
     id: "neon" as const,
@@ -45,12 +45,6 @@ const AMBIENCES = [
     label: "Plage futuriste",
     videoId: "u9vK5utTcxE",
     desc: "Horizon laiteux, brise légère, sons d'océan.",
-  },
-  {
-    id: "rainy_apartment" as const,
-    label: "Appartement Pluvieux",
-    videoId: "-5_NiRTS2nE",
-    desc: "Pluie contre la vitre, ambiance cosy et introspective.",
   },
 ];
 type AmbienceId = typeof AMBIENCES[number]['id'];
@@ -335,7 +329,8 @@ function WorkBrief() {
 
 function FocusModalContent() {
     const [tasks] = useLocalState<Task[]>("xinspire.tasks", []);
-    const [brief] = useLocalState("xinspire.brief", { title: '', why: '', how: '', first: '' });
+    const [brief, setBrief] = useLocalState<{ title: string; why: string; how: string; first: string }>("xinspire.brief", { title: '', why: '', how: '', first: '' });
+
 
     return (
         <DialogContent className="glass-card max-w-2xl text-white">
@@ -399,9 +394,11 @@ function WorkTimer({ minutes, onEnd }: { minutes: number|null; onEnd: ()=>void }
     return (
       <Dialog open={isFocusModalOpen} onOpenChange={setIsFocusModalOpen}>
         <DialogTrigger asChild>
-           <div className="fixed top-4 right-4 z-30">
-              <div
+           <div
                 role="button"
+                className="fixed top-4 right-4 z-30"
+            >
+              <div
                 className="px-4 py-2 cursor-pointer hover:bg-white/15 transition-colors rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg"
               >
                 <div className="text-xs uppercase tracking-wider text-white/70 flex items-center gap-1.5">
@@ -540,7 +537,7 @@ export default function XInspireEnvironment() {
   const [hasInteracted, setHasInteracted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   
-  const [ambience, setAmbience] = useState<AmbienceId>("forest");
+  const [ambience, setAmbience] = useState<AmbienceId>("rainy_apartment");
   const [panelOpen, setPanelOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const isMutedRef = useRef(isMuted);
@@ -846,6 +843,7 @@ export default function XInspireEnvironment() {
     </div>
   );
 }
+
 
 
 
