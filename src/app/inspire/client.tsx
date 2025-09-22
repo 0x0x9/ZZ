@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Music, Pause, X, NotebookPen, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
@@ -559,49 +559,42 @@ export default function XInspireEnvironment() {
   const cur = useMemo(() => AMBIENCES.find(a => a.id === ambience)!, [ambience]);
 
   const handleAmbienceChange = useCallback((newAmbienceId: AmbienceId) => {
-    // Débloque l’audio si première interaction
     if (!hasInteracted) {
         setHasInteracted(true);
         setIsMuted(false);
     }
-
     setAmbience(newAmbienceId);
     const targetId = AMBIENCES.find(a => a.id === newAmbienceId)!.videoId;
-
-    // Player prêt → on change vraiment la vidéo
     const p = playerRef.current;
     try {
         if (p?.loadPlaylist) {
-        // boucle fiable via playlist d’un seul ID
-        p.loadPlaylist({ playlist: [targetId], index: 0 });
-        if (!isMuted) p.unMute();
-        p.playVideo?.();
+            p.loadPlaylist({ playlist: [targetId], index: 0 });
         } else if (p?.loadVideoById) {
-        // fallback
-        p.loadVideoById({ videoId: targetId, startSeconds: 0, suggestedQuality: 'hd1080' });
-        if (!isMuted) p.unMute();
-        p.playVideo?.();
+            p.loadVideoById({ videoId: targetId });
         }
-    } catch {
-        // Si le player n’est pas prêt, l’effet useEffect recréera avec le bon ID
-    }
-    }, [hasInteracted, isMuted]);
+    } catch {}
+  }, [hasInteracted]);
   
   const toggleMute = useCallback(() => {
     if (!hasInteracted) {
         setHasInteracted(true);
+        setIsMuted(false); // Unmute on first interaction
+        return;
     };
     setIsMuted(m => {
-        const newMuted = !m;
+        const newMutedState = !m;
         if (playerRef.current) {
             try {
-                if (newMuted) playerRef.current.mute();
-                else playerRef.current.unMute();
+                if (newMutedState) {
+                    playerRef.current.mute();
+                } else {
+                    playerRef.current.unMute();
+                }
             } catch (e) {
                 console.error("Mute/unmute failed", e);
             }
         }
-        return newMuted;
+        return newMutedState;
     });
   }, [hasInteracted]);
   
@@ -689,25 +682,25 @@ export default function XInspireEnvironment() {
       
       {/* Ambience Controller (en haut à gauche) */}
        <div className="fixed left-6 top-6 z-30">
-        <Popover open={ambPopoverOpen} onOpenChange={setAmbPopoverOpen}>
+          <Popover open={ambPopoverOpen} onOpenChange={setAmbPopoverOpen}>
             <PopoverTrigger asChild>
-            <button
+              <button
                 type="button"
                 className="px-4 py-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg cursor-pointer transition-all hover:border-white/40"
                 aria-haspopup="dialog"
                 aria-expanded={ambPopoverOpen}
-            >
+              >
                 <div className="text-xs uppercase tracking-wider text-white/70">Ambiance</div>
                 <div className="text-base font-semibold flex items-center gap-2">
-                <Sparkles className="h-4 w-4" /> {cur.label}
+                  <Sparkles className="h-4 w-4" /> {cur.label}
                 </div>
-            </button>
+              </button>
             </PopoverTrigger>
 
             <PopoverContent
             align="start"
             className="w-60 p-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl"
-            onClick={(e) => e.stopPropagation()} // ✅ évite une fermeture involontaire
+            onClick={(e) => e.stopPropagation()}
             >
             <div className="space-y-2">
                 {/* Toggle son */}
@@ -727,9 +720,9 @@ export default function XInspireEnvironment() {
                     <button
                     key={a.id}
                     onClick={(e) => {
-                        e.stopPropagation(); // ✅ garde le popover ouvert
+                        e.stopPropagation();
                         handleAmbienceChange(a.id);
-                        setAmbPopoverOpen(false); // 👈 ferme après action
+                        setAmbPopoverOpen(false);
                     }}
                     className={cn(
                         "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
