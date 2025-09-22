@@ -1,9 +1,12 @@
+
 'use client';
 
 import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, FolderOpen, X, MessageSquare, CheckSquare, BookOpen, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 type WindowType = 'chat' | 'brief' | 'tasks' | 'render';
 type ProjectWindow = {
@@ -119,82 +122,86 @@ export function ProjectDock({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -360, opacity: 0 }}
             transition={{ type:'spring', stiffness: 240, damping: 30 }}
-            className="fixed left-0 top-0 h-full w-[320px] z-40"
+            className="fixed left-0 top-0 h-full w-[340px] z-40"
           >
-            {/* Halo / verre */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-2xl border-r border-white/15 shadow-2xl"/>
+             <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-2xl border-r border-white/15 shadow-2xl overflow-hidden">
+                <div className="absolute -right-24 top-20 w-72 h-72 rounded-full blur-3xl opacity-30"
+                    style={{ background: 'radial-gradient(circle at center, #7dd3fc 0%, transparent 70%)' }}/>
+                <div className="absolute -right-16 top-72 w-56 h-56 rounded-full blur-3xl opacity-20"
+                    style={{ background: 'radial-gradient(circle at center, #e879f9 0%, transparent 70%)' }}/>
+            </div>
             
             <div className="relative h-full flex flex-col text-white">
               {/* Header */}
-              <div className="flex items-center justify-between p-3">
+              <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-2">
                   <div className="h-2.5 w-2.5 rounded-full" style={{background: 'radial-gradient(closest-side, #8ED0FF, transparent)'}}/>
-                  <span className="font-semibold">Projets</span>
+                  <span className="font-semibold text-lg">Projets</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <select
                     value={filter}
                     onChange={e=>setFilter(e.target.value as any)}
-                    className="text-xs bg-white/10 border border-white/20 rounded-lg px-2 py-1"
+                    className="text-xs bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-white/50"
                   >
                     <option value="recent">Récent</option>
                     <option value="alpha">A-Z</option>
                   </select>
-                  <button onClick={()=>onOpenChange(false)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-4 h-4"/></button>
+                  <Button onClick={()=>onOpenChange(false)} size="icon" variant="ghost" className="w-8 h-8 rounded-lg hover:bg-white/10"><X className="w-4 h-4"/></Button>
                 </div>
               </div>
 
               {/* Create */}
-              <div className="px-3">
+              <div className="px-4 mb-2">
                 {!creating ? (
                   <button
                     onClick={()=>setCreating(true)}
-                    className="w-full flex items-center justify-center gap-2 text-sm rounded-xl border border-white/20 bg-white/10 hover:bg-white/15 py-2">
+                    className="w-full flex items-center justify-center gap-2 text-sm rounded-xl border-2 border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 py-3 transition-colors"
+                  >
                     <Plus className="w-4 h-4"/> Nouveau projet
                   </button>
                 ) : (
                   <div className="flex gap-2">
-                    <input
-                      className="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm outline-none"
+                    <Input
+                      autoFocus
+                      className="flex-1 bg-white/10 border-white/20 rounded-xl px-3 py-2 text-sm outline-none h-auto"
                       placeholder="Nom du projet"
                       value={name}
                       onChange={e=>setName(e.target.value)}
                       onKeyDown={e=>e.key==='Enter' && createProject()}
                     />
-                    <button onClick={createProject} className="px-3 rounded-xl border border-white/20 bg-white/10 hover:bg-white/15">OK</button>
-                    <button onClick={()=>{setCreating(false); setName('');}} className="px-3 rounded-xl border border-white/20 bg-white/10 hover:bg-white/15">Annuler</button>
+                    <Button onClick={createProject} size="sm" variant="secondary">Créer</Button>
+                    <Button onClick={()=>{setCreating(false); setName('');}} size="sm" variant="ghost">Annuler</Button>
                   </div>
                 )}
               </div>
 
               {/* List */}
-              <div className="mt-3 overflow-y-auto no-scrollbar px-2 pb-6 space-y-3">
+              <div className="flex-1 mt-2 overflow-y-auto no-scrollbar px-4 pb-6 space-y-3">
                 {sorted.map(p=>(
-                  <div key={p.id} className="rounded-2xl border border-white/15 bg-white/5">
+                  <div key={p.id} className="group/project rounded-2xl border border-white/15 bg-white/5 p-1 transition-all duration-300 hover:border-white/30 hover:bg-white/10">
                     <div className="p-3 pb-2 flex items-center justify-between">
-                      <div className="font-medium">{p.name}</div>
-                      <div className="flex items-center gap-2">
+                      <div className="font-medium text-base">{p.name}</div>
+                      <div className="flex items-center gap-2 opacity-0 group-hover/project:opacity-100 transition-opacity">
                         <button
                           onClick={()=>quickCapture(p.id)}
                           className="text-xs underline opacity-80 hover:opacity-100">
                           Snapshot
                         </button>
                         <label className="text-xs underline opacity-80 hover:opacity-100 cursor-pointer">
-                          Ajouter rendu
+                          Ajouter
                           <input type="file" accept="image/*" multiple hidden onChange={e=>handleUpload(p.id, e.target.files)} />
                         </label>
                       </div>
                     </div>
 
-                    {/* Actions rapides liées */}
                     <div className="px-3 pb-2 flex flex-wrap gap-2">
-                      <DockLink icon={<MessageSquare className="w-3.5 h-3.5"/>} onClick={()=>onJump('chat')}>Ouvrir Oria</DockLink>
+                      <DockLink icon={<MessageSquare className="w-3.5 h-3.5"/>} onClick={()=>onJump('chat')}>Oria</DockLink>
                       <DockLink icon={<CheckSquare className="w-3.5 h-3.5"/>} onClick={()=>onJump('tasks')}>Tâches</DockLink>
                       <DockLink icon={<BookOpen className="w-3.5 h-3.5"/>} onClick={()=>onJump('brief')}>Brief</DockLink>
                       <DockLink icon={<LinkIcon className="w-3.5 h-3.5"/>} onClick={()=>onJump('ambience', { id: currentAmbienceId })}>Ambiance</DockLink>
                     </div>
 
-                    {/* Fenêtres / snapshots */}
                     <div className="grid grid-cols-2 gap-2 p-2">
                       {p.windows.map(w=>(
                         <button
@@ -204,12 +211,12 @@ export function ProjectDock({
                             else if (w.type==='tasks') onJump('tasks');
                             else if (w.type==='brief') onJump('brief');
                           }}
-                          className="group rounded-xl border border-white/15 bg-white/5 overflow-hidden text-left"
+                          className="group/window rounded-xl border border-white/15 bg-white/5 overflow-hidden text-left hover:border-white/30"
                           title={w.title}
                         >
                           <div className="relative aspect-video bg-black/30">
                             {w.snapshot ? (
-                              <img src={w.snapshot} alt="" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"/>
+                              <img src={w.snapshot} alt="" className="w-full h-full object-cover opacity-90 group-hover/window:opacity-100 transition-opacity"/>
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-white/60">
                                 {w.type==='render' ? <ImageIcon className="w-5 h-5"/> :
@@ -220,7 +227,7 @@ export function ProjectDock({
                             )}
                             <button
                               onClick={(e)=>{ e.stopPropagation(); removeWindow(p.id, w.id); }}
-                              className="absolute top-1 right-1 p-1 rounded-md bg-black/40 hover:bg-black/60">
+                              className="absolute top-1 right-1 p-1 rounded-md bg-black/40 hover:bg-black/60 opacity-0 group-hover/window:opacity-100 transition-opacity">
                               <X className="w-3 h-3"/>
                             </button>
                           </div>
@@ -238,7 +245,7 @@ export function ProjectDock({
 
                 {sorted.length===0 && (
                   <div className="text-center text-white/70 text-sm py-8">
-                    Crée ton premier projet pour regrouper brief, tâches, Oria et rendus.
+                    Créez votre premier projet pour regrouper brief, tâches, Oria et rendus.
                   </div>
                 )}
               </div>
