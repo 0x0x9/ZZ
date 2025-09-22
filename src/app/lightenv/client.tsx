@@ -3,7 +3,7 @@
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
-import { Music, Pause, X, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen } from "lucide-react";
+import { Music, Pause, X, Sparkles, ArrowLeft, MessageSquare, Palette, Image as ImageIconLucide, Timer, CheckSquare, BookOpen, Link as LinkIcon } from "lucide-react";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ProjectDock } from '@/components/ProjectDock';
+import { Input } from "@/components/ui/input";
 
 
 const AMBIENCES = [
@@ -242,6 +243,21 @@ function useLocalState<T>(key: string, initial: T) {
   useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} }, [key, v]);
   return [v, setV] as const;
 }
+
+function useKey(k: string, cb: () => void) {
+  React.useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === k.toLowerCase()) {
+        e.preventDefault();
+        cb();
+      }
+    };
+    window.addEventListener('keydown', on);
+    return () => window.removeEventListener('keydown', on);
+  }, [k, cb]);
+}
+
 
 function WorkTasks({ onStartTimer }: { onStartTimer: (m: number)=>void }) {
   const [tasks, setTasks] = useLocalState<Task[]>("xinspire.tasks", []);
@@ -539,7 +555,221 @@ function OriaChatbot() {
         </div>
       </div>
     );
-  }
+}
+
+function CommandPalette({
+  open, onOpenChange,
+  onRun
+}: {
+  open: boolean;
+  onOpenChange: (v:boolean)=>void;
+  onRun: (cmd: string, payload?: any)=>void;
+}) {
+  const [q, setQ] = useState("");
+  const items = [
+    { id: "ambience", label: "Changer d’ambiance…" },
+    { id: "mute", label: "Activer/désactiver le son" },
+    { id: "oria", label: "Ouvrir Oria (Inspiration)" },
+    { id: "work", label: "Ouvrir Travail (Tâches & Brief)" },
+    { id: "timer_15", label: "Démarrer Focus 15 min" },
+    { id: "timer_30", label: "Démarrer Focus 30 min" },
+    { id: "timer_60", label: "Démarrer Focus 60 min" },
+    { id: "api", label: "Ouvrir API Connect" },
+    { id: "dock", label: "Ouvrir le Dock Projets" },
+  ];
+  const filtered = items.filter(i =>
+    i.label.toLowerCase().includes(q.toLowerCase())
+  );
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[60] flex items-start justify-center pt-24"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={()=>onOpenChange(false)} />
+          <div className="relative w-full max-w-xl mx-auto">
+            <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl shadow-2xl overflow-hidden">
+              <div className="p-3 border-b border-white/10">
+                <input
+                  autoFocus
+                  value={q}
+                  onChange={e=>setQ(e.target.value)}
+                  placeholder="Que voulez-vous faire ?"
+                  className="w-full bg-transparent outline-none text-white placeholder:text-white/60"
+                />
+              </div>
+              <div className="max-h-72 overflow-auto">
+                {filtered.map(i=>(
+                  <button
+                    key={i.id}
+                    onClick={()=>{ onRun(i.id); onOpenChange(false); }}
+                    className="w-full text-left px-4 py-3 hover:bg-white/10 transition-colors"
+                  >
+                    {i.label}
+                  </button>
+                ))}
+                {filtered.length===0 && (
+                  <div className="px-4 py-6 text-white/60 text-sm">Aucune action.</div>
+                )}
+              </div>
+              <div className="px-4 py-2 text-xs text-white/50 border-t border-white/10">Astuce : ⌘/Ctrl + K</div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function ApiConnectPanel({
+  open, onOpenChange
+}: { open: boolean; onOpenChange: (v:boolean)=>void }) {
+  const [conns, setConns] = useLocalState("light.apis", {
+    stripe: false, gumroad: false, shopify: false, patreon: false,
+    notion: false, figma: false, drive: false,
+    openai: true, anthropic: false, gemini: false,
+    runway: false, canva: false, sd: false,
+  });
+
+  const toggle = (k: keyof typeof conns) =>
+    setConns((c:any)=>({ ...c, [k]: !c[k] }));
+
+  const Group: React.FC<{title:string, children:React.ReactNode}> = ({title, children}) => (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-white/60 mb-2">{title}</div>
+      <div className="grid grid-cols-2 gap-2">{children}</div>
+    </div>
+  );
+
+  const Cell: React.FC<{k:keyof typeof conns, label:string}> = ({k, label}) => (
+    <button
+      onClick={()=>toggle(k)}
+      className={cn(
+        "rounded-xl border px-3 py-2 text-left transition-all",
+        conns[k] ? "border-white/40 bg-white/15" : "border-white/20 bg-white/5 hover:border-white/35"
+      )}
+    >
+      <div className="font-medium text-sm">{label}</div>
+      <div className="text-[11px] text-white/60">{conns[k] ? "Connecté" : "Non connecté"}</div>
+    </button>
+  );
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div className="fixed inset-0 z-[55]"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <div className="absolute inset-0 bg-black/40" onClick={()=>onOpenChange(false)} />
+          <div className="absolute left-1/2 top-14 w-[92%] max-w-4xl -translate-x-1/2">
+            <Glass className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-lg font-semibold">API Connect</div>
+                <Button size="sm" variant="secondary" onClick={()=>onOpenChange(false)}>Fermer</Button>
+              </div>
+
+              <div className="grid gap-6">
+                <Group title="Commerce">
+                  <Cell k="stripe" label="Stripe" />
+                  <Cell k="gumroad" label="Gumroad" />
+                  <Cell k="shopify" label="Shopify" />
+                  <Cell k="patreon" label="Patreon" />
+                </Group>
+                <Group title="Organisation">
+                  <Cell k="notion" label="Notion" />
+                  <Cell k="figma" label="Figma" />
+                  <Cell k="drive" label="Google Drive" />
+                </Group>
+                <Group title="IA Générative">
+                  <Cell k="openai" label="OpenAI" />
+                  <Cell k="anthropic" label="Anthropic" />
+                  <Cell k="gemini" label="Google Gemini" />
+                  <Cell k="runway" label="RunwayML" />
+                  <Cell k="canva" label="Canva" />
+                  <Cell k="sd" label="Stable Diffusion" />
+                </Group>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-2">
+                <Button variant="ghost" onClick={()=>onOpenChange(false)}>Plus tard</Button>
+                <Button onClick={()=>onOpenChange(false)}>Sauvegarder</Button>
+              </div>
+            </Glass>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function MonetizePanel() {
+  const [brief] = useLocalState("xinspire.brief", { title:"", why:"", how:"", first:"" });
+  const [pitch, setPitch] = useState<string>("");
+  const [status, setStatus] = useState<"idle"|"gen"|"done">("idle");
+
+  const genPitch = async () => {
+    try {
+      setStatus("gen");
+      // Mock : remplace plus tard par ton /api/generatePitch
+      const p = `TITRE — ${brief.title || "Projet"}\n\nProblème: ${brief.why || "À préciser."}\nSolution: ${brief.how || "Approche créative et différenciante."}\nPremière étape: ${brief.first || "Prototype en 48h."}\nCTA: Rejoignez l’aventure.`;
+      await new Promise(r=>setTimeout(r, 800));
+      setPitch(p);
+      setStatus("done");
+    } catch { setStatus("idle"); }
+  };
+
+  const exportLanding = () => {
+    const html = `<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>${brief.title || "Mon Projet"}</title>
+<style>
+body{margin:0;background:#0b0b0c;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto}
+.hero{height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;
+background:radial-gradient(40% 40% at 50% 30%,rgba(96,165,250,.25),transparent 60%),#0b0b0c}
+h1{font-size:48px;margin:0 0 8px}
+p{opacity:.8;max-width:720px;text-align:center}
+.cta{margin-top:24px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);padding:12px 16px;border-radius:999px;color:#fff;text-decoration:none}
+</style></head>
+<body><div class="hero"><h1>${brief.title || "Mon Projet"}</h1>
+<p>${brief.why || "Pourquoi maintenant ?"} — ${brief.how || "Comment on s'y prend."}</p>
+<a class="cta" href="#">Me tenir informé(e)</a></div></body></html>`;
+    const blob = new Blob([html], {type:"text/html"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "landing.html"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <Glass className="p-4">
+        <div className="font-semibold mb-2">Pitch deck (auto)</div>
+        <p className="text-sm text-white/70 mb-3">Génère un pitch de base à partir du brief. Tu pourras itérer ensuite.</p>
+        <div className="flex gap-2">
+          <Button onClick={genPitch} disabled={status==="gen"}>{status==="gen" ? "Génération…" : "Générer un pitch"}</Button>
+          <Button variant="secondary" onClick={exportLanding}>Exporter Landing</Button>
+        </div>
+        <Textarea rows={10} value={pitch} onChange={e=>setPitch(e.target.value)} className="mt-3 bg-white/10 border-white/20" placeholder="Ton pitch apparaîtra ici..." />
+      </Glass>
+
+      <Glass className="p-4">
+        <div className="font-semibold mb-2">Connecter pour vendre</div>
+        <p className="text-sm text-white/70">Active tes connecteurs dans “API Connect” puis publie.</p>
+        <div className="grid gap-2 mt-3">
+          <button className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-left hover:bg-white/15">
+            Publier sur Gumroad (bientôt)
+          </button>
+          <button className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-left hover:bg-white/15">
+            Créer un produit Stripe (bientôt)
+          </button>
+          <button className="rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-left hover:bg-white/15">
+            Shop Shopify (bientôt)
+          </button>
+        </div>
+      </Glass>
+    </div>
+  );
+}
+
 
 export default function LightEnvClient() {
   const [mounted, setMounted] = useState(false);
@@ -552,10 +782,15 @@ export default function LightEnvClient() {
   
   const [dockOpen, setDockOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ambience' | 'oria' | 'work'>('ambience');
+  const [activeTab, setActiveTab] = useState<'ambience' | 'oria' | 'work' | 'market'>('ambience');
   
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
   const [ambPopoverOpen, setAmbPopoverOpen] = useState(false);
+  
+  const [cmdOpen, setCmdOpen] = useState(false);
+  const [apiOpen, setApiOpen] = useState(false);
+
+  useKey("k", () => setCmdOpen(v=>!v));
 
   useEffect(() => { setMounted(true); }, []);
   
@@ -665,6 +900,18 @@ export default function LightEnvClient() {
       setActiveTab('ambience');
     }
   }, []);
+
+  const runCommand = useCallback((cmd: string) => {
+    if (cmd==="ambience") { setPanelOpen(true); setActiveTab('ambience'); return; }
+    if (cmd==="mute") { toggleMute(); return; }
+    if (cmd==="oria") { setPanelOpen(true); setActiveTab('oria'); return; }
+    if (cmd==="work") { setPanelOpen(true); setActiveTab('work'); return; }
+    if (cmd==="timer_15") { setActiveTimer(15); return; }
+    if (cmd==="timer_30") { setActiveTimer(30); return; }
+    if (cmd==="timer_60") { setActiveTimer(60); return; }
+    if (cmd==="api") { setApiOpen(true); return; }
+    if (cmd==="dock") { setDockOpen(true); return; }
+  }, [toggleMute]);
 
   if (!mounted) return null;
 
@@ -814,10 +1061,11 @@ export default function LightEnvClient() {
                 </div>
 
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full mt-4">
-                  <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
+                  <TabsList className="grid w-full grid-cols-4 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
                     <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
                     <TabsTrigger value="work" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">🛠 Travail</TabsTrigger>
+                    <TabsTrigger value="market" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10">💰 Monetize</TabsTrigger>
                   </TabsList>
                   <TabsContent value="ambience" className="mt-4">
                     <div className="flex items-center justify-between">
@@ -850,6 +1098,9 @@ export default function LightEnvClient() {
                         <WorkBrief />
                     </div>
                     </TabsContent>
+                    <TabsContent value="market" className="mt-4">
+                      <MonetizePanel />
+                    </TabsContent>
                 </Tabs>
               </Glass>
             </div>
@@ -857,6 +1108,8 @@ export default function LightEnvClient() {
         )}
       </AnimatePresence>
        <WorkTimer minutes={activeTimer} onEnd={()=>setActiveTimer(null)} />
+       <CommandPalette open={cmdOpen} onOpenChange={setCmdOpen} onRun={runCommand} />
+       <ApiConnectPanel open={apiOpen} onOpenChange={setApiOpen} />
     </div>
   );
 }
