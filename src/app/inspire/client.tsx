@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
@@ -19,6 +18,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ProjectDock } from '@/components/ProjectDock';
 
 
 const AMBIENCES = [
@@ -514,9 +514,11 @@ export default function XInspireEnvironment() {
   useEffect(() => { setMounted(true); }, []);
   
   const [ambience, setAmbience] = useState<AmbienceId>("rainy_apartment");
+  const [dockOpen, setDockOpen] = React.useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isSwitching, setIsSwitching] = useState(false);
+  const [activeTab, setActiveTab] = React.useState<'ambience' | 'oria' | 'work'>('ambience');
   
   const playerRef = useRef<any>(null);
   const [activeTimer, setActiveTimer] = useState<number|null>(null);
@@ -562,22 +564,12 @@ export default function XInspireEnvironment() {
     });
   }, [hasInteracted]);
   
-  useEffect(() => {
-    if (!mounted) return;
-
-    const onPlayerReady = (event: any) => {
-        if (isMuted) event.target.mute();
-        else event.target.unMute();
-        event.target.playVideo();
-    };
-
-    const onPlayerStateChange = (e: any) => {
-        if (e.data === (window as any).YT.PlayerState.PLAYING) {
-          setIsSwitching(false);
-        }
-    };
-  
-    const createPlayer = (videoId: string) => {
+    const createPlayer = useCallback((videoId: string) => {
+      if (playerRef.current) {
+        try {
+            playerRef.current.destroy();
+        } catch {}
+      }
       playerRef.current = new (window as any).YT.Player('youtube-player', {
         width: '100%',
         height: '100%',
@@ -593,11 +585,22 @@ export default function XInspireEnvironment() {
           playsinline: 1
         },
         events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange,
+          onReady: (event: any) => {
+            if (isMuted) event.target.mute();
+            else event.target.unMute();
+            event.target.playVideo();
+          },
+          onStateChange: (e: any) => {
+            if (e.data === (window as any).YT.PlayerState.PLAYING) {
+              setIsSwitching(false);
+            }
+          }
         }
       });
-    }
+    }, [isMuted]);
+
+  useEffect(() => {
+    if (!mounted) return;
 
     if (typeof (window as any).YT === 'undefined' || typeof (window as any).YT.Player === 'undefined') {
         const tag = document.createElement('script');
@@ -606,13 +609,10 @@ export default function XInspireEnvironment() {
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
         (window as any).onYouTubeIframeAPIReady = () => createPlayer(cur.videoId);
     } else {
-        if (playerRef.current) {
-            // Player exists, just load new video
-        } else {
-            createPlayer(cur.videoId);
-        }
+        createPlayer(cur.videoId);
     }
-  }, [mounted]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, createPlayer]);
 
   useEffect(() => {
     try {
@@ -628,6 +628,22 @@ export default function XInspireEnvironment() {
       localStorage.setItem("xinspire.ambience", ambience);
     } catch {}
   }, [ambience]);
+
+  // jump centralisé depuis le dock
+  const handleJump = React.useCallback((
+    target: 'chat'|'work'|'brief'|'tasks'|'ambience',
+    payload?: any
+  )=>{
+    setPanelOpen(true);
+    if (target==='chat')   setActiveTab('oria');
+    if (target==='tasks')  setActiveTab('work');
+    if (target==='brief')  setActiveTab('work');
+    if (target==='ambience') {
+      setActiveTab('ambience');
+      // éventuellement: changer d'ambiance si payload.id
+      // if (payload?.id) handleAmbienceChange(payload.id);
+    }
+  }, []);
 
   if (!mounted) return null;
 
@@ -706,6 +722,14 @@ export default function XInspireEnvironment() {
             </PopoverContent>
         </Popover>
         </div>
+      
+      {/* Dock latéral (ouvre des liens vers tes sections) */}
+      <ProjectDock
+        open={dockOpen}
+        onOpenChange={setDockOpen}
+        onJump={handleJump}
+        currentAmbienceId={ambience}
+      />
 
       {/* Overlay d’activation */}
       <AnimatePresence>
@@ -771,7 +795,7 @@ export default function XInspireEnvironment() {
                   <Pill onClick={() => setPanelOpen(false)} icon={<X className="h-4 w-4" />}>Fermer</Pill>
                 </div>
 
-                <Tabs defaultValue="ambience" className="w-full mt-4">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full mt-4">
                   <TabsList className="grid w-full grid-cols-3 bg-white/5 border border-white/10">
                     <TabsTrigger value="ambience" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><Palette className="mr-2 h-4 w-4"/>Ambiance</TabsTrigger>
                     <TabsTrigger value="oria" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/10"><MessageSquare className="mr-2 h-4 w-4"/>Inspiration</TabsTrigger>
