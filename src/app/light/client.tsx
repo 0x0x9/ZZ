@@ -1,13 +1,13 @@
+
 'use client';
 
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Webhook, DollarSign, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { copy } from './copy';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 const AnimatedSection = ({ children, className }: { children: React.ReactNode, className?: string }) => {
     const ref = useRef(null);
@@ -41,7 +41,7 @@ const HeroSection = () => (
             <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">{copy.hero.paragraph}</p>
             <div className="mt-10 flex gap-4 justify-center">
                 <Button size="lg" asChild>
-                    <Link href="/xos?open=light">{copy.hero.ctaPrimary}</Link>
+                    <Link href="/lightenv">{copy.hero.ctaPrimary}</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                     <Link href="#features">{copy.hero.ctaSecondary}</Link>
@@ -147,7 +147,7 @@ const CredoSection = () => (
             <p className="mt-6 text-xl md:text-2xl text-muted-foreground whitespace-pre-line">{copy.credo.p}</p>
             <div className="mt-10">
                 <Button size="lg" asChild>
-                    <Link href="/xos?open=light">{copy.credo.cta}</Link>
+                    <Link href="/lightenv">{copy.credo.cta}</Link>
                 </Button>
             </div>
         </AnimatedSection>
